@@ -4,7 +4,6 @@
 #define B1 0b0001
 
 volatile bool clickStarted = false;
-volatile bool on = true;
 
 // TODO: use clock for consistent hold times, counter can be influenced by different mode delays
 volatile int heldCounter = 0;
@@ -17,24 +16,29 @@ void setup() {
   DDRB = 0b0001;  // set pin 1 as output
   PUEB = 0b1110;  // pullups on input pin 2, as well as 3,4 (unused)
 
-  PCICR = 0b00000001;      // Pin Change Interrupt Control Register set to enable PCINT Interrupt
-  PCMSK |= (1 << PCINT2);  // Select pins for interrupt, pb2 in this case.
+  // Set interrupt on button press
+  EIMSK |= (1 << INT0);                 // Enable INT0 as interrupt vector
+  EICRA = (0 << ISC01) | (0 << ISC00);  // Low level on INT0 generates an interrupt request
+
+  TCCR0A = 0; // unset bits for clock
+  TCCR0B = (1 << CS00) | (1 << WGM02); // set up clock to have no prescaling and to have Clear Timer on Compare
+  OCR0A = 50000; // set Output Compare A value, will count to that value, call the interrupt, then count will reset to 0
+  TIMSK0 |= (1 << OCIE0A); // enable Output Compare A Match interrupt
 
   sei();  // Enable interrupts
 }
 
 void loop() {
-  if (!on) {
-    turnOff();
-  }
-
+  __asm__("nop");  // let sync happen so pin can be read
+  __asm__("nop");
+  __asm__("nop");
   bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
   // checking if held until power off
   if (clickStarted && buttonCurrentlyDown) {
     heldCounter += 1;
-    if (heldCounter > 50) {
-      on = false;
+    if (heldCounter > 600) {
+      shutdown();
       return;
     }
   }
@@ -47,50 +51,54 @@ void loop() {
     if (mode > 2) {
       mode = 0;
     }
+
+    if (mode == 0) {
+      OCR0A = 50000;  //todo: turn clock off full power?
+    } else if (mode == 1) {
+      OCR0A = 16000;
+    } else if (mode == 2) {
+      OCR0A = 7000;
+    }
+
+    sei();  // enable interrupts
   }
 
-  if (mode == 0) {
-    // max power
-    PORTB |= B1;  //  Set GPIO1 to HIGH
-    _delay_ms(40);
-  } else if (mode == 1) {
-    PORTB &= ~B1;  //  Set GPIO1 to LOW
-    _delay_ms(1);
-    PORTB |= B1;  //  Set GPIO1 to HIGH
-    _delay_ms(20);
-  } else if (mode == 2) {
-    PORTB &= ~B1;  //  Set GPIO1 to LOW
-    _delay_ms(1);
-    PORTB |= B1;  //  Set GPIO1 to HIGH
-    _delay_ms(11);
-  }
+  PORTB |= B1;  //  Set GPIO1 to HIGH
 }
 
-// invoked from pin change interupt (switch on PB2), when logic level changes
-ISR(PCINT0_vect) {
-  if (!on) {
-    return;
-  }
+ISR(INT0_vect) {
+  cli();
 
+  __asm__("nop");  // let sync happen so pin can be read
+  __asm__("nop");
+  __asm__("nop");
   bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
-  if (heldCounter > 50 && !buttonCurrentlyDown) {
-    // releasing button, can trigger wake, turn back off
-    on = false;
-  } else if (!clickStarted && buttonCurrentlyDown) {
-    heldCounter = 0;
-    clickStarted = true;
+  clickStarted = buttonCurrentlyDown;
+  if (!clickStarted) {
+    sei();
   }
 }
 
-void turnOff() {
+ISR(TIM0_COMPA_vect) {
   PORTB &= ~B1;  //  Set GPIO1 to LOW
-  sleep_mode();
+  _delay_ms(1); // delay long enough for led to register low level and reset
+}
 
-  // will start executing here when coming out of sleep, re-init.
-  _delay_ms(100);  // prevent race case of interrupt from releasing button after powering off, and heldCounter being set to 0 then waking back up again due to the interrupt.
-  mode = -1;
+void shutdown() {
+  TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match interrupt
+
+  PORTB &= ~B1;    //  Set GPIO1 to LOW
+  cli();           // disable interrupts
+  _delay_ms(600);  // user lets go during this interval
+  sei();           // enable interrupts
+  sleep_mode();    // sleep
+
+  // reset after sleep finished
   clickStarted = false;
   heldCounter = 0;
-  on = true;
+  mode = 0;
+
+
+  TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match interrupt
 }
