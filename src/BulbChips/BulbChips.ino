@@ -5,7 +5,7 @@
 
 volatile bool clickStarted = false;
 
-volatile int heldCounter = 3000;
+volatile int heldCounter = 0;
 
 volatile int clockCount = 0;
 
@@ -44,15 +44,15 @@ void loop() {
 
     if (buttonCurrentlyDown) {
       heldCounter += 1;
-      if (heldCounter > 18000) {
+      if (heldCounter > 20000) {
         shutdown();
       }
     } else {
       heldCounter -= 1;
-      if (heldCounter <= 0) {
+      if (heldCounter < -2000) {
         mode += 1;
         clickStarted = false;
-        heldCounter = 3000;
+        heldCounter = 0;
         if (mode > 2) {
           mode = 0;
         }
@@ -86,12 +86,10 @@ ISR(TIM0_COMPA_vect) {
 void shutdown() {
   cli();            // disable interrupts
   PORTB &= ~B1;     //  Set GPIO1 to LOW
+  clickStarted = false;
+  heldCounter = 0;
+  mode = 0;
   _delay_ms(2000);  // user lets go during this interval
   sei();            // enable interrupts
   sleep_mode();     // sleep
-
-  // reset after sleep finished
-  clickStarted = false;
-  heldCounter = 3000;
-  mode = 0;
 }
