@@ -47,9 +47,9 @@ void loop() {
       buttonDownCounter -= 10;  // Large decrement to allow any hold time to "discharge" quickly.
       if (buttonDownCounter < -200) {
         // Button clicked and released.
-        mode += 1;
         clickStarted = false;
         buttonDownCounter = 0;
+        mode += 1;
         if (mode > 3) {
           mode = 0;
         }
