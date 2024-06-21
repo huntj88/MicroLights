@@ -23,7 +23,7 @@ void setup() {
   TCCR0A = 0;                                                       // unset bits for clock
   TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00) | (1 << WGM02);  // set up clock to have /64 prescaling and to have Clear Timer on Compare
   OCR0A = 50;                                                       // set Output Compare A value, will count to that value, call the interrupt, then count will reset to 0
-  TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match interrupt
+  TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match clock interrupt
 
   sei();  // Enable interrupts
 }
@@ -48,7 +48,7 @@ void loop() {
         mode += 1;
         clickStarted = false;
         heldCounter = 0;
-        if (mode > 2) {
+        if (mode > 3) {
           mode = 0;
         }
         EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
@@ -56,9 +56,7 @@ void loop() {
     }
   }
 
-  PORTB |= B1;  //  Set GPIO1 to HIGH
-
-  // put CPU to into idle mode until clock interrupt checks to see if LED needs to be turned off for 1ms
+  // put CPU to into idle mode until clock interrupt sets led high/low state before releasing control back to main loop.
   set_sleep_mode(SLEEP_MODE_IDLE);
   sleep_mode();
 }
@@ -68,13 +66,16 @@ void shutdown() {
   PORTB &= ~B1;  // Set GPIO1 to LOW
   clickStarted = false;
   heldCounter = 0;
-  mode = -1;             // click started on wakeup from button intterupt, will increment to mode 0 in main loop.
-  _delay_ms(1000);       // user lets go during this interval
-  EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+  mode = -1;                 // click started on wakeup from button intterupt, will increment to mode 0 in main loop.
+  
+  _delay_ms(1000);           // user lets go during this interval
 
+  TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
+  EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  sei();         // enable interrupts
-  sleep_mode();  // sleep
+  sei();                    // enable interrupts
+  sleep_mode();             // sleep
+  TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
 }
 
 ISR(INT0_vect) {
@@ -84,15 +85,27 @@ ISR(INT0_vect) {
 int clockCount = 0;  // only used in the scope TIM0_COMPA_vect to track how many times we get a clock interrupt.
 ISR(TIM0_COMPA_vect) {
   clockCount += 1;
+
+  // set led output to high every clock count, may be set to low to turn led off before high takes effect
+  PORTB |= B1;  //  Set GPIO1 to HIGH
+
   if (mode == 1 && clockCount > 5) {
     PORTB &= ~B1;  //  Set GPIO1 to LOW
     clockCount = 0;
-    _delay_ms(1);  // delay long enough for led to register low level and reset
   }
 
   if (mode == 2 && clockCount > 2) {
     PORTB &= ~B1;  //  Set GPIO1 to LOW
     clockCount = 0;
-    _delay_ms(1);  // delay long enough for led to register low level and reset
+  }
+
+  if (mode == 3) {
+    if (clockCount > 8) {
+      PORTB &= ~B1;  //  Set GPIO1 to LOW
+    }
+
+    if (clockCount > 30) {
+      clockCount = 0;
+    }
   }
 }
