@@ -6,7 +6,7 @@
 volatile bool clickStarted = false;
 volatile int mode = 0;
 
-int heldCounter = 0;
+int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
 
 void setup() {
   CCP = 0xD8;                                                              // set up ccp to change clock settings
@@ -38,16 +38,18 @@ void loop() {
     bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
     if (buttonCurrentlyDown) {
-      heldCounter += 1;
-      if (heldCounter > 200) {
+      buttonDownCounter += 1;
+      if (buttonDownCounter > 200) {
+        // Hold button down to shut down.
         shutdown();
       }
     } else {
-      heldCounter -= 10;  // large decrement to allow any hold time to "discharge" quickly.
-      if (heldCounter < -200) {
+      buttonDownCounter -= 10;  // Large decrement to allow any hold time to "discharge" quickly.
+      if (buttonDownCounter < -200) {
+        // Button clicked and released.
         mode += 1;
         clickStarted = false;
-        heldCounter = 0;
+        buttonDownCounter = 0;
         if (mode > 3) {
           mode = 0;
         }
@@ -65,10 +67,10 @@ void shutdown() {
   cli();         // disable interrupts
   PORTB &= ~B1;  // Set GPIO1 to LOW
   clickStarted = false;
-  heldCounter = 0;
-  mode = -1;                 // click started on wakeup from button intterupt, will increment to mode 0 in main loop.
-  
-  _delay_ms(1000);           // user lets go during this interval
+  buttonDownCounter = 0;
+  mode = -1;  // click started on wakeup from button intterupt, will increment to mode 0 in main loop.
+
+  _delay_ms(1000);  // user lets go during this interval
 
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
   EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
