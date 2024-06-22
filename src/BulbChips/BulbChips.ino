@@ -25,6 +25,8 @@ void setup() {
   OCR0A = 50;                                                       // set Output Compare A value, will count to that value, call the interrupt, then count will reset to 0
   TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match clock interrupt
 
+  ACSR |= (1 << ACD);  // disable Analog Comparator (power savings, module not needed, enabled by default)
+
   sei();  // Enable interrupts
 }
 
@@ -88,7 +90,10 @@ int clockCount = 0;  // only used in the scope TIM0_COMPA_vect to track how many
 ISR(TIM0_COMPA_vect) {
   clockCount += 1;
 
-  // set led output to high every clock count, may be set to low to turn led off before high takes effect
+  // Flashing patterns defined below.
+
+  // Set led output to high every clock count,
+  // may be set to low to turn led off before high takes effect
   PORTB |= B1;  //  Set GPIO1 to HIGH
 
   if (mode == 1 && clockCount > 5) {
