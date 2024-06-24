@@ -183,37 +183,44 @@ ISR(TIM0_COMPA_vect) {
 
   // Flashing patterns defined below.
 
-  // Set led output to high every clock count,
+  // Set led output to high every clock interrupt,
   // may be set to low to turn led off before high takes effect
   PORTB |= B1;  //  Set GPIO1 to HIGH
 
-  if (mode == 1 && clockInterruptCount > 5) {
-    PORTB &= ~B1;  //  Set GPIO1 to LOW
-    clockInterruptCount = 0;
-  }
+  switch (mode) {
+    case 0:
+      break;
 
-  if (mode == 2 && clockInterruptCount > 2) {
-    PORTB &= ~B1;  //  Set GPIO1 to LOW
-    clockInterruptCount = 0;
-  }
+    case 1:
+      if (clockInterruptCount > 5) {
+        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        clockInterruptCount = 0;
+      }
+      break;
 
-  if (mode == 3) {
-    if (clockInterruptCount > 8) {
-      PORTB &= ~B1;  //  Set GPIO1 to LOW
-    }
+    case 2:
+      if (clockInterruptCount > 2) {
+        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        clockInterruptCount = 0;
+      }
+      break;
 
-    if (clockInterruptCount > 30) {
-      clockInterruptCount = 0;
-    }
-  }
+    case 3:
+      if (clockInterruptCount > 8) {
+        PORTB &= ~B1;  //  Set GPIO1 to LOW
+      }
+      if (clockInterruptCount > 30) {
+        clockInterruptCount = 0;
+      }
+      break;
 
-  if (mode == 4) {
-    if (clockInterruptCount % 3 == 0 && clockInterruptCount < 80) {
-      PORTB &= ~B1;  //  Set GPIO1 to LOW
-    }
-
-    if (clockInterruptCount > 100) {
-      clockInterruptCount = 0;
-    }
+    case 4:
+      if (clockInterruptCount % 3 == 0 && clockInterruptCount < 80) {
+        PORTB &= ~B1;  //  Set GPIO1 to LOW
+      }
+      if (clockInterruptCount > 100) {
+        clockInterruptCount = 0;
+      }
+      break;
   }
 }
