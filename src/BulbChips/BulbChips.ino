@@ -38,10 +38,11 @@ void setSystemClockSpeed() {
 }
 
 void setUpClockCounterInterrupt() {
-  TCCR0A = 0;                                                       // unset bits for clock
-  TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00) | (1 << WGM02);  // set up clock counter to have fire every 64 system clock cycles (/64 prescaling) and to have Clear Timer on Compare (CTC)
-  OCR0A = 50;                                                       // set Output Compare A value, when clock counter reaches value, call the clock interrupt, then count will reset to 0 (CTC)
-  TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match clock interrupt
+  TCCR0A = 0;                                        // unset bits for clock
+  OCR0A = 50;                                        // set Output Compare A value
+  TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00);  // set up clock counter to increment every 64 system clock cycles (/64 prescaling)
+  TCCR0B |= (1 << WGM02);                            // clear clock counter when counter reaches OCR0A value
+  TIMSK0 |= (1 << OCIE0A);                           // enable Output Compare A Match clock interrupt, the interrupt is called every time the counter counts to the OCR0A value
 }
 
 void loop() {
