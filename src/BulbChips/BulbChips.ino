@@ -5,7 +5,8 @@
 volatile bool clickStarted = false;
 volatile int mode = 0;
 
-int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
+// do nothing, run inputLoop instead.
+void loop() {}
 
 void setup() {
   setSystemClockSpeed();
@@ -22,6 +23,8 @@ void setup() {
   ACSR |= (1 << ACD);  // disable Analog Comparator (power savings, module not needed, enabled by default)
 
   sei();  // Enable interrupts
+
+  inputLoop();
 }
 
 void setSystemClockSpeed() {
@@ -44,39 +47,43 @@ void setUpClockCounterInterrupt() {
   TIMSK0 |= (1 << OCIE0A);                           // enable Output Compare A Match clock interrupt, the interrupt is called every time the counter counts to the OCR0A value
 }
 
-void loop() {
-  if (clickStarted) {
-    // Disable interrupt (INT0) when button is clicked until:
-    // * Interrupt is enabled prior to shutdown.
-    // * The click has ended.
-    EIMSK &= ~(1 << INT0);
+void inputLoop() {
+  int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
+  while (true) {
+    if (clickStarted) {
+      // Disable interrupt (INT0) when button is clicked until:
+      // * Interrupt is enabled prior to shutdown.
+      // * The click has ended.
+      EIMSK &= ~(1 << INT0);
 
-    bool buttonCurrentlyDown = !(PINB & (1 << PB2));
+      bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
-    if (buttonCurrentlyDown) {
-      buttonDownCounter += 1;
-      if (buttonDownCounter > 200) {
-        // Hold button down to shut down.
-        shutdown(false);
-      }
-    } else {
-      buttonDownCounter -= 10;  // Large decrement to allow any hold time to "discharge" quickly.
-      if (buttonDownCounter < -200) {
-        // Button clicked and released.
-        clickStarted = false;
-        buttonDownCounter = 0;
-        mode += 1;
-        if (mode > 4) {
-          mode = 0;
+      if (buttonCurrentlyDown) {
+        buttonDownCounter += 1;
+        if (buttonDownCounter > 200) {
+          buttonDownCounter = 0;
+          // Hold button down to shut down.
+          shutdown(false);
         }
-        EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+      } else {
+        buttonDownCounter -= 10;  // Large decrement to allow any hold time to "discharge" quickly.
+        if (buttonDownCounter < -200) {
+          // Button clicked and released.
+          clickStarted = false;
+          buttonDownCounter = 0;
+          mode += 1;
+          if (mode > 4) {
+            mode = 0;
+          }
+          EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+        }
       }
     }
-  }
 
-  // put CPU to into idle mode until clock interrupt sets led high/low state before releasing control back to main loop.
-  set_sleep_mode(SLEEP_MODE_IDLE);
-  sleep_mode();
+    // put CPU to into idle mode until clock interrupt sets led high/low state before releasing control back to main loop.
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_mode();
+  }
 }
 
 /**
@@ -87,7 +94,7 @@ void loop() {
  * If released at any other point, a normal shutdown occurs.
  */
 bool checkLockSequence() {
-  int buttonDownCounter = 0;
+  int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
 
   bool completed = false;
   bool canceled = false;
@@ -141,10 +148,9 @@ bool checkLockSequence() {
 
 void shutdown(bool wasLocked) {
   clickStarted = false;
-  buttonDownCounter = 0;
 
   bool lock = checkLockSequence();
-  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
+  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
 
   cli();         // disable interrupts
   PORTB &= ~B1;  // Set GPIO1 to LOW
@@ -155,15 +161,12 @@ void shutdown(bool wasLocked) {
   sei();         // enable interrupts
   sleep_mode();  // sleep
 
-  // clock can get weird after awhile?
-  setSystemClockSpeed();
-
   TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
 
   if (lock || wasLocked) {
     EIMSK &= ~(1 << INT0);
     bool unlock = checkLockSequence();
-    mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
+    mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
     if (!unlock) {
       shutdown(true);
     }
@@ -174,9 +177,9 @@ ISR(INT0_vect) {
   clickStarted = true;
 }
 
-int clockCount = 0;  // only used in the scope TIM0_COMPA_vect to track how many times we get a clock interrupt.
+int clockInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to track how many times we get a clock interrupt.
 ISR(TIM0_COMPA_vect) {
-  clockCount += 1;
+  clockInterruptCount += 1;
 
   // Flashing patterns defined below.
 
@@ -184,33 +187,33 @@ ISR(TIM0_COMPA_vect) {
   // may be set to low to turn led off before high takes effect
   PORTB |= B1;  //  Set GPIO1 to HIGH
 
-  if (mode == 1 && clockCount > 5) {
+  if (mode == 1 && clockInterruptCount > 5) {
     PORTB &= ~B1;  //  Set GPIO1 to LOW
-    clockCount = 0;
+    clockInterruptCount = 0;
   }
 
-  if (mode == 2 && clockCount > 2) {
+  if (mode == 2 && clockInterruptCount > 2) {
     PORTB &= ~B1;  //  Set GPIO1 to LOW
-    clockCount = 0;
+    clockInterruptCount = 0;
   }
 
   if (mode == 3) {
-    if (clockCount > 8) {
+    if (clockInterruptCount > 8) {
       PORTB &= ~B1;  //  Set GPIO1 to LOW
     }
 
-    if (clockCount > 30) {
-      clockCount = 0;
+    if (clockInterruptCount > 30) {
+      clockInterruptCount = 0;
     }
   }
 
   if (mode == 4) {
-    if (clockCount % 3 == 0 && clockCount < 80) {
+    if (clockInterruptCount % 3 == 0 && clockInterruptCount < 80) {
       PORTB &= ~B1;  //  Set GPIO1 to LOW
     }
 
-    if (clockCount > 100) {
-      clockCount = 0;
+    if (clockInterruptCount > 100) {
+      clockInterruptCount = 0;
     }
   }
 }
