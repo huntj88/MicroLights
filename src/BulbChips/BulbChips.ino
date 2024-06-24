@@ -81,8 +81,8 @@ void loop() {
 
 /**
  * Lock and unlock sequence.
- * flashes: blank -> mode 1 -> blank -> mode 2. If released on mode 2, the chip will be locked/unlocked.
- * If locked, it will flash mode 1 -> mode 2 in rapid succession.
+ * flashes: blank -> mode 1 -> blank -> mode 2 -> off. If released on mode 2, the chip will be locked/unlocked.
+ * If locked/unlocked successfully, it will flash mode 1 -> mode 2 in rapid succession and then shutdown/wakeup
  *
  * If released at any other point, a normal shutdown occurs.
  */
@@ -103,37 +103,31 @@ bool checkLockSequence() {
       buttonDownCounter -= 5;
     }
 
-    if (canceled || (!completed && buttonDownCounter < 0) || (buttonDownCounter > 0 && buttonDownCounter < 200) || (buttonDownCounter > 400 && buttonDownCounter < 600) || buttonDownCounter > 800) {
+    if (buttonDownCounter > 800) {
+      canceled = true;
+      buttonDownCounter = 800;  // prevent long hold counter during locking sequence
+      OCR0A = 5000;             // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
+    } else {
+      OCR0A = 50;  // set Output Compare A value
+    }
+
+    bool showFirstBlank = buttonDownCounter > 0 && buttonDownCounter < 200;
+    bool showSecondBlank = buttonDownCounter > 400 && buttonDownCounter < 600;
+
+    if (canceled || (!completed && buttonDownCounter < 0) || showFirstBlank || showSecondBlank) {
       PORTB &= ~B1;  // Set GPIO1 to LOW
     }
 
     if (buttonDownCounter > 600) {
+      // button held until mode 2 in lock sequence, release to lock, hold to cancel lock.
+      completed = true;
       mode = 2;
     } else if (buttonDownCounter > 200) {
       mode = 1;
     }
 
-    if (buttonDownCounter > 600) {
-      // button held past shutdown sequence.
-      completed = true;
-    }
-
-    if (buttonDownCounter > 800) {
-      canceled = true;
-    }
-
-    if (buttonDownCounter > 800) {
-      // prevent long hold counter during locking sequence
-      buttonDownCounter = 800;
-
-      // increase the amount of time in idle while button held forever by user accident.
-      OCR0A = 5000;  // set Output Compare A value
-    } else {
-      OCR0A = 50;  // set Output Compare A value
-    }
-
     if (buttonDownCounter < 0 && completed && !canceled) {
-      mode = 2;  // user lets go during mode 2
+      mode = 2;  // part of flashing mode 2 on success
     }
 
     if (buttonDownCounter < -200) {
@@ -147,15 +141,13 @@ bool checkLockSequence() {
 
 void shutdown(bool wasLocked) {
   clickStarted = false;
+  buttonDownCounter = 0;
 
   bool lock = checkLockSequence();
-
-  buttonDownCounter = 0;
+  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
 
   cli();         // disable interrupts
   PORTB &= ~B1;  // Set GPIO1 to LOW
-
-  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
 
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
   EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
@@ -171,6 +163,7 @@ void shutdown(bool wasLocked) {
   if (lock || wasLocked) {
     EIMSK &= ~(1 << INT0);
     bool unlock = checkLockSequence();
+    mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
     if (!unlock) {
       shutdown(true);
     }
