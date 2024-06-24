@@ -9,9 +9,7 @@ volatile int mode = 0;
 int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
 
 void setup() {
-  CCP = 0xD8;                                                              // set up ccp to change clock settings
-  CLKMSR = 0;                                                              // using internal 8mhz oscillator for clock
-  CLKPSR = (1 << CLKPS3) | (0 << CLKPS2) | (0 << CLKPS1) | (0 << CLKPS0);  // clock divided by 256
+  setSystemClockSpeed();
 
   DDRB = 0b0001;  // set pin 1 as output
   PUEB = 0b1110;  // pullups on input pin 2 (button), as well as 3,4 (unused)
@@ -20,14 +18,30 @@ void setup() {
   EIMSK |= (1 << INT0);                 // Enable INT0 as interrupt vector
   EICRA = (0 << ISC01) | (0 << ISC00);  // Low level on INT0 generates an interrupt request
 
-  TCCR0A = 0;                                                       // unset bits for clock
-  TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00) | (1 << WGM02);  // set up clock to have /64 prescaling and to have Clear Timer on Compare
-  OCR0A = 50;                                                       // set Output Compare A value, will count to that value, call the interrupt, then count will reset to 0
-  TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match clock interrupt
+  setUpClockCounterInterrupt();
 
   ACSR |= (1 << ACD);  // disable Analog Comparator (power savings, module not needed, enabled by default)
 
   sei();  // Enable interrupts
+}
+
+void setSystemClockSpeed() {
+  /**
+ * In order to change the contents of a protected I/O register the CCP register must first be written with the correct signature.
+ * After CCP is written the protected I/O registers may be written to during the next four CPU instruction cycles. All interrupts
+ * are ignored during these cycles. After these cycles interrupts are automatically handled again by the CPU, and any pending
+ * interrupts will be executed according to their priority.
+ */
+  CCP = 0xD8;                                                              // write signature to change clock settings
+  CLKMSR = 0;                                                              // using internal 8mhz oscillator for clock
+  CLKPSR = (1 << CLKPS3) | (0 << CLKPS2) | (0 << CLKPS1) | (0 << CLKPS0);  // system clock prescaler. system clock = main clock / 256
+}
+
+void setUpClockCounterInterrupt() {
+  TCCR0A = 0;                                                       // unset bits for clock
+  TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00) | (1 << WGM02);  // set up clock counter to have fire every 64 system clock cycles (/64 prescaling) and to have Clear Timer on Compare (CTC)
+  OCR0A = 50;                                                       // set Output Compare A value, when clock counter reaches value, call the clock interrupt, then count will reset to 0 (CTC)
+  TIMSK0 |= (1 << OCIE0A);                                          // enable Output Compare A Match clock interrupt
 }
 
 void loop() {
@@ -52,7 +66,7 @@ void loop() {
         clickStarted = false;
         buttonDownCounter = 0;
         mode += 1;
-        if (mode > 3) {
+        if (mode > 4) {
           mode = 0;
         }
         EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
@@ -77,8 +91,12 @@ void shutdown() {
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
   EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-  sei();                    // enable interrupts
-  sleep_mode();             // sleep
+  sei();         // enable interrupts
+  sleep_mode();  // sleep
+
+  // clock can get weird after awhile?
+  setSystemClockSpeed();
+
   TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
 }
 
@@ -112,6 +130,16 @@ ISR(TIM0_COMPA_vect) {
     }
 
     if (clockCount > 30) {
+      clockCount = 0;
+    }
+  }
+
+  if (mode == 4) {
+    if (clockCount % 3 == 0 && clockCount < 80) {
+      PORTB &= ~B1;  //  Set GPIO1 to LOW
+    }
+
+    if (clockCount > 100) {
       clockCount = 0;
     }
   }
