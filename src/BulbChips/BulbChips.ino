@@ -1,4 +1,3 @@
-#include <util/delay.h>
 #include <avr/sleep.h>
 
 #define B1 0b0001
@@ -47,7 +46,7 @@ void setUpClockCounterInterrupt() {
 
 void loop() {
   if (clickStarted) {
-    // Disable interrupts (INT0) when button is clicked until:
+    // Disable interrupt (INT0) when button is clicked until:
     // * Interrupt is enabled prior to shutdown.
     // * The click has ended.
     EIMSK &= ~(1 << INT0);
@@ -58,7 +57,7 @@ void loop() {
       buttonDownCounter += 1;
       if (buttonDownCounter > 200) {
         // Hold button down to shut down.
-        shutdown();
+        shutdown(false);
       }
     } else {
       buttonDownCounter -= 10;  // Large decrement to allow any hold time to "discharge" quickly.
@@ -80,14 +79,83 @@ void loop() {
   sleep_mode();
 }
 
-void shutdown() {
+/**
+ * Lock and unlock sequence.
+ * flashes: blank -> mode 1 -> blank -> mode 2. If released on mode 2, the chip will be locked/unlocked.
+ * If locked, it will flash mode 1 -> mode 2 in rapid succession.
+ *
+ * If released at any other point, a normal shutdown occurs.
+ */
+bool checkLockSequence() {
+  int buttonDownCounter = 0;
+
+  bool completed = false;
+  bool canceled = false;
+  while (true) {
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_mode();
+
+    bool buttonCurrentlyDown = !(PINB & (1 << PB2));
+
+    if (buttonCurrentlyDown) {
+      buttonDownCounter += 1;
+    } else {
+      buttonDownCounter -= 5;
+    }
+
+    if (canceled || (!completed && buttonDownCounter < 0) || (buttonDownCounter > 0 && buttonDownCounter < 200) || (buttonDownCounter > 400 && buttonDownCounter < 600) || buttonDownCounter > 800) {
+      PORTB &= ~B1;  // Set GPIO1 to LOW
+    }
+
+    if (buttonDownCounter > 600) {
+      mode = 2;
+    } else if (buttonDownCounter > 200) {
+      mode = 1;
+    }
+
+    if (buttonDownCounter > 600) {
+      // button held past shutdown sequence.
+      completed = true;
+    }
+
+    if (buttonDownCounter > 800) {
+      canceled = true;
+    }
+
+    if (buttonDownCounter > 800) {
+      // prevent long hold counter during locking sequence
+      buttonDownCounter = 800;
+
+      // increase the amount of time in idle while button held forever by user accident.
+      OCR0A = 5000;  // set Output Compare A value
+    } else {
+      OCR0A = 50;  // set Output Compare A value
+    }
+
+    if (buttonDownCounter < 0 && completed && !canceled) {
+      mode = 2;  // user lets go during mode 2
+    }
+
+    if (buttonDownCounter < -200) {
+      // button released after shutdown started or lock sequence, break out of loop, continue shutdown
+      break;
+    }
+  }
+
+  return completed && !canceled;
+}
+
+void shutdown(bool wasLocked) {
+  clickStarted = false;
+
+  bool lock = checkLockSequence();
+
+  buttonDownCounter = 0;
+
   cli();         // disable interrupts
   PORTB &= ~B1;  // Set GPIO1 to LOW
-  clickStarted = false;
-  buttonDownCounter = 0;
-  mode = -1;  // click started on wakeup from button intterupt, will increment to mode 0 in main loop.
 
-  _delay_ms(1000);  // user lets go during this interval
+  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in main loop.
 
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
   EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
@@ -99,6 +167,14 @@ void shutdown() {
   setSystemClockSpeed();
 
   TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
+
+  if (lock || wasLocked) {
+    EIMSK &= ~(1 << INT0);
+    bool unlock = checkLockSequence();
+    if (!unlock) {
+      shutdown(true);
+    }
+  }
 }
 
 ISR(INT0_vect) {
