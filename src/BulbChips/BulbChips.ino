@@ -5,7 +5,8 @@
 #define SystemClockRate 125000                                       // 125 kilohertz (8Mhz / 64 system clock prescale)
 #define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
 #define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
-#define ClockInterruptsUntilAutoOff AutoOffTimeSeconds* ClockInterruptRate
+#define AutoOffCounterPrescale 60
+#define ClockInterruptsUntilAutoOff AutoOffTimeSeconds / AutoOffCounterPrescale* ClockInterruptRate
 
 volatile bool clickStarted = false;
 volatile int mode = 0;
@@ -188,10 +189,16 @@ ISR(INT0_vect) {
   autoOffClockInterruptCount = 0;
 }
 
-int modeInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to track flashing progressiong for each mode.
+int clockInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to keep track of how many times the interrupt has happened.
+int modeInterruptCount = 0;   // only used in the scope TIM0_COMPA_vect to track flashing progressiong for each mode.
 ISR(TIM0_COMPA_vect) {
-  autoOffClockInterruptCount += 1;
+  clockInterruptCount += 1;
   modeInterruptCount += 1;
+
+  if (clockInterruptCount % AutoOffCounterPrescale == 0) {
+    // 16 bit ints can't count high enough, prescale
+    autoOffClockInterruptCount += 1;
+  }
 
   // Flashing patterns defined below.
 
@@ -217,7 +224,7 @@ ISR(TIM0_COMPA_vect) {
       }
       break;
 
-    case 4:
+    case 3:
       if (modeInterruptCount > 8) {
         PORTB &= ~LedPin;  //  Set GPIO1 to LOW
       }
@@ -226,7 +233,7 @@ ISR(TIM0_COMPA_vect) {
       }
       break;
 
-    case 3:
+    case 4:
       if (modeInterruptCount % 3 == 0 && modeInterruptCount < 80) {
         PORTB &= ~LedPin;  //  Set GPIO1 to LOW
       }
