@@ -1,8 +1,8 @@
 #include <avr/sleep.h>
 
 #define LedPin 0b0001  // pin 1
-#define ClockCountForInterrupt 360
-#define SystemClockRate 125000                                       // 125 kilohertz (8Mhz / 64 system clock prescale)
+#define ClockCountForInterrupt 720
+#define SystemClockRate 250000                                     // 250 kilohertz (8Mhz / 32 system clock prescale)
 #define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
 #define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
 #define AutoOffCounterPrescale 60
@@ -44,7 +44,7 @@ void setSystemClockSpeed() {
   CCP = 0xD8;                                                              // write signature to change clock settings
   CLKMSR = 0;                                                              // using internal 8mhz oscillator for clock
   CCP = 0xD8;                                                              // write signature to change clock settings
-  CLKPSR = (0 << CLKPS3) | (1 << CLKPS2) | (1 << CLKPS1) | (0 << CLKPS0);  // system clock prescaler. system clock = main clock / 64
+  CLKPSR = (0 << CLKPS3) | (1 << CLKPS2) | (0 << CLKPS1) | (1 << CLKPS0);  // system clock prescaler. system clock = main clock / 32
 }
 
 // clock is configured to fire the interrupt at a rate of 347 hertz
