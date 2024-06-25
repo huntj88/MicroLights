@@ -4,7 +4,7 @@
 #define ClockCountForInterrupt 360
 #define SystemClockRate 125000                                       // 125 kilohertz
 #define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
-#define AutoOffTimeSeconds 60                                        // TODO: 15 or 20 minutes
+#define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
 #define ClockInterruptsUntilAutoOff AutoOffTimeSeconds* ClockInterruptRate
 
 volatile bool clickStarted = false;
