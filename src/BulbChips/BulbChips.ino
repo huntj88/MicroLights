@@ -1,8 +1,8 @@
 #include <avr/sleep.h>
 
 #define LedPin 0b0001  // pin 1
-#define ClockCountForInterrupt 720
-#define SystemClockRate 250000                                     // 250 kilohertz (8Mhz / 32 system clock prescale)
+#define ClockCountForInterrupt 2880
+#define SystemClockRate 1000000                                      // 1000 kilohertz (8Mhz / 8 system clock prescale)
 #define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
 #define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
 #define AutoOffCounterPrescale 60
@@ -44,7 +44,7 @@ void setSystemClockSpeed() {
   CCP = 0xD8;                                                              // write signature to change clock settings
   CLKMSR = 0;                                                              // using internal 8mhz oscillator for clock
   CCP = 0xD8;                                                              // write signature to change clock settings
-  CLKPSR = (0 << CLKPS3) | (1 << CLKPS2) | (0 << CLKPS1) | (1 << CLKPS0);  // system clock prescaler. system clock = main clock / 32
+  CLKPSR = (0 << CLKPS3) | (0 << CLKPS2) | (1 << CLKPS1) | (1 << CLKPS0);  // system clock prescaler. system clock = main clock / 8
 }
 
 // clock is configured to fire the interrupt at a rate of 347 hertz
@@ -110,8 +110,12 @@ bool checkLockSequence() {
   bool completed = false;
   bool canceled = false;
   while (true) {
+    // put CPU to into idle mode until clock interrupt
     set_sleep_mode(SLEEP_MODE_IDLE);
     sleep_mode();
+    // clock interrupt woke up, has just set led high/low,
+    // has now released control back to lock sequence loop,
+    // can override led level to set blanks in lock sequence pattern.
 
     bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
@@ -124,7 +128,7 @@ bool checkLockSequence() {
     if (buttonDownCounter > 800) {
       canceled = true;
       buttonDownCounter = 800;  // prevent long hold counter during locking sequence
-      OCR0A = 5000;             // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
+      OCR0A = 65535;            // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
     } else {
       OCR0A = ClockCountForInterrupt;  // set Output Compare A value
     }
@@ -177,8 +181,10 @@ void shutdown(bool wasLocked) {
   if (lock || wasLocked) {
     EIMSK &= ~(1 << INT0);
     bool unlock = checkLockSequence();
-    mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
-    if (!unlock) {
+    if (unlock) {
+      mode = -1;             // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
+      EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+    } else {
       shutdown(true);
     }
   }
@@ -190,7 +196,7 @@ ISR(INT0_vect) {
 }
 
 int clockInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to keep track of how many times the interrupt has happened.
-int modeInterruptCount = 0;   // only used in the scope TIM0_COMPA_vect to track flashing progressiong for each mode.
+int modeInterruptCount = 0;   // only used in the scope TIM0_COMPA_vect to track flashing progression for each mode.
 ISR(TIM0_COMPA_vect) {
   clockInterruptCount += 1;
   modeInterruptCount += 1;
