@@ -1,8 +1,8 @@
 #include <avr/sleep.h>
 
-#define B1 0b0001
+#define LedPin 0b0001  // pin 1
 #define ClockCountForInterrupt 360
-#define SystemClockRate 125000                                       // 125 kilohertz
+#define SystemClockRate 125000                                       // 125 kilohertz (8Mhz / 64 system clock prescale)
 #define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
 #define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
 #define ClockInterruptsUntilAutoOff AutoOffTimeSeconds* ClockInterruptRate
@@ -132,7 +132,7 @@ bool checkLockSequence() {
     bool showSecondBlank = buttonDownCounter > 400 && buttonDownCounter < 600;
 
     if (canceled || (!completed && buttonDownCounter < 0) || showFirstBlank || showSecondBlank) {
-      PORTB &= ~B1;  // Set GPIO1 to LOW
+      PORTB &= ~LedPin;  // Set GPIO1 to LOW
     }
 
     if (buttonDownCounter > 600) {
@@ -162,8 +162,8 @@ void shutdown(bool wasLocked) {
   bool lock = checkLockSequence();
   mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
 
-  cli();         // disable interrupts
-  PORTB &= ~B1;  // Set GPIO1 to LOW
+  cli();             // disable interrupts
+  PORTB &= ~LedPin;  // Set GPIO1 to LOW
 
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
   EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
@@ -197,7 +197,7 @@ ISR(TIM0_COMPA_vect) {
 
   // Set led output to high every clock interrupt,
   // may be set to low to turn led off before high takes effect
-  PORTB |= B1;  //  Set GPIO1 to HIGH
+  PORTB |= LedPin;  //  Set GPIO1 to HIGH
 
   switch (mode) {
     case 0:
@@ -205,21 +205,21 @@ ISR(TIM0_COMPA_vect) {
 
     case 1:
       if (modeInterruptCount > 5) {
-        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        PORTB &= ~LedPin;  //  Set GPIO1 to LOW
         modeInterruptCount = 0;
       }
       break;
 
     case 2:
       if (modeInterruptCount > 2) {
-        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        PORTB &= ~LedPin;  //  Set GPIO1 to LOW
         modeInterruptCount = 0;
       }
       break;
 
     case 4:
       if (modeInterruptCount > 8) {
-        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        PORTB &= ~LedPin;  //  Set GPIO1 to LOW
       }
       if (modeInterruptCount > 30) {
         modeInterruptCount = 0;
@@ -228,7 +228,7 @@ ISR(TIM0_COMPA_vect) {
 
     case 3:
       if (modeInterruptCount % 3 == 0 && modeInterruptCount < 80) {
-        PORTB &= ~B1;  //  Set GPIO1 to LOW
+        PORTB &= ~LedPin;  //  Set GPIO1 to LOW
       }
       if (modeInterruptCount > 100) {
         modeInterruptCount = 0;
