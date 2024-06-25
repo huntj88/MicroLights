@@ -1,9 +1,15 @@
 #include <avr/sleep.h>
 
 #define B1 0b0001
+#define ClockCountForInterrupt 360
+#define SystemClockRate 125000                                       // 125 kilohertz
+#define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
+#define AutoOffTimeSeconds 60                                        // TODO: 15 or 20 minutes
+#define ClockInterruptsUntilAutoOff AutoOffTimeSeconds* ClockInterruptRate
 
 volatile bool clickStarted = false;
 volatile int mode = 0;
+volatile int autoOffClockInterruptCount = 0;
 
 // do nothing, run inputLoop instead.
 void loop() {}
@@ -36,13 +42,15 @@ void setSystemClockSpeed() {
  */
   CCP = 0xD8;                                                              // write signature to change clock settings
   CLKMSR = 0;                                                              // using internal 8mhz oscillator for clock
-  CLKPSR = (1 << CLKPS3) | (0 << CLKPS2) | (0 << CLKPS1) | (0 << CLKPS0);  // system clock prescaler. system clock = main clock / 256
+  CCP = 0xD8;                                                              // write signature to change clock settings
+  CLKPSR = (0 << CLKPS3) | (1 << CLKPS2) | (1 << CLKPS1) | (0 << CLKPS0);  // system clock prescaler. system clock = main clock / 64
 }
 
+// clock is configured to fire the interrupt at a rate of 347 hertz
 void setUpClockCounterInterrupt() {
   TCCR0A = 0;                                        // unset bits for clock
-  OCR0A = 50;                                        // set Output Compare A value
-  TCCR0B = (0 << CS02) | (1 << CS01) | (1 << CS00);  // set up clock counter to increment every 64 system clock cycles (/64 prescaling)
+  OCR0A = ClockCountForInterrupt;                    // set Output Compare A value
+  TCCR0B = (0 << CS02) | (0 << CS01) | (1 << CS00);  // no counter prescaling
   TCCR0B |= (1 << WGM02);                            // clear clock counter when counter reaches OCR0A value
   TIMSK0 |= (1 << OCIE0A);                           // enable Output Compare A Match clock interrupt, the interrupt is called every time the counter counts to the OCR0A value
 }
@@ -78,6 +86,8 @@ void inputLoop() {
           EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
         }
       }
+    } else if (autoOffClockInterruptCount > ClockInterruptsUntilAutoOff) {
+      shutdown(false);
     }
 
     // put CPU to into idle mode until clock interrupt sets led high/low state before releasing control back to main loop.
@@ -115,7 +125,7 @@ bool checkLockSequence() {
       buttonDownCounter = 800;  // prevent long hold counter during locking sequence
       OCR0A = 5000;             // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
     } else {
-      OCR0A = 50;  // set Output Compare A value
+      OCR0A = ClockCountForInterrupt;  // set Output Compare A value
     }
 
     bool showFirstBlank = buttonDownCounter > 0 && buttonDownCounter < 200;
@@ -175,11 +185,13 @@ void shutdown(bool wasLocked) {
 
 ISR(INT0_vect) {
   clickStarted = true;
+  autoOffClockInterruptCount = 0;
 }
 
-int clockInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to track how many times we get a clock interrupt.
+int modeInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to track flashing progressiong for each mode.
 ISR(TIM0_COMPA_vect) {
-  clockInterruptCount += 1;
+  autoOffClockInterruptCount += 1;
+  modeInterruptCount += 1;
 
   // Flashing patterns defined below.
 
@@ -192,34 +204,34 @@ ISR(TIM0_COMPA_vect) {
       break;
 
     case 1:
-      if (clockInterruptCount > 5) {
+      if (modeInterruptCount > 5) {
         PORTB &= ~B1;  //  Set GPIO1 to LOW
-        clockInterruptCount = 0;
+        modeInterruptCount = 0;
       }
       break;
 
     case 2:
-      if (clockInterruptCount > 2) {
+      if (modeInterruptCount > 2) {
         PORTB &= ~B1;  //  Set GPIO1 to LOW
-        clockInterruptCount = 0;
-      }
-      break;
-
-    case 3:
-      if (clockInterruptCount > 8) {
-        PORTB &= ~B1;  //  Set GPIO1 to LOW
-      }
-      if (clockInterruptCount > 30) {
-        clockInterruptCount = 0;
+        modeInterruptCount = 0;
       }
       break;
 
     case 4:
-      if (clockInterruptCount % 3 == 0 && clockInterruptCount < 80) {
+      if (modeInterruptCount > 8) {
         PORTB &= ~B1;  //  Set GPIO1 to LOW
       }
-      if (clockInterruptCount > 100) {
-        clockInterruptCount = 0;
+      if (modeInterruptCount > 30) {
+        modeInterruptCount = 0;
+      }
+      break;
+
+    case 3:
+      if (modeInterruptCount % 3 == 0 && modeInterruptCount < 80) {
+        PORTB &= ~B1;  //  Set GPIO1 to LOW
+      }
+      if (modeInterruptCount > 100) {
+        modeInterruptCount = 0;
       }
       break;
   }
