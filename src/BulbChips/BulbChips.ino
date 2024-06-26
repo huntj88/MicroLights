@@ -1,16 +1,30 @@
+/**
+Features
+- 5 modes
+  - Long (default led pattern)
+  - Medium
+  - Short
+  - Blink Long then blank
+  - short several times then long
+
+- Battery Savings
+  - Lock mode, see checkLockSequence() for details
+  - Auto off after 30 minutes
+  - If button held down accidentally, spend most of the time in idle mode
+*/
+
 #include <avr/sleep.h>
 
 #define LedPin 0b0001  // pin 1
 #define ClockCountForInterrupt 2880
-#define SystemClockRate 1000000                                      // 1000 kilohertz (8Mhz / 8 system clock prescale)
-#define ClockInterruptRate SystemClockRate / ClockCountForInterrupt  // 347 hertz
-#define AutoOffTimeSeconds 60 * 30                                   // 30 minutes
+#define ClockInterruptRate 347        // 1 Mhz / 2880 = 347 hertz, 8Mhz / 8 system clock prescale
+#define AutoOffTimeSeconds (60 * 30)  // 30 minutes
 #define AutoOffCounterPrescale 60
-#define ClockInterruptsUntilAutoOff AutoOffTimeSeconds / AutoOffCounterPrescale* ClockInterruptRate
+#define ClockInterruptsUntilAutoOff (AutoOffTimeSeconds / AutoOffCounterPrescale * ClockInterruptRate)
 
 volatile bool clickStarted = false;
+volatile int clockInterruptCount = 0;  // keep track of how many times the clock interrupt has happened.
 volatile int mode = 0;
-volatile int autoOffClockInterruptCount = 0;
 
 // do nothing, run inputLoop instead.
 void loop() {}
@@ -58,8 +72,18 @@ void setUpClockCounterInterrupt() {
 
 void inputLoop() {
   int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
+  int autoOffCounter = 0;     // 16 bit ints can't count high enough, clockInterruptCount prescaled by 60
   while (true) {
+
+    // input loop wakes up from sleep when clock interrupt fires
+    // 16 bit ints can't count high enough, prescale by 60
+    bool incrementAutoOff = clockInterruptCount % AutoOffCounterPrescale == 0;
+    if (incrementAutoOff) {
+      autoOffCounter += 1;
+    }
+
     if (clickStarted) {
+      autoOffCounter = 0;
       // Disable interrupt (INT0) when button is clicked until:
       // * Interrupt is enabled prior to shutdown.
       // * The click has ended.
@@ -87,7 +111,8 @@ void inputLoop() {
           EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
         }
       }
-    } else if (autoOffClockInterruptCount > ClockInterruptsUntilAutoOff) {
+    } else if (autoOffCounter > ClockInterruptsUntilAutoOff) {
+      autoOffCounter = 0;
       shutdown(false);
     }
 
@@ -109,6 +134,7 @@ bool checkLockSequence() {
 
   bool completed = false;
   bool canceled = false;
+
   while (true) {
     // put CPU to into idle mode until clock interrupt
     set_sleep_mode(SLEEP_MODE_IDLE);
@@ -133,18 +159,18 @@ bool checkLockSequence() {
       OCR0A = ClockCountForInterrupt;  // set Output Compare A value
     }
 
-    bool showFirstBlank = buttonDownCounter > 0 && buttonDownCounter < 200;
-    bool showSecondBlank = buttonDownCounter > 400 && buttonDownCounter < 600;
+    bool showFirstBlank = buttonDownCounter >= 0 && buttonDownCounter < 200;
+    bool showSecondBlank = buttonDownCounter >= 400 && buttonDownCounter < 600;
 
     if (canceled || (!completed && buttonDownCounter < 0) || showFirstBlank || showSecondBlank) {
       PORTB &= ~LedPin;  // Set GPIO1 to LOW
     }
 
-    if (buttonDownCounter > 600) {
+    if (buttonDownCounter >= 600) {
       // button held until mode 2 in lock sequence, release to lock, hold to cancel lock.
       completed = true;
       mode = 2;
-    } else if (buttonDownCounter > 200) {
+    } else if (buttonDownCounter >= 200) {
       mode = 1;
     }
 
@@ -192,19 +218,12 @@ void shutdown(bool wasLocked) {
 
 ISR(INT0_vect) {
   clickStarted = true;
-  autoOffClockInterruptCount = 0;
 }
 
-int clockInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to keep track of how many times the interrupt has happened.
-int modeInterruptCount = 0;   // only used in the scope TIM0_COMPA_vect to track flashing progression for each mode.
+int modeInterruptCount = 0;  // only used in the scope TIM0_COMPA_vect to track flashing progression for each mode.
 ISR(TIM0_COMPA_vect) {
   clockInterruptCount += 1;
   modeInterruptCount += 1;
-
-  if (clockInterruptCount % AutoOffCounterPrescale == 0) {
-    // 16 bit ints can't count high enough, prescale
-    autoOffClockInterruptCount += 1;
-  }
 
   // Flashing patterns defined below.
 
