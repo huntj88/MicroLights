@@ -150,6 +150,7 @@ bool checkLockSequence() {
 
   bool completed = false;
   bool canceled = false;
+  bool hasShownSecondBlank = false;
 
   while (true) {
     // put CPU to into idle mode until clock interrupt
@@ -178,16 +179,24 @@ bool checkLockSequence() {
     bool showFirstBlank = buttonDownCounter >= 0 && buttonDownCounter < 200;
     bool showSecondBlank = buttonDownCounter >= 400 && buttonDownCounter < 600;
 
+    if (showSecondBlank) {
+      hasShownSecondBlank = true;
+    }
+
     if (canceled || (!completed && buttonDownCounter < 0) || showFirstBlank || showSecondBlank) {
       PORTB &= ~LedPin;  // Set GPIO1 to LOW
     }
 
     if (buttonDownCounter >= 600) {
-      // button held until mode 2 in lock sequence, release to lock, hold to cancel lock.
+      // Button held until mode 2 in lock sequence, release to lock, hold to cancel lock.
       completed = true;
       mode = 2;
     } else if (buttonDownCounter >= 200) {
       mode = 1;
+      if (hasShownSecondBlank) {
+        // Don't show mode 1 when buttonDownCounter is going down after user releases too soon to enable lock.
+        PORTB &= ~LedPin;  // Set GPIO1 to LOW
+      }
     }
 
     if (buttonDownCounter < 0 && completed && !canceled) {
