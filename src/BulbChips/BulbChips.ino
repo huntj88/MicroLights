@@ -193,7 +193,7 @@ bool checkLockSequence() {
       mode = 2;
     } else if (buttonDownCounter >= 200) {
       mode = 1;
-      if (hasShownSecondBlank) {
+      if (hasShownSecondBlank && !(completed && !canceled)) {
         // Don't show mode 1 when buttonDownCounter is going down after user releases too soon to enable lock.
         PORTB &= ~LedPin;  // Set GPIO1 to LOW
       }
