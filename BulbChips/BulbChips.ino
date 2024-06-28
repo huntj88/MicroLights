@@ -20,7 +20,7 @@ Features
 
 #define LedPin 0b0001  // pin 1
 #define ClockCountForInterrupt 2880
-#define ClockInterruptRate 347        // 1 Mhz / 2880 = 347 hertz, 8Mhz / 8 system clock prescale
+#define ClockInterruptRate 347        // 1 Mhz / 2880 = 347 hertz, default of 1Mhz (8Mhz clock speed with system clock prescale of 8)
 #define AutoOffTimeSeconds (60 * 30)  // 30 minutes
 #define AutoOffCounterPrescale 60
 #define ClockInterruptsUntilAutoOff (AutoOffTimeSeconds / AutoOffCounterPrescale * ClockInterruptRate)
@@ -118,8 +118,8 @@ void inputLoop() {
 void shutdown(bool wasLocked) {
   clickStarted = false;
 
-  bool lock = checkLockSequence();
-  mode = -1;  // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
+  bool lock = checkLockSequence();  // can trigger a reset
+  mode = -1;                        // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
 
   cli();             // disable interrupts
   PORTB &= ~LedPin;  // Set GPIO1 to LOW
@@ -134,7 +134,7 @@ void shutdown(bool wasLocked) {
 
   if (lock || wasLocked) {
     EIMSK &= ~(1 << INT0);
-    bool unlock = checkLockSequence();
+    bool unlock = checkLockSequence();  // can trigger a reset
     if (unlock) {
       mode = -1;             // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
       EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
@@ -220,6 +220,8 @@ bool checkLockSequence() {
   }
 
   if (reset && !resetCanceled) {
+    // kind of a side effect of this function, but the whole chip resets anyway ¯\_(ツ)_/¯
+    // might as well not expose the reset logic outside this function
     resetChip();
   }
 
