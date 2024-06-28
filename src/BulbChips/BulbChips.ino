@@ -11,6 +11,9 @@ Features
   - Lock mode, see checkLockSequence() for details
   - Auto off after 30 minutes
   - If button held down accidentally, spend most of the time in idle mode
+
+- Reset function if something weird is going on.
+  - See checkLockSequence() for details
 */
 
 #include <avr/sleep.h>
@@ -27,6 +30,8 @@ volatile int clockInterruptCount = 0;
 volatile int mode = 0;
 
 void setup() {
+  handleReset();
+
   DDRB = 0b0001;  // set pin 1 as output
   PUEB = 0b1110;  // pullups on input pin 2 (button), as well as 3,4 (unused)
 
@@ -50,6 +55,9 @@ void setUpClockCounterInterrupt() {
 }
 
 void loop() {
+  // investigating rare error, can potentially be removed, or if I never see the error again, I'll update this comment.
+  setUpClockCounterInterrupt();
+
   // instead of invoking shutdown from inputLoop, separate them and get an empty stack to work with for each.
   inputLoop();
   shutdown(false);
@@ -140,8 +148,12 @@ void shutdown(bool wasLocked) {
 
 /**
  * Lock and unlock sequence.
- * flashes: blank -> mode 1 -> blank -> mode 2 -> off. If released on mode 2, the chip will be locked/unlocked.
- * If locked/unlocked successfully, it will flash mode 1 -> mode 2 in rapid succession and then shutdown/wakeup
+ * flashes: long blank -> mode 2 -> blank -> mode 0.
+ * If released on mode 2, the chip will be locked/unlocked.
+ * If released on mode 0, the chip with reset. Useful for solving any unknown issues that could happen.
+ *
+ * If locked/unlocked successfully, it will flash mode 2 once, then shutdown/wakeup.
+ * If reset successfully, it will flash mode 0 -> mode 2 and then the microcontroller will reset.
  *
  * If released at any other point, a normal shutdown occurs.
  */
@@ -150,7 +162,9 @@ bool checkLockSequence() {
 
   bool completed = false;
   bool canceled = false;
-  bool hasShownSecondBlank = false;
+
+  bool reset = false;
+  bool resetCanceled = false;
 
   while (true) {
     // put CPU to into idle mode until clock interrupt
@@ -168,35 +182,31 @@ bool checkLockSequence() {
       buttonDownCounter -= 5;
     }
 
-    if (buttonDownCounter > 800) {
-      canceled = true;
-      buttonDownCounter = 800;  // prevent long hold counter during locking sequence
-      OCR0A = 65535;            // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
+    if (buttonDownCounter > 1200) {
+      resetCanceled = true;
+      buttonDownCounter = 1200;  // prevent long hold counter during locking sequence
+      OCR0A = 65535;             // set Output Compare A value, increase the amount of time in idle while button held forever by user accident.
     } else {
       OCR0A = ClockCountForInterrupt;  // set Output Compare A value
     }
 
-    bool showFirstBlank = buttonDownCounter >= 0 && buttonDownCounter < 200;
-    bool showSecondBlank = buttonDownCounter >= 400 && buttonDownCounter < 600;
-
-    if (showSecondBlank) {
-      hasShownSecondBlank = true;
+    if (buttonDownCounter > 800) {
+      canceled = true;
     }
 
-    if (canceled || (!completed && buttonDownCounter < 0) || showFirstBlank || showSecondBlank) {
+    bool blankBeforeLock = buttonDownCounter >= 0 && buttonDownCounter < 600;
+
+    if ((canceled && !reset) || resetCanceled || (!completed && buttonDownCounter < 0) || blankBeforeLock) {
       PORTB &= ~LedPin;  // Set GPIO1 to LOW
     }
 
-    if (buttonDownCounter >= 600) {
+    if (buttonDownCounter >= 1000) {
+      reset = true;
+      mode = 0;
+    } else if (buttonDownCounter >= 600) {
       // Button held until mode 2 in lock sequence, release to lock, hold to cancel lock.
       completed = true;
       mode = 2;
-    } else if (buttonDownCounter >= 200) {
-      mode = 1;
-      if (hasShownSecondBlank && !(completed && !canceled)) {
-        // Don't show mode 1 when buttonDownCounter is going down after user releases too soon to enable lock.
-        PORTB &= ~LedPin;  // Set GPIO1 to LOW
-      }
     }
 
     if (buttonDownCounter < 0 && completed && !canceled) {
@@ -209,7 +219,28 @@ bool checkLockSequence() {
     }
   }
 
+  if (reset && !resetCanceled) {
+    resetChip();
+  }
+
   return completed && !canceled;
+}
+
+/**
+ * Reset provided to make it easy for users to fix any rare issues the darn engineer missed.
+ */
+void resetChip() {
+  CCP = 0xD8;
+  WDTCSR = (1 << WDE);  // Enable watch dog timer
+  while (true) {}
+}
+
+// user may have used the reset function, disable watch dog timer.
+void handleReset() {
+  CCP = 0xD8;
+  RSTFLR &= ~(1 << WDRF);  // clear bit, watch dog reset occurs, must happe before WDE is cleared.
+  CCP = 0xD8;
+  WDTCSR &= ~(1 << WDE);  // clear bit, WDE: Watchdog System Reset Enable
 }
 
 ISR(INT0_vect) {
