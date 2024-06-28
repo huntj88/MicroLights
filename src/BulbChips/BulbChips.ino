@@ -30,7 +30,7 @@ volatile int clockInterruptCount = 0;
 volatile int mode = 0;
 
 void setup() {
-  handleReset();
+  handleReset();  // user may have used the reset function, disable watch dog timer.
 
   DDRB = 0b0001;  // set pin 1 as output
   PUEB = 0b1110;  // pullups on input pin 2 (button), as well as 3,4 (unused)
@@ -214,7 +214,7 @@ bool checkLockSequence() {
     }
 
     if (buttonDownCounter < -200) {
-      // button released after shutdown started or lock sequence, break out of loop, continue shutdown
+      // button released after shutdown started or lock sequence, break out of loop, continue shutdown.
       break;
     }
   }
@@ -231,16 +231,15 @@ bool checkLockSequence() {
  */
 void resetChip() {
   CCP = 0xD8;
-  WDTCSR = (1 << WDE);  // Enable watch dog timer
+  WDTCSR = (1 << WDE);  // WDE: Watchdog System Reset Enable, watch dog timer with default config will reset 16 milliseconds after enabled.
   while (true) {}
 }
 
-// user may have used the reset function, disable watch dog timer.
 void handleReset() {
   CCP = 0xD8;
-  RSTFLR &= ~(1 << WDRF);  // clear bit, watch dog reset occurs, must happe before WDE is cleared.
+  RSTFLR &= ~(1 << WDRF);  // clear bit, watch dog reset may have occurred, will bootloop until cleared, must happen before WDE is cleared.
   CCP = 0xD8;
-  WDTCSR &= ~(1 << WDE);  // clear bit, WDE: Watchdog System Reset Enable
+  WDTCSR &= ~(1 << WDE);  // disable watchdog reset, will bootloop until cleared.
 }
 
 ISR(INT0_vect) {
