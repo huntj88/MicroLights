@@ -17,6 +17,7 @@ Features
 */
 
 #include <avr/sleep.h>
+#include "common.h"
 
 #define LedPin 0b0001  // pin 1 (PB0)
 #define ClockCountForInterrupt 2880
@@ -36,8 +37,8 @@ void setup() {
   PUEB = 0b1110;  // pullups on input pin 2 (button), as well as 3,4 (unused)
 
   // Set interrupt on button press
-  EIMSK |= (1 << INT0);                 // Enable INT0 as interrupt vector
-  EICRA = (0 << ISC01) | (0 << ISC00);  // Low level on INT0 generates an interrupt request
+  INT0_INTERRUPT_ENABLE |= (1 << INT0);                 // Enable INT0 as interrupt vector
+  INT0_INTERRUPT_CONFIG = (0 << ISC01) | (0 << ISC00);  // Low level on INT0 generates an interrupt request
 
   setUpClockCounterInterrupt();
 
@@ -51,7 +52,7 @@ void setUpClockCounterInterrupt() {
   OCR0A = ClockCountForInterrupt;                    // set Output Compare A value
   TCCR0B = (0 << CS02) | (0 << CS01) | (1 << CS00);  // no counter prescaling
   TCCR0B |= (1 << WGM02);                            // clear clock counter when counter reaches OCR0A value
-  TIMSK0 |= (1 << OCIE0A);                           // enable Output Compare A Match clock interrupt, the interrupt is called every time the counter counts to the OCR0A value
+  CLOCK_INTERRUPT_ENABLE |= (1 << OCIE0A);                           // enable Output Compare A Match clock interrupt, the interrupt is called every time the counter counts to the OCR0A value
 }
 
 void loop() {
@@ -82,7 +83,7 @@ void inputLoop() {
       // Disable interrupt (INT0) when button is clicked until:
       // * Interrupt is enabled prior to shutdown.
       // * The click has ended.
-      EIMSK &= ~(1 << INT0);
+      INT0_INTERRUPT_ENABLE &= ~(1 << INT0);
 
       bool buttonCurrentlyDown = !(PINB & (1 << PB2));
 
@@ -102,7 +103,7 @@ void inputLoop() {
           if (mode > 4) {
             mode = 0;
           }
-          EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+          INT0_INTERRUPT_ENABLE |= (1 << INT0);  // Enable INT0 as interrupt vector
         }
       }
     } else if (autoOffCounter > ClockInterruptsUntilAutoOff) {
@@ -121,20 +122,20 @@ void shutdown(bool lock) {
   mode = -1;                        // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
   PORTB &= ~LedPin;  // Set GPIO1 to LOW
 
-  TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
-  EIMSK |= (1 << INT0);      // Enable INT0 as interrupt vector
+  CLOCK_INTERRUPT_ENABLE &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
+  INT0_INTERRUPT_ENABLE |= (1 << INT0);      // Enable INT0 as interrupt vector
   set_sleep_mode(SLEEP_MODE_PWR_DOWN);
   sei();         // enable interrupts
   sleep_mode();  // sleep
 
-  TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
+  CLOCK_INTERRUPT_ENABLE |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
 
   if (lock) {
-    EIMSK &= ~(1 << INT0);
+    INT0_INTERRUPT_ENABLE &= ~(1 << INT0);
     bool unlock = checkLockSequence();  // can trigger a reset
     if (unlock) {
       mode = -1;             // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
-      EIMSK |= (1 << INT0);  // Enable INT0 as interrupt vector
+      INT0_INTERRUPT_ENABLE |= (1 << INT0);  // Enable INT0 as interrupt vector
     } else {
       // Recursive shutdown call must be the last call to take advantage of tail recursion optimization.
       // Without tail recursion, repeated failures of unlocking the chips would result in a stack overflow.
