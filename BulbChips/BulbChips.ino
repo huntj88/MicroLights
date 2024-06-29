@@ -18,7 +18,7 @@ Features
 
 #include <avr/sleep.h>
 
-#define LedPin 0b0001  // pin 1
+#define LedPin 0b0001  // pin 1 (PB0)
 #define ClockCountForInterrupt 2880
 #define ClockInterruptRate 347        // 1 Mhz / 2880 = 347 hertz, default of 1Mhz (8Mhz clock speed with system clock prescale of 8)
 #define AutoOffTimeSeconds (60 * 30)  // 30 minutes
@@ -58,9 +58,10 @@ void loop() {
   // investigating rare error, can potentially be removed, or if I never see the error again, I'll update this comment.
   setUpClockCounterInterrupt();
 
-  // instead of invoking shutdown from inputLoop, separate them and get an empty stack to work with for each.
+  // instead of invoking shutdown/lockSequence from inputLoop, separate them and get an empty stack to work with for each.
   inputLoop();
-  shutdown(false);
+  bool lock = checkLockSequence();  // can trigger a reset
+  shutdown(lock);
 }
 
 // when this method returns, user is finished, and chip is now shutting down.
@@ -115,13 +116,9 @@ void inputLoop() {
   }
 }
 
-void shutdown(bool wasLocked) {
-  clickStarted = false;
-
-  bool lock = checkLockSequence();  // can trigger a reset
-  mode = -1;                        // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
-
+void shutdown(bool lock) {
   cli();             // disable interrupts
+  mode = -1;                        // click started on wakeup from button interrupt, will increment to mode 0 in inputLoop.
   PORTB &= ~LedPin;  // Set GPIO1 to LOW
 
   TIMSK0 &= ~(1 << OCIE0A);  // disable Output Compare A Match clock interrupt
@@ -132,7 +129,7 @@ void shutdown(bool wasLocked) {
 
   TIMSK0 |= (1 << OCIE0A);  // enable Output Compare A Match clock interrupt
 
-  if (lock || wasLocked) {
+  if (lock) {
     EIMSK &= ~(1 << INT0);
     bool unlock = checkLockSequence();  // can trigger a reset
     if (unlock) {
