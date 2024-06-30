@@ -204,8 +204,6 @@ ISR(TIM0_COMPA_vect) {
   // may be set to low to turn led off before high takes effect
   PORTB |= LedPin;  //  Set GPIO1 to HIGH
 
-  // TODO: bool setLedLow() function in common?
-
   switch (mode) {
     case 0:
       break;

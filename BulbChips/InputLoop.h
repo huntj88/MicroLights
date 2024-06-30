@@ -7,7 +7,6 @@ struct InputLoopParams {
 };
 
 // when this method returns, user is finished, and chip is now shutting down.
-// void inputLoop(int (*getMode)(), void (*setMode)(int)) {
 void inputLoop(InputLoopParams params) {
   int buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
   int autoOffCounter = 0;     // 16 bit ints can't count high enough, clockInterruptCount prescaled by 60.
