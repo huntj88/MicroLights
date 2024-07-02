@@ -2836,10 +2836,6 @@
 		(uuid "ef75066c-402a-4976-98b2-b9bf19c97c82")
 	)
 	(no_connect
-		(at 52.07 172.72)
-		(uuid "39b94629-2acf-45d4-85f7-1e923da0ea64")
-	)
-	(no_connect
 		(at 52.07 142.24)
 		(uuid "56bf35b4-c09f-457f-99cd-85b440403faf")
 	)
@@ -2860,8 +2856,8 @@
 		(uuid "94e476bd-f30e-4f45-8552-aa3673829883")
 	)
 	(no_connect
-		(at 52.07 170.18)
-		(uuid "9bc70b32-72ce-4c52-bcee-23a6590a2f49")
+		(at 52.07 165.1)
+		(uuid "9cc060a9-e24f-43e6-b24c-afd6c0acc5d8")
 	)
 	(no_connect
 		(at 52.07 147.32)
@@ -2878,6 +2874,20 @@
 	(no_connect
 		(at 29.21 180.34)
 		(uuid "c430cda0-0399-4606-98f3-0ba48e1a7bdd")
+	)
+	(no_connect
+		(at 52.07 162.56)
+		(uuid "cd11b9b2-85c7-4455-8520-f48004942de5")
+	)
+	(wire
+		(pts
+			(xy 52.07 170.18) (xy 93.98 170.18)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "000a82b4-aa59-43b2-b6ce-26f07b286189")
 	)
 	(wire
 		(pts
@@ -2951,16 +2961,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 165.1) (xy 85.09 165.1)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2af6a0cd-f757-44ea-ae48-4156408b2dfe")
-	)
-	(wire
-		(pts
 			(xy 71.12 142.24) (xy 71.12 180.34)
 		)
 		(stroke
@@ -2988,6 +2988,16 @@
 			(type default)
 		)
 		(uuid "2d99f244-0e5d-4b6b-ad04-4649516153f7")
+	)
+	(wire
+		(pts
+			(xy 52.07 172.72) (xy 85.09 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3256e12f-d928-4ae0-a5d8-66bc00f291e7")
 	)
 	(wire
 		(pts
@@ -3301,16 +3311,6 @@
 	)
 	(wire
 		(pts
-			(xy 52.07 162.56) (xy 93.98 162.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c16ecd2b-0dfe-4bda-a181-6c711a95045a")
-	)
-	(wire
-		(pts
 			(xy 66.04 114.3) (xy 74.93 114.3)
 		)
 		(stroke
@@ -3435,7 +3435,7 @@
 	)
 	(global_label "Button"
 		(shape output)
-		(at 85.09 165.1 0)
+		(at 85.09 172.72 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3445,7 +3445,7 @@
 		)
 		(uuid "281c8f2a-ab30-4cab-a46d-8642c0f54a85")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 94.2436 165.1 0)
+			(at 94.2436 172.72 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3655,7 +3655,7 @@
 	)
 	(global_label "Reset"
 		(shape input)
-		(at 93.98 162.56 0)
+		(at 93.98 170.18 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3665,7 +3665,7 @@
 		)
 		(uuid "eb73ff9d-4ef6-464a-8555-a54b273b2f91")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.1662 162.56 0)
+			(at 102.1662 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
