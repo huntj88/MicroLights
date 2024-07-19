@@ -23,7 +23,7 @@ Features
 
 volatile bool clickStarted = false;
 volatile int clockInterruptCount = 0;
-volatile int mode = 0;
+volatile int mode = 5;
 
 void setup() {
   cli();
@@ -203,18 +203,17 @@ ISR(TIM0_COMPA_vect) {
 
   // Flashing patterns defined below.
 
-  // Set led output to high every clock interrupt,
-  // may be set to low to turn led off before high takes effect
-  PORTB |= 1 << PB1;
-
   switch (mode) {
     case 0:
+      PORTB |= LedPin;
       break;
 
     case 1:
       if (modeInterruptCount > 5) {
         PORTB &= ~LedPin;  //  Set to LOW
         modeInterruptCount = 0;
+      } else {
+        PORTB |= LedPin;
       }
       break;
 
@@ -222,12 +221,16 @@ ISR(TIM0_COMPA_vect) {
       if (modeInterruptCount > 2) {
         PORTB &= ~LedPin;  //  Set to LOW
         modeInterruptCount = 0;
+      } else {
+        PORTB |= LedPin;
       }
       break;
 
     case 3:
       if (modeInterruptCount > 8) {
         PORTB &= ~LedPin;  //  Set to LOW
+      } else {
+        PORTB |= LedPin;
       }
       if (modeInterruptCount > 30) {
         modeInterruptCount = 0;
@@ -237,8 +240,21 @@ ISR(TIM0_COMPA_vect) {
     case 4:
       if (modeInterruptCount % 3 == 0 && modeInterruptCount < 80) {
         PORTB &= ~LedPin;  //  Set to LOW
+      } else {
+        PORTB |= LedPin;
       }
       if (modeInterruptCount > 100) {
+        modeInterruptCount = 0;
+      }
+      break;
+
+    case 5:
+      if (modeInterruptCount > 15) {
+        PORTB &= ~LedPin;  //  Set to LOW
+      } else {
+        PORTB |= LedPin;
+      }
+      if (modeInterruptCount > 30) {
         modeInterruptCount = 0;
       }
       break;

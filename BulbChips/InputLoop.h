@@ -42,7 +42,7 @@ void inputLoop(InputLoopParams params) {
           buttonDownCounter = 0;
           int newMode = params.getMode();
           newMode += 1;
-          if (newMode > 4) {
+          if (newMode > 5) {
             newMode = 0;
           }
           params.setMode(newMode);
