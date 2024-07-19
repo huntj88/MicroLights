@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "BulbLib")(type "KiCad")(uri "${KIPRJMOD}/BulbLib.kicad_sym")(options "")(descr ""))
+)
