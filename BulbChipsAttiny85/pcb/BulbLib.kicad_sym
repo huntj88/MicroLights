@@ -2,7 +2,7 @@
 	(version 20231120)
 	(generator "kicad_symbol_editor")
 	(generator_version "8.0")
-	(symbol "BQ24040DSQR"
+	(symbol "BQ24045DSQR"
 		(pin_names
 			(offset 1.016)
 		)
@@ -17,7 +17,7 @@
 				)
 			)
 		)
-		(property "Value" "BQ24040DSQR"
+		(property "Value" "BQ24045DSQR"
 			(at 0 15.24 0)
 			(effects
 				(font
@@ -26,7 +26,7 @@
 			)
 		)
 		(property "Footprint" "BQ24040DSQR:SON40P200X200X80-11N"
-			(at 0 0 0)
+			(at -1.524 30.226 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -54,7 +54,7 @@
 			)
 		)
 		(property "MF" "Texas Instruments"
-			(at 0 0 0)
+			(at -4.826 37.592 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -64,7 +64,7 @@
 			)
 		)
 		(property "Description_1" "\nStandalone 1-cell 1-A linear battery charger with 4.2-V VBAT and Temperature Sensing\n"
-			(at 0 0 0)
+			(at -5.842 34.036 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -74,17 +74,7 @@
 			)
 		)
 		(property "Package" "WSON-10 Texas Instruments"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Price" "None"
-			(at 0 0 0)
+			(at -2.54 42.418 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -94,6 +84,16 @@
 			)
 		)
 		(property "SnapEDA_Link" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=snap"
+			(at 0.762 20.574 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MP" "BQ24045DSQR"
 			(at 0 0 0)
 			(effects
 				(font
@@ -103,8 +103,8 @@
 				(hide yes)
 			)
 		)
-		(property "MP" "BQ24040DSQR"
-			(at 0 0 0)
+		(property "Purchase-URL" "https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24045DSQR?qs=KkE6aTVgMAQPXkV4rQ%2F6tA%3D%3D"
+			(at -0.508 26.924 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -113,64 +113,16 @@
 				(hide yes)
 			)
 		)
-		(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=229310&manufacturer=Texas Instruments&part_name=BQ24040DSQR&search_term=None"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Availability" "In Stock"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Check_prices" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=eda"
-			(at 0 0 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(symbol "BQ24040DSQR_0_0"
+		(symbol "BQ24045DSQR_0_0"
 			(rectangle
-				(start -12.7 -12.7)
-				(end 12.7 12.7)
+				(start -12.7 12.7)
+				(end 12.7 -12.7)
 				(stroke
 					(width 0.41)
 					(type default)
 				)
 				(fill
 					(type background)
-				)
-			)
-			(pin input line
-				(at -17.78 10.16 0)
-				(length 5.08)
-				(name "IN"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
-				)
-				(number "1"
-					(effects
-						(font
-							(size 1.016 1.016)
-						)
-					)
 				)
 			)
 			(pin power_in line
@@ -318,8 +270,26 @@
 				)
 			)
 		)
-		(symbol "BQ24040DSQR_1_0"
-			(pin power_out line
+		(symbol "BQ24045DSQR_1_0"
+			(pin power_in line
+				(at -17.78 10.16 0)
+				(length 5.08)
+				(name "IN"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.016 1.016)
+						)
+					)
+				)
+			)
+			(pin power_in line
 				(at 17.78 5.08 180)
 				(length 5.08)
 				(name "OUT"
@@ -398,7 +368,7 @@
 					(type background)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at -8.89 -2.54 0)
 				(length 2.54)
 				(name "S1"
@@ -434,7 +404,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at -8.89 -7.62 0)
 				(length 2.54)
 				(name "D2"
@@ -452,7 +422,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at 8.89 -2.54 180)
 				(length 2.54)
 				(name "D1"
@@ -488,7 +458,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin passive line
 				(at 8.89 -7.62 180)
 				(length 2.54)
 				(name "S2"

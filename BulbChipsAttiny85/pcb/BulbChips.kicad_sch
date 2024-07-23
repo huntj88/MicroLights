@@ -5,33 +5,31 @@
 	(uuid "fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a")
 	(paper "C")
 	(lib_symbols
-		(symbol "BQ24040DSQR:BQ24040DSQR"
+		(symbol "BulbLib:BQ24045DSQR"
 			(pin_names
 				(offset 1.016)
 			)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "U"
-				(at -12.7 13.7 0)
+			(property "Reference" "U5"
+				(at 0 17.78 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left bottom)
 				)
 			)
-			(property "Value" "BQ24040DSQR"
-				(at -12.7 -16.7 0)
+			(property "Value" "BQ24045DSQR"
+				(at 0 15.24 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
-					(justify left bottom)
 				)
 			)
 			(property "Footprint" "BQ24040DSQR:SON40P200X200X80-11N"
-				(at 0 0 0)
+				(at -1.524 30.226 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -59,7 +57,7 @@
 				)
 			)
 			(property "MF" "Texas Instruments"
-				(at 0 0 0)
+				(at -4.826 37.592 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -69,7 +67,7 @@
 				)
 			)
 			(property "Description_1" "\nStandalone 1-cell 1-A linear battery charger with 4.2-V VBAT and Temperature Sensing\n"
-				(at 0 0 0)
+				(at -5.842 34.036 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -79,17 +77,7 @@
 				)
 			)
 			(property "Package" "WSON-10 Texas Instruments"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Price" "None"
-				(at 0 0 0)
+				(at -2.54 42.418 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -99,6 +87,16 @@
 				)
 			)
 			(property "SnapEDA_Link" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=snap"
+				(at 0.762 20.574 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify bottom)
+					(hide yes)
+				)
+			)
+			(property "MP" "BQ24045DSQR"
 				(at 0 0 0)
 				(effects
 					(font
@@ -108,8 +106,8 @@
 					(hide yes)
 				)
 			)
-			(property "MP" "BQ24040DSQR"
-				(at 0 0 0)
+			(property "Purchase-URL" "https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24045DSQR?qs=KkE6aTVgMAQPXkV4rQ%2F6tA%3D%3D"
+				(at -0.508 26.924 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -118,82 +116,16 @@
 					(hide yes)
 				)
 			)
-			(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=229310&manufacturer=Texas Instruments&part_name=BQ24040DSQR&search_term=None"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Availability" "In Stock"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(property "Check_prices" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=eda"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(justify bottom)
-					(hide yes)
-				)
-			)
-			(symbol "BQ24040DSQR_0_0"
+			(symbol "BQ24045DSQR_0_0"
 				(rectangle
-					(start -12.7 -12.7)
-					(end 12.7 12.7)
+					(start -12.7 12.7)
+					(end 12.7 -12.7)
 					(stroke
 						(width 0.41)
 						(type default)
 					)
 					(fill
 						(type background)
-					)
-				)
-				(pin input line
-					(at -17.78 10.16 0)
-					(length 5.08)
-					(name "IN"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 17.78 5.08 180)
-					(length 5.08)
-					(name "OUT"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.016 1.016)
-							)
-						)
 					)
 				)
 				(pin power_in line
@@ -341,6 +273,44 @@
 					)
 				)
 			)
+			(symbol "BQ24045DSQR_1_0"
+				(pin power_in line
+					(at -17.78 10.16 0)
+					(length 5.08)
+					(name "IN"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 17.78 5.08 180)
+					(length 5.08)
+					(name "OUT"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.016 1.016)
+							)
+						)
+					)
+				)
+			)
 		)
 		(symbol "BulbLib:DMN52D0UV"
 			(exclude_from_sim no)
@@ -401,7 +371,7 @@
 						(type background)
 					)
 				)
-				(pin bidirectional line
+				(pin passive line
 					(at -8.89 -2.54 0)
 					(length 2.54)
 					(name "S1"
@@ -437,7 +407,7 @@
 						)
 					)
 				)
-				(pin bidirectional line
+				(pin passive line
 					(at -8.89 -7.62 0)
 					(length 2.54)
 					(name "D2"
@@ -455,7 +425,7 @@
 						)
 					)
 				)
-				(pin bidirectional line
+				(pin passive line
 					(at 8.89 -2.54 180)
 					(length 2.54)
 					(name "D1"
@@ -491,7 +461,7 @@
 						)
 					)
 				)
-				(pin bidirectional line
+				(pin passive line
 					(at 8.89 -7.62 180)
 					(length 2.54)
 					(name "S2"
@@ -3103,6 +3073,102 @@
 				)
 			)
 		)
+		(symbol "power:PWR_FLAG"
+			(power)
+			(pin_numbers hide)
+			(pin_names
+				(offset 0) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "#FLG"
+				(at 0 1.905 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Value" "PWR_FLAG"
+				(at 0 3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Special symbol for telling ERC where power comes from"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "flag power"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "PWR_FLAG_0_0"
+				(pin power_out line
+					(at 0 0 90)
+					(length 0)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "PWR_FLAG_0_1"
+				(polyline
+					(pts
+						(xy 0 0) (xy 0 1.27) (xy -1.016 1.905) (xy 0 2.54) (xy 1.016 1.905) (xy 0 1.27)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+		)
 	)
 	(junction
 		(at 204.47 60.96)
@@ -3127,6 +3193,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "2597a3dd-3634-4da1-8ef3-1d8d401dcfa6")
+	)
+	(junction
+		(at 200.66 153.67)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "27432d82-6211-47ca-9b11-4874d5969d23")
 	)
 	(junction
 		(at 63.5 134.62)
@@ -3159,10 +3231,10 @@
 		(uuid "825c981b-60fd-49e5-b65e-2e080ce5002d")
 	)
 	(junction
-		(at 200.66 153.67)
+		(at 69.85 119.38)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "9a921ef7-1534-4deb-abc3-8553f9b9de5e")
+		(uuid "83a856a3-9c9a-4f93-a877-1691a999f9b0")
 	)
 	(junction
 		(at 97.79 261.62)
@@ -3432,7 +3504,7 @@
 	)
 	(wire
 		(pts
-			(xy 63.5 119.38) (xy 67.31 119.38)
+			(xy 63.5 119.38) (xy 69.85 119.38)
 		)
 		(stroke
 			(width 0)
@@ -3622,6 +3694,16 @@
 	)
 	(wire
 		(pts
+			(xy 196.85 153.67) (xy 200.66 153.67)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6b42dd0b-2394-4af3-9a11-1fbac32b1049")
+	)
+	(wire
+		(pts
 			(xy 63.5 137.16) (xy 63.5 139.7)
 		)
 		(stroke
@@ -3752,6 +3834,16 @@
 	)
 	(wire
 		(pts
+			(xy 156.21 266.7) (xy 156.21 274.32)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "805f3720-9e6e-4f0e-9c38-cf92412fb42c")
+	)
+	(wire
+		(pts
 			(xy 243.84 157.48) (xy 243.84 156.21)
 		)
 		(stroke
@@ -3759,16 +3851,6 @@
 			(type default)
 		)
 		(uuid "84b2ba32-887f-491c-9da4-81fe80448658")
-	)
-	(wire
-		(pts
-			(xy 111.76 113.03) (xy 107.95 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "85122276-0043-42f8-9291-d417382d33c1")
 	)
 	(wire
 		(pts
@@ -3782,13 +3864,13 @@
 	)
 	(wire
 		(pts
-			(xy 156.21 266.7) (xy 156.21 274.32)
+			(xy 69.85 119.38) (xy 72.39 119.38)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "87668f20-85d9-4e56-845e-1211241342f6")
+		(uuid "8725572e-f112-4173-b9fe-46a1db8ef3b5")
 	)
 	(wire
 		(pts
@@ -3839,6 +3921,16 @@
 			(type default)
 		)
 		(uuid "8eab46eb-b921-4bbf-8b39-6a08d50dc8f0")
+	)
+	(wire
+		(pts
+			(xy 62.23 229.87) (xy 69.85 229.87)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8eb4e8bb-3dae-4f41-8e25-619b32b4d4d7")
 	)
 	(wire
 		(pts
@@ -3909,16 +4001,6 @@
 			(type default)
 		)
 		(uuid "9fafbd36-5b73-4f1b-a7e2-278c11eb076f")
-	)
-	(wire
-		(pts
-			(xy 111.76 106.68) (xy 111.76 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4dc200e-85b8-4cc3-b2ed-ef04b1a9efbd")
 	)
 	(wire
 		(pts
@@ -4092,6 +4174,16 @@
 	)
 	(wire
 		(pts
+			(xy 62.23 238.76) (xy 69.85 238.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d71ff6fb-2036-47e9-ad8f-fb850c6a441a")
+	)
+	(wire
+		(pts
 			(xy 113.03 133.35) (xy 114.3 133.35)
 		)
 		(stroke
@@ -4109,16 +4201,6 @@
 			(type default)
 		)
 		(uuid "d8cd9661-3342-4b32-a719-67c7a7ffc9d2")
-	)
-	(wire
-		(pts
-			(xy 199.39 153.67) (xy 200.66 153.67)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "da5b230f-e28a-4b09-8d97-96f6ca8a9a5b")
 	)
 	(wire
 		(pts
@@ -4351,7 +4433,7 @@
 	)
 	(global_label "VBUS"
 		(shape passive)
-		(at 67.31 119.38 0)
+		(at 72.39 119.38 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4360,27 +4442,7 @@
 		)
 		(uuid "57049986-4e77-45e6-a32d-68f480e0f2c7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -276.86 -189.865 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "VBUS"
-		(shape passive)
-		(at 199.39 153.67 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5b497923-5e85-4dff-9592-6167f627e2af")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 543.56 462.915 0)
+			(at -271.78 -189.865 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4485,7 +4547,7 @@
 			)
 			(justify left)
 		)
-		(uuid "6f80deaa-37e4-4149-8eb3-fbc7d6bd24b3")
+		(uuid "747b65f1-cee7-47c3-a05d-1e06496b01c3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 204.47 47.6334 90)
 			(effects
@@ -4605,6 +4667,28 @@
 			)
 		)
 	)
+	(global_label "EB+"
+		(shape input)
+		(at 69.85 229.87 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "af1a71f3-256f-4572-8a70-891d7bacb7d1")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 76.8266 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "D+"
 		(shape bidirectional)
 		(at 92.71 133.35 180)
@@ -4672,16 +4756,36 @@
 	)
 	(global_label "VBUS"
 		(shape passive)
-		(at 111.76 106.68 180)
+		(at 196.85 153.67 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
 			(justify right)
 		)
+		(uuid "f70d34d8-ac8b-4001-8a2e-f3ee9212b1e8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 541.02 462.915 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "VBUS"
+		(shape passive)
+		(at 107.95 113.03 90)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
 		(uuid "fe861851-c6ec-4aee-bf23-c5ab1ab33dd5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 455.93 415.925 0)
+			(at -201.295 457.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5141,7 +5245,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0df64d91-4527-4483-9720-5a6cd361916a")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR010"
 			(at 293.37 66.04 0)
 			(effects
 				(font
@@ -5192,7 +5296,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR09")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -5207,7 +5311,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "12030d25-eebc-463c-a207-3fdf64802877")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR05"
 			(at 170.18 156.21 0)
 			(effects
 				(font
@@ -5258,7 +5362,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR04")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -5539,6 +5643,159 @@
 		)
 	)
 	(symbol
+		(lib_id "BulbLib:BQ24045DSQR")
+		(at 218.44 163.83 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "2a4b0911-8ff4-45e3-b38a-72156966339d")
+		(property "Reference" "U5"
+			(at 218.44 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "BQ24045DSQR"
+			(at 218.44 148.59 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_SON:WSON-10-1EP_2x3mm_P0.5mm_EP0.84x2.4mm_ThermalVias"
+			(at 216.916 133.604 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 218.44 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 218.44 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "MF" "Texas Instruments"
+			(at 213.614 126.238 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Description_1" "\nStandalone 1-cell 1-A linear battery charger with 4.2-V VBAT and Temperature Sensing\n"
+			(at 212.598 129.794 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Package" "WSON-10 Texas Instruments"
+			(at 215.9 121.412 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "SnapEDA_Link" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=snap"
+			(at 219.202 143.256 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "MP" "BQ24045DSQR"
+			(at 218.44 163.83 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(property "Purchase-URL" "https://www.mouser.com/ProductDetail/Texas-Instruments/BQ24045DSQR?qs=KkE6aTVgMAQPXkV4rQ%2F6tA%3D%3D"
+			(at 217.932 136.906 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify bottom)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d17404f2-53cf-4dc9-9a54-7db56465cbab")
+		)
+		(pin "10"
+			(uuid "2b7212a5-c114-4910-a464-74d2d53dff89")
+		)
+		(pin "3"
+			(uuid "ebbec05e-f4fb-4f19-9b0b-2d3f65d54f52")
+		)
+		(pin "2"
+			(uuid "ed2cf744-71f0-4e12-9e7d-31c7993e2185")
+		)
+		(pin "11"
+			(uuid "206a8ba4-ae71-464b-b7c8-1efac825669c")
+		)
+		(pin "9"
+			(uuid "e0cbaa4d-20be-43a5-b9eb-8f2d4033c4f5")
+		)
+		(pin "8"
+			(uuid "0b165ded-d425-4f7c-a054-c86057bc6eec")
+		)
+		(pin "7"
+			(uuid "6c7a8ad3-4203-42cb-b2cc-7570a608a9a3")
+		)
+		(pin "5"
+			(uuid "a6a3eafd-9fb5-43ce-8da1-3f8dfd082d44")
+		)
+		(pin "4"
+			(uuid "756471e0-684b-46d4-8d7c-7ba38b7a39d3")
+		)
+		(instances
+			(project ""
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "U5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "BulbLib:S-82A1ACA-I6T1U")
 		(at 118.11 266.7 0)
 		(unit 1)
@@ -5628,7 +5885,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3af76423-d91c-4da9-865c-26df7346496a")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR04"
 			(at 129.54 234.95 0)
 			(effects
 				(font
@@ -5678,7 +5935,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR03")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -5820,6 +6077,137 @@
 		)
 	)
 	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 62.23 229.87 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "4da97886-f42d-44a5-97ba-62ae3f3158ca")
+		(property "Reference" "#FLG01"
+			(at 62.23 227.965 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 62.23 224.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 62.23 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 62.23 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 62.23 229.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1d039316-4435-4c38-a7de-7f331de892ce")
+		)
+		(instances
+			(project ""
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "#FLG01")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:PWR_FLAG")
+		(at 62.23 238.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4ebeb71f-b762-4460-a1d0-27c82b4c4073")
+		(property "Reference" "#FLG02"
+			(at 62.23 236.855 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "PWR_FLAG"
+			(at 62.23 233.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 62.23 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 62.23 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 62.23 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1022dbe5-8ba6-47fb-affb-777d464ddf36")
+		)
+		(instances
+			(project ""
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "#FLG02")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "BulbLib:DMN52D0UV")
 		(at 82.55 259.08 0)
 		(unit 1)
@@ -5845,7 +6233,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:SOT-563"
 			(at 82.55 259.08 0)
 			(effects
 				(font
@@ -5968,43 +6356,17 @@
 		)
 	)
 	(symbol
-		(lib_id "BQ24040DSQR:BQ24040DSQR")
-		(at 218.44 163.83 0)
+		(lib_id "power:PWR_FLAG")
+		(at 69.85 119.38 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "5fd46c4a-feff-4659-92c1-e185a31fa26b")
-		(property "Reference" "U5"
-			(at 218.44 146.05 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "BQ24040DSQR"
-			(at 218.44 148.59 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "BQ24040DSQR:SON40P200X200X80-11N"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 218.44 163.83 0)
+		(uuid "5d77b6ba-71c8-4f50-a338-61d0e4e6c4c3")
+		(property "Reference" "#FLG03"
+			(at 69.85 117.475 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6012,8 +6374,16 @@
 				(hide yes)
 			)
 		)
-		(property "Description" ""
-			(at 218.44 163.83 0)
+		(property "Value" "PWR_FLAG"
+			(at 69.85 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 69.85 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6021,130 +6391,31 @@
 				(hide yes)
 			)
 		)
-		(property "MF" "Texas Instruments"
-			(at 218.44 163.83 0)
+		(property "Datasheet" "~"
+			(at 69.85 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 				(hide yes)
 			)
 		)
-		(property "Description_1" "\nStandalone 1-cell 1-A linear battery charger with 4.2-V VBAT and Temperature Sensing\n"
-			(at 218.44 163.83 0)
+		(property "Description" "Special symbol for telling ERC where power comes from"
+			(at 69.85 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify bottom)
 				(hide yes)
 			)
-		)
-		(property "Package" "WSON-10 Texas Instruments"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Price" "None"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "SnapEDA_Link" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=snap"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "MP" "BQ24040DSQR"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Purchase-URL" "https://www.snapeda.com/api/url_track_click_mouser/?unipart_id=229310&manufacturer=Texas Instruments&part_name=BQ24040DSQR&search_term=None"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Availability" "In Stock"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(property "Check_prices" "https://www.snapeda.com/parts/BQ24040DSQR/Texas+Instruments/view-part/?ref=eda"
-			(at 218.44 163.83 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify bottom)
-				(hide yes)
-			)
-		)
-		(pin "8"
-			(uuid "825ec56b-4d20-4ecc-bd5a-6978c3246315")
 		)
 		(pin "1"
-			(uuid "8f2c9dc5-c497-4098-8eb9-c1c2396039ba")
-		)
-		(pin "9"
-			(uuid "abbcf287-976b-404e-9f95-1d1b41b7b987")
-		)
-		(pin "11"
-			(uuid "516e0694-0f21-4eb8-ad40-6040f82895f1")
-		)
-		(pin "4"
-			(uuid "0cd6ded4-8ea9-4295-a6c5-c2d1c445ea35")
-		)
-		(pin "5"
-			(uuid "4ccf06fc-6547-4125-b40e-a68960043b40")
-		)
-		(pin "7"
-			(uuid "fde9d3e1-d4be-43dc-992a-aa556d07290e")
-		)
-		(pin "10"
-			(uuid "f671175e-db9f-44b4-a18b-913b03d85f76")
-		)
-		(pin "2"
-			(uuid "80a0148e-43ad-4d10-a4a9-eaeebc2d8514")
-		)
-		(pin "3"
-			(uuid "1dc092ef-7d26-4ab1-837a-000a120975ba")
+			(uuid "fb71d372-064e-416d-95c2-475a21f05401")
 		)
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "U5")
+					(reference "#FLG03")
 					(unit 1)
 				)
 			)
@@ -6295,7 +6566,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "7a582f7d-1e57-418c-bc6c-0c0522bfd6cc")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR03"
 			(at 107.95 140.97 0)
 			(effects
 				(font
@@ -6345,7 +6616,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR02")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -6851,7 +7122,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ae057d2f-a366-4cac-ae40-460eb9532146")
-		(property "Reference" "#PWR05"
+		(property "Reference" "#PWR06"
 			(at 170.18 165.1 0)
 			(effects
 				(font
@@ -6902,7 +7173,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR05")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -6987,7 +7258,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c49b630d-12a6-4257-ad86-6df113c5116b")
-		(property "Reference" "#PWR06"
+		(property "Reference" "#PWR07"
 			(at 200.66 137.16 0)
 			(effects
 				(font
@@ -7038,7 +7309,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR06")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -7122,7 +7393,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d1b8134b-61a5-4d9a-a6e7-dd029e5fdf1c")
-		(property "Reference" "#PWR08"
+		(property "Reference" "#PWR09"
 			(at 246.38 171.45 0)
 			(effects
 				(font
@@ -7173,7 +7444,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR08")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -7189,7 +7460,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d3e1fb6d-436a-4cca-8aa8-fc93baaacf3e")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR012"
 			(at 307.34 80.01 0)
 			(effects
 				(font
@@ -7240,7 +7511,74 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR011")
+					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 69.85 238.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "dc52eeb6-7ede-47e5-9637-38b7acf15ae6")
+		(property "Reference" "#PWR02"
+			(at 76.2 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 73.66 238.7599 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 69.85 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 69.85 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 69.85 238.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "af743076-c5e1-446d-b273-1f713ee7d22c")
+		)
+		(instances
+			(project ""
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -7256,7 +7594,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e4d5752e-ff03-41c0-a77b-dbab1b785f22")
-		(property "Reference" "#PWR010"
+		(property "Reference" "#PWR011"
 			(at 302.26 93.98 0)
 			(effects
 				(font
@@ -7307,7 +7645,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR010")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -7391,7 +7729,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fb350987-bfe7-4466-9171-f268e5ed70d2")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR08"
 			(at 204.47 105.41 0)
 			(effects
 				(font
@@ -7441,7 +7779,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR07")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
