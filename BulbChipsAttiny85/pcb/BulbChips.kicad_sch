@@ -28,7 +28,7 @@
 					)
 				)
 			)
-			(property "Footprint" "BQ24040DSQR:SON40P200X200X80-11N"
+			(property "Footprint" "Package_SON:WSON-10-1EP_2x3mm_P0.5mm_EP0.84x2.4mm_ThermalVias"
 				(at -1.524 30.226 0)
 				(effects
 					(font
@@ -3275,10 +3275,6 @@
 		(uuid "88951825-6606-4798-9242-39493d63b694")
 	)
 	(no_connect
-		(at 236.22 173.99)
-		(uuid "bc9736f2-4000-4aab-9de6-fa342c512627")
-	)
-	(no_connect
 		(at 63.5 127)
 		(uuid "f8cb5f78-e6fa-4989-84a5-b852661afb13")
 	)
@@ -5245,7 +5241,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0df64d91-4527-4483-9720-5a6cd361916a")
-		(property "Reference" "#PWR010"
+		(property "Reference" "#PWR011"
 			(at 293.37 66.04 0)
 			(effects
 				(font
@@ -5296,7 +5292,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR010")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -5567,6 +5563,73 @@
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
 					(reference "R9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 236.22 173.99 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1ed892b6-6356-44a1-996f-03aae961f499")
+		(property "Reference" "#PWR09"
+			(at 242.57 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 240.03 173.9899 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 236.22 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 236.22 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 236.22 173.99 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "de0bdf7a-552d-437f-a09b-bf056c6f5408")
+		)
+		(instances
+			(project "BulbChips"
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -7393,7 +7456,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d1b8134b-61a5-4d9a-a6e7-dd029e5fdf1c")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR010"
 			(at 246.38 171.45 0)
 			(effects
 				(font
@@ -7444,7 +7507,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR09")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -7460,7 +7523,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d3e1fb6d-436a-4cca-8aa8-fc93baaacf3e")
-		(property "Reference" "#PWR012"
+		(property "Reference" "#PWR013"
 			(at 307.34 80.01 0)
 			(effects
 				(font
@@ -7511,7 +7574,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR012")
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -7594,7 +7657,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e4d5752e-ff03-41c0-a77b-dbab1b785f22")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR012"
 			(at 302.26 93.98 0)
 			(effects
 				(font
@@ -7645,7 +7708,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "#PWR011")
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)

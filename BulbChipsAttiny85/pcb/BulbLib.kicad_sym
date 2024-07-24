@@ -25,7 +25,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BQ24040DSQR:SON40P200X200X80-11N"
+		(property "Footprint" "Package_SON:WSON-10-1EP_2x3mm_P0.5mm_EP0.84x2.4mm_ThermalVias"
 			(at -1.524 30.226 0)
 			(effects
 				(font
