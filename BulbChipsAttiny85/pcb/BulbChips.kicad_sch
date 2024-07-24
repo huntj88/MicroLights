@@ -3412,16 +3412,6 @@
 	)
 	(wire
 		(pts
-			(xy 93.345 146.05) (xy 91.44 146.05)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "0405e977-5d3b-4b1c-afa2-a144393b4438")
-	)
-	(wire
-		(pts
 			(xy 260.35 146.05) (xy 261.62 146.05)
 		)
 		(stroke
@@ -3532,16 +3522,6 @@
 	)
 	(wire
 		(pts
-			(xy 100.33 146.05) (xy 98.425 146.05)
-		)
-		(stroke
-			(width 0)
-			(type solid)
-		)
-		(uuid "1a0c59df-6803-4129-9f7e-9c5dcb1f5740")
-	)
-	(wire
-		(pts
 			(xy 156.21 274.32) (xy 167.64 274.32)
 		)
 		(stroke
@@ -3649,6 +3629,16 @@
 			(type default)
 		)
 		(uuid "34e4850e-f929-4623-8bf2-7e5dcd349558")
+	)
+	(wire
+		(pts
+			(xy 91.44 146.05) (xy 93.98 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "35ce36dc-8489-4071-b67a-38156a2b1c76")
 	)
 	(wire
 		(pts
@@ -4352,6 +4342,16 @@
 	)
 	(wire
 		(pts
+			(xy 99.06 146.05) (xy 101.6 146.05)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e46768d0-d1e5-456a-9ff0-6e5d50f14bae")
+	)
+	(wire
+		(pts
 			(xy 73.66 264.16) (xy 71.12 264.16)
 		)
 		(stroke
@@ -4537,7 +4537,7 @@
 	)
 	(global_label "VBUS"
 		(shape passive)
-		(at 100.33 146.05 0)
+		(at 101.6 146.05 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4546,7 +4546,7 @@
 		)
 		(uuid "0fcfca25-737a-4d0c-890a-11c625c0dc52")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at -243.84 -163.195 0)
+			(at -242.57 -163.195 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4993,7 +4993,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "00e176f9-096c-427a-8b82-ae35de3d0351")
-		(property "Reference" "R6"
+		(property "Reference" "R7"
 			(at 180.34 149.86 90)
 			(effects
 				(font
@@ -5045,7 +5045,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R6")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -5366,7 +5366,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0b22ffbf-73de-47d8-9879-f2bad518122c")
-		(property "Reference" "R7"
+		(property "Reference" "R8"
 			(at 180.34 158.75 90)
 			(effects
 				(font
@@ -5418,7 +5418,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R7")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -5567,7 +5567,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "13294f5a-fd33-4b4d-8e83-206e881ef8bd")
-		(property "Reference" "R2"
+		(property "Reference" "R3"
 			(at 104.14 255.27 90)
 			(effects
 				(font
@@ -5619,7 +5619,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R2")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -5635,7 +5635,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "14a135f8-29f6-44b3-bc4f-03c79b3256a3")
-		(property "Reference" "R10"
+		(property "Reference" "R11"
 			(at 288.29 87.63 90)
 			(effects
 				(font
@@ -5687,7 +5687,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R10")
+					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -5703,7 +5703,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "17fcc7ce-9195-401c-b3ee-9ee882e3cd3a")
-		(property "Reference" "R9"
+		(property "Reference" "R10"
 			(at 256.54 151.13 90)
 			(effects
 				(font
@@ -5755,7 +5755,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R9")
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -6207,7 +6207,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3f39e1e1-cebc-4b43-aa7b-af2514ebc27c")
-		(property "Reference" "R5"
+		(property "Reference" "R6"
 			(at 151.13 267.97 90)
 			(effects
 				(font
@@ -6259,7 +6259,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R5")
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -6553,7 +6553,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5a736588-8892-4b92-91e7-b69939084332")
-		(property "Reference" "R11"
+		(property "Reference" "R12"
 			(at 293.37 73.66 90)
 			(effects
 				(font
@@ -6605,7 +6605,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R11")
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -6887,7 +6887,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "82dc0079-33de-450a-8c78-36042d84070f")
-		(property "Reference" "R1"
+		(property "Reference" "R2"
 			(at 97.79 131.318 90)
 			(effects
 				(font
@@ -6939,7 +6939,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R1")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -6955,7 +6955,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "84676036-7ceb-4453-91c7-fb4fe1c40490")
-		(property "Reference" "R8"
+		(property "Reference" "R9"
 			(at 256.54 139.7 90)
 			(effects
 				(font
@@ -7007,7 +7007,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R8")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -7220,15 +7220,15 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 95.885 146.05 270)
+		(at 96.52 146.05 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(uuid "9c225f39-b533-497d-a5db-e5ccc38dc4ca")
-		(property "Reference" "R12"
-			(at 95.885 147.955 90)
+		(property "Reference" "R1"
+			(at 96.52 147.955 90)
 			(effects
 				(font
 					(size 0.7874 0.7874)
@@ -7236,7 +7236,7 @@
 			)
 		)
 		(property "Value" "1.5k"
-			(at 95.885 146.05 90)
+			(at 96.52 146.05 90)
 			(effects
 				(font
 					(size 0.7874 0.7874)
@@ -7244,7 +7244,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 95.885 146.05 0)
+			(at 96.52 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7253,7 +7253,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 95.885 146.05 0)
+			(at 96.52 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7262,7 +7262,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 95.885 146.05 0)
+			(at 96.52 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7271,7 +7271,7 @@
 			)
 		)
 		(property "Package" "R0402"
-			(at 95.885 146.05 0)
+			(at 96.52 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7288,7 +7288,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R12")
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -7655,7 +7655,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cfe3b30a-d7dd-470b-a630-7e0b0c4ed57d")
-		(property "Reference" "R3"
+		(property "Reference" "R4"
 			(at 118.11 131.318 90)
 			(effects
 				(font
@@ -7707,7 +7707,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R3")
+					(reference "R4")
 					(unit 1)
 				)
 			)
@@ -7991,7 +7991,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f0eb6bd9-4c92-4cef-ae0d-e01e08edd7f8")
-		(property "Reference" "R4"
+		(property "Reference" "R5"
 			(at 133.35 260.35 90)
 			(effects
 				(font
@@ -8043,7 +8043,7 @@
 		(instances
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "R4")
+					(reference "R5")
 					(unit 1)
 				)
 			)
