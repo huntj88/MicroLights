@@ -650,6 +650,168 @@
 				)
 			)
 		)
+		(symbol "Connector:Conn_01x02_Socket"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x02_Socket"
+				(at 0 -5.08 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x02, script generated"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_locked" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x02_Socket_1_1"
+				(arc
+					(start 0 -2.032)
+					(mid -0.5058 -2.54)
+					(end 0 -3.048)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 -2.54) (xy -0.508 -2.54)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy -1.27 0) (xy -0.508 0)
+					)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(arc
+					(start 0 0.508)
+					(mid -0.5058 0)
+					(end 0 -0.508)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Connector:USB_C_Receptacle_USB2.0_14P"
 			(pin_names
 				(offset 1.016)
@@ -3646,6 +3808,16 @@
 	)
 	(wire
 		(pts
+			(xy 274.32 93.98) (xy 284.48 93.98)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "601cdf8b-32e7-4694-a184-e5469a5e0b41")
+	)
+	(wire
+		(pts
 			(xy 176.53 91.44) (xy 204.47 91.44)
 		)
 		(stroke
@@ -4163,16 +4335,6 @@
 			(type default)
 		)
 		(uuid "c689a8fd-465b-41db-bdcd-e433ec4c1763")
-	)
-	(wire
-		(pts
-			(xy 279.4 93.98) (xy 284.48 93.98)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c871d55c-940f-426d-9a68-dd586a9a6d25")
 	)
 	(wire
 		(pts
@@ -4893,7 +5055,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 180.34 157.988 90)
 			(effects
 				(font
@@ -4963,7 +5125,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 201.6252 152.4 0)
 			(effects
 				(font
@@ -5266,7 +5428,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 180.34 166.878 90)
 			(effects
 				(font
@@ -5532,7 +5694,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 104.14 263.398 90)
 			(effects
 				(font
@@ -5582,10 +5744,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "14a135f8-29f6-44b3-bc4f-03c79b3256a3")
 		(property "Reference" "R11"
-			(at 288.29 87.63 90)
+			(at 288.29 96.012 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5593,14 +5754,14 @@
 			)
 		)
 		(property "Value" "R"
-			(at 288.29 90.17 90)
+			(at 288.29 93.98 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 288.29 95.758 90)
 			(effects
 				(font
@@ -5668,7 +5829,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 256.54 159.258 90)
 			(effects
 				(font
@@ -6171,7 +6332,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 151.13 271.018 90)
 			(effects
 				(font
@@ -6222,7 +6383,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "472f31bf-c8a8-408e-a2b6-bcbce0c99be5")
-		(property "Reference" "D4"
+		(property "Reference" "D3"
 			(at 282.2575 72.39 0)
 			(effects
 				(font
@@ -6238,7 +6399,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_SMD:LED_0201_0603Metric"
 			(at 280.67 80.01 0)
 			(effects
 				(font
@@ -6274,7 +6435,7 @@
 		(instances
 			(project "BulbChips"
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "D4")
+					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -6412,6 +6573,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:Conn_01x02_Socket")
+		(at 271.78 88.9 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "52836f36-841f-45e8-ab60-552289e06992")
+		(property "Reference" "J2"
+			(at 271.78 87.63 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "LED_2pin_Socket"
+			(at 266.954 95.25 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical_SMD_Pin1Right"
+			(at 271.78 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 271.78 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated"
+			(at 271.78 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fe2ea729-bddc-4e0f-bd65-4a973d725f79")
+		)
+		(pin "2"
+			(uuid "91f19449-e758-4831-ab92-906c94bf734a")
+		)
+		(instances
+			(project ""
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "BulbLib:DMN52D0UV")
 		(at 82.55 259.08 0)
 		(unit 1)
@@ -6517,7 +6747,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 293.37 81.788 90)
 			(effects
 				(font
@@ -6651,7 +6881,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_SMD:LED_0201_0603Metric"
 			(at 248.92 146.05 0)
 			(effects
 				(font
@@ -6719,7 +6949,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_SMD:LED_0201_0603Metric"
 			(at 248.92 157.48 0)
 			(effects
 				(font
@@ -6851,7 +7081,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 97.79 135.128 90)
 			(effects
 				(font
@@ -6919,7 +7149,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 256.54 147.828 90)
 			(effects
 				(font
@@ -6956,73 +7186,6 @@
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
 					(reference "R9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:LED")
-		(at 275.59 93.98 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "862f8832-18b3-46eb-959b-f82941d5c46b")
-		(property "Reference" "D3"
-			(at 277.1775 86.36 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 277.1775 88.9 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 275.59 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 275.59 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 275.59 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "53346735-179b-4a97-a359-7b8b0e737a9a")
-		)
-		(pin "1"
-			(uuid "8f0a1290-0cf0-4542-a162-18f95f3ed2e6")
-		)
-		(instances
-			(project ""
-				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
-					(reference "D3")
 					(unit 1)
 				)
 			)
@@ -7124,7 +7287,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 144.4752 265.43 0)
 			(effects
 				(font
@@ -7410,7 +7573,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0201_0603Metric"
 			(at 177.4952 91.44 0)
 			(effects
 				(font
@@ -7477,7 +7640,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 88.9 157.988 90)
 			(effects
 				(font
@@ -7610,7 +7773,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 118.11 131.572 90)
 			(effects
 				(font
@@ -7945,7 +8108,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_0201_0603Metric"
 			(at 133.35 268.478 90)
 			(effects
 				(font
