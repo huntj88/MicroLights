@@ -1926,6 +1926,128 @@
 				)
 			)
 		)
+		(symbol "Device:R_Small"
+			(pin_numbers hide)
+			(pin_names
+				(offset 0.254) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "R"
+				(at 0.762 0.508 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Value" "R_Small"
+				(at 0.762 -1.016 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Resistor, small symbol"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "R resistor"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "R_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "R_Small_0_1"
+				(rectangle
+					(start -0.762 1.778)
+					(end 0.762 -1.778)
+					(stroke
+						(width 0.2032)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "R_Small_1_1"
+				(pin passive line
+					(at 0 2.54 270)
+					(length 0.762)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 0 -2.54 90)
+					(length 0.762)
+					(name "~"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "MCU_Microchip_ATtiny:ATtiny85-20M"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -3290,6 +3412,16 @@
 	)
 	(wire
 		(pts
+			(xy 93.345 146.05) (xy 91.44 146.05)
+		)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(uuid "0405e977-5d3b-4b1c-afa2-a144393b4438")
+	)
+	(wire
+		(pts
 			(xy 260.35 146.05) (xy 261.62 146.05)
 		)
 		(stroke
@@ -3397,6 +3529,16 @@
 			(type default)
 		)
 		(uuid "166d24e9-e4d9-4cc2-8296-7eb036d0f028")
+	)
+	(wire
+		(pts
+			(xy 100.33 146.05) (xy 98.425 146.05)
+		)
+		(stroke
+			(width 0)
+			(type solid)
+		)
+		(uuid "1a0c59df-6803-4129-9f7e-9c5dcb1f5740")
 	)
 	(wire
 		(pts
@@ -4304,6 +4446,16 @@
 		)
 		(uuid e41115b9-b2c4-4168-8244-4db8273e91cc)
 	)
+	(text "low speed"
+		(exclude_from_sim no)
+		(at 94.996 143.002 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "24a3bd33-cbad-4197-b45e-70347d90a941")
+	)
 	(text "BATTERY / PROTECTION IC"
 		(exclude_from_sim no)
 		(at 82.55 219.964 0)
@@ -4340,6 +4492,27 @@
 		)
 		(uuid "c301d5ca-3b5a-41d1-a42e-64d2a792d190")
 	)
+	(global_label "DBUS-"
+		(shape bidirectional)
+		(at 91.44 146.05 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0cf24425-eebc-4aab-9039-76cd14acb4a8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 80.8505 146.1294 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "D-"
 		(shape bidirectional)
 		(at 228.6 68.58 0)
@@ -4358,6 +4531,26 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "VBUS"
+		(shape passive)
+		(at 100.33 146.05 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "0fcfca25-737a-4d0c-890a-11c625c0dc52")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at -243.84 -163.195 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
 				(hide yes)
 			)
 		)
@@ -6693,18 +6886,17 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "82dc0079-33de-450a-8c78-36042d84070f")
 		(property "Reference" "R1"
-			(at 97.79 127 90)
+			(at 97.79 131.318 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "22R"
-			(at 97.79 129.54 90)
+		(property "Value" "68"
+			(at 97.79 133.35 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7021,6 +7213,82 @@
 			(project ""
 				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
 					(reference "C1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 95.885 146.05 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "9c225f39-b533-497d-a5db-e5ccc38dc4ca")
+		(property "Reference" "R12"
+			(at 95.885 147.955 90)
+			(effects
+				(font
+					(size 0.7874 0.7874)
+				)
+			)
+		)
+		(property "Value" "1.5k"
+			(at 95.885 146.05 90)
+			(effects
+				(font
+					(size 0.7874 0.7874)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 95.885 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 95.885 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 95.885 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Package" "R0402"
+			(at 95.885 146.05 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "fd3399d5-a138-4b89-a6a9-388326f12688")
+		)
+		(pin "2"
+			(uuid "797cd975-7da6-4790-91b9-6ceed8c2f183")
+		)
+		(instances
+			(project "BulbChips"
+				(path "/fc2915fa-7a9c-445c-a5d7-b7fdeb691e1a"
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -7386,18 +7654,17 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "cfe3b30a-d7dd-470b-a630-7e0b0c4ed57d")
 		(property "Reference" "R3"
-			(at 118.11 127 90)
+			(at 118.11 131.318 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "22R"
-			(at 118.11 129.54 90)
+		(property "Value" "68"
+			(at 118.11 133.35 90)
 			(effects
 				(font
 					(size 1.27 1.27)
