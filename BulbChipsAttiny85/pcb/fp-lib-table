@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "BulbLibrary")(type "KiCad")(uri "${KIPRJMOD}/BulbLibrary.pretty")(options "")(descr ""))
+)

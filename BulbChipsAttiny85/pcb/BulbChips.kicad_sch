@@ -5821,7 +5821,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "BulbLibrary:SNT-6A"
 			(at 118.11 266.7 0)
 			(effects
 				(font
