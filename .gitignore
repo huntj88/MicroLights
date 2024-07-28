@@ -1,4 +1,11 @@
+# Arduino
 **/build
 **/hardware
-BulbChipsAttiny85/pcb/BulbChips-backups
-BulbChipsAttiny85/pcb/~BulbChips.kicad_sch.lck
+
+# Kicad
+**/*-backups
+**/#auto_saved_files#
+**/*.bak
+**/*.lck
+**/fp-info-cache
+**/_autosave-*.kicad_sch
