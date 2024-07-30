@@ -4534,6 +4534,16 @@
 	)
 	(wire
 		(pts
+			(xy 52.07 69.85) (xy 53.34 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5a5f5fe3-1268-46d9-9ca2-8404cb044e33")
+	)
+	(wire
+		(pts
 			(xy 85.09 34.29) (xy 82.55 34.29)
 		)
 		(stroke
@@ -4651,6 +4661,16 @@
 			(type default)
 		)
 		(uuid "a20d3ba0-07f4-4f13-b24e-eab700b347bd")
+	)
+	(wire
+		(pts
+			(xy 60.96 69.85) (xy 62.23 69.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a751dcd0-5d44-4099-b2b1-1398cb19181e")
 	)
 	(wire
 		(pts
@@ -4877,8 +4897,8 @@
 		(uuid 45daacb1-58ee-437a-945e-37f853cbe97f)
 	)
 	(rectangle
-		(start 14.478 78.74)
-		(end 85.598 142.748)
+		(start 13.97 78.74)
+		(end 85.09 142.748)
 		(stroke
 			(width 0)
 			(type default)
@@ -4935,7 +4955,18 @@
 		)
 		(uuid "02e49033-69d6-4e8d-825b-1cfd5c4b2de1")
 	)
-	(text "TODO: Set TS_IGNORE is set to 1. The TS pin may be left floating, not using a thermistor"
+	(text "Set low speed usb"
+		(exclude_from_sim no)
+		(at 57.15 73.66 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+				(bold yes)
+			)
+		)
+		(uuid "06509983-7112-4af0-aed2-c7cd1a2d6f92")
+	)
+	(text "TODO: Set TS_IGNORE to 1. The TS pin may be left floating, not using a thermistor"
 		(exclude_from_sim no)
 		(at 188.976 6.858 0)
 		(effects
@@ -4992,9 +5023,9 @@
 		)
 		(uuid "843c1e58-bb9e-42eb-9a34-5760c89616c1")
 	)
-	(text "BREAKOUT PINS"
+	(text "Breakout Pins"
 		(exclude_from_sim no)
-		(at 215.646 82.296 0)
+		(at 214.122 82.296 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -5122,6 +5153,27 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "DBUS-"
+		(shape bidirectional)
+		(at 52.07 69.85 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0f85ca51-bbce-4cb8-81d8-e7f69e4ea4f4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 41.4805 69.9294 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -5641,6 +5693,26 @@
 		(uuid "79b56088-645d-48f0-bc14-33a499bb2887")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at -298.45 -278.765 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "VBUS"
+		(shape passive)
+		(at 62.23 69.85 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7cf4256f-9f78-4993-b446-827d7e3248fb")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at -281.94 -239.395 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7334,6 +7406,73 @@
 			(project ""
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR012")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 57.15 69.85 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "2fbeba27-6a0c-49a4-bb17-d02066006772")
+		(property "Reference" "R3"
+			(at 57.15 67.818 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "2.2k"
+			(at 57.15 69.85 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 57.15 71.628 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 57.15 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 57.15 69.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "88ecfa1a-1de4-4e4a-b40d-7d68efd11725")
+		)
+		(pin "1"
+			(uuid "09fb49bc-cf98-4427-92fd-8edfe0293427")
+		)
+		(instances
+			(project ""
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "R3")
 					(unit 1)
 				)
 			)
