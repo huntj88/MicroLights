@@ -22,7 +22,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "BatteryExperimentPCB:RYK0018A-MFG"
 			(at 6.35 0 0)
 			(effects
 				(font
@@ -31,7 +31,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/bq25628.pdf"
 			(at 6.35 0 0)
 			(effects
 				(font
