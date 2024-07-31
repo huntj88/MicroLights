@@ -409,7 +409,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "BatteryExperimentPCB:150066M153000"
 			(at 0 -1.27 0)
 			(effects
 				(font

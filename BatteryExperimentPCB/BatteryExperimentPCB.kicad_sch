@@ -412,7 +412,7 @@
 					)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "BatteryExperimentPCB:150066M153000"
 				(at 0 -1.27 0)
 				(effects
 					(font
@@ -9012,7 +9012,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical"
 			(at 205.74 106.68 0)
 			(effects
 				(font
@@ -9849,7 +9849,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x12_P2.54mm_Vertical"
 			(at 229.87 106.68 0)
 			(effects
 				(font
@@ -10730,7 +10730,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d1c049db-7ff7-4a69-9676-5de668939ab3")
-		(property "Reference" "D3"
+		(property "Reference" "D1"
 			(at 181.61 85.09 0)
 			(effects
 				(font
@@ -10746,7 +10746,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "BatteryExperimentPCB:150066M153000"
 			(at 181.61 100.33 0)
 			(effects
 				(font
@@ -10797,7 +10797,7 @@
 		(instances
 			(project ""
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "D3")
+					(reference "D1")
 					(unit 1)
 				)
 			)

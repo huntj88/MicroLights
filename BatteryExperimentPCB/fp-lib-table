@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "BatteryExperimentPCB")(type "KiCad")(uri "${KIPRJMOD}/BatteryExperimentPCB.pretty")(options "")(descr ""))
+)
