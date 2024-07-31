@@ -8009,7 +8009,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Inductor_SMD:L_0805_2012Metric"
 			(at 168.91 55.88 0)
 			(effects
 				(font
@@ -10220,7 +10220,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "LED_SMD:LED_0805_2012Metric"
 			(at 207.01 72.39 0)
 			(effects
 				(font
