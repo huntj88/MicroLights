@@ -5081,7 +5081,7 @@
 	)
 	(rectangle
 		(start 201.93 78.74)
-		(end 252.73 124.46)
+		(end 247.65 124.46)
 		(stroke
 			(width 0)
 			(type default)
@@ -5117,7 +5117,7 @@
 	)
 	(rectangle
 		(start 87.63 78.74)
-		(end 153.67 120.65)
+		(end 153.67 128.27)
 		(stroke
 			(width 0)
 			(type default)
@@ -5207,9 +5207,9 @@
 		)
 		(uuid "51327f07-6286-48f7-acf9-6887d5fbde5e")
 	)
-	(text "VoltageDivider to bring 5V down to 1.016V.\n(battery will probably max out at ~4.5V)\n\nThis will allow Attiny internal 1.024V voltage\nreference to be used to calculate battery voltage.\n\nEnabled via mosfet to keep voltage divider from draining battery."
+	(text "VoltageDivider to bring 5V down to 1.016V.\n(battery will probably max out at ~4.5V)\n\nThis will allow Attiny internal 1.024V voltage\nreference to be used to calculate battery voltage.\n\nEnabled via mosfet to keep voltage divider from draining battery.\n\nCan also use SYS output as voltage reference to calculate\nbattery voltage, which is regulated at 3.75V by default,\nbut can be changed programmatically."
 		(exclude_from_sim no)
-		(at 88.392 112.776 0)
+		(at 88.392 116.332 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5429,9 +5429,9 @@
 			)
 		)
 	)
-	(global_label "PMID"
+	(global_label "VBUS"
 		(shape input)
-		(at 234.95 101.6 0)
+		(at 234.95 119.38 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5439,9 +5439,9 @@
 			)
 			(justify left)
 		)
-		(uuid "258fd0e6-5d66-4c0a-981a-1cac6956a38f")
+		(uuid "20aa0e14-9f03-4106-8676-ee027e50b056")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 242.5314 101.6 0)
+			(at 242.8338 119.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5453,6 +5453,50 @@
 	)
 	(global_label "PC3"
 		(shape input)
+		(at 234.95 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "286a99f1-e943-418d-9fd2-fd93942685f6")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.6847 96.52 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "PMID"
+		(shape input)
+		(at 234.95 104.14 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "29772403-c931-45cc-93c1-95e2f8ddea06")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 242.5314 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "D-"
+		(shape input)
 		(at 29.21 125.73 180)
 		(fields_autoplaced yes)
 		(effects
@@ -5461,9 +5505,9 @@
 			)
 			(justify right)
 		)
-		(uuid "36f3331b-6c27-4a52-b7e3-276d93b3f129")
+		(uuid "2b161af6-25bb-4ca9-a8e6-9280292e0579")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 22.4753 125.73 0)
+			(at 23.3824 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5508,6 +5552,28 @@
 		(uuid "3a187d40-8e44-47d2-8052-e59c9f6ab51d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 66.1828 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "Reset"
+		(shape input)
+		(at 59.69 100.33 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3ebc8c64-df88-4c7d-b011-29d946a39785")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 67.8762 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5839,28 +5905,6 @@
 			)
 		)
 	)
-	(global_label "D-"
-		(shape input)
-		(at 59.69 102.87 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "80e59d1d-7d17-4b01-88b9-b0722b9f74f6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 65.5176 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Battery+"
 		(shape input)
 		(at 156.21 54.61 270)
@@ -5991,28 +6035,6 @@
 			)
 		)
 	)
-	(global_label "QON"
-		(shape input)
-		(at 234.95 96.52 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "8d73d785-b428-4be2-8920-5a7da1a1a11a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.9267 96.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BTST"
 		(shape input)
 		(at 134.62 31.75 90)
@@ -6026,28 +6048,6 @@
 		(uuid "8e561aa9-5784-4017-8698-16979e6dba5f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 134.62 24.3501 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "D+"
-		(shape input)
-		(at 59.69 100.33 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "92d95e2c-2fc8-4b4d-bfd8-55404508652f")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 65.5176 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6075,28 +6075,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "Reset"
-		(shape input)
-		(at 59.69 95.25 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "953512c6-3cde-42e0-9a76-a7bacb1b9941")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 67.8762 95.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -6202,28 +6180,6 @@
 		(uuid "a59fe1e6-2ac1-4e35-934b-66ab71dd5fe7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 76.8264 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "Battery+"
-		(shape input)
-		(at 234.95 106.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a7530fb0-8cc7-440e-ab3f-e0f023ce87ed")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 246.2204 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6428,6 +6384,28 @@
 			)
 		)
 	)
+	(global_label "PC3"
+		(shape input)
+		(at 59.69 102.87 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b4b527f2-55cd-4005-8f08-590cedcc1ce4")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 66.4247 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "Battery+"
 		(shape input)
 		(at 130.81 63.5 180)
@@ -6450,9 +6428,9 @@
 			)
 		)
 	)
-	(global_label "VBUS"
+	(global_label "D+"
 		(shape input)
-		(at 234.95 116.84 0)
+		(at 59.69 95.25 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6460,9 +6438,9 @@
 			)
 			(justify left)
 		)
-		(uuid "be9878fa-7d75-480b-91d6-5b330b79b011")
+		(uuid "c456cdc3-4236-4c5a-9f26-7f900134dfa9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 242.8338 116.84 0)
+			(at 65.5176 95.25 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6560,9 +6538,9 @@
 			)
 		)
 	)
-	(global_label "ILIM"
+	(global_label "Battery+"
 		(shape input)
-		(at 234.95 99.06 0)
+		(at 234.95 109.22 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6570,31 +6548,9 @@
 			)
 			(justify left)
 		)
-		(uuid "d09b62fe-2b43-4978-aea7-d8888b2d58bc")
+		(uuid "d419366c-8565-4368-99ce-143df4ae2404")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.6243 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PMID_GO"
-		(shape input)
-		(at 234.95 104.14 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d2e21ccc-0da9-449f-abd3-272276d91a5a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 246.0995 104.14 0)
+			(at 246.2204 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6682,28 +6638,6 @@
 		(uuid "e1ff03e6-4906-4c42-b90c-af954c891dde")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 186.1068 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PC3"
-		(shape input)
-		(at 234.95 93.98 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e3d2b393-b8ed-44fa-b150-b0d0b8ab4e57")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.6847 93.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6843,6 +6777,28 @@
 			)
 		)
 	)
+	(global_label "PMID_GO"
+		(shape input)
+		(at 234.95 106.68 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f72e4069-d04e-436d-a27d-68cecb96a187")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 246.0995 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "PMID"
 		(shape input)
 		(at 151.13 24.13 90)
@@ -6856,6 +6812,50 @@
 		(uuid "f9acd7dd-f46e-40f2-8b22-1f1d01fb988f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 151.13 16.5486 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "QON"
+		(shape input)
+		(at 234.95 99.06 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fb9cbd30-7f8e-4281-8a3e-801d48913967")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.9267 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ILIM"
+		(shape input)
+		(at 234.95 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fc286ac6-e5ee-4ccd-ab91-5c982a90cba7")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.6243 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6892,7 +6892,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 112.268 93.98 90)
 			(effects
 				(font
@@ -7076,6 +7076,73 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 234.95 93.98 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "1056e59c-d590-4de0-9f32-f6350ffd2d45")
+		(property "Reference" "#PWR029"
+			(at 241.3 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 93.9799 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 234.95 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "153dfa15-00c5-4414-a631-24d937f3ff30")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR029")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 53.34 38.1 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7143,6 +7210,72 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 234.95 111.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "1b41c78a-d01f-4a0a-b705-5b2cfcbc3fad")
+		(property "Reference" "#PWR025"
+			(at 241.3 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 111.7599 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 234.95 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "7a4f3d1a-4c77-4d3b-b157-bed09212d2b3")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR025")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 135.89 72.39 90)
 		(unit 1)
 		(exclude_from_sim no)
@@ -7202,73 +7335,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR014")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 234.95 121.92 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "2429187a-50fa-4431-9808-8db80f56a90a")
-		(property "Reference" "#PWR029"
-			(at 241.3 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 121.9199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3e040a01-1d73-475c-b166-be252fe1cc56")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -7431,7 +7497,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 57.15 71.628 90)
 			(effects
 				(font
@@ -7499,7 +7565,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 214.63 40.64 0)
 			(effects
 				(font
@@ -7736,73 +7802,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#FLG01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 234.95 119.38 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "46cc76db-5014-4fc5-9578-a8f8cbb871a5")
-		(property "Reference" "#PWR028"
-			(at 241.3 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 119.3799 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d35b2780-46a9-493c-b8fb-053b5cf79555")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -8084,7 +8083,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 100.33 42.672 90)
 			(effects
 				(font
@@ -8283,7 +8282,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 173.99 104.14 0)
 			(effects
 				(font
@@ -8524,7 +8523,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 214.63 72.39 0)
 			(effects
 				(font
@@ -8634,72 +8633,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 234.95 109.22 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "6ed635d8-563f-4582-ba3b-18007c83a865")
-		(property "Reference" "#PWR025"
-			(at 241.3 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 109.2199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e5e4cc92-17b0-4a6a-9309-b8b29dcb1711")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR025")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+3.3V")
 		(at 218.44 22.86 270)
 		(unit 1)
@@ -8761,6 +8694,73 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR021")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 234.95 114.3 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "74a03de4-d36a-4365-ab4c-d0ad8a41865a")
+		(property "Reference" "#PWR026"
+			(at 231.14 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.75V"
+			(at 238.76 114.2999 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 234.95 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a3610756-3332-4663-b1db-714347a85406")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -8945,7 +8945,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 176.53 60.96 0)
 			(effects
 				(font
@@ -9109,7 +9109,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 39.37 90.17 0)
 			(effects
 				(font
@@ -9176,7 +9176,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 49.53 39.878 90)
 			(effects
 				(font
@@ -9246,7 +9246,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 72.39 105.41 0)
 			(effects
 				(font
@@ -9447,7 +9447,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 39.37 83.82 0)
 			(effects
 				(font
@@ -9490,73 +9490,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:+3.3V")
-		(at 234.95 111.76 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9bf2dbd1-8c62-4192-8c86-ced87f570f1c")
-		(property "Reference" "#PWR026"
-			(at 231.14 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.75V"
-			(at 238.76 111.7599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 234.95 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e96b6959-ba73-4ee3-9850-086e2eb37aee")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR026")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Switch:SW_Push")
 		(at 176.53 120.65 0)
 		(unit 1)
@@ -9582,7 +9515,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 176.53 115.57 0)
 			(effects
 				(font
@@ -9625,6 +9558,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 234.95 116.84 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9e8e2450-2741-43a7-a824-c33b57f625d0")
+		(property "Reference" "#PWR027"
+			(at 241.3 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 116.8399 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 234.95 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "3369a1a3-4b51-4532-8dda-89e00b4f446a")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR027")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C_Small")
 		(at 129.54 35.56 90)
 		(unit 1)
@@ -9649,7 +9649,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 129.54 35.56 0)
 			(effects
 				(font
@@ -9946,7 +9946,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 173.99 93.98 0)
 			(effects
 				(font
@@ -10013,7 +10013,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 133.35 72.39 0)
 			(effects
 				(font
@@ -10081,7 +10081,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 214.63 31.75 0)
 			(effects
 				(font
@@ -10477,7 +10477,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 49.53 37.338 90)
 			(effects
 				(font
@@ -10544,7 +10544,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 116.84 87.122 90)
 			(effects
 				(font
@@ -10678,7 +10678,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 133.35 63.5 0)
 			(effects
 				(font
@@ -10715,6 +10715,73 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "C4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 234.95 121.92 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d1a7b461-de85-4836-8233-c77e32433519")
+		(property "Reference" "#PWR028"
+			(at 241.3 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 238.76 121.9199 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 234.95 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "56e29660-caef-4434-ada4-27e500cdd72f")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -10798,73 +10865,6 @@
 			(project ""
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 234.95 114.3 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "dac8dacd-d0f0-4f74-bdc8-a6d9a0bfac94")
-		(property "Reference" "#PWR027"
-			(at 241.3 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 114.2999 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "28d08b6f-d96b-4635-bc80-cae919a628ed")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -10962,7 +10962,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 173.99 99.06 0)
 			(effects
 				(font
@@ -11096,7 +11096,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 214.63 22.86 0)
 			(effects
 				(font
@@ -11364,7 +11364,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0805_2012Metric"
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
 			(at 80.01 46.228 90)
 			(effects
 				(font
