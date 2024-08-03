@@ -5407,9 +5407,9 @@
 			)
 		)
 	)
-	(global_label "VBUS"
+	(global_label "QON"
 		(shape input)
-		(at 234.95 119.38 0)
+		(at 234.95 101.6 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5417,9 +5417,53 @@
 			)
 			(justify left)
 		)
-		(uuid "20aa0e14-9f03-4106-8676-ee027e50b056")
+		(uuid "17fd5d7e-dd5f-4d65-83ad-7705ce0a9d55")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 242.8338 119.38 0)
+			(at 241.9267 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "StatusInterrupt"
+		(shape input)
+		(at 59.69 125.73 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1a00d6b5-dda6-46ed-a128-24ba6f73322a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 76.8264 125.73 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ILIM"
+		(shape input)
+		(at 234.95 99.06 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1c3f93a3-80eb-4c9d-85d1-2ad783f37a51")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.6243 99.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5451,28 +5495,6 @@
 			)
 		)
 	)
-	(global_label "PMID"
-		(shape input)
-		(at 234.95 104.14 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "29772403-c931-45cc-93c1-95e2f8ddea06")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 242.5314 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "D-"
 		(shape input)
 		(at 29.21 125.73 180)
@@ -5491,6 +5513,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "VBUS"
+		(shape input)
+		(at 234.95 121.92 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "33c15fd0-9b50-4812-97f2-c9f2e1e2fe86")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 242.8338 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -5517,28 +5561,6 @@
 			)
 		)
 	)
-	(global_label "SCL"
-		(shape input)
-		(at 59.69 120.65 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3a187d40-8e44-47d2-8052-e59c9f6ab51d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 66.1828 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Reset"
 		(shape input)
 		(at 59.69 100.33 0)
@@ -5552,6 +5574,28 @@
 		(uuid "3ebc8c64-df88-4c7d-b011-29d946a39785")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 67.8762 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SCL"
+		(shape input)
+		(at 59.69 120.65 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "403f9f49-ee99-4c09-854d-615f6035165b")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 66.1828 120.65 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5683,6 +5727,28 @@
 		(uuid "59d400fa-16e5-40ac-951e-2038f06261be")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 217.5547 121.92 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "SDA"
+		(shape input)
+		(at 234.95 116.84 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6349f1b3-4ad5-472f-8673-b7261e6e53ca")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.5033 116.84 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6035,6 +6101,28 @@
 			)
 		)
 	)
+	(global_label "SDA"
+		(shape input)
+		(at 59.69 123.19 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8d2036e2-c3ac-43b5-adbb-c30df9030db0")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 66.2433 123.19 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "BTST"
 		(shape input)
 		(at 134.62 31.75 90)
@@ -6189,28 +6277,6 @@
 			)
 		)
 	)
-	(global_label "StatusInterrupt"
-		(shape input)
-		(at 59.69 125.73 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a59fe1e6-2ac1-4e35-934b-66ab71dd5fe7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 76.8264 125.73 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "StatusLED"
 		(shape input)
 		(at 201.93 72.39 180)
@@ -6229,28 +6295,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ChargeEnable"
-		(shape input)
-		(at 59.69 118.11 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "ac3878cd-2768-467b-bc01-b53b7f1e9412")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 75.6168 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -6406,6 +6450,28 @@
 			)
 		)
 	)
+	(global_label "SCL"
+		(shape input)
+		(at 234.95 114.3 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "bf215505-1051-45cc-a6d1-306cc49bff31")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 241.4428 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "D+"
 		(shape input)
 		(at 59.69 95.25 0)
@@ -6472,50 +6538,6 @@
 			)
 		)
 	)
-	(global_label "SDA"
-		(shape input)
-		(at 210.82 114.3 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "cddc00be-2f2b-4fd5-a67a-adba8638fea6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 217.3733 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SCL"
-		(shape input)
-		(at 210.82 111.76 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "cf8f67f7-f811-4915-9ddc-4a6d54c7fe01")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 217.3128 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Battery+"
 		(shape input)
 		(at 234.95 109.22 0)
@@ -6529,6 +6551,28 @@
 		(uuid "d419366c-8565-4368-99ce-143df4ae2404")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 246.2204 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "ChargeEnable"
+		(shape input)
+		(at 59.69 118.11 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d8b620b1-0f9a-45a0-8c44-9f3622c7f98a")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 75.6168 118.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6603,6 +6647,28 @@
 			)
 		)
 	)
+	(global_label "PMID_GO"
+		(shape input)
+		(at 234.95 104.14 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e024d2f9-96c8-4af5-9c50-52a336bc1c78")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 246.0995 104.14 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "ChargeEnable"
 		(shape input)
 		(at 170.18 31.75 0)
@@ -6616,28 +6682,6 @@
 		(uuid "e1ff03e6-4906-4c42-b90c-af954c891dde")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 186.1068 31.75 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SDA"
-		(shape input)
-		(at 59.69 123.19 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e58ef4f8-8599-44b9-a1fb-d0bc30bac6cd")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 66.2433 123.19 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6777,7 +6821,7 @@
 			)
 		)
 	)
-	(global_label "PMID_GO"
+	(global_label "PMID"
 		(shape input)
 		(at 234.95 106.68 0)
 		(fields_autoplaced yes)
@@ -6787,9 +6831,9 @@
 			)
 			(justify left)
 		)
-		(uuid "f72e4069-d04e-436d-a27d-68cecb96a187")
+		(uuid "f81d09c4-f6e1-4546-b631-4ca16a276687")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 246.0995 106.68 0)
+			(at 242.5314 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6812,50 +6856,6 @@
 		(uuid "f9acd7dd-f46e-40f2-8b22-1f1d01fb988f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 151.13 16.5486 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "QON"
-		(shape input)
-		(at 234.95 99.06 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fb9cbd30-7f8e-4281-8a3e-801d48913967")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.9267 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ILIM"
-		(shape input)
-		(at 234.95 101.6 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "fc286ac6-e5ee-4ccd-ab91-5c982a90cba7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.6243 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6929,6 +6929,73 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 234.95 119.38 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "04cb384b-e73d-47ca-b127-aa804a7382f3")
+		(property "Reference" "#PWR026"
+			(at 231.14 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.75V"
+			(at 238.76 119.3799 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 234.95 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 234.95 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 234.95 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bacc4485-8751-41ce-9122-f371ea948460")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -8633,6 +8700,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 210.82 111.76 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "712b7a58-3bbe-4846-89da-0af953f9a63e")
+		(property "Reference" "#PWR027"
+			(at 217.17 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 214.63 111.7599 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 210.82 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 210.82 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 210.82 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "231b7cec-0b07-44e2-861e-792dc50376b2")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR027")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 218.44 22.86 270)
 		(unit 1)
@@ -8694,73 +8828,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR021")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 234.95 114.3 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "74a03de4-d36a-4365-ab4c-d0ad8a41865a")
-		(property "Reference" "#PWR026"
-			(at 231.14 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.75V"
-			(at 238.76 114.2999 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 234.95 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "a3610756-3332-4663-b1db-714347a85406")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -9289,6 +9356,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:GND")
+		(at 210.82 114.3 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8d94f136-d3b7-4910-9149-32b670748eb2")
+		(property "Reference" "#PWR028"
+			(at 217.17 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 214.63 114.2999 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 210.82 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 210.82 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 210.82 114.3 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "31531bd4-4e78-4819-bbc0-3ed770091cbd")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR028")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 218.44 40.64 270)
 		(unit 1)
@@ -9552,73 +9686,6 @@
 			(project ""
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "SW1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 234.95 116.84 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "9e8e2450-2741-43a7-a824-c33b57f625d0")
-		(property "Reference" "#PWR027"
-			(at 241.3 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 116.8399 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3369a1a3-4b51-4532-8dda-89e00b4f446a")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -10715,73 +10782,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "C4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 234.95 121.92 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d1a7b461-de85-4836-8233-c77e32433519")
-		(property "Reference" "#PWR028"
-			(at 241.3 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 238.76 121.9199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 234.95 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "56e29660-caef-4434-ada4-27e500cdd72f")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR028")
 					(unit 1)
 				)
 			)
