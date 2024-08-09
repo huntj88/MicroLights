@@ -9553,7 +9553,7 @@
 				)
 			)
 		)
-		(property "Value" "SW_Push"
+		(property "Value" "K2-1157SP"
 			(at 176.53 115.57 0)
 			(effects
 				(font
@@ -9561,7 +9561,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+		(property "Footprint" "BatteryExperimentPCB:K2-1157SP"
 			(at 176.53 115.57 0)
 			(effects
 				(font
@@ -9570,7 +9570,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://jlcpcb.com/partdetail/3187750-K2_1157SP_I4SW01/C2909692"
 			(at 176.53 115.57 0)
 			(effects
 				(font
