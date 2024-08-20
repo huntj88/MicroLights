@@ -390,29 +390,29 @@
 				)
 			)
 		)
-		(symbol "BatteryExperimentPCB:LED_ARGB_150066M153000"
+		(symbol "BatteryExperimentPCB:LED_RGBK"
 			(pin_names
 				(offset 0) hide)
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "D1"
-				(at 0 13.97 0)
+			(property "Reference" "D"
+				(at 0 9.398 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Value" "LED_ARGB_150066M153000"
-				(at 0 11.43 0)
+			(property "Value" "LED_RGBK"
+				(at 0 -8.89 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 				)
 			)
-			(property "Footprint" "BatteryExperimentPCB:150066M153000"
+			(property "Footprint" "BatteryExperimentPCB:RS-C1415MBAR"
 				(at 0 -1.27 0)
 				(effects
 					(font
@@ -421,7 +421,7 @@
 					(hide yes)
 				)
 			)
-			(property "Datasheet" "https://www.we-online.com/components/products/datasheet/150066M153000.pdf"
+			(property "Datasheet" "~"
 				(at 0 -1.27 0)
 				(effects
 					(font
@@ -430,21 +430,13 @@
 					(hide yes)
 				)
 			)
-			(property "Description" "RGB LED, anode/red/green/blue"
+			(property "Description" "RGB LED, red/green/blue/cathode"
 				(at 0 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
 					)
 					(hide yes)
-				)
-			)
-			(property "mouser" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/150066M153000?qs=5aG0NVq1C4w6V8uSO7dUTg%3D%3D"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
 				)
 			)
 			(property "ki_keywords" "LED RGB diode"
@@ -465,9 +457,9 @@
 					(hide yes)
 				)
 			)
-			(symbol "LED_ARGB_150066M153000_0_0"
+			(symbol "LED_RGBK_0_0"
 				(text "B"
-					(at -1.905 -6.35 0)
+					(at 1.905 -6.35 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -475,7 +467,7 @@
 					)
 				)
 				(text "G"
-					(at -1.905 -1.27 0)
+					(at 1.905 -1.27 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -483,7 +475,7 @@
 					)
 				)
 				(text "R"
-					(at -1.905 3.81 0)
+					(at 1.905 3.81 0)
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -491,7 +483,7 @@
 					)
 				)
 			)
-			(symbol "LED_ARGB_150066M153000_0_1"
+			(symbol "LED_RGBK_0_1"
 				(rectangle
 					(start -2.794 8.382)
 					(end 2.794 -7.62)
@@ -503,16 +495,15 @@
 						(type background)
 					)
 				)
-				(polyline
-					(pts
-						(xy -1.27 -5.08) (xy -2.54 -5.08)
-					)
+				(circle
+					(center -2.032 0)
+					(radius 0.254)
 					(stroke
 						(width 0)
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(polyline
@@ -565,18 +556,6 @@
 				)
 				(polyline
 					(pts
-						(xy -1.27 5.08) (xy -2.54 5.08)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
 						(xy -1.27 5.08) (xy 1.27 5.08)
 					)
 					(stroke
@@ -601,6 +580,18 @@
 				)
 				(polyline
 					(pts
+						(xy 1.27 -5.08) (xy 2.54 -5.08)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
 						(xy 1.27 0) (xy -1.27 0)
 					)
 					(stroke
@@ -614,6 +605,18 @@
 				(polyline
 					(pts
 						(xy 1.27 0) (xy 2.54 0)
+					)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 1.27 5.08) (xy 2.54 5.08)
 					)
 					(stroke
 						(width 0)
@@ -649,7 +652,7 @@
 				)
 				(polyline
 					(pts
-						(xy 1.27 -5.08) (xy 2.032 -5.08) (xy 2.032 5.08) (xy 1.27 5.08)
+						(xy -1.27 5.08) (xy -2.032 5.08) (xy -2.032 -5.08) (xy -1.016 -5.08)
 					)
 					(stroke
 						(width 0)
@@ -811,23 +814,12 @@
 						(type none)
 					)
 				)
-				(circle
-					(center 2.032 0)
-					(radius 0.254)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
 			)
-			(symbol "LED_ARGB_150066M153000_1_1"
+			(symbol "LED_RGBK_1_1"
 				(pin passive line
-					(at -5.08 5.08 0)
+					(at 5.08 0 180)
 					(length 2.54)
-					(name "RK"
+					(name "GA"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -845,7 +837,7 @@
 				(pin passive line
 					(at -5.08 0 0)
 					(length 2.54)
-					(name "GK"
+					(name "K"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -861,9 +853,9 @@
 					)
 				)
 				(pin passive line
-					(at -5.08 -5.08 0)
+					(at 5.08 -5.08 180)
 					(length 2.54)
-					(name "BK"
+					(name "BA"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -879,9 +871,9 @@
 					)
 				)
 				(pin passive line
-					(at 5.08 0 180)
+					(at 5.08 5.08 180)
 					(length 2.54)
-					(name "A"
+					(name "RA"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -5392,28 +5384,6 @@
 			)
 		)
 	)
-	(global_label "CaseGreen"
-		(shape input)
-		(at 171.45 99.06 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1362b216-24f2-4158-8e35-c377f9bc7f88")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 158.5467 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "D+"
 		(shape input)
 		(at 59.69 95.25 0)
@@ -5743,24 +5713,24 @@
 			)
 		)
 	)
-	(global_label "CaseRed"
+	(global_label "CaseBlue"
 		(shape input)
-		(at 171.45 93.98 180)
+		(at 182.88 106.68 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
 			)
-			(justify right)
+			(justify left)
 		)
-		(uuid "66f1b775-8f90-47d3-bc36-f299a01e6d89")
+		(uuid "6f3e4e46-726b-4bb2-9613-f038bd0d8c32")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 160.4215 93.98 0)
+			(at 194.5737 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
-				(justify right)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -5821,6 +5791,28 @@
 		(uuid "73c24fd8-96fa-41b1-89d9-5e3d3a8b89f2")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 221.4095 101.5206 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "CaseRed"
+		(shape input)
+		(at 182.88 96.52 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "73eb7d3e-6e55-4e78-9147-7fa7a067b216")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 193.9085 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6214,28 +6206,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "CaseBlue"
-		(shape input)
-		(at 171.45 104.14 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "942c1c00-dbe7-47c5-8526-bc350fc2ede3")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 159.7563 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -6676,6 +6646,28 @@
 			)
 		)
 	)
+	(global_label "CaseGreen"
+		(shape input)
+		(at 182.88 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e79bdee9-0360-459d-9c2d-4023a7036b93")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 195.7833 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "VBUS"
 		(shape passive)
 		(at 90.17 24.13 90)
@@ -6914,6 +6906,140 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 180.34 106.68 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "039883aa-de15-4854-91ef-2af527107f65")
+		(property "Reference" "R11"
+			(at 180.34 104.902 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "56"
+			(at 180.34 106.68 90)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 180.34 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 180.34 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 180.34 106.68 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "46ffa492-0df9-4706-a7a7-977e207f7ed6")
+		)
+		(pin "1"
+			(uuid "b303080b-db11-435b-a259-0b5fef13230a")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "R11")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 180.34 101.6 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "05d5dad1-df6d-4c31-b1b5-d7db616d42e8")
+		(property "Reference" "R10"
+			(at 180.34 99.822 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "47"
+			(at 180.34 101.6 90)
+			(effects
+				(font
+					(size 0.762 0.762)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 180.34 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 180.34 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 180.34 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "96ae7a8d-d9a0-4a76-9edc-dff1db608664")
+		)
+		(pin "1"
+			(uuid "c05e28f1-8d5b-4a78-a96a-317b84e2569c")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -7334,7 +7460,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "28854e82-bcca-48e7-b721-82902fb54b37")
-		(property "Reference" "#PWR017"
+		(property "Reference" "#PWR018"
 			(at 187.96 120.65 0)
 			(effects
 				(font
@@ -7385,7 +7511,7 @@
 		(instances
 			(project ""
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR017")
+					(reference "#PWR018")
 					(unit 1)
 				)
 			)
@@ -8338,73 +8464,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR01")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 173.99 104.14 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5dc3c51b-e081-45c9-98ab-3638db1a9159")
-		(property "Reference" "R11"
-			(at 173.99 105.918 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "8.2"
-			(at 173.99 104.14 90)
-			(effects
-				(font
-					(size 0.762 0.762)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 173.99 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 173.99 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 173.99 104.14 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "ba7fe6c1-4429-4f8a-9ed3-0fc447a8e58c")
-		)
-		(pin "1"
-			(uuid "d03f6075-4f24-4da9-8eff-afb509a31a68")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -9901,73 +9960,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Small")
-		(at 173.99 93.98 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "acc5684c-2aad-45b8-8d33-e4cb98b977b5")
-		(property "Reference" "R9"
-			(at 173.99 95.758 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "100"
-			(at 173.99 93.98 90)
-			(effects
-				(font
-					(size 0.762 0.762)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 173.99 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 173.99 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 173.99 93.98 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "78bdb7c4-4388-41f0-a493-09dfd0327020")
-		)
-		(pin "1"
-			(uuid "d13bccad-c248-413b-a7e5-9931b3650893")
-		)
-		(instances
-			(project ""
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "R9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C_Small")
 		(at 133.35 72.39 270)
 		(unit 1)
@@ -10029,6 +10021,73 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "C5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 167.64 101.6 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "afaad64a-d86d-4534-95ae-0a2edf073826")
+		(property "Reference" "#PWR017"
+			(at 161.29 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 163.83 101.5999 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 167.64 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 167.64 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 167.64 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "220fe5ec-5834-413a-81de-6ea66411704f")
+		)
+		(instances
+			(project "BatteryExperimentPCB"
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -10163,73 +10222,6 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR05")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 186.69 99.06 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ba3d998a-0144-4117-ac85-ab876cef7081")
-		(property "Reference" "#PWR018"
-			(at 182.88 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "+3.75V"
-			(at 190.5 99.0599 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 186.69 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 186.69 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 186.69 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "871aed2b-0daf-42e4-9229-36771a95c14c")
-		)
-		(instances
-			(project "BatteryExperimentPCB"
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "#PWR018")
 					(unit 1)
 				)
 			)
@@ -10767,89 +10759,6 @@
 		)
 	)
 	(symbol
-		(lib_id "BatteryExperimentPCB:LED_ARGB_150066M153000")
-		(at 181.61 99.06 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "d1c049db-7ff7-4a69-9676-5de668939ab3")
-		(property "Reference" "D1"
-			(at 181.61 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED_ARGB_150066M153000"
-			(at 181.61 87.63 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "BatteryExperimentPCB:150066M153000"
-			(at 181.61 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/150066M153000.pdf"
-			(at 181.61 100.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "RGB LED, anode/red/green/blue"
-			(at 181.61 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "mouser" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/150066M153000?qs=5aG0NVq1C4w6V8uSO7dUTg%3D%3D"
-			(at 181.61 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "2ac733fb-5d23-4960-ac06-954e7f094e1a")
-		)
-		(pin "3"
-			(uuid "07bdfc8b-07c0-48ce-9f8a-36dd3189bf30")
-		)
-		(pin "1"
-			(uuid "e33105cc-4714-43a8-841e-2f935d7ce2b7")
-		)
-		(pin "4"
-			(uuid "3db53a69-b11f-4bfd-b84a-7a1c27e2800e")
-		)
-		(instances
-			(project ""
-				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 106.68 73.66 90)
 		(unit 1)
@@ -10918,23 +10827,23 @@
 	)
 	(symbol
 		(lib_id "Device:R_Small")
-		(at 173.99 99.06 270)
+		(at 180.34 96.52 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(uuid "dd176c1f-b10c-43f2-809f-9a694c13505e")
-		(property "Reference" "R10"
-			(at 173.99 100.838 90)
+		(uuid "dc31fe4e-f78f-4624-b3fe-98a15de88cee")
+		(property "Reference" "R9"
+			(at 180.34 94.742 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "91"
-			(at 173.99 99.06 90)
+		(property "Value" "68"
+			(at 180.34 96.52 90)
 			(effects
 				(font
 					(size 0.762 0.762)
@@ -10942,7 +10851,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 173.99 99.06 0)
+			(at 180.34 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10951,7 +10860,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 173.99 99.06 0)
+			(at 180.34 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10960,7 +10869,7 @@
 			)
 		)
 		(property "Description" "Resistor, small symbol"
-			(at 173.99 99.06 0)
+			(at 180.34 96.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10969,15 +10878,15 @@
 			)
 		)
 		(pin "2"
-			(uuid "33200246-00f0-4f22-ab3e-825d1d9abd64")
+			(uuid "125b1122-2af7-49c5-9500-1d8e5b54c933")
 		)
 		(pin "1"
-			(uuid "a4875021-e545-4a0f-a48b-0c073bc3026d")
+			(uuid "896e0308-cc17-46f6-8831-19f6992a3c5b")
 		)
 		(instances
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
-					(reference "R10")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -11045,6 +10954,80 @@
 			(project "BatteryExperimentPCB"
 				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
 					(reference "#PWR023")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "BatteryExperimentPCB:LED_RGBK")
+		(at 172.72 101.6 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e7e4f84a-4998-44ab-8f5f-e307af219be6")
+		(property "Reference" "D1"
+			(at 172.72 87.63 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED_RGBK"
+			(at 172.72 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "BatteryExperimentPCB:RS-C1415MBAR"
+			(at 172.72 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 172.72 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "RGB LED, red/green/blue/cathode"
+			(at 172.72 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "dc851e8d-32ac-40f4-ac07-33787f5d14e3")
+		)
+		(pin "1"
+			(uuid "07e37bf5-575e-4156-92db-1253b1b3f83f")
+		)
+		(pin "2"
+			(uuid "089aad3e-8ad2-49bc-ab17-e435416725af")
+		)
+		(pin "4"
+			(uuid "efb3a7cc-a1fa-4601-804e-726cee642524")
+		)
+		(instances
+			(project ""
+				(path "/057a57c5-fa69-4f68-8ff5-75480ccd2fb3"
+					(reference "D1")
 					(unit 1)
 				)
 			)
