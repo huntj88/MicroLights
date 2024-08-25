@@ -1,3 +1,5 @@
+#include <avr/sleep.h>
+
 void setup() {
   pinMode(5, OUTPUT);
   CCP = CCP_IOREG_gc;
@@ -7,11 +9,13 @@ void setup() {
   TCA0.SINGLE.INTCTRL = TCA_SINGLE_OVF_bm;
   TCA0.SINGLE.CTRLA = 1 | 0x7; // enable counter with /1024 counter prescaling
 
+  set_sleep_mode(SLEEP_MODE_IDLE);
+
   sei();
 }
 
 void loop() {
-
+  sleep_mode();
 }
 
 bool on = true;
