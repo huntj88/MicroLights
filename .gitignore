@@ -1,6 +1,7 @@
 # Arduino
 **/build
 **/hardware
+**/libraries
 
 # Kicad
 **/*-backups
