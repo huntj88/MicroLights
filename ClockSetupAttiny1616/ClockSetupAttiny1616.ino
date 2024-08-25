@@ -1,5 +1,7 @@
 #include <avr/sleep.h>
 
+#define colorPWMFactor 8
+
 void setup() {
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
@@ -20,27 +22,31 @@ void loop() {
   sleep_mode();
 }
 
-uint8_t count = 0;
-
+// only used within the scope of TCA0_OVF_vect, volatile potentially needed later when changing led color outside the scope of interrupt?
 uint8_t rTarget = 255;
-uint8_t gTarget = 25;
-uint8_t bTarget = 25;
+uint8_t gTarget = 19;
+uint8_t bTarget = 19;
 
+// only used within the scope of TCA0_OVF_vect, volatile not needed
+uint8_t count = 0;
 ISR(TCA0_OVF_vect) {
+  uint8_t rTargetAdjusted = rTarget / colorPWMFactor;
+  uint8_t gTargetAdjusted = gTarget / colorPWMFactor;
+  uint8_t bTargetAdjusted = bTarget / colorPWMFactor;
 
-  if (count < rTarget / 10) {
+  if (count <= rTargetAdjusted && rTargetAdjusted > 0) {
     digitalWrite(5, HIGH);
   } else {
     digitalWrite(5, LOW);
   }
 
-  if (count < gTarget / 10) {
+  if (count <= gTargetAdjusted && gTargetAdjusted > 0) {
     digitalWrite(4, HIGH);
   } else {
     digitalWrite(4, LOW);
   }
 
-  if (count < bTarget / 10) {
+  if (count <= bTargetAdjusted && bTargetAdjusted > 0) {
     digitalWrite(3, HIGH);
   } else {
     digitalWrite(3, LOW);
@@ -48,7 +54,7 @@ ISR(TCA0_OVF_vect) {
 
   count += 1;
 
-  if (count > 255 / 10) {
+  if (count > 255 / colorPWMFactor) {
     count = 0;
   }
 
