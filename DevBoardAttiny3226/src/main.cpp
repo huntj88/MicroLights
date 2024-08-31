@@ -1,27 +1,44 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
+#include <SPI.h>
+#include "Wire.h"
+// #include "BQ25628.hpp"
+#include "mcuRegisterAlias.hpp"
+#include "Screen.hpp"
 
-#define colorPWMFactor 8
+#define colorPWMFactor 4
 
-uint8_t rTarget = 8;
-uint8_t gTarget = 8;
-uint8_t bTarget = 120;
+// BQ25628 chargerIC;
+
+uint8_t rTarget = 100;
+uint8_t gTarget = 100;
+uint8_t bTarget = 100;
 
 void setup() {
-  PORTC.DIR |= (1 << 0); // red led set mode output
-  PORTC.DIR |= (1 << 1); // green led set mode output
-  PORTC.DIR |= (1 << 2); // blue led set mode output
+  R_LED_reg.DIR |= R_LED_bm; // red led set mode output
+  G_LED_reg.DIR |= G_LED_bm; // green led set mode output
+  B_LED_reg.DIR |= B_LED_bm; // blue led set mode output
 
   // CCP = CCP_IOREG_gc;
   // CLKCTRL.MCLKCTRLB |= 0x4 | CLKCTRL_PEN_bm;  // div 32 main clock prescaler, clock prescaler enabled
 
-  TCA0.SINGLE.PER = 2000;  // period, count to from zero before firing interrupt
+  TCA0.SINGLE.PER = 120;  // period, count to from zero before firing interrupt
   TCA0.SINGLE.INTCTRL = TCA_SINGLE_OVF_bm;
   TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV64_gc | TCA_SINGLE_ENABLE_bm;  // enable counter with /64 counter prescaling
 
   set_sleep_mode(SLEEP_MODE_IDLE);
 
   sei();
+
+  setupScreen();
+  displayTitleSubtitle("hello", "brittani");
+
+  // Wire.beginTransmission(I2CADDR_DEFAULT);
+  // if (!chargerIC.begin()) {
+  //   rTarget = 100;
+  // } else {
+  //   gTarget = 100;
+  // }
 }
 
 void loop() {
@@ -36,21 +53,21 @@ ISR(TCA0_OVF_vect) {
   uint8_t bTargetAdjusted = bTarget / colorPWMFactor;
 
   if (count <= rTargetAdjusted && rTargetAdjusted > 0) {
-    PORTC.OUT |= (1 << 0); // green led set output high
+    R_LED_reg.OUT |= R_LED_bm; // set output high
   } else {
-    PORTC.OUT &= ~(1 << 0); // green led set output high
+    R_LED_reg.OUT &= ~R_LED_bm; // set output low
   }
 
   if (count <= gTargetAdjusted && gTargetAdjusted > 0) {
-    PORTC.OUT |= (1 << 1); // green led set output high
+    G_LED_reg.OUT |= G_LED_bm; // set output high
   } else {
-    PORTC.OUT &= ~(1 << 1); // green led set output high
+    G_LED_reg.OUT &= ~G_LED_bm; // set output low
   }
 
   if (count <= bTargetAdjusted && bTargetAdjusted > 0) {
-    PORTC.OUT |= (1 << 2); // green led set output high
+    B_LED_reg.OUT |= B_LED_bm; // set output high
   } else {
-    PORTC.OUT &= ~(1 << 2); // green led set output high
+    B_LED_reg.OUT &= ~B_LED_bm; // set output low
   }
 
   count += 1;
