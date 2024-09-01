@@ -236,7 +236,9 @@
   },
   "libraries": {
     "pinned_footprint_libs": [],
-    "pinned_symbol_libs": []
+    "pinned_symbol_libs": [
+      "MicroLightDevBoard"
+    ]
   },
   "meta": {
     "filename": "MicroLightDevBoardV2.kicad_pro",
