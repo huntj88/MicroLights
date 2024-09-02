@@ -22,7 +22,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BatteryExperimentPCB:RYK0018A-MFG"
+		(property "Footprint" "MicroLightDevBoard:RYK0018A-MFG"
 			(at 6.35 0 0)
 			(effects
 				(font
@@ -409,7 +409,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BatteryExperimentPCB:RS-C1415MBAR"
+		(property "Footprint" "MicroLightDevBoard:RS-C1415MBAR"
 			(at 0 -1.27 0)
 			(effects
 				(font
@@ -1381,7 +1381,7 @@
 				)
 			)
 		)
-		(property "Footprint" "BatteryExperimentPCB:USB_C_Receptacle_Hroparts_TYPE-C-31-M-12"
+		(property "Footprint" "MicroLightDevBoard:USB_C_Receptacle_Hroparts_TYPE-C-31-M-12"
 			(at -13.335 1.27 90)
 			(effects
 				(font
