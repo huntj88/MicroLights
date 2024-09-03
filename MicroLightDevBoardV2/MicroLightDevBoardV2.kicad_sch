@@ -10761,7 +10761,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Inductor_SMD:L_0805_2012Metric"
+		(property "Footprint" "MicroLightDevBoard:74438343022_L"
 			(at 49.53 180.34 0)
 			(effects
 				(font
@@ -10770,7 +10770,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/74438343022.pdf"
 			(at 49.53 180.34 0)
 			(effects
 				(font
@@ -10788,7 +10788,7 @@
 				(hide yes)
 			)
 		)
-		(property "possible final version" ""
+		(property "purchase" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/74438343022?qs=iC14BvcgY%2F123ryA6Z6D7g%3D%3D"
 			(at 49.53 180.34 90)
 			(effects
 				(font
@@ -13879,7 +13879,7 @@
 				)
 			)
 		)
-		(property "Footprint" "MicroLightDevBoard:IND_2508-WE-MAPI_WRE"
+		(property "Footprint" "MicroLightDevBoard:74438322010_L"
 			(at 69.85 130.81 0)
 			(effects
 				(font
