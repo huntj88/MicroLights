@@ -5,6 +5,164 @@
 	(uuid "4d4b60a6-56d4-4632-90b9-cd9e4f577154")
 	(paper "A3")
 	(lib_symbols
+		(symbol "B3U-1000P_1"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 20.32 10.16 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "B3U-1000P"
+				(at 20.32 7.62 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "MicroLightDevBoard:B3U-1000P"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "B3U-1000P"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "B3U-1000P"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "B3U-1000P"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "B3U-1000P_1_0_1"
+				(polyline
+					(pts
+						(xy 18.415 0) (xy 7.62 0)
+					)
+					(stroke
+						(width 0.127)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 18.415 0) (xy 22.225 1.27)
+					)
+					(stroke
+						(width 0.127)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(polyline
+					(pts
+						(xy 22.225 0) (xy 33.02 0)
+					)
+					(stroke
+						(width 0.127)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "B3U-1000P_1_1_1"
+				(rectangle
+					(start 7.62 3.81)
+					(end 33.02 -3.81)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at 0 0 0)
+					(length 7.62)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at 40.64 0 180)
+					(length 7.62)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "Connector:Conn_01x01_Socket"
 			(pin_names
 				(offset 1.016) hide)
@@ -2511,7 +2669,7 @@
 					)
 				)
 			)
-			(property "Footprint" "B3U-1000P"
+			(property "Footprint" "MicroLightDevBoard:B3U-1000P"
 				(at 0 0 0)
 				(effects
 					(font
@@ -2540,14 +2698,6 @@
 					(hide yes)
 				)
 			)
-			(property "ki_locked" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
 			(property "ki_keywords" "B3U-1000P"
 				(at 0 0 0)
 				(effects
@@ -2567,30 +2717,6 @@
 				)
 			)
 			(symbol "B3U-1000P_0_1"
-				(polyline
-					(pts
-						(xy 7.62 -5.08) (xy 33.02 -5.08)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 7.62 5.08) (xy 7.62 -5.08)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
 				(polyline
 					(pts
 						(xy 18.415 0) (xy 7.62 0)
@@ -2627,31 +2753,20 @@
 						(type none)
 					)
 				)
-				(polyline
-					(pts
-						(xy 33.02 -5.08) (xy 33.02 5.08)
-					)
+			)
+			(symbol "B3U-1000P_1_1"
+				(rectangle
+					(start 7.62 3.81)
+					(end 33.02 -3.81)
 					(stroke
-						(width 0.127)
+						(width 0)
 						(type default)
 					)
 					(fill
-						(type none)
+						(type background)
 					)
 				)
-				(polyline
-					(pts
-						(xy 33.02 5.08) (xy 7.62 5.08)
-					)
-					(stroke
-						(width 0.127)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(pin unspecified line
+				(pin passive line
 					(at 0 0 0)
 					(length 7.62)
 					(name "1"
@@ -2669,7 +2784,7 @@
 						)
 					)
 				)
-				(pin unspecified line
+				(pin passive line
 					(at 40.64 0 180)
 					(length 7.62)
 					(name "2"
@@ -13764,7 +13879,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Inductor_SMD:L_0805_2012Metric"
+		(property "Footprint" "MicroLightDevBoard:IND_2508-WE-MAPI_WRE"
 			(at 69.85 130.81 0)
 			(effects
 				(font
@@ -13773,7 +13888,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "~"
+		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/74438322010.pdf"
 			(at 69.85 130.81 0)
 			(effects
 				(font
@@ -13784,6 +13899,15 @@
 		)
 		(property "Description" "Inductor"
 			(at 69.85 130.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "purchase" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/74438322010?qs=ZB8tH5z5N7aonmcleKLsGw%3D%3D"
+			(at 69.85 130.81 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16471,6 +16595,7 @@
 		)
 	)
 	(symbol
+		(lib_name "B3U-1000P_1")
 		(lib_id "MicroLightDevBoard:B3U-1000P")
 		(at 185.42 175.26 0)
 		(unit 1)
@@ -16496,7 +16621,7 @@
 				)
 			)
 		)
-		(property "Footprint" "B3U-1000P"
+		(property "Footprint" "MicroLightDevBoard:B3U-1000P"
 			(at 185.42 175.26 0)
 			(effects
 				(font
@@ -18438,7 +18563,7 @@
 				)
 			)
 		)
-		(property "Footprint" "B3U-1000P"
+		(property "Footprint" "MicroLightDevBoard:B3U-1000P"
 			(at 185.42 205.74 0)
 			(effects
 				(font
