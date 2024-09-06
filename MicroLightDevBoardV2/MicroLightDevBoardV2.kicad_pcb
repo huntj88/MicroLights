@@ -2457,7 +2457,7 @@
 			(uuid "a47c403f-17b5-4936-9f42-5338fb0b4a24")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "350a9eb0-a7fc-42e1-9f9b-cb723afbbada")
 			(effects
@@ -3837,7 +3837,7 @@
 			(uuid "139e19ca-b8a4-45b1-9c26-66cd6d544bb7")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "ff43a947-d3d4-4edb-a0b6-211a72970b76")
 			(effects
@@ -5564,7 +5564,7 @@
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
 		(property "Reference" "J18"
-			(at 0 -2.77 360)
+			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "64fa3e24-c390-4665-86f0-f0e5272cee05")
 			(effects
@@ -5575,7 +5575,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Socket"
-			(at 0 5.31 360)
+			(at 0 5.31 0)
 			(layer "F.Fab")
 			(uuid "cb8f0cae-c982-4dc3-bffb-bff4c0076ce7")
 			(effects
@@ -6795,7 +6795,7 @@
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
 		(property "Reference" "J46"
-			(at 0 -2.77 360)
+			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "280a3e93-fba8-475f-8c28-bc14ee32203f")
 			(effects
@@ -6806,7 +6806,7 @@
 			)
 		)
 		(property "Value" "Conn_01x04_Socket"
-			(at 0 10.39 360)
+			(at 0 10.39 0)
 			(layer "F.Fab")
 			(uuid "02ec751e-0614-4406-9605-7c9147fdd149")
 			(effects
@@ -11716,7 +11716,7 @@
 			(uuid "c3995095-1b7a-4828-97c3-f63a537d1103")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "75733506-1bc8-466c-9209-6438f3191d16")
 			(effects
@@ -15152,7 +15152,7 @@
 			(uuid "16a8df2c-cba2-40fd-b8ba-ac2b32e15ba7")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 1.27 360)
+			(at 0 1.27 0)
 			(layer "F.Fab")
 			(uuid "cfa704d7-77f1-44a5-abeb-7f828720d0fd")
 			(effects
@@ -17124,7 +17124,7 @@
 			(uuid "f1d5a040-311c-4264-88af-a5048ebab2bc")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "de667c68-27bc-4c36-987a-7292bf3dca57")
 			(effects
@@ -17410,7 +17410,7 @@
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
 		(property "Reference" "J19"
-			(at 0 -2.77 360)
+			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "b448774b-286e-4971-b0fb-cf3f5e56024c")
 			(effects
@@ -17421,7 +17421,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Socket"
-			(at 0 5.31 360)
+			(at 0 5.31 0)
 			(layer "F.Fab")
 			(uuid "027f30c3-9f97-4f49-a269-44bc64056793")
 			(effects
@@ -20539,7 +20539,7 @@
 			(uuid "5da6a9b6-7f1f-4409-afb0-32d5f592bf4c")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "603eef5d-0831-41e0-a9bd-f1035becfd08")
 			(effects
@@ -21341,7 +21341,7 @@
 			(uuid "7be4b786-7f21-4dcb-9f86-8f7df43fd847")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "9cfa6b69-fae4-4054-825c-49d674ca78c8")
 			(effects
@@ -22986,7 +22986,7 @@
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
 		(property "Reference" "J21"
-			(at 0 -2.77 360)
+			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "481abc38-9954-435b-aba5-0fcd42241381")
 			(effects
@@ -22997,7 +22997,7 @@
 			)
 		)
 		(property "Value" "Conn_01x04_Socket"
-			(at 0 10.39 360)
+			(at 0 10.39 0)
 			(layer "F.Fab")
 			(uuid "8303df20-6db4-4741-85f0-6c0bcdfd2a28")
 			(effects
