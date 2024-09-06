@@ -10,4 +10,5 @@
 **/*.lck
 **/fp-info-cache
 **/_autosave-*.kicad_sch
+**/_autosave-*.kicad_pcb
 **/gerber

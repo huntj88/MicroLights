@@ -2150,6 +2150,236 @@
 				)
 			)
 		)
+		(symbol "MicroLightDevBoard:BQ25180"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 2.54 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Value" "BQ25180"
+				(at -1.27 9.144 0)
+				(effects
+					(font
+						(size 1.524 1.524)
+					)
+				)
+			)
+			(property "Footprint" "MicroLightDevBoard:BQ25180"
+				(at 36.576 9.652 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "BQ25180"
+				(at 18.034 9.906 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "https://www.ti.com/lit/ds/symlink/bq25180.pdf"
+				(at 19.304 14.732 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "PQ25180YBGT"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "YBG0008-IPC_A YBG0008-IPC_B YBG0008-IPC_C YBG0008-MFG"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "BQ25180_0_1"
+				(pin output line
+					(at 0 -7.62 0)
+					(length 5.08)
+					(name "INT_N"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 0 0)
+					(length 5.08)
+					(name "IN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 0 -12.7 0)
+					(length 5.08)
+					(name "SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 38.1 0 180)
+					(length 5.08)
+					(name "SYS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 0 -15.24 0)
+					(length 5.08)
+					(name "SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 38.1 -5.08 180)
+					(length 5.08)
+					(name "BAT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 38.1 -10.16 180)
+					(length 5.08)
+					(name "TS_MR"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 38.1 -15.24 180)
+					(length 5.08)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(symbol "BQ25180_1_1"
+				(rectangle
+					(start 5.08 5.08)
+					(end 33.02 -17.78)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+		)
 		(symbol "MicroLightDevBoard:BQ25628RYKR"
 			(exclude_from_sim no)
 			(in_bom yes)
@@ -15697,6 +15927,94 @@
 		)
 	)
 	(symbol
+		(lib_id "MicroLightDevBoard:BQ25180")
+		(at 38.1 213.36 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9b37a1dc-34db-4e62-abcc-ae4a74bd237c")
+		(property "Reference" "U8"
+			(at 57.15 203.2 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Value" "BQ25180"
+			(at 57.15 205.74 0)
+			(effects
+				(font
+					(size 1.524 1.524)
+				)
+			)
+		)
+		(property "Footprint" "MicroLightDevBoard:BQ25180"
+			(at 74.676 203.708 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "BQ25180"
+			(at 56.134 203.454 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "https://www.ti.com/lit/ds/symlink/bq25180.pdf"
+			(at 57.404 198.628 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "fbbfd07b-1160-47a0-be6d-5ff3696d972d")
+		)
+		(pin "7"
+			(uuid "832f414e-8aa4-4618-93b7-ea05fbb7ec1b")
+		)
+		(pin "5"
+			(uuid "fee2b635-0292-43dc-aced-c4d487559da3")
+		)
+		(pin "6"
+			(uuid "f9e175a7-3657-48ce-92c4-e6bbe508d31f")
+		)
+		(pin "8"
+			(uuid "d6b8fa09-107d-4b35-be6a-60020caef73a")
+		)
+		(pin "3"
+			(uuid "78b33447-158b-4981-b84d-656635ec32a5")
+		)
+		(pin "1"
+			(uuid "a9dddca6-e096-4f3e-a73c-df54807c054d")
+		)
+		(pin "2"
+			(uuid "ef87c6fe-a44e-4f49-af20-c11e933a92ca")
+		)
+		(instances
+			(project ""
+				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
+					(reference "U8")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 326.39 44.45 270)
 		(unit 1)
@@ -15939,7 +16257,7 @@
 				(hide yes)
 			)
 		)
-		(property "Datasheet" "S-85S1AB33-I6T1U"
+		(property "Datasheet" "https://www.mouser.com/datasheet/2/1490/S85S1A_E-3431038.pdf"
 			(at 57.15 168.91 0)
 			(effects
 				(font
