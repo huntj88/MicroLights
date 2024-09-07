@@ -139,14 +139,14 @@
 	(net 57 "Net-(J48-Pin_1)")
 	(net 58 "Net-(J49-Pin_1)")
 	(net 59 "Net-(J43-Pin_1)")
-	(net 60 "unconnected-(J12-SHIELD-PadS1)")
-	(net 61 "unconnected-(J12-SBU1-PadA8)")
-	(net 62 "Net-(J12-CC2)")
-	(net 63 "unconnected-(J12-SBU2-PadB8)")
-	(net 64 "unconnected-(J12-SHIELD-PadS1)_0")
-	(net 65 "Net-(J12-CC1)")
-	(net 66 "unconnected-(J12-SHIELD-PadS1)_1")
-	(net 67 "unconnected-(J12-SHIELD-PadS1)_2")
+	(net 60 "unconnected-(J10-SHIELD-PadS1)")
+	(net 61 "unconnected-(J10-SBU1-PadA8)")
+	(net 62 "Net-(J10-CC2)")
+	(net 63 "unconnected-(J10-SBU2-PadB8)")
+	(net 64 "unconnected-(J10-SHIELD-PadS1)_0")
+	(net 65 "Net-(J10-CC1)")
+	(net 66 "unconnected-(J10-SHIELD-PadS1)_1")
+	(net 67 "unconnected-(J10-SHIELD-PadS1)_2")
 	(net 68 "Net-(J34-Pin_1)")
 	(net 69 "Net-(J35-Pin_1)")
 	(net 70 "Net-(J39-Pin_1)")
@@ -170,7 +170,7 @@
 	(net 88 "SDA_CHRG")
 	(net 89 "TS_MR_CHRG")
 	(net 90 "VREF_CHRG")
-	(net 91 "Net-(R9-Pad2)")
+	(net 91 "Net-(R12-Pad2)")
 	(footprint "MicroLightDevBoard:SNT-6A-A-PKG_PG006-A-P-SD-2.1_ABL"
 		(layer "F.Cu")
 		(uuid "00ccce0f-8525-4910-8d0b-fb6cd255c7ad")
@@ -1059,7 +1059,7 @@
 			(uuid "37df2637-09cd-4457-a3d1-538add74cdb7")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "3c75bcbf-1604-4d19-8aa4-9d21d3cf3c8c")
 			(effects
@@ -1131,7 +1131,7 @@
 		(at 130.075 108.5 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J25"
+		(property "Reference" "J26"
 			(at 0 -2.77 -90)
 			(layer "F.SilkS")
 			(uuid "f60f9248-a21e-40ed-a81b-2b197bf87d81")
@@ -1606,7 +1606,7 @@
 			(size 0.8 0.95)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 62 "Net-(J12-CC2)")
+			(net 62 "Net-(J10-CC2)")
 			(pintype "passive")
 			(uuid "b65a4853-acbd-44e6-a820-aa25ec97f38b")
 		)
@@ -1894,7 +1894,7 @@
 			(size 0.5 0.375)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 91 "Net-(R9-Pad2)")
+			(net 91 "Net-(R12-Pad2)")
 			(pinfunction "I/O2")
 			(pintype "passive")
 			(uuid "c1533f9d-316b-4162-9ad4-0b03fd269893")
@@ -2167,7 +2167,7 @@
 			(uuid "138a580f-d7ac-4119-a7be-942746e6f39c")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 1.27 360)
+			(at 0 1.27 0)
 			(layer "F.Fab")
 			(uuid "3613b1cf-02d7-49bc-ab22-cb95ea23845f")
 			(effects
@@ -3123,7 +3123,7 @@
 		(at 133.8775 69.5725 90)
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
-		(property "Reference" "C2"
+		(property "Reference" "C3"
 			(at -2.5275 0.0225 90)
 			(layer "F.SilkS")
 			(uuid "927519e5-08ed-49fd-a3b0-a346085fb76b")
@@ -3184,7 +3184,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C57112"
+		(property "LCSC" "C15849"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -3964,7 +3964,7 @@
 		(at 128.8 104.2 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R12"
+		(property "Reference" "R15"
 			(at 3.2 0 0)
 			(layer "F.SilkS")
 			(uuid "ee44a9a9-e9c0-4906-8ce9-32bbca7bb5d4")
@@ -4025,7 +4025,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C25804"
+		(property "LCSC" "C27592"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -4503,7 +4503,7 @@
 		(at 148.5 100.3)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J19"
+		(property "Reference" "J20"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "361aa04f-01b6-479b-9dd4-80f8aab97f9c")
@@ -4564,7 +4564,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C2718488"
+		(property "LCSC" "C49661"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -5031,7 +5031,7 @@
 		(at 128.8 94.3 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R11"
+		(property "Reference" "R14"
 			(at 3 0 0)
 			(layer "F.SilkS")
 			(uuid "e9997c33-944d-4385-91ec-373f886c60dd")
@@ -5092,7 +5092,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C25804"
+		(property "LCSC" "C23140"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -5257,7 +5257,7 @@
 		(at 168.5 62.38)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J4"
+		(property "Reference" "J3"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "f10dcd76-dddd-4659-92cd-17688440a2c2")
@@ -5559,7 +5559,7 @@
 		(at 156.425 64.85)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J11"
+		(property "Reference" "J9"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "9907e661-ad9a-479e-80cd-0e8b2bab28ad")
@@ -6065,7 +6065,7 @@
 		(at 163.1 63.81 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J9"
+		(property "Reference" "J11"
 			(at 0 -2.77 90)
 			(layer "F.SilkS")
 			(uuid "4ec1b2c3-643f-4b0b-89f9-a9a6d476dc30")
@@ -6295,7 +6295,7 @@
 			(uuid "fee48e63-f9e3-4414-b514-ab1a220475ba")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 1.27 360)
+			(at 0 1.27 0)
 			(layer "F.Fab")
 			(uuid "d06b09dc-8aec-4af3-983b-a9b9d5a8ab19")
 			(effects
@@ -6584,7 +6584,7 @@
 		(at 132.8 43.44 180)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J17"
+		(property "Reference" "J18"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "64fa3e24-c390-4665-86f0-f0e5272cee05")
@@ -6645,7 +6645,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C49661"
+		(property "LCSC" "C2718488"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -7019,7 +7019,7 @@
 		(layer "F.Cu")
 		(uuid "5170a907-adae-4dda-8028-856ce94ec57d")
 		(at 153.7 45.205 180)
-		(property "Reference" "J12"
+		(property "Reference" "J10"
 			(at 0 5 0)
 			(layer "F.SilkS")
 			(uuid "a96b719d-ad90-49f6-adcc-dfe3fdd280e3")
@@ -7077,7 +7077,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C165948"
+		(property "LCSC" "C49661"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -7395,7 +7395,7 @@
 			(size 0.3 1.45)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 65 "Net-(J12-CC1)")
+			(net 65 "Net-(J10-CC1)")
 			(pinfunction "CC1")
 			(pintype "bidirectional")
 			(uuid "e6c596d9-5521-4dfd-84e9-81c762f0990d")
@@ -7425,7 +7425,7 @@
 			(size 0.3 1.45)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 61 "unconnected-(J12-SBU1-PadA8)")
+			(net 61 "unconnected-(J10-SBU1-PadA8)")
 			(pinfunction "SBU1")
 			(pintype "bidirectional+no_connect")
 			(uuid "1591b82d-7794-4b54-bd56-94e067c1bcb9")
@@ -7455,7 +7455,7 @@
 			(size 0.3 1.45)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 62 "Net-(J12-CC2)")
+			(net 62 "Net-(J10-CC2)")
 			(pinfunction "CC2")
 			(pintype "bidirectional")
 			(uuid "19c8d66b-abfb-4fbc-89b6-ed35ee1ffb6f")
@@ -7485,7 +7485,7 @@
 			(size 0.3 1.45)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 63 "unconnected-(J12-SBU2-PadB8)")
+			(net 63 "unconnected-(J10-SBU2-PadB8)")
 			(pinfunction "SBU2")
 			(pintype "bidirectional+no_connect")
 			(uuid "4441eb5a-1513-433d-b2cf-4aebbc57383a")
@@ -7496,7 +7496,7 @@
 			(drill oval 0.6 1.7)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net 66 "unconnected-(J12-SHIELD-PadS1)_1")
+			(net 66 "unconnected-(J10-SHIELD-PadS1)_1")
 			(pinfunction "SHIELD")
 			(pintype "passive+no_connect")
 			(uuid "e8ff4e7a-6741-4047-af34-c87d63decf75")
@@ -7507,7 +7507,7 @@
 			(drill oval 0.6 1.2)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net 64 "unconnected-(J12-SHIELD-PadS1)_0")
+			(net 64 "unconnected-(J10-SHIELD-PadS1)_0")
 			(pinfunction "SHIELD")
 			(pintype "passive+no_connect")
 			(uuid "e037cfd8-1d5b-41ab-8130-30bbb658a085")
@@ -7518,7 +7518,7 @@
 			(drill oval 0.6 1.7)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net 67 "unconnected-(J12-SHIELD-PadS1)_2")
+			(net 67 "unconnected-(J10-SHIELD-PadS1)_2")
 			(pinfunction "SHIELD")
 			(pintype "passive+no_connect")
 			(uuid "f80102e3-76c7-4a57-ba4a-a56fa14b25bf")
@@ -7529,7 +7529,7 @@
 			(drill oval 0.6 1.2)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(net 60 "unconnected-(J12-SHIELD-PadS1)")
+			(net 60 "unconnected-(J10-SHIELD-PadS1)")
 			(pinfunction "SHIELD")
 			(pintype "passive+no_connect")
 			(uuid "0a2e91d4-cbae-48be-b7d7-1145e51c67b4")
@@ -8763,7 +8763,7 @@
 		(at 135.7 104.3)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J27"
+		(property "Reference" "J28"
 			(at 0 5.1 0)
 			(layer "F.SilkS")
 			(uuid "ad748773-56ce-47f2-a97a-8dda9fe72ad4")
@@ -8824,7 +8824,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C49661"
+		(property "LCSC" "C2718488"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -10412,7 +10412,7 @@
 		(at 135.7 92.8)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J26"
+		(property "Reference" "J27"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "3259a432-42e6-4b20-95a6-8a7aa23a4c03")
@@ -10473,7 +10473,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C2718488"
+		(property "LCSC" "C49661"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -10714,7 +10714,7 @@
 		(at 166.95 106.35 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R15"
+		(property "Reference" "R10"
 			(at -3 0.1 0)
 			(layer "F.SilkS")
 			(uuid "bf800302-9bb8-4d06-ae63-4ca83e6a94f8")
@@ -10725,7 +10725,7 @@
 				)
 			)
 		)
-		(property "Value" "47"
+		(property "Value" "30"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "5b2be5ad-460c-4490-bb4e-6c7a577802af")
@@ -10775,7 +10775,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C23182"
+		(property "LCSC" "C23140"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -10941,7 +10941,7 @@
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
 		(property "Reference" "J1"
-			(at 0 -2.77 360)
+			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "8604cb27-7ed5-48c6-b598-b622e621f513")
 			(effects
@@ -10952,7 +10952,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02_Socket"
-			(at 0 5.31 360)
+			(at 0 5.31 0)
 			(layer "F.Fab")
 			(uuid "5e07d13a-399f-40a1-b3e0-f6aa88bb2c89")
 			(effects
@@ -12082,7 +12082,7 @@
 		(at 130.075 101.5 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J24"
+		(property "Reference" "J25"
 			(at 0 -2.77 -90)
 			(layer "F.SilkS")
 			(uuid "ee7b6246-3367-4328-8cb9-7ebbfded44bb")
@@ -13991,7 +13991,7 @@
 		(at 128.8 105.8 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R13"
+		(property "Reference" "R16"
 			(at 3.2 0.1 0)
 			(layer "F.SilkS")
 			(uuid "150425fd-c19e-443d-8926-9e85c3da5327")
@@ -15472,7 +15472,7 @@
 		(at 154.6 49.7 90)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R9"
+		(property "Reference" "R12"
 			(at -0.9 1.8 180)
 			(layer "F.SilkS")
 			(uuid "f1cb72ac-505e-46bd-919e-a3ccec955a71")
@@ -15676,7 +15676,7 @@
 			(size 0.8 0.95)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 91 "Net-(R9-Pad2)")
+			(net 91 "Net-(R12-Pad2)")
 			(pintype "passive")
 			(uuid "ed31a1c6-4b5b-4b76-a48c-887cbe60272b")
 		)
@@ -15698,7 +15698,7 @@
 		(at 166.95 107.85 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R16"
+		(property "Reference" "R11"
 			(at -3 0.1 0)
 			(layer "F.SilkS")
 			(uuid "db335718-2119-44b1-a11e-b03f7c9988d4")
@@ -15709,7 +15709,7 @@
 				)
 			)
 		)
-		(property "Value" "56"
+		(property "Value" "30"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "c9a041f8-7595-4795-810c-e305d305f9fc")
@@ -15759,7 +15759,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C27592"
+		(property "LCSC" "C23140"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -15924,7 +15924,7 @@
 		(at 130.075 90.1 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J22"
+		(property "Reference" "J23"
 			(at 0 -2.77 -90)
 			(layer "F.SilkS")
 			(uuid "544f7ada-7d9d-4f7c-8b97-0c3e383737f0")
@@ -16205,7 +16205,7 @@
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "R4"
-			(at -2.475 -0.1 360)
+			(at -2.475 -0.1 0)
 			(layer "F.SilkS")
 			(uuid "0d2cb0fe-95e0-4108-8059-1ded29d29a2e")
 			(effects
@@ -16216,7 +16216,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 0 1.43 360)
+			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "bab50165-b7e0-4201-8e8e-b4b069852d0e")
 			(effects
@@ -16384,7 +16384,7 @@
 			(uuid "3f780eb5-9cc0-4f27-a43b-e6103215ed56")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(uuid "8e54d921-eef3-42c5-908c-dea8dee34fbf")
 			(effects
@@ -17034,7 +17034,7 @@
 		(at 178.2 65.725 90)
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
-		(property "Reference" "C4"
+		(property "Reference" "C2"
 			(at 2.325 0 180)
 			(layer "F.SilkS")
 			(uuid "ec95249e-5024-4222-9544-01a33d9c2602")
@@ -17095,7 +17095,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C15849"
+		(property "LCSC" "C14663"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -17260,7 +17260,7 @@
 		(at 181.989996 45.150004 180)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J18"
+		(property "Reference" "J19"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "b448774b-286e-4971-b0fb-cf3f5e56024c")
@@ -17540,7 +17540,7 @@
 		(at 130.075 97 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J23"
+		(property "Reference" "J24"
 			(at 0 -2.77 -90)
 			(layer "F.SilkS")
 			(uuid "d4642000-5dde-4dcd-a38a-67aabd6a6b0f")
@@ -17820,7 +17820,7 @@
 		(at 128.8 92.8 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R10"
+		(property "Reference" "R13"
 			(at 2.9 0 0)
 			(layer "F.SilkS")
 			(uuid "9bee1d18-4f2f-46c5-ae35-012d415b892f")
@@ -17881,7 +17881,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C25804"
+		(property "LCSC" "C23140"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -18348,7 +18348,7 @@
 		(at 162.55 100.71)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J28"
+		(property "Reference" "J17"
 			(at 0.05 10.29 0)
 			(layer "F.SilkS")
 			(uuid "4b57795d-07d7-4442-920d-1c01dda4fa71")
@@ -18409,7 +18409,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C2718488"
+		(property "LCSC" "C49661"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -18650,7 +18650,7 @@
 		(at 183.66 70.1 90)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J3"
+		(property "Reference" "J4"
 			(at 0 -2.77 90)
 			(layer "F.SilkS")
 			(uuid "d8d28955-de38-4a57-a2cb-11fc91e4683e")
@@ -18880,7 +18880,7 @@
 			(uuid "35483b03-04fc-47f7-9ed8-9e3ed2bb0b66")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 3.81 360)
+			(at 0 3.81 0)
 			(layer "F.Fab")
 			(uuid "88f551f8-8791-41be-a257-0c640d9f573c")
 			(effects
@@ -19254,7 +19254,7 @@
 		(at 135.3775 69.5725 90)
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
-		(property "Reference" "C3"
+		(property "Reference" "C4"
 			(at -2.5275 0.0225 90)
 			(layer "F.SilkS")
 			(uuid "fc2f9aa5-9922-49a6-98cf-b0813de829ee")
@@ -19315,7 +19315,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C14663"
+		(property "LCSC" "C57112"
 			(at 0 0 90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -19783,7 +19783,7 @@
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "R2"
-			(at -2.475 -0.1 360)
+			(at -2.475 -0.1 0)
 			(layer "F.SilkS")
 			(uuid "6b2e8bd4-650e-408c-b943-fe8b69944ad8")
 			(effects
@@ -19794,7 +19794,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 0 1.43 360)
+			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "c7b0a563-f2cf-4d31-be2a-32173aff516a")
 			(effects
@@ -19962,7 +19962,7 @@
 			(uuid "2c6be30a-2e3f-4a88-abe6-6947a1bc7e3f")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(uuid "1c71bb18-c530-425c-80e0-d7d987b3e9ea")
 			(effects
@@ -20310,7 +20310,7 @@
 		(at 184.3348 90.5098 -90)
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
-		(property "Reference" "C6"
+		(property "Reference" "C7"
 			(at 2.525 -0.0027 90)
 			(layer "F.SilkS")
 			(uuid "1fe2ee75-c65e-44fe-a683-2e139bf9b89f")
@@ -20371,7 +20371,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C96446"
+		(property "LCSC" "C15849"
 			(at 0 0 -90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -20838,7 +20838,7 @@
 		(at 163.1 70.825 -90)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J10"
+		(property "Reference" "J12"
 			(at 0 -2.77 90)
 			(layer "F.SilkS")
 			(uuid "1836b7ee-d959-4ecd-8bb0-2a1d9fd69227")
@@ -20899,7 +20899,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C49661"
+		(property "LCSC" "C165948"
 			(at 0 0 -90)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -21068,7 +21068,7 @@
 			(uuid "a3c6ad99-d328-431b-beca-fd7b312dadbb")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 1.27 360)
+			(at 0 1.27 0)
 			(layer "F.Fab")
 			(uuid "0e667695-237e-4fa2-bd39-5235bdb9dacb")
 			(effects
@@ -21119,7 +21119,7 @@
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "R3"
-			(at -2.475 -0.1 360)
+			(at -2.475 -0.1 0)
 			(layer "F.SilkS")
 			(uuid "661db39f-583b-480a-98ab-e5f6cd8e5dc6")
 			(effects
@@ -21130,7 +21130,7 @@
 			)
 		)
 		(property "Value" "10k"
-			(at 0 1.43 360)
+			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "a0babecb-cd45-4820-bea7-d423f6ec1903")
 			(effects
@@ -21298,7 +21298,7 @@
 			(uuid "5f6d17ef-509c-4c26-821a-88bb766b2856")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(uuid "5ad3b4a0-d074-4b60-9dc0-b9c244a21e70")
 			(effects
@@ -21646,7 +21646,7 @@
 		(at 166.95 104.85 180)
 		(descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
-		(property "Reference" "R14"
+		(property "Reference" "R9"
 			(at -3 0.1 0)
 			(layer "F.SilkS")
 			(uuid "71db9949-b26a-4824-8043-a854f349cd24")
@@ -21657,7 +21657,7 @@
 				)
 			)
 		)
-		(property "Value" "68"
+		(property "Value" "51"
 			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "475af59d-89aa-4aae-a772-8d973be8c0d6")
@@ -21707,7 +21707,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C27592"
+		(property "LCSC" "C23197"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -21872,8 +21872,8 @@
 		(at 177.2 68.9)
 		(descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "capacitor")
-		(property "Reference" "C7"
-			(at 0.1 1.5 360)
+		(property "Reference" "C6"
+			(at 0.1 1.5 0)
 			(layer "F.SilkS")
 			(uuid "fbe55c8e-232b-4747-b043-7174b2cd0c58")
 			(effects
@@ -21884,7 +21884,7 @@
 			)
 		)
 		(property "Value" "1uF 25v"
-			(at 0 1.43 360)
+			(at 0 1.43 0)
 			(layer "F.Fab")
 			(uuid "f0e0c877-f16a-4ee2-b3ef-2785a8aa1df0")
 			(effects
@@ -21933,7 +21933,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C15849"
+		(property "LCSC" "C96446"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -22052,7 +22052,7 @@
 			(uuid "30f64db7-528e-4816-815a-a4ad543a20dc")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(uuid "2e21a5ec-654d-4ab1-badc-36018e44189e")
 			(effects
@@ -22293,7 +22293,7 @@
 			(size 0.8 0.95)
 			(layers "F.Cu" "F.Paste" "F.Mask")
 			(roundrect_rratio 0.25)
-			(net 65 "Net-(J12-CC1)")
+			(net 65 "Net-(J10-CC1)")
 			(pintype "passive")
 			(uuid "c2b8b3fa-00cd-485c-b634-60d87bc08555")
 		)
@@ -23162,7 +23162,7 @@
 		(at 123.825 98.05)
 		(descr "Through hole straight socket strip, 1x02, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x02 2.54mm single row")
-		(property "Reference" "J21"
+		(property "Reference" "J22"
 			(at 0 -2.45 0)
 			(layer "F.SilkS")
 			(uuid "ba0ad629-3cf7-4a0e-8b94-60286f5a5b3e")
@@ -23223,7 +23223,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C49661"
+		(property "LCSC" "C2718488"
 			(at 0 0 0)
 			(unlocked yes)
 			(layer "F.Fab")
@@ -23442,7 +23442,7 @@
 		(at 148.5 86.9)
 		(descr "Through hole straight socket strip, 1x04, 2.54mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x04 2.54mm single row")
-		(property "Reference" "J20"
+		(property "Reference" "J21"
 			(at 0 -2.77 0)
 			(layer "F.SilkS")
 			(uuid "481abc38-9954-435b-aba5-0fcd42241381")
