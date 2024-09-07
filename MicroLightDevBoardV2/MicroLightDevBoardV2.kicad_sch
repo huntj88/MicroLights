@@ -2380,391 +2380,6 @@
 				)
 			)
 		)
-		(symbol "MicroLightDevBoard:BQ25628RYKR"
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "U"
-				(at 16.764 -12.446 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "BQ25628RYKR"
-				(at 16.51 -9.144 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" "MicroLightDevBoard:RYK0018A-MFG"
-				(at 6.35 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "https://www.ti.com/lit/ds/symlink/bq25628.pdf"
-				(at 6.35 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" ""
-				(at 6.35 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "BQ25628RYKR_1_1"
-				(rectangle
-					(start 0 0)
-					(end 30.48 -25.4)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at -2.54 -5.08 0)
-					(length 2.54)
-					(name "BTST"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 33.02 -20.32 180)
-					(length 2.54)
-					(name "STAT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "10"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 33.02 -16.51 180)
-					(length 2.54)
-					(name "INT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "11"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 33.02 -12.7 180)
-					(length 2.54)
-					(name "SDA"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "12"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 33.02 -8.89 180)
-					(length 2.54)
-					(name "SCL"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "13"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 33.02 -5.08 180)
-					(length 2.54)
-					(name "CE"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "14"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 24.13 2.54 270)
-					(length 2.54)
-					(name "GND"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "15"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 19.05 2.54 270)
-					(length 2.54)
-					(name "SW"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "16"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 13.97 2.54 270)
-					(length 2.54)
-					(name "PMID"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "17"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 8.89 2.54 270)
-					(length 2.54)
-					(name "VBUS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "18"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -8.89 0)
-					(length 2.54)
-					(name "REGN"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "2"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -12.7 0)
-					(length 2.54)
-					(name "PMID_GD"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -16.51 0)
-					(length 2.54)
-					(name "ILIM"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "4"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -20.32 0)
-					(length 2.54)
-					(name "TS_BIAS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 8.89 -27.94 90)
-					(length 2.54)
-					(name "TS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "6"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 13.97 -27.94 90)
-					(length 2.54)
-					(name "QON"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "7"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 19.05 -27.94 90)
-					(length 2.54)
-					(name "BAT"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "8"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin passive line
-					(at 24.13 -27.94 90)
-					(length 2.54)
-					(name "SYS"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "9"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "MicroLightDevBoard:LED_RGBK"
 			(pin_names
 				(offset 0) hide)
@@ -5025,12 +4640,6 @@
 		(uuid "07ee8c2f-1b70-4a73-afed-4d9a0a61e23c")
 	)
 	(junction
-		(at 77.47 130.81)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0c01d385-5b98-4e8d-bbff-6f053002e243")
-	)
-	(junction
 		(at 367.03 113.03)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5115,28 +4724,10 @@
 		(uuid "50e3aa98-bb4c-4b77-983b-1be2948ab57f")
 	)
 	(junction
-		(at 29.21 110.49)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "57c3f1ff-be11-4153-86f0-db8e42bd24ec")
-	)
-	(junction
-		(at 62.23 130.81)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "5e6b6d7e-3341-4856-9603-5657e1fc7bb4")
-	)
-	(junction
 		(at 247.65 31.75)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5ee7fc40-bdfd-4f20-9fd2-20912f433110")
-	)
-	(junction
-		(at 163.83 90.17)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "64a4b7a9-0bd2-4cf0-bee9-b4748a6a32d8")
 	)
 	(junction
 		(at 367.03 205.74)
@@ -5163,6 +4754,12 @@
 		(uuid "704c4285-b9d4-4f59-aebc-23f261ab791d")
 	)
 	(junction
+		(at 337.82 217.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "70923b79-4cce-4255-ae75-f6f8ede8c67e")
+	)
+	(junction
 		(at 367.03 240.03)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5173,12 +4770,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "73445384-236f-4807-a093-3c3536724897")
-	)
-	(junction
-		(at 163.83 87.63)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "74b5fc8b-534d-4997-9cfc-220de06ad305")
 	)
 	(junction
 		(at 367.03 162.56)
@@ -5241,6 +4832,12 @@
 		(uuid "91c27bad-5419-4b7b-810d-4f7456bd095b")
 	)
 	(junction
+		(at 337.82 219.71)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "9b2fede3-1add-4eaa-be40-834e0b52db67")
+	)
+	(junction
 		(at 229.87 53.34)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -5263,12 +4860,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "a6332b7f-356b-4fc2-b747-95a95258e750")
-	)
-	(junction
-		(at 163.83 92.71)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "a68d6e7f-4d5b-4188-913a-3a537531b71d")
 	)
 	(junction
 		(at 367.03 171.45)
@@ -5401,12 +4992,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "ecb6a04b-515f-4df8-84bf-ea0d31276803")
-	)
-	(junction
-		(at 163.83 85.09)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ee41508c-af84-41c5-a5db-da3819c28ff4")
 	)
 	(junction
 		(at 30.48 168.91)
@@ -5706,16 +5291,6 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 147.32) (xy 163.83 149.86)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "28c49db4-61da-4724-acc2-d1d16cf057db")
-	)
-	(wire
-		(pts
 			(xy 326.39 123.19) (xy 326.39 125.73)
 		)
 		(stroke
@@ -5866,16 +5441,6 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 110.49) (xy 35.56 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "42a98783-4b3e-4ac5-baf8-cd91a0edaadd")
-	)
-	(wire
-		(pts
 			(xy 326.39 120.65) (xy 326.39 123.19)
 		)
 		(stroke
@@ -5923,16 +5488,6 @@
 			(type default)
 		)
 		(uuid "4ea59a3d-124c-4b26-be9f-0c605c68dde4")
-	)
-	(wire
-		(pts
-			(xy 62.23 130.81) (xy 66.04 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5033a40b-4672-4068-bf3e-c4e602bbb6af")
 	)
 	(wire
 		(pts
@@ -5996,6 +5551,16 @@
 	)
 	(wire
 		(pts
+			(xy 337.82 219.71) (xy 337.82 222.25)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5b6bdf81-f5ac-4042-8060-8a420e2d934d")
+	)
+	(wire
+		(pts
 			(xy 367.03 171.45) (xy 367.03 173.99)
 		)
 		(stroke
@@ -6033,16 +5598,6 @@
 			(type default)
 		)
 		(uuid "5f2a78f0-57f1-468c-9026-1c2cb875368b")
-	)
-	(wire
-		(pts
-			(xy 110.49 113.03) (xy 111.76 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "60371971-cc01-4020-a2a4-2f3d38a442b2")
 	)
 	(wire
 		(pts
@@ -6086,16 +5641,6 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 90.17) (xy 111.76 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6875ea27-fcea-45cb-9fe6-5747382b15f9")
-	)
-	(wire
-		(pts
 			(xy 143.51 46.99) (xy 146.05 46.99)
 		)
 		(stroke
@@ -6123,16 +5668,6 @@
 			(type default)
 		)
 		(uuid "6c1ea8a0-dbca-48d8-b1e3-223b88a739a4")
-	)
-	(wire
-		(pts
-			(xy 116.84 90.17) (xy 118.11 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6cd1de41-9d12-4f6b-840c-4c6219c44740")
 	)
 	(wire
 		(pts
@@ -6246,16 +5781,6 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 130.81) (xy 80.01 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7fd86246-f1fd-4d1e-8134-6d37ebf8efed")
-	)
-	(wire
-		(pts
 			(xy 187.96 38.1) (xy 187.96 43.18)
 		)
 		(stroke
@@ -6276,6 +5801,16 @@
 	)
 	(wire
 		(pts
+			(xy 337.82 217.17) (xy 337.82 219.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "82a41f9b-8614-4b7e-8ebf-198bd8c541f3")
+	)
+	(wire
+		(pts
 			(xy 234.95 138.43) (xy 237.49 138.43)
 		)
 		(stroke
@@ -6283,16 +5818,6 @@
 			(type default)
 		)
 		(uuid "84d7acd2-8ae5-416e-bd14-833a81fccbac")
-	)
-	(wire
-		(pts
-			(xy 163.83 92.71) (xy 163.83 95.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "86337d42-5d55-463f-b2e7-3e183c54e6e3")
 	)
 	(wire
 		(pts
@@ -6406,26 +5931,6 @@
 	)
 	(wire
 		(pts
-			(xy 73.66 130.81) (xy 77.47 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "98411d2f-b4fb-4ec9-94c8-999a9a1ba0c5")
-	)
-	(wire
-		(pts
-			(xy 27.94 110.49) (xy 29.21 110.49)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "98856445-b524-4ccf-9c61-d30741b77dd6")
-	)
-	(wire
-		(pts
 			(xy 326.39 102.87) (xy 326.39 105.41)
 		)
 		(stroke
@@ -6443,16 +5948,6 @@
 			(type default)
 		)
 		(uuid "9bf59d74-c933-402b-9ea0-089e9ef9bbca")
-	)
-	(wire
-		(pts
-			(xy 116.84 121.92) (xy 118.11 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "9ccbbeff-2c15-42f5-9079-16c27a298250")
 	)
 	(wire
 		(pts
@@ -6566,16 +6061,6 @@
 	)
 	(wire
 		(pts
-			(xy 163.83 90.17) (xy 163.83 92.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "afb01f57-b101-4df7-8888-d97192cd69ec")
-	)
-	(wire
-		(pts
 			(xy 367.03 86.36) (xy 367.03 88.9)
 		)
 		(stroke
@@ -6586,16 +6071,6 @@
 	)
 	(wire
 		(pts
-			(xy 116.84 113.03) (xy 118.11 113.03)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b0e12829-92c1-495d-ab66-665494ee75d7")
-	)
-	(wire
-		(pts
 			(xy 238.76 40.64) (xy 240.03 40.64)
 		)
 		(stroke
@@ -6603,26 +6078,6 @@
 			(type default)
 		)
 		(uuid "b273be88-0f0a-40f6-a391-776a87688dd5")
-	)
-	(wire
-		(pts
-			(xy 163.83 87.63) (xy 163.83 90.17)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b68b9344-42c2-48ad-838c-39d296b80724")
-	)
-	(wire
-		(pts
-			(xy 110.49 121.92) (xy 111.76 121.92)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b938d13e-2380-4848-9935-5868fb544106")
 	)
 	(wire
 		(pts
@@ -6673,16 +6128,6 @@
 			(type default)
 		)
 		(uuid "c2e5835e-a368-4ce8-a86a-6126e87e1994")
-	)
-	(wire
-		(pts
-			(xy 62.23 130.81) (xy 62.23 132.08)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "c70f4799-25df-42a5-a16b-2e6124501b05")
 	)
 	(wire
 		(pts
@@ -6806,16 +6251,6 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 138.43) (xy 77.47 139.7)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dcc891be-214e-4f67-b96d-c46d09265685")
-	)
-	(wire
-		(pts
 			(xy 367.03 191.77) (xy 367.03 194.31)
 		)
 		(stroke
@@ -6823,16 +6258,6 @@
 			(type default)
 		)
 		(uuid "e0347095-d44d-4e33-b856-d3d1d3b7cba5")
-	)
-	(wire
-		(pts
-			(xy 163.83 85.09) (xy 163.83 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e1015013-d7b0-4028-a3ae-9be91826af22")
 	)
 	(wire
 		(pts
@@ -6916,26 +6341,6 @@
 	)
 	(wire
 		(pts
-			(xy 77.47 130.81) (xy 77.47 133.35)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ecc0b2b1-c7ba-4871-a5d0-533fc655af1a")
-	)
-	(wire
-		(pts
-			(xy 62.23 129.54) (xy 62.23 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ed52fe72-fe91-4b57-92c3-84c85be8a9d5")
-	)
-	(wire
-		(pts
 			(xy 367.03 91.44) (xy 367.03 93.98)
 		)
 		(stroke
@@ -7003,6 +6408,16 @@
 			(type default)
 		)
 		(uuid "fd237a6b-db91-4704-8285-626161d85b92")
+	)
+	(wire
+		(pts
+			(xy 337.82 214.63) (xy 337.82 217.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fd48f361-dd9f-40c0-91d7-4aabe748ee30")
 	)
 	(wire
 		(pts
@@ -7086,18 +6501,6 @@
 		)
 		(uuid e58366fd-973d-49e9-8cf5-544ab5faa9ae)
 	)
-	(rectangle
-		(start 15.24 82.55)
-		(end 194.31 151.13)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(fill
-			(type none)
-		)
-		(uuid ecf9f3de-ec00-4517-b621-1b1a850d3439)
-	)
 	(text "MCU"
 		(exclude_from_sim no)
 		(at 20.574 19.304 0)
@@ -7109,16 +6512,6 @@
 			)
 		)
 		(uuid "0d008563-0482-416c-8263-e04e3a8f5745")
-	)
-	(text "SMD pullup provides default.\nThough hole resistors can \nbe used for other values."
-		(exclude_from_sim no)
-		(at 114.554 103.378 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-		)
-		(uuid "16529b94-5730-4d3e-8434-bc153b8154f7")
 	)
 	(text "3.3V Buck"
 		(exclude_from_sim no)
@@ -7174,18 +6567,6 @@
 			)
 		)
 		(uuid "ac22f932-4bf5-41e2-b780-03d309fca97f")
-	)
-	(text "Charging"
-		(exclude_from_sim no)
-		(at 25.654 87.122 0)
-		(effects
-			(font
-				(size 2.54 2.54)
-				(thickness 0.508)
-				(bold yes)
-			)
-		)
-		(uuid "b43ca234-fe09-4dbd-a2e9-a26fe8768b30")
 	)
 	(text "TODO: find new resistor values for 3.3v"
 		(exclude_from_sim no)
@@ -7327,50 +6708,6 @@
 			)
 		)
 	)
-	(global_label "SDA_CHRG"
-		(shape input)
-		(at 113.03 142.24 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "05592bb4-dd00-411b-894f-c106f05d010d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.3686 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ILIM"
-		(shape input)
-		(at 35.56 118.11 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0678c349-5521-4958-b1d7-583024b2a9e1")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 28.8857 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "INTN2_ACL"
 		(shape input)
 		(at 273.05 45.72 0)
@@ -7449,50 +6786,6 @@
 		(uuid "0de7d181-19f3-4aeb-bc6f-aaf9cc3ebeab")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 261.5376 127 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "CE"
-		(shape input)
-		(at 163.83 132.08 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0ed7685e-3c1c-4b82-846c-bc1cfd4a1c73")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 158.4258 132.08 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PMID"
-		(shape input)
-		(at 163.83 101.6 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "0f042996-4b02-49a4-978d-5f6a92415251")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 156.2486 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7633,28 +6926,6 @@
 			)
 		)
 	)
-	(global_label "INT"
-		(shape input)
-		(at 71.12 118.11 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "13d367d4-08e1-4765-b29e-f2345c47eb87")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 77.0081 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "BAT_CHG"
 		(shape input)
 		(at 102.87 218.44 0)
@@ -7673,28 +6944,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "ILIM"
-		(shape input)
-		(at 163.83 111.76 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1625b14e-8908-4fa0-97f1-9166ead2d2dc")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.1557 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -7719,28 +6968,6 @@
 			)
 		)
 	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 118.11 121.92 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "19337a9f-790b-4078-84cc-da064ae2b60d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 131.7995 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "PB1"
 		(shape input)
 		(at 60.96 57.15 0)
@@ -7754,28 +6981,6 @@
 		(uuid "1abd72c1-0eb1-48d1-8ac3-01eadcff48fd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 67.6947 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 118.11 90.17 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "1af79ada-81cd-40d8-8a77-644e123b71c7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 131.7995 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7917,28 +7122,6 @@
 			)
 		)
 	)
-	(global_label "CE"
-		(shape input)
-		(at 71.12 106.68 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "25798c94-ff42-4996-a113-fabf6c4e5823")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 76.5242 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "VBUS_CHG"
 		(shape input)
 		(at 40.64 213.36 180)
@@ -7974,28 +7157,6 @@
 		(uuid "26a1882f-b455-42fd-9146-db752e4bc573")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 24.4105 245.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "INT"
-		(shape input)
-		(at 110.49 90.17 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "2a2ab807-d02c-4c1a-be1e-baad2bad8e9d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.6019 90.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8114,28 +7275,6 @@
 			)
 		)
 	)
-	(global_label "BAT"
-		(shape input)
-		(at 31.75 138.43 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "2fe19d8a-f928-436a-bc94-914e6305d2f0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 25.4386 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "VREF_CHG"
 		(shape input)
 		(at 120.65 265.43 0)
@@ -8180,28 +7319,6 @@
 			)
 		)
 	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 115.57 133.35 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "385351a6-a339-404a-8347-0470a81ab609")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.2595 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "VCC_MCU"
 		(shape input)
 		(at 27.94 76.2 180)
@@ -8224,28 +7341,6 @@
 			)
 		)
 	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 118.11 113.03 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3e9d3f57-56bb-45b2-bdaa-375fc666888b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 131.7995 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "PA6"
 		(shape input)
 		(at 82.55 36.83 180)
@@ -8264,28 +7359,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SDA_CHRG"
-		(shape input)
-		(at 71.12 114.3 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "43031aa7-907f-4fcf-8c17-b192448ac2f3")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.7814 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -8327,28 +7400,6 @@
 				(font
 					(size 1.27 1.27)
 				)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "BAT"
-		(shape input)
-		(at 163.83 124.46 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "48062f0e-9c95-40c8-8511-3906c98b1239")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.5186 124.46 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -8484,28 +7535,6 @@
 			)
 		)
 	)
-	(global_label "SCL_CHRG"
-		(shape input)
-		(at 71.12 110.49 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "4f0616c1-eb87-4b69-99c3-494c50a008ad")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.7209 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SDA_CHG"
 		(shape input)
 		(at 115.57 254 180)
@@ -8519,28 +7548,6 @@
 		(uuid "51194e86-b54f-43f4-8393-fc6e9bf03d2a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 104.1786 254 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "TS_BIAS"
-		(shape input)
-		(at 163.83 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "52abe2f8-2d10-499f-a35e-4bcfb04b39b5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 153.5272 114.3 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8572,28 +7579,6 @@
 			)
 		)
 	)
-	(global_label "SDA_CHRG"
-		(shape input)
-		(at 110.49 121.92 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "5786c7a4-21b8-48ba-bff2-e70b0106433d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.8286 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "PC3"
 		(shape input)
 		(at 82.55 72.39 180)
@@ -8612,28 +7597,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "BTST"
-		(shape input)
-		(at 35.56 106.68 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "57e606d6-cd8a-4111-8234-8a3a4101e773")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 35.56 99.2801 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -8764,28 +7727,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "VBUS_CHRG"
-		(shape input)
-		(at 163.83 99.06 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "6590c288-4e2e-445a-ae11-d337ecf7ce85")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 149.8381 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -8944,28 +7885,6 @@
 			)
 		)
 	)
-	(global_label "PMID_GO"
-		(shape input)
-		(at 163.83 109.22 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7463b681-15cd-40e3-8785-c853b517c121")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 152.6805 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "PC2"
 		(shape input)
 		(at 82.55 69.85 180)
@@ -9001,28 +7920,6 @@
 		(uuid "75a3e43d-dbd3-4ff1-bc0e-60a7882887a0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 75.9967 27.94 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "STAT"
-		(shape input)
-		(at 163.83 142.24 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "760ec4a8-bcb9-4857-b583-a21476632467")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 156.6115 142.24 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9111,50 +8008,6 @@
 		(uuid "7afc5534-7e0b-4a03-91a7-4831d49308e8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 261.5376 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "INT"
-		(shape input)
-		(at 163.83 139.7 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7d8b2081-daa0-4764-ba11-da5ca3d82d83")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.9419 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SYS"
-		(shape input)
-		(at 163.83 127 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "7f414f77-585d-4c5b-9f99-af65fccccf5b")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.3372 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9406,28 +8259,6 @@
 			)
 		)
 	)
-	(global_label "REGN"
-		(shape input)
-		(at 27.94 110.49 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "94fa7c19-28a0-4d75-b8dc-3d867f584a3e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 19.9353 110.49 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "VOUT_3V3"
 		(shape input)
 		(at 125.73 163.83 180)
@@ -9468,28 +8299,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SYS"
-		(shape input)
-		(at 31.75 147.32 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "9708fe25-9f55-44e0-8924-817014e7efd6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 25.2572 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -9648,50 +8457,6 @@
 			)
 		)
 	)
-	(global_label "TS_BIAS"
-		(shape input)
-		(at 35.56 121.92 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a1aa69cf-d4fb-472d-a241-53d60a4ecbe4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 25.2572 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "PMID_GO"
-		(shape input)
-		(at 35.56 114.3 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a38e2d0b-5de7-4418-b7d7-8a1d4db493ae")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.4105 114.3 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "INTN1_ACL"
 		(shape input)
 		(at 236.22 118.11 180)
@@ -9771,28 +8536,6 @@
 		(uuid "a67df4dc-4c40-4d9a-a735-0dc9f1f512a4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 315.3615 46.99 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SCL_CHRG"
-		(shape input)
-		(at 163.83 134.62 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a6fe598e-8973-4cac-88cd-202e1944382e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.2291 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9912,28 +8655,6 @@
 			)
 		)
 	)
-	(global_label "SW"
-		(shape input)
-		(at 57.15 99.06 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "aefb6079-6cb7-4b68-96e7-da48c28b1606")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 57.15 93.4139 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "CSN"
 		(shape input)
 		(at 273.05 27.94 0)
@@ -9952,28 +8673,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "BAT"
-		(shape input)
-		(at 57.15 129.54 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "b4dbe62f-ca8d-4606-9065-21fb91115a54")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 57.15 135.8514 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -10109,28 +8808,6 @@
 			)
 		)
 	)
-	(global_label "QON"
-		(shape input)
-		(at 52.07 129.54 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "bc08c8f9-a432-4e56-bfb2-f2fdeab89201")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 52.07 136.5167 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SCL_CHG"
 		(shape input)
 		(at 115.57 245.11 180)
@@ -10188,50 +8865,6 @@
 		(uuid "c09288ba-2cfd-42b8-b10f-782ec2bc5e0d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 354.3686 97.79 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SCL_CHRG"
-		(shape input)
-		(at 113.03 133.35 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c0fcbc0e-7e5c-4d16-9b74-8cb23f295dc8")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 100.4291 133.35 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SDA_CHRG"
-		(shape input)
-		(at 163.83 137.16 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c1809aae-c616-4cd9-893f-d9d5531ca86e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.1686 137.16 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10307,28 +8940,6 @@
 			)
 		)
 	)
-	(global_label "SYS"
-		(shape input)
-		(at 62.23 132.08 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c6dc9af4-1429-4e01-b438-8bfa2053f008")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 62.23 138.5728 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Button2A"
 		(shape input)
 		(at 209.55 218.44 0)
@@ -10347,28 +8958,6 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 163.83 147.32 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "c82ec1b6-2a2b-4441-8062-5c56d69cd6c7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 150.1405 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
 				(hide yes)
 			)
 		)
@@ -10395,28 +8984,6 @@
 			)
 		)
 	)
-	(global_label "TS"
-		(shape input)
-		(at 163.83 119.38 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "cac50b27-5bb2-46d9-93cc-1b4b0e786495")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 158.6677 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "DBUS-"
 		(shape bidirectional)
 		(at 195.58 48.26 0)
@@ -10429,28 +8996,6 @@
 		(uuid "cc83bf27-b048-45db-8d15-a146683188b9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 195.1505 48.1806 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "REGN"
-		(shape input)
-		(at 163.83 106.68 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "d0e395db-f5c5-4c17-8f81-fedfc6f8da5e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 155.8253 106.68 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10590,28 +9135,6 @@
 			)
 		)
 	)
-	(global_label "PMID"
-		(shape input)
-		(at 52.07 99.06 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d543bf0b-5980-4a53-8f1c-4878eac5a605")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 52.07 91.4786 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "SCL_CHG"
 		(shape input)
 		(at 118.11 265.43 180)
@@ -10677,50 +9200,6 @@
 			)
 		)
 	)
-	(global_label "SW"
-		(shape input)
-		(at 80.01 130.81 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "d966a914-9c0e-40b6-bedc-6380d12cf973")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 85.6561 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "STAT"
-		(shape input)
-		(at 71.12 121.92 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "dbeb3a7c-1920-4fa7-90d7-69aedf05b65c")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 78.3385 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "DIN_SDA_ACL"
 		(shape input)
 		(at 274.32 109.22 180)
@@ -10739,28 +9218,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "VBUS_CHRG"
-		(shape input)
-		(at 46.99 99.06 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e1e247d1-d827-4665-aa34-40cb621db0ca")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 46.99 85.0681 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -10919,28 +9376,6 @@
 			)
 		)
 	)
-	(global_label "VREF_CHRG"
-		(shape input)
-		(at 115.57 142.24 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "e9694ebb-b633-4c41-acb5-92a7dd25c0a5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 129.2595 142.24 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "PB2"
 		(shape input)
 		(at 82.55 53.34 180)
@@ -10985,50 +9420,6 @@
 			)
 		)
 	)
-	(global_label "TS"
-		(shape input)
-		(at 46.99 129.54 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "ee83e146-4591-43c4-a048-21b95f17bf6d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 46.99 134.7023 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "SCL_CHRG"
-		(shape input)
-		(at 110.49 113.03 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f0e36be6-1c5d-4663-b4bd-34ccce0d6d0d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.8891 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "Button2A"
 		(shape input)
 		(at 185.42 205.74 180)
@@ -11064,28 +9455,6 @@
 		(uuid "f30ef2fb-cd46-4f05-8aeb-14a05a6f9331")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 71.0981 246.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "QON"
-		(shape input)
-		(at 163.83 121.92 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f46dca3e-2b80-40f6-ae9c-8833090a32a5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 156.8533 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11204,28 +9573,6 @@
 			)
 		)
 	)
-	(global_label "BTST"
-		(shape input)
-		(at 77.47 139.7 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "fe4879a4-db5f-44ce-9af1-58c42682f5ca")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 70.0701 139.7 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "DOUT_A6"
 		(shape input)
 		(at 273.05 30.48 0)
@@ -11258,7 +9605,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "01257e7a-86de-4eba-b659-353126c57482")
-		(property "Reference" "J31"
+		(property "Reference" "J23"
 			(at 278.13 103.5049 90)
 			(effects
 				(font
@@ -11312,7 +9659,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J31")
+					(reference "J23")
 					(unit 1)
 				)
 			)
@@ -11328,7 +9675,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "01ae5f26-173a-4f4c-b9aa-6787f62a00f1")
-		(property "Reference" "J17"
+		(property "Reference" "J15"
 			(at 132.08 171.4499 0)
 			(effects
 				(font
@@ -11382,7 +9729,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J17")
+					(reference "J15")
 					(unit 1)
 				)
 			)
@@ -11398,7 +9745,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0255591a-9a4e-41b7-8f98-d271752e2f8c")
-		(property "Reference" "C7"
+		(property "Reference" "C4"
 			(at 45.72 208.2799 0)
 			(effects
 				(font
@@ -11452,7 +9799,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C7")
+					(reference "C4")
 					(unit 1)
 				)
 			)
@@ -11468,7 +9815,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0589cf60-01ff-4300-9e0e-1bedf34f98fc")
-		(property "Reference" "#PWR07"
+		(property "Reference" "#PWR04"
 			(at 31.75 20.32 0)
 			(effects
 				(font
@@ -11519,7 +9866,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR07")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -11534,7 +9881,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "08846dc4-5c84-4066-96c0-0a0b696ca6e0")
-		(property "Reference" "R5"
+		(property "Reference" "R2"
 			(at 119.38 240.03 90)
 			(effects
 				(font
@@ -11586,7 +9933,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R5")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -11678,7 +10025,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "0d59b357-45ff-4ac9-bc28-4f4cead70fc1")
-		(property "Reference" "#PWR018"
+		(property "Reference" "#PWR013"
 			(at 102.87 185.42 0)
 			(effects
 				(font
@@ -11729,7 +10076,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR018")
+					(reference "#PWR013")
 					(unit 1)
 				)
 			)
@@ -11745,7 +10092,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "110d5962-8187-4c2d-b5bb-34a28c7b85ce")
-		(property "Reference" "R6"
+		(property "Reference" "R3"
 			(at 119.38 248.92 90)
 			(effects
 				(font
@@ -11797,7 +10144,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R6")
+					(reference "R3")
 					(unit 1)
 				)
 			)
@@ -11880,7 +10227,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1c0f0de9-d6f5-475d-91d6-61e6c53269a9")
-		(property "Reference" "J33"
+		(property "Reference" "J25"
 			(at 278.13 121.2849 90)
 			(effects
 				(font
@@ -11934,7 +10281,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J33")
+					(reference "J25")
 					(unit 1)
 				)
 			)
@@ -11949,7 +10296,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "1d05b264-0181-47b7-af33-9e51d659126e")
-		(property "Reference" "R12"
+		(property "Reference" "R9"
 			(at 240.03 95.25 90)
 			(effects
 				(font
@@ -12001,83 +10348,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x04_Socket")
-		(at 168.91 121.92 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "1d45560d-2c42-41be-a488-4127cab91c17")
-		(property "Reference" "J21"
-			(at 170.18 121.9199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x04_Socket"
-			(at 170.18 124.4599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
-			(at 168.91 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x04, script generated"
-			(at 168.91 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9bf9dfa3-0416-486a-b413-7173a8a2e9e1")
-		)
-		(pin "3"
-			(uuid "646c4374-5192-4f70-921e-0d7585b45c84")
-		)
-		(pin "4"
-			(uuid "21141a93-c631-444b-aa2b-bb0fbe595538")
-		)
-		(pin "2"
-			(uuid "dd6c9bcd-a3ec-4506-b5b2-94a1f9f2fbc6")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J21")
+					(reference "R9")
 					(unit 1)
 				)
 			)
@@ -12093,7 +10364,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1d946079-bc06-4e84-8049-3a2865afa643")
-		(property "Reference" "J43"
+		(property "Reference" "J36"
 			(at 344.17 240.0299 0)
 			(effects
 				(font
@@ -12153,7 +10424,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J43")
+					(reference "J36")
 					(unit 1)
 				)
 			)
@@ -12238,7 +10509,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1f808f9c-9f02-4ef4-ae63-4ceac3160418")
-		(property "Reference" "#PWR014"
+		(property "Reference" "#PWR09"
 			(at 76.2 22.86 0)
 			(effects
 				(font
@@ -12289,7 +10560,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR014")
+					(reference "#PWR09")
 					(unit 1)
 				)
 			)
@@ -12305,7 +10576,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "23307020-a1b8-4c39-a4dc-dc55c46faf22")
-		(property "Reference" "C10"
+		(property "Reference" "C6"
 			(at 106.68 173.9899 0)
 			(effects
 				(font
@@ -12359,7 +10630,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C10")
+					(reference "C6")
 					(unit 1)
 				)
 			)
@@ -12375,7 +10646,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "250169f3-e1d4-47ba-b9fb-f182a5258019")
-		(property "Reference" "J56"
+		(property "Reference" "J49"
 			(at 373.38 228.5999 0)
 			(effects
 				(font
@@ -12435,74 +10706,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J56")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small")
-		(at 29.21 107.95 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "25a665ad-5f71-4645-a7f4-5665ff498f93")
-		(property "Reference" "C1"
-			(at 30.226 105.918 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" " 4.7uF"
-			(at 32.512 107.95 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 29.21 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 29.21 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor, small symbol"
-			(at 29.21 107.95 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "b3cb6559-9164-48cf-b882-1931d75b5d35")
-		)
-		(pin "1"
-			(uuid "410c9591-dda7-4e4e-affb-bef7f9d5455b")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C1")
+					(reference "J49")
 					(unit 1)
 				)
 			)
@@ -12518,7 +10722,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "25ec846f-902c-4369-80bd-5f4d044941b7")
-		(property "Reference" "#FLG08"
+		(property "Reference" "#FLG07"
 			(at 137.795 185.42 0)
 			(effects
 				(font
@@ -12569,77 +10773,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG08")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x02_Socket")
-		(at 113.03 128.27 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "27039282-8552-4b44-9b69-adcb67ad91ee")
-		(property "Reference" "J9"
-			(at 116.84 127.6349 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "Conn_01x02_Socket"
-			(at 116.84 130.1749 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical"
-			(at 113.03 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 113.03 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 113.03 128.27 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "ffaa16c4-c483-4bce-a8d1-e0b183bc2dab")
-		)
-		(pin "2"
-			(uuid "73f2eace-c652-403b-8be9-16285ce47044")
-		)
-		(instances
-			(project ""
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J9")
+					(reference "#FLG07")
 					(unit 1)
 				)
 			)
@@ -12800,7 +10934,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "29ea7cdd-67bc-449a-b76d-da11843f2355")
-		(property "Reference" "R8"
+		(property "Reference" "R5"
 			(at 147.32 41.402 90)
 			(effects
 				(font
@@ -12852,73 +10986,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 36.83 147.32 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "2ae5e463-40b3-4dab-8e58-83e3dbe76fc8")
-		(property "Reference" "#PWR06"
-			(at 43.18 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 40.64 147.3201 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 36.83 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 36.83 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 36.83 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0d8b34a6-8440-4c21-943f-c3c3b8fe5621")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR06")
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -12934,7 +11002,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2b11f2e4-df10-48dc-a7ec-8ffdf33190ed")
-		(property "Reference" "U7"
+		(property "Reference" "U6"
 			(at 189.6111 40.64 0)
 			(effects
 				(font
@@ -13003,7 +11071,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U7")
+					(reference "U6")
 					(unit 1)
 				)
 			)
@@ -13019,7 +11087,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2ba274c7-7b22-4567-92a6-be854501227f")
-		(property "Reference" "J57"
+		(property "Reference" "J50"
 			(at 373.38 240.0299 0)
 			(effects
 				(font
@@ -13079,7 +11147,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J57")
+					(reference "J50")
 					(unit 1)
 				)
 			)
@@ -13095,7 +11163,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2bcf385b-ceba-45bd-9235-59300d60702b")
-		(property "Reference" "J16"
+		(property "Reference" "J14"
 			(at 132.08 163.8299 0)
 			(effects
 				(font
@@ -13149,7 +11217,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J16")
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -13165,7 +11233,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2cc727b6-9c91-4eaf-95b4-996a730aa2a3")
-		(property "Reference" "#FLG014"
+		(property "Reference" "#FLG013"
 			(at 328.295 76.2 0)
 			(effects
 				(font
@@ -13216,7 +11284,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG014")
+					(reference "#FLG013")
 					(unit 1)
 				)
 			)
@@ -13231,7 +11299,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "317d2d7a-a15c-4378-a524-60d7d2fc08c2")
-		(property "Reference" "#PWR038"
+		(property "Reference" "#PWR032"
 			(at 320.04 109.22 0)
 			(effects
 				(font
@@ -13281,7 +11349,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR038")
+					(reference "#PWR032")
 					(unit 1)
 				)
 			)
@@ -13297,7 +11365,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "31cfdb51-6ba3-47bd-afd5-14038daf818e")
-		(property "Reference" "J32"
+		(property "Reference" "J24"
 			(at 278.13 112.3949 90)
 			(effects
 				(font
@@ -13351,7 +11419,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J32")
+					(reference "J24")
 					(unit 1)
 				)
 			)
@@ -13367,7 +11435,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3437a99a-b76f-47f2-9b60-a8c47d304e44")
-		(property "Reference" "J51"
+		(property "Reference" "J44"
 			(at 373.38 171.4499 0)
 			(effects
 				(font
@@ -13427,7 +11495,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J51")
+					(reference "J44")
 					(unit 1)
 				)
 			)
@@ -13443,7 +11511,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "34eae4ae-ec16-43e4-b5b0-23ebc5e3c2b2")
-		(property "Reference" "J41"
+		(property "Reference" "J33"
 			(at 332.74 134.6199 0)
 			(effects
 				(font
@@ -13503,7 +11571,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J41")
+					(reference "J33")
 					(unit 1)
 				)
 			)
@@ -13519,7 +11587,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "35fcd495-6c79-4606-9446-05b73f905ac7")
-		(property "Reference" "C9"
+		(property "Reference" "C5"
 			(at 87.63 208.2799 0)
 			(effects
 				(font
@@ -13573,7 +11641,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C9")
+					(reference "C5")
 					(unit 1)
 				)
 			)
@@ -13588,7 +11656,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "3753104c-9739-45c5-a71e-90884118866d")
-		(property "Reference" "R18"
+		(property "Reference" "R15"
 			(at 336.55 36.322 90)
 			(effects
 				(font
@@ -13640,7 +11708,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R18")
+					(reference "R15")
 					(unit 1)
 				)
 			)
@@ -13655,7 +11723,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "379a7473-7d63-4f1e-be41-9e847a8b9478")
-		(property "Reference" "J13"
+		(property "Reference" "J11"
 			(at 127.254 194.31 0)
 			(effects
 				(font
@@ -13709,7 +11777,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J13")
+					(reference "J11")
 					(unit 1)
 				)
 			)
@@ -13799,7 +11867,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3f895d13-2e08-4f29-b5c7-01e2ff8588d5")
-		(property "Reference" "J24"
+		(property "Reference" "J16"
 			(at 182.88 21.5899 0)
 			(effects
 				(font
@@ -13859,7 +11927,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J24")
+					(reference "J16")
 					(unit 1)
 				)
 			)
@@ -13875,7 +11943,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4348c7d4-6338-457f-83dd-60a7fe07840a")
-		(property "Reference" "#PWR028"
+		(property "Reference" "#PWR022"
 			(at 203.2 73.66 0)
 			(effects
 				(font
@@ -13926,7 +11994,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR028")
+					(reference "#PWR022")
 					(unit 1)
 				)
 			)
@@ -13942,7 +12010,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "44172920-27f9-4c3d-979f-1e4cf428df07")
-		(property "Reference" "J55"
+		(property "Reference" "J48"
 			(at 373.38 217.1699 0)
 			(effects
 				(font
@@ -14002,74 +12070,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J55")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 78.74 147.32 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "450dd041-bfab-4521-ae93-35010cfac945")
-		(property "Reference" "#FLG03"
-			(at 80.645 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 82.55 147.3199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3fbcbae4-19ff-4ab3-b7e5-888a3a346529")
-		)
-		(instances
-			(project ""
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG03")
+					(reference "J48")
 					(unit 1)
 				)
 			)
@@ -14084,7 +12085,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4541792d-405c-47a1-94e8-fceb528ad69f")
-		(property "Reference" "R17"
+		(property "Reference" "R14"
 			(at 336.55 31.242 90)
 			(effects
 				(font
@@ -14136,74 +12137,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R17")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 163.83 85.09 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "4546ce29-81cb-40a8-a015-2154ee8f3fa5")
-		(property "Reference" "#PWR025"
-			(at 157.48 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 160.02 85.0899 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 163.83 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 163.83 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 163.83 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9626c93d-706d-4fe7-824c-f5ba58f1145f")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR025")
+					(reference "R14")
 					(unit 1)
 				)
 			)
@@ -14219,7 +12153,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4a034091-4bc7-4837-b339-03e101c0a73f")
-		(property "Reference" "J30"
+		(property "Reference" "J22"
 			(at 278.13 94.6149 90)
 			(effects
 				(font
@@ -14273,7 +12207,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J30")
+					(reference "J22")
 					(unit 1)
 				)
 			)
@@ -14288,7 +12222,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4baec1e7-02cd-4466-93eb-48d9d4104a12")
-		(property "Reference" "#PWR011"
+		(property "Reference" "#PWR08"
 			(at 50.8 171.45 0)
 			(effects
 				(font
@@ -14339,7 +12273,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR011")
+					(reference "#PWR08")
 					(unit 1)
 				)
 			)
@@ -14355,7 +12289,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4c63e68c-0920-470d-9e06-cacc6879eb8e")
-		(property "Reference" "J49"
+		(property "Reference" "J42"
 			(at 373.38 148.5899 0)
 			(effects
 				(font
@@ -14415,7 +12349,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J49")
+					(reference "J42")
 					(unit 1)
 				)
 			)
@@ -14431,7 +12365,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4eaee4c9-65d4-48dd-8ef9-be3608073cd1")
-		(property "Reference" "J48"
+		(property "Reference" "J41"
 			(at 373.38 137.1599 0)
 			(effects
 				(font
@@ -14491,7 +12425,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J48")
+					(reference "J41")
 					(unit 1)
 				)
 			)
@@ -14506,7 +12440,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "4f4eebf3-66f5-4efd-afda-a48392517ae2")
-		(property "Reference" "R14"
+		(property "Reference" "R11"
 			(at 240.03 113.03 90)
 			(effects
 				(font
@@ -14558,7 +12492,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R14")
+					(reference "R11")
 					(unit 1)
 				)
 			)
@@ -14574,7 +12508,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "50be73ba-6939-4665-bb33-e9d5e08b886e")
-		(property "Reference" "#FLG011"
+		(property "Reference" "#FLG010"
 			(at 233.045 133.35 0)
 			(effects
 				(font
@@ -14625,86 +12559,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG011")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x05_Socket")
-		(at 168.91 90.17 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "52b6de49-8eec-4965-8cb2-7f3be16a78de")
-		(property "Reference" "J18"
-			(at 170.18 88.8999 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x05_Socket"
-			(at 170.18 91.4399 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical"
-			(at 168.91 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x05, script generated"
-			(at 168.91 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "4ccdd5f0-de5e-4c28-a021-b284b1b46b20")
-		)
-		(pin "2"
-			(uuid "321b5e7f-3d18-42f3-80c7-16fe72490284")
-		)
-		(pin "4"
-			(uuid "1e06557a-e709-4f26-bd53-067a993499bd")
-		)
-		(pin "3"
-			(uuid "6a89a445-8498-483a-8968-666a42c456b3")
-		)
-		(pin "5"
-			(uuid "63e93029-9927-4fd7-bead-db91d99b435b")
-		)
-		(instances
-			(project ""
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J18")
+					(reference "#FLG010")
 					(unit 1)
 				)
 			)
@@ -14719,7 +12574,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "54d7522d-d712-43d5-85ba-3ffdf38e0817")
-		(property "Reference" "C6"
+		(property "Reference" "C3"
 			(at 38.608 25.654 90)
 			(effects
 				(font
@@ -14771,83 +12626,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C6")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x04_Socket")
-		(at 168.91 109.22 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "5534f920-d131-4e79-80be-835dbf6c8ee0")
-		(property "Reference" "J20"
-			(at 170.18 109.2199 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x04_Socket"
-			(at 170.18 111.7599 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
-			(at 168.91 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x04, script generated"
-			(at 168.91 109.22 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "68a0a77d-9c1b-4370-8f4a-90f4a5b4cdc6")
-		)
-		(pin "3"
-			(uuid "d5a21e18-ee50-47c9-848f-1db5571b0786")
-		)
-		(pin "4"
-			(uuid "5231aefd-824b-4030-b236-8ce2b2a8fa1f")
-		)
-		(pin "2"
-			(uuid "71b77a05-f36a-416a-bf6f-03e5976cb606")
-		)
-		(instances
-			(project ""
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J20")
+					(reference "C3")
 					(unit 1)
 				)
 			)
@@ -14862,7 +12641,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "55b28f13-cec1-4268-b681-71ee4a5c09bb")
-		(property "Reference" "#PWR029"
+		(property "Reference" "#PWR023"
 			(at 223.52 48.26 0)
 			(effects
 				(font
@@ -14912,7 +12691,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR029")
+					(reference "#PWR023")
 					(unit 1)
 				)
 			)
@@ -14928,7 +12707,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5671ba31-82cb-4824-bea1-cd016154d4fc")
-		(property "Reference" "J14"
+		(property "Reference" "J12"
 			(at 128.27 24.13 0)
 			(effects
 				(font
@@ -15013,7 +12792,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J14")
+					(reference "J12")
 					(unit 1)
 				)
 			)
@@ -15089,73 +12868,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:C_Small")
-		(at 34.29 138.43 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "58fdbeb5-00a2-4c58-b236-ade32d1e335c")
-		(property "Reference" "C3"
-			(at 34.29 133.35 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10uF"
-			(at 34.29 135.382 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 34.29 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 34.29 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor, small symbol"
-			(at 34.29 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "51df544e-36bb-49bd-88f5-9a70311cfadd")
-		)
-		(pin "1"
-			(uuid "5091adc9-1fbd-400e-8dc2-0d5d27a14019")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:GND")
 		(at 187.96 59.69 0)
 		(unit 1)
@@ -15164,7 +12876,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5aa47b19-9fbd-4adc-8a4e-56faf57e2b01")
-		(property "Reference" "#PWR027"
+		(property "Reference" "#PWR021"
 			(at 187.96 66.04 0)
 			(effects
 				(font
@@ -15214,7 +12926,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR027")
+					(reference "#PWR021")
 					(unit 1)
 				)
 			)
@@ -15230,7 +12942,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5b2f92a2-728e-4511-a474-370df55c6102")
-		(property "Reference" "J11"
+		(property "Reference" "J9"
 			(at 121.92 259.7149 90)
 			(effects
 				(font
@@ -15284,83 +12996,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J11")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:L")
-		(at 69.85 130.81 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5b805dfd-c881-4c9a-ac40-a1d7cf4e5f60")
-		(property "Reference" "L2"
-			(at 69.85 129.286 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "1 uH"
-			(at 69.85 132.842 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "MicroLightDevBoard:74438322010_L"
-			(at 69.85 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.we-online.com/components/products/datasheet/74438322010.pdf"
-			(at 69.85 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Inductor"
-			(at 69.85 130.81 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "purchase" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/74438322010?qs=ZB8tH5z5N7aonmcleKLsGw%3D%3D"
-			(at 69.85 130.81 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c443d25e-6840-4ca6-83ed-eb95b289256a")
-		)
-		(pin "2"
-			(uuid "49fea0f1-6d3c-4233-8186-b496142fc873")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "L2")
+					(reference "J9")
 					(unit 1)
 				)
 			)
@@ -15375,7 +13011,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5c3ff2a9-3d08-4fca-b8a2-a81482c97818")
-		(property "Reference" "#PWR019"
+		(property "Reference" "#PWR014"
 			(at 102.87 204.47 0)
 			(effects
 				(font
@@ -15426,7 +13062,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR019")
+					(reference "#PWR014")
 					(unit 1)
 				)
 			)
@@ -15441,7 +13077,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "5f967795-4e02-4ace-8d04-e19f70213a65")
-		(property "Reference" "#PWR039"
+		(property "Reference" "#PWR033"
 			(at 320.04 120.65 0)
 			(effects
 				(font
@@ -15491,7 +13127,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR039")
+					(reference "#PWR033")
 					(unit 1)
 				)
 			)
@@ -15506,7 +13142,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "60054693-f63a-4fb1-bd08-15fbac55fa86")
-		(property "Reference" "#PWR026"
+		(property "Reference" "#PWR020"
 			(at 170.18 26.67 0)
 			(effects
 				(font
@@ -15556,7 +13192,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR026")
+					(reference "#PWR020")
 					(unit 1)
 				)
 			)
@@ -15572,7 +13208,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "60f1d5d4-db20-426d-8888-eab88f14081d")
-		(property "Reference" "R4"
+		(property "Reference" "R1"
 			(at 119.38 222.25 90)
 			(effects
 				(font
@@ -15624,7 +13260,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R4")
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -15639,7 +13275,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "62f0a971-7cf0-462d-89f5-944f888a9931")
-		(property "Reference" "#PWR037"
+		(property "Reference" "#PWR031"
 			(at 320.04 97.79 0)
 			(effects
 				(font
@@ -15689,7 +13325,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR037")
+					(reference "#PWR031")
 					(unit 1)
 				)
 			)
@@ -15704,7 +13340,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "62fdca1a-aefa-42f4-a681-c0ed7c1bb4fb")
-		(property "Reference" "#PWR035"
+		(property "Reference" "#PWR029"
 			(at 320.04 76.2 0)
 			(effects
 				(font
@@ -15754,73 +13390,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR035")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 36.83 138.43 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "663316c6-a2bb-46b9-bb59-d6a0515876cf")
-		(property "Reference" "#PWR05"
-			(at 43.18 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 40.64 138.4301 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 36.83 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 36.83 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 36.83 138.43 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "096d7f57-ee33-407c-9f39-d7c6da168dea")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR05")
+					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -15835,7 +13405,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "6810f409-c912-48f3-b05d-a10e758e38c6")
-		(property "Reference" "#PWR015"
+		(property "Reference" "#PWR010"
 			(at 88.9 228.6 0)
 			(effects
 				(font
@@ -15886,74 +13456,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR015")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 78.74 147.32 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "68c09274-772b-4e6d-8aa4-f08bb9bb4136")
-		(property "Reference" "#PWR013"
-			(at 72.39 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 74.93 147.3199 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 78.74 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2da15ac1-d43a-4baf-9f85-30fc49415ca4")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR013")
+					(reference "#PWR010")
 					(unit 1)
 				)
 			)
@@ -16115,73 +13618,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 29.21 105.41 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "74f6a076-629c-442c-86cd-cea0b3f08067")
-		(property "Reference" "#PWR02"
-			(at 29.21 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 29.2101 101.6 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 29.21 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 29.21 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 29.21 105.41 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "03ed6098-8463-46d6-b36e-4b586c18a28b")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR02")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 177.8 58.42 90)
 		(unit 1)
@@ -16190,7 +13626,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "786edce9-1065-42fc-a643-a839c442658d")
-		(property "Reference" "R10"
+		(property "Reference" "R7"
 			(at 177.8 56.388 90)
 			(effects
 				(font
@@ -16242,7 +13678,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R10")
+					(reference "R7")
 					(unit 1)
 				)
 			)
@@ -16257,7 +13693,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "787f2be1-dace-4c1b-a431-d631718cd606")
-		(property "Reference" "#PWR036"
+		(property "Reference" "#PWR030"
 			(at 320.04 86.36 0)
 			(effects
 				(font
@@ -16307,7 +13743,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR036")
+					(reference "#PWR030")
 					(unit 1)
 				)
 			)
@@ -16323,7 +13759,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "79fe37dd-8bf7-4aea-a7a3-5fbc93aae434")
-		(property "Reference" "R15"
+		(property "Reference" "R12"
 			(at 240.03 121.92 90)
 			(effects
 				(font
@@ -16375,7 +13811,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R15")
+					(reference "R12")
 					(unit 1)
 				)
 			)
@@ -16391,7 +13827,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7afb3c28-62f2-4ee5-ad57-aa6171422d6a")
-		(property "Reference" "J37"
+		(property "Reference" "J29"
 			(at 332.74 88.8999 0)
 			(effects
 				(font
@@ -16451,7 +13887,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J37")
+					(reference "J29")
 					(unit 1)
 				)
 			)
@@ -16467,7 +13903,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7c90302b-c683-40cd-8557-be9f90011ff7")
-		(property "Reference" "J40"
+		(property "Reference" "J32"
 			(at 332.74 123.1899 0)
 			(effects
 				(font
@@ -16527,7 +13963,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J40")
+					(reference "J32")
 					(unit 1)
 				)
 			)
@@ -16543,7 +13979,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8445d07b-1c44-4636-8422-221a1ec45607")
-		(property "Reference" "J29"
+		(property "Reference" "J21"
 			(at 278.13 83.1849 90)
 			(effects
 				(font
@@ -16597,7 +14033,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J29")
+					(reference "J21")
 					(unit 1)
 				)
 			)
@@ -16613,7 +14049,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "86bc8454-42b0-49b1-9eb1-9f2d29481e73")
-		(property "Reference" "J15"
+		(property "Reference" "J13"
 			(at 132.08 157.4799 0)
 			(effects
 				(font
@@ -16667,7 +14103,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J15")
+					(reference "J13")
 					(unit 1)
 				)
 			)
@@ -16683,7 +14119,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "86ed502c-0196-461d-9ffc-d73ad1f2ab81")
-		(property "Reference" "C2"
+		(property "Reference" "C1"
 			(at 34.29 171.4499 0)
 			(effects
 				(font
@@ -16737,7 +14173,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C2")
+					(reference "C1")
 					(unit 1)
 				)
 			)
@@ -16752,7 +14188,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "89c45b8b-b843-4438-b210-2fb77d7437cb")
-		(property "Reference" "#PWR021"
+		(property "Reference" "#PWR016"
 			(at 119.38 166.37 0)
 			(effects
 				(font
@@ -16803,74 +14239,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR021")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small")
-		(at 34.29 147.32 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "8ae8f908-9b8a-46d9-8cca-fee2880a4018")
-		(property "Reference" "C4"
-			(at 34.29 142.24 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "20uF"
-			(at 34.29 144.272 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 34.29 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 34.29 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor, small symbol"
-			(at 34.29 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "b0f9aec7-d6dc-4c28-bf61-c148d486b3ba")
-		)
-		(pin "1"
-			(uuid "4674884d-6c76-403b-9ae7-22efe19c93a2")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C4")
+					(reference "#PWR016")
 					(unit 1)
 				)
 			)
@@ -16886,7 +14255,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8af6b3ee-93ae-4b7f-afb6-ccf7ed6638ad")
-		(property "Reference" "#PWR024"
+		(property "Reference" "#PWR019"
 			(at 157.48 39.37 0)
 			(effects
 				(font
@@ -16937,77 +14306,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR024")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x02_Socket")
-		(at 113.03 137.16 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "8f1c9132-fddf-48e9-aa7c-3e132577e8c5")
-		(property "Reference" "J10"
-			(at 116.84 136.5249 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "Conn_01x02_Socket"
-			(at 116.84 139.0649 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical"
-			(at 113.03 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 113.03 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 113.03 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "739590c4-db59-4354-b4ee-6bffc4501a75")
-		)
-		(pin "2"
-			(uuid "eec433a8-dcb5-4d8a-9b11-153c47e16cad")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J10")
+					(reference "#PWR019")
 					(unit 1)
 				)
 			)
@@ -17023,7 +14322,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8fbd6cbc-f5e6-4e15-9c09-886192d63c55")
-		(property "Reference" "#PWR023"
+		(property "Reference" "#PWR018"
 			(at 157.48 36.83 0)
 			(effects
 				(font
@@ -17074,7 +14373,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR023")
+					(reference "#PWR018")
 					(unit 1)
 				)
 			)
@@ -17090,7 +14389,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "939e839b-b8ec-4dac-bb25-93088e68c8dd")
-		(property "Reference" "#FLG010"
+		(property "Reference" "#FLG09"
 			(at 192.405 73.66 0)
 			(effects
 				(font
@@ -17141,7 +14440,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG010")
+					(reference "#FLG09")
 					(unit 1)
 				)
 			)
@@ -17157,7 +14456,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "93b704f7-9874-4808-9b58-3f6048c39b4a")
-		(property "Reference" "J25"
+		(property "Reference" "J17"
 			(at 205.105 182.88 0)
 			(effects
 				(font
@@ -17209,7 +14508,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J25")
+					(reference "J17")
 					(unit 1)
 				)
 			)
@@ -17225,7 +14524,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "93d5373e-3c83-4a3c-9247-f2ac90ef151c")
-		(property "Reference" "J39"
+		(property "Reference" "J31"
 			(at 332.74 111.7599 0)
 			(effects
 				(font
@@ -17285,7 +14584,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J39")
+					(reference "J31")
 					(unit 1)
 				)
 			)
@@ -17301,7 +14600,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9569192e-0043-47f5-8bb6-7c001de3116c")
-		(property "Reference" "#FLG05"
+		(property "Reference" "#FLG04"
 			(at 85.725 246.38 0)
 			(effects
 				(font
@@ -17352,7 +14651,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG05")
+					(reference "#FLG04")
 					(unit 1)
 				)
 			)
@@ -17368,7 +14667,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "95989846-da87-4ad0-a632-74cde4860530")
-		(property "Reference" "J45"
+		(property "Reference" "J38"
 			(at 373.38 100.3299 0)
 			(effects
 				(font
@@ -17428,7 +14727,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J45")
+					(reference "J38")
 					(unit 1)
 				)
 			)
@@ -17505,154 +14804,6 @@
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
 					(reference "J4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x02_Socket")
-		(at 168.91 147.32 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "96e7ad38-08b7-4b78-91d6-d752e9767210")
-		(property "Reference" "J23"
-			(at 174.244 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "Conn_01x02_Socket"
-			(at 189.484 149.86 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical"
-			(at 168.91 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 168.91 147.32 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "33a753e2-1ed1-40e6-9bfd-36afb526b5e6")
-		)
-		(pin "2"
-			(uuid "7bcae0d6-5e7b-4c2b-b020-c28bebb56a9a")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J23")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:Conn_01x05_Socket")
-		(at 168.91 137.16 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "98d72f18-0663-414c-a904-002c52106c79")
-		(property "Reference" "J22"
-			(at 170.18 135.8899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x05_Socket"
-			(at 170.18 138.4299 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical"
-			(at 168.91 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 168.91 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Generic connector, single row, 01x05, script generated"
-			(at 168.91 137.16 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f763b559-f8db-4dea-be03-d4c70bd200ba")
-		)
-		(pin "3"
-			(uuid "5fb375ea-f491-4990-80a0-1e10779b7639")
-		)
-		(pin "2"
-			(uuid "8aa307d7-2988-4011-a9fb-0050b45d0fb9")
-		)
-		(pin "5"
-			(uuid "34eb1a5c-3958-4d0f-8548-01abc7bb5f9a")
-		)
-		(pin "4"
-			(uuid "31c59568-27ea-435c-b0c3-9c23e87f4c7b")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J22")
 					(unit 1)
 				)
 			)
@@ -17747,7 +14898,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "9b37a1dc-34db-4e62-abcc-ae4a74bd237c")
-		(property "Reference" "U2"
+		(property "Reference" "U1"
 			(at 63.5 203.2 0)
 			(effects
 				(font
@@ -17819,7 +14970,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U2")
+					(reference "U1")
 					(unit 1)
 				)
 			)
@@ -17834,7 +14985,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "9cff67d3-962a-4cc8-84c9-9a42f8ecba4c")
-		(property "Reference" "#PWR034"
+		(property "Reference" "#PWR028"
 			(at 320.04 44.45 0)
 			(effects
 				(font
@@ -17885,7 +15036,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR034")
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -17901,7 +15052,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a1d7393a-6409-45b3-8e7d-d5db62ad11cb")
-		(property "Reference" "#FLG07"
+		(property "Reference" "#FLG06"
 			(at 85.725 256.54 0)
 			(effects
 				(font
@@ -17952,7 +15103,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG07")
+					(reference "#FLG06")
 					(unit 1)
 				)
 			)
@@ -17967,7 +15118,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "a218d064-c5aa-4066-9d0d-2506a81a1d15")
-		(property "Reference" "#PWR031"
+		(property "Reference" "#PWR025"
 			(at 232.41 31.75 0)
 			(effects
 				(font
@@ -18017,7 +15168,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR031")
+					(reference "#PWR025")
 					(unit 1)
 				)
 			)
@@ -18033,7 +15184,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a7b96a1d-3e82-4a22-b14d-d28f61db1133")
-		(property "Reference" "J50"
+		(property "Reference" "J43"
 			(at 373.38 160.0199 0)
 			(effects
 				(font
@@ -18093,7 +15244,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J50")
+					(reference "J43")
 					(unit 1)
 				)
 			)
@@ -18109,7 +15260,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a8a187e0-e116-4ab4-a554-afd83ff2604a")
-		(property "Reference" "U4"
+		(property "Reference" "U3"
 			(at 77.47 160.02 0)
 			(effects
 				(font
@@ -18175,7 +15326,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U4")
+					(reference "U3")
 					(unit 1)
 				)
 			)
@@ -18258,7 +15409,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a9cd87fe-5207-41d7-9920-9d7c93248042")
-		(property "Reference" "R13"
+		(property "Reference" "R10"
 			(at 240.03 104.14 90)
 			(effects
 				(font
@@ -18310,7 +15461,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R13")
+					(reference "R10")
 					(unit 1)
 				)
 			)
@@ -18326,7 +15477,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ac376980-83c7-4447-a7d7-d449899016ee")
-		(property "Reference" "J38"
+		(property "Reference" "J30"
 			(at 332.74 100.3299 0)
 			(effects
 				(font
@@ -18386,7 +15537,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J38")
+					(reference "J30")
 					(unit 1)
 				)
 			)
@@ -18402,7 +15553,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ac559a82-d173-454c-a5be-e5e36fa61c23")
-		(property "Reference" "#FLG013"
+		(property "Reference" "#FLG012"
 			(at 327.025 58.42 0)
 			(effects
 				(font
@@ -18453,7 +15604,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG013")
+					(reference "#FLG012")
 					(unit 1)
 				)
 			)
@@ -18469,7 +15620,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "acf031e0-3798-4080-9f4e-bc4b7125e14f")
-		(property "Reference" "J28"
+		(property "Reference" "J20"
 			(at 236.22 62.2299 0)
 			(effects
 				(font
@@ -18529,75 +15680,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J28")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 114.3 121.92 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ad93dd30-2d70-476e-a5b7-2888f575070e")
-		(property "Reference" "R3"
-			(at 114.3 116.84 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10k"
-			(at 114.3 119.38 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 114.3 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 114.3 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 114.3 121.92 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "98646361-8a24-43b4-b372-800e8f2ad2b4")
-		)
-		(pin "2"
-			(uuid "c5ec5d28-adfa-4315-a2b6-941f46c629c4")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R3")
+					(reference "J20")
 					(unit 1)
 				)
 			)
@@ -18612,7 +15695,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ae2acb05-46c1-497b-8c5b-bf2c942f9afd")
-		(property "Reference" "R11"
+		(property "Reference" "R8"
 			(at 198.12 56.388 90)
 			(effects
 				(font
@@ -18664,7 +15747,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R11")
+					(reference "R8")
 					(unit 1)
 				)
 			)
@@ -18681,7 +15764,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aeb9b2b2-8576-4461-949f-8d613414577b")
-		(property "Reference" "U5"
+		(property "Reference" "U4"
 			(at 205.74 165.1 0)
 			(effects
 				(font
@@ -18735,7 +15818,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U5")
+					(reference "U4")
 					(unit 1)
 				)
 			)
@@ -18751,7 +15834,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b06f568b-21df-431e-9b7f-59a184b0d4fc")
-		(property "Reference" "J46"
+		(property "Reference" "J39"
 			(at 373.38 113.0299 0)
 			(effects
 				(font
@@ -18811,7 +15894,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J46")
+					(reference "J39")
 					(unit 1)
 				)
 			)
@@ -18827,7 +15910,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b0be6ac8-f2a1-4547-a126-a3d348266c74")
-		(property "Reference" "#FLG04"
+		(property "Reference" "#FLG03"
 			(at 85.725 241.3 0)
 			(effects
 				(font
@@ -18878,7 +15961,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG04")
+					(reference "#FLG03")
 					(unit 1)
 				)
 			)
@@ -18894,7 +15977,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b52765f2-0dfa-4f55-9443-bde88129eb24")
-		(property "Reference" "U8"
+		(property "Reference" "U7"
 			(at 256.54 17.78 0)
 			(effects
 				(font
@@ -18976,7 +16059,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U8")
+					(reference "U7")
 					(unit 1)
 				)
 			)
@@ -18992,7 +16075,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b9f35b21-42cc-4fc2-bed9-266af62013d2")
-		(property "Reference" "J54"
+		(property "Reference" "J47"
 			(at 373.38 205.7399 0)
 			(effects
 				(font
@@ -19052,7 +16135,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J54")
+					(reference "J47")
 					(unit 1)
 				)
 			)
@@ -19067,7 +16150,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "baa8547c-e9b0-4cad-bb7f-17bb0277595e")
-		(property "Reference" "#PWR016"
+		(property "Reference" "#PWR011"
 			(at 83.82 199.39 0)
 			(effects
 				(font
@@ -19118,7 +16201,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR016")
+					(reference "#PWR011")
 					(unit 1)
 				)
 			)
@@ -19133,7 +16216,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bba3dbfe-4dc0-4b1b-b7a6-75a774b92f39")
-		(property "Reference" "#PWR033"
+		(property "Reference" "#PWR027"
 			(at 318.77 58.42 0)
 			(effects
 				(font
@@ -19184,7 +16267,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR033")
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -19200,7 +16283,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bbd781c9-b1eb-47f1-a3d5-2ac70d2bbaf1")
-		(property "Reference" "J42"
+		(property "Reference" "J35"
 			(at 344.17 228.5999 0)
 			(effects
 				(font
@@ -19260,7 +16343,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J42")
+					(reference "J35")
 					(unit 1)
 				)
 			)
@@ -19276,7 +16359,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bd5edbee-ad97-4765-afc3-5b30ea65e43b")
-		(property "Reference" "U3"
+		(property "Reference" "U2"
 			(at 47.9141 24.13 0)
 			(effects
 				(font
@@ -19388,7 +16471,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U3")
+					(reference "U2")
 					(unit 1)
 				)
 			)
@@ -19404,7 +16487,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bdc800a5-56b5-4906-8e59-d77dc412c1a1")
-		(property "Reference" "J27"
+		(property "Reference" "J19"
 			(at 236.22 50.7999 0)
 			(effects
 				(font
@@ -19464,7 +16547,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J27")
+					(reference "J19")
 					(unit 1)
 				)
 			)
@@ -19479,7 +16562,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "bf53ac0c-514c-41ae-9ea8-376c2c25e14e")
-		(property "Reference" "#PWR03"
+		(property "Reference" "#PWR02"
 			(at 30.48 182.88 0)
 			(effects
 				(font
@@ -19530,7 +16613,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR03")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -19546,7 +16629,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bfd8d5f6-2af9-4521-8914-5e599b89bcbf")
-		(property "Reference" "C11"
+		(property "Reference" "C7"
 			(at 106.68 213.3599 0)
 			(effects
 				(font
@@ -19600,7 +16683,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C11")
+					(reference "C7")
 					(unit 1)
 				)
 			)
@@ -19615,7 +16698,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c287feef-38e2-491b-b9ca-68c9f0615d2d")
-		(property "Reference" "#PWR022"
+		(property "Reference" "#PWR017"
 			(at 128.27 77.47 0)
 			(effects
 				(font
@@ -19665,7 +16748,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR022")
+					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -19759,7 +16842,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c59f467e-0a17-41d7-ae9d-7e3fb64d7efb")
-		(property "Reference" "C5"
+		(property "Reference" "C2"
 			(at 38.608 19.304 90)
 			(effects
 				(font
@@ -19811,7 +16894,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C5")
+					(reference "C2")
 					(unit 1)
 				)
 			)
@@ -19827,7 +16910,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c7899f37-d7a6-4f45-a878-8d14dacc4123")
-		(property "Reference" "#PWR017"
+		(property "Reference" "#PWR012"
 			(at 77.47 241.3 0)
 			(effects
 				(font
@@ -19878,7 +16961,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR017")
+					(reference "#PWR012")
 					(unit 1)
 				)
 			)
@@ -19894,7 +16977,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "c9d35026-759a-459a-9918-21435a7515a0")
-		(property "Reference" "#PWR08"
+		(property "Reference" "#PWR05"
 			(at 31.75 26.67 0)
 			(effects
 				(font
@@ -19945,75 +17028,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR08")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 114.3 90.17 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "cbe4088a-a2a8-4e26-bf90-6ff122999e72")
-		(property "Reference" "R1"
-			(at 114.3 85.09 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10k"
-			(at 114.3 87.63 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 114.3 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 114.3 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 114.3 90.17 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "b4abee79-ad83-435a-9b16-bc6ac80c4290")
-		)
-		(pin "2"
-			(uuid "8fd86ec5-0084-4512-bb71-b1995559a721")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R1")
+					(reference "#PWR05")
 					(unit 1)
 				)
 			)
@@ -20029,7 +17044,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ccca9bb9-abeb-4c2a-bed1-68032c29b7fe")
-		(property "Reference" "J36"
+		(property "Reference" "J28"
 			(at 332.74 46.9899 0)
 			(effects
 				(font
@@ -20089,77 +17104,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J36")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C_Small")
-		(at 77.47 135.89 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "ce003800-b782-4631-8ced-1440c237d470")
-		(property "Reference" "C8"
-			(at 80.01 134.6135 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "47nF"
-			(at 80.01 137.1535 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 77.47 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 77.47 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor, small symbol"
-			(at 77.47 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "a93bd40d-53ba-4f27-9977-90a1f1e3fe34")
-		)
-		(pin "1"
-			(uuid "4a969dd3-9aa8-4084-bcb6-0cea684262bf")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C8")
+					(reference "J28")
 					(unit 1)
 				)
 			)
@@ -20174,7 +17119,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "cfb7c728-b244-444a-bb89-03060e5529b1")
-		(property "Reference" "R9"
+		(property "Reference" "R6"
 			(at 154.94 69.088 90)
 			(effects
 				(font
@@ -20226,7 +17171,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R9")
+					(reference "R6")
 					(unit 1)
 				)
 			)
@@ -20242,7 +17187,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d03df22a-48e0-4131-b12d-b81231c404d8")
-		(property "Reference" "#PWR032"
+		(property "Reference" "#PWR026"
 			(at 317.5 33.02 0)
 			(effects
 				(font
@@ -20293,7 +17238,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR032")
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -20309,7 +17254,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d07cd443-ab33-446d-a598-a0e53e3e1301")
-		(property "Reference" "J52"
+		(property "Reference" "J45"
 			(at 373.38 182.8799 0)
 			(effects
 				(font
@@ -20369,7 +17314,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J52")
+					(reference "J45")
 					(unit 1)
 				)
 			)
@@ -20385,7 +17330,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d34b1973-044a-4f9c-9e1b-c550c171cb1a")
-		(property "Reference" "#FLG06"
+		(property "Reference" "#FLG05"
 			(at 85.725 251.46 0)
 			(effects
 				(font
@@ -20436,7 +17381,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG06")
+					(reference "#FLG05")
 					(unit 1)
 				)
 			)
@@ -20451,7 +17396,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d3fc08ef-6efb-46ee-a711-374579b6dac6")
-		(property "Reference" "#PWR040"
+		(property "Reference" "#PWR034"
 			(at 320.04 132.08 0)
 			(effects
 				(font
@@ -20501,7 +17446,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR040")
+					(reference "#PWR034")
 					(unit 1)
 				)
 			)
@@ -20516,7 +17461,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d5f00285-030d-4066-8063-cddeab5f8291")
-		(property "Reference" "#PWR020"
+		(property "Reference" "#PWR015"
 			(at 119.38 160.02 0)
 			(effects
 				(font
@@ -20567,7 +17512,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR020")
+					(reference "#PWR015")
 					(unit 1)
 				)
 			)
@@ -20582,7 +17527,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "d6a1b5ae-9ad3-4d7b-8475-106985557d14")
-		(property "Reference" "#PWR04"
+		(property "Reference" "#PWR03"
 			(at 29.21 252.73 0)
 			(effects
 				(font
@@ -20633,7 +17578,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR04")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -20648,7 +17593,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "da685613-88a6-4f61-b2bc-e6636a6dcc4f")
-		(property "Reference" "R16"
+		(property "Reference" "R13"
 			(at 336.55 26.162 90)
 			(effects
 				(font
@@ -20700,7 +17645,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R16")
+					(reference "R13")
 					(unit 1)
 				)
 			)
@@ -20716,7 +17661,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "da9d43a6-3ec6-46b9-96b2-2d684bb03cc4")
-		(property "Reference" "J47"
+		(property "Reference" "J40"
 			(at 373.38 125.7299 0)
 			(effects
 				(font
@@ -20776,125 +17721,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J47")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "MicroLightDevBoard:BQ25628RYKR")
-		(at 38.1 101.6 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e8f15bd8-f137-4935-afea-6d1c0b66d639")
-		(property "Reference" "U1"
-			(at 64.4241 96.52 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "BQ25628RYKR"
-			(at 64.4241 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "MicroLightDevBoard:RYK0018A-MFG"
-			(at 44.45 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "https://www.ti.com/lit/ds/symlink/bq25628.pdf"
-			(at 44.45 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 44.45 101.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "9"
-			(uuid "82e6449b-afd5-45c5-92fb-4c5158aee624")
-		)
-		(pin "4"
-			(uuid "fbea4e3b-20cf-41f4-99fc-a5ee243539e4")
-		)
-		(pin "18"
-			(uuid "9d8a5dde-358e-4402-bd66-5c0795fb9b6d")
-		)
-		(pin "2"
-			(uuid "d3c7bbf3-6560-4647-bcf3-5c5365f4d729")
-		)
-		(pin "15"
-			(uuid "d63f4f7b-2956-43dc-b1d1-74363b8315f6")
-		)
-		(pin "16"
-			(uuid "2d84011c-40bc-471e-a470-94f23982edcc")
-		)
-		(pin "17"
-			(uuid "5b3e8815-3b1f-4db3-847d-70b2f9df72cb")
-		)
-		(pin "3"
-			(uuid "27c44605-4858-42f7-b8de-7517c6fd89ae")
-		)
-		(pin "6"
-			(uuid "bc6fc011-668e-4bb0-bfd9-6e944561b363")
-		)
-		(pin "7"
-			(uuid "43be7906-6ddb-4423-a421-aa2289104fb7")
-		)
-		(pin "11"
-			(uuid "b5d03f90-8c5c-4827-b326-63266edb630a")
-		)
-		(pin "1"
-			(uuid "eae1c18d-3a7d-4121-af95-db4029cfbc30")
-		)
-		(pin "10"
-			(uuid "a831170a-c85f-4c25-8988-3b7c416de526")
-		)
-		(pin "8"
-			(uuid "c166bd0b-22a6-4202-a599-bd583ed8251a")
-		)
-		(pin "5"
-			(uuid "10138fdf-dd3e-452d-a383-58bd06f7695c")
-		)
-		(pin "13"
-			(uuid "f0d6afff-b840-49a7-9adc-e0e6f76bf761")
-		)
-		(pin "12"
-			(uuid "272faf93-0dc4-4922-be10-9a21e190438b")
-		)
-		(pin "14"
-			(uuid "7b12cf1b-0a17-40e1-b6d3-b1225e6e109a")
-		)
-		(instances
-			(project ""
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U1")
+					(reference "J40")
 					(unit 1)
 				)
 			)
@@ -20909,7 +17736,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "ea02d522-e28a-4f40-8e34-a7db7b68057b")
-		(property "Reference" "#PWR09"
+		(property "Reference" "#PWR06"
 			(at 41.91 199.39 0)
 			(effects
 				(font
@@ -20960,7 +17787,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR09")
+					(reference "#PWR06")
 					(unit 1)
 				)
 			)
@@ -20976,7 +17803,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eb388182-a544-4b1e-be0e-3ed2f759dce5")
-		(property "Reference" "#FLG012"
+		(property "Reference" "#FLG011"
 			(at 233.045 138.43 0)
 			(effects
 				(font
@@ -21027,7 +17854,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG012")
+					(reference "#FLG011")
 					(unit 1)
 				)
 			)
@@ -21043,7 +17870,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ec039537-ab3b-4ec8-8854-b394490e1ca0")
-		(property "Reference" "J12"
+		(property "Reference" "J10"
 			(at 121.92 268.6049 90)
 			(effects
 				(font
@@ -21097,7 +17924,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J12")
+					(reference "J10")
 					(unit 1)
 				)
 			)
@@ -21113,7 +17940,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eceaa59f-0144-4909-b023-e792e3753e32")
-		(property "Reference" "J34"
+		(property "Reference" "J26"
 			(at 279.4 54.6099 0)
 			(effects
 				(font
@@ -21173,24 +18000,24 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J34")
+					(reference "J26")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(symbol
-		(lib_id "Connector:Conn_01x02_Socket")
-		(at 168.91 99.06 0)
+		(lib_id "Connector:Conn_01x04_Socket")
+		(at 342.9 217.17 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "ef506bc5-8543-47ae-baaf-5a9463720c03")
-		(property "Reference" "J19"
-			(at 170.18 99.0599 0)
+		(uuid "ee26b2bf-f3be-48bf-8121-b6b24532bb38")
+		(property "Reference" "J34"
+			(at 344.17 217.1699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21198,8 +18025,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "Conn_01x02_Socket"
-			(at 170.18 101.5999 0)
+		(property "Value" "Conn_01x04_Socket"
+			(at 344.17 219.7099 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21207,8 +18034,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical"
-			(at 168.91 99.06 0)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x04_P2.54mm_Vertical"
+			(at 342.9 217.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21217,7 +18044,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 168.91 99.06 0)
+			(at 342.9 217.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21225,8 +18052,8 @@
 				(hide yes)
 			)
 		)
-		(property "Description" "Generic connector, single row, 01x02, script generated"
-			(at 168.91 99.06 0)
+		(property "Description" "Generic connector, single row, 01x04, script generated"
+			(at 342.9 217.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -21235,15 +18062,21 @@
 			)
 		)
 		(pin "1"
-			(uuid "a30e2d62-0a6a-43e2-a0c3-2c3b84f8ed82")
+			(uuid "e1bad0f9-7a24-4f9b-96e6-b84d8dd75346")
 		)
 		(pin "2"
-			(uuid "d30ef026-56da-43bb-b402-896e34c8db0a")
+			(uuid "1de1aea7-5e77-49f4-b79c-ab90ce24cd30")
+		)
+		(pin "3"
+			(uuid "c9c350bc-3f28-4630-900c-6e9123b5ad66")
+		)
+		(pin "4"
+			(uuid "18458007-8d4f-4a77-a712-6e4e9e885141")
 		)
 		(instances
-			(project ""
+			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J19")
+					(reference "J34")
 					(unit 1)
 				)
 			)
@@ -21259,7 +18092,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f1361523-e9b7-41ec-8385-1313a1297690")
-		(property "Reference" "#FLG09"
+		(property "Reference" "#FLG08"
 			(at 192.405 68.58 0)
 			(effects
 				(font
@@ -21310,7 +18143,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#FLG09")
+					(reference "#FLG08")
 					(unit 1)
 				)
 			)
@@ -21326,7 +18159,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f2abbce7-e2ea-49b0-a6e3-495e7bbe24c5")
-		(property "Reference" "J35"
+		(property "Reference" "J27"
 			(at 279.4 63.4999 0)
 			(effects
 				(font
@@ -21380,74 +18213,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J35")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Small")
-		(at 114.3 113.03 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "f5738d09-dbb1-496e-ab7f-b1dc3b482e4d")
-		(property "Reference" "R2"
-			(at 114.3 107.95 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "10k"
-			(at 114.3 110.49 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
-			(at 114.3 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 114.3 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Resistor, small symbol"
-			(at 114.3 113.03 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "346d4142-73f8-4863-90b3-978f05372f0f")
-		)
-		(pin "2"
-			(uuid "93d074b6-0d28-4374-8838-01944af34a8a")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R2")
+					(reference "J27")
 					(unit 1)
 				)
 			)
@@ -21463,7 +18229,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f5fd5235-3a5b-46ba-8466-9e43811af289")
-		(property "Reference" "U6"
+		(property "Reference" "U5"
 			(at 205.74 195.58 0)
 			(effects
 				(font
@@ -21517,7 +18283,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "U6")
+					(reference "U5")
 					(unit 1)
 				)
 			)
@@ -21533,7 +18299,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f80f2023-a7aa-4b06-9126-4ce5131cd213")
-		(property "Reference" "J53"
+		(property "Reference" "J46"
 			(at 373.38 194.3099 0)
 			(effects
 				(font
@@ -21593,7 +18359,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J53")
+					(reference "J46")
 					(unit 1)
 				)
 			)
@@ -21608,7 +18374,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "f921dc8e-04b4-4099-8c63-3577dce879f5")
-		(property "Reference" "#PWR030"
+		(property "Reference" "#PWR024"
 			(at 243.84 133.35 0)
 			(effects
 				(font
@@ -21658,7 +18424,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR030")
+					(reference "#PWR024")
 					(unit 1)
 				)
 			)
@@ -21674,7 +18440,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f9ff2f2f-6e2f-480a-a5a7-cf0e49bc8488")
-		(property "Reference" "J26"
+		(property "Reference" "J18"
 			(at 205.105 213.36 0)
 			(effects
 				(font
@@ -21726,72 +18492,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J26")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 62.23 99.06 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "fc58bcbe-bf49-4711-9a16-675d697ba708")
-		(property "Reference" "#PWR012"
-			(at 62.23 92.71 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND_CHRG"
-			(at 62.23 91.186 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 62.23 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 62.23 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 62.23 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d6f7948b-601c-4f08-bc92-0e951056bde7")
-		)
-		(instances
-			(project "MicroLightDevBoardV2"
-				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR012")
+					(reference "J18")
 					(unit 1)
 				)
 			)
@@ -21806,7 +18507,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fc65d8e3-b441-4efb-a653-83c7a379b2fc")
-		(property "Reference" "R7"
+		(property "Reference" "R4"
 			(at 147.32 34.798 90)
 			(effects
 				(font
@@ -21858,7 +18559,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "R7")
+					(reference "R4")
 					(unit 1)
 				)
 			)
@@ -21874,7 +18575,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fd076ff3-4ad0-4e2c-ba44-ddaedb3af852")
-		(property "Reference" "#PWR010"
+		(property "Reference" "#PWR07"
 			(at 45.72 78.74 0)
 			(effects
 				(font
@@ -21924,7 +18625,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "#PWR010")
+					(reference "#PWR07")
 					(unit 1)
 				)
 			)
@@ -21940,7 +18641,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fd400f9e-5fa9-46aa-a7dc-b21c31473071")
-		(property "Reference" "C12"
+		(property "Reference" "C8"
 			(at 243.84 34.2899 0)
 			(effects
 				(font
@@ -21994,7 +18695,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "C12")
+					(reference "C8")
 					(unit 1)
 				)
 			)
@@ -22010,7 +18711,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fffc2c71-d6f0-460d-8890-d66ef2afd335")
-		(property "Reference" "J44"
+		(property "Reference" "J37"
 			(at 373.38 88.8999 0)
 			(effects
 				(font
@@ -22070,7 +18771,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J44")
+					(reference "J37")
 					(unit 1)
 				)
 			)
