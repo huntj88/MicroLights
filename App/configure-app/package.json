@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@fluentui/react-components": "^9.54.13",
+    "@fluentui/react-icons": "^2.0.258",
     "fluentui-next-appdir-directive": "^0.1.7",
     "next": "14.2.8",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-pro-sidebar": "^1.1.0"
   },
   "devDependencies": {
     "@types/node": "^20",
