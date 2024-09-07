@@ -10034,18 +10034,17 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "0c60cfbb-b54e-46d2-8824-7d39595223b3")
 		(property "Reference" "L1"
-			(at 49.53 175.26 90)
+			(at 49.53 178.562 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
 			)
 		)
-		(property "Value" "2.2uH"
-			(at 49.53 177.8 90)
+		(property "Value" "74438343022 2.2uH"
+			(at 49.53 181.864 90)
 			(effects
 				(font
 					(size 1.27 1.27)
