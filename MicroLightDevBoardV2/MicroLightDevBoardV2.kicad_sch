@@ -5081,6 +5081,16 @@
 	)
 	(wire
 		(pts
+			(xy 86.36 269.24) (xy 87.63 269.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0cfce1d8-3dac-4c6e-87a9-540ae7ccbf5d")
+	)
+	(wire
+		(pts
 			(xy 240.03 40.64) (xy 247.65 40.64)
 		)
 		(stroke
@@ -5378,6 +5388,16 @@
 			(type default)
 		)
 		(uuid "38e24aab-8ccc-435d-8e15-01fabfe2c65a")
+	)
+	(wire
+		(pts
+			(xy 80.01 269.24) (xy 81.28 269.24)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3b67a21d-1ff5-49b8-83c9-8b63ef0ddf48")
 	)
 	(wire
 		(pts
@@ -6534,6 +6554,16 @@
 			)
 		)
 		(uuid "48c0901c-09ed-4c96-8980-a7b1ab973b56")
+	)
+	(text "Not using TS, connect 10K R to GND"
+		(exclude_from_sim no)
+		(at 83.566 272.542 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "74718861-c9e7-4393-ba29-c2dea6a5f7fa")
 	)
 	(text "USB / ESD"
 		(exclude_from_sim no)
@@ -8259,6 +8289,28 @@
 			)
 		)
 	)
+	(global_label "TS_MR_CHRG"
+		(shape input)
+		(at 80.01 269.24 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "9156fb08-ede8-414c-b11e-96c2e500d676")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 65.0506 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "VOUT_3V3"
 		(shape input)
 		(at 125.73 163.83 180)
@@ -9743,10 +9795,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "0255591a-9a4e-41b7-8f98-d271752e2f8c")
 		(property "Reference" "C4"
-			(at 45.72 208.2799 0)
+			(at 44.958 209.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9754,8 +9805,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
-			(at 45.72 210.8199 0)
+		(property "Value" "1uh 25v"
+			(at 37.846 207.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11596,7 +11647,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "10uh"
 			(at 87.63 210.8199 0)
 			(effects
 				(font
@@ -14181,6 +14232,72 @@
 	)
 	(symbol
 		(lib_id "power:GND")
+		(at 87.63 269.24 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8920a808-262a-4710-b795-99be0e00e17b")
+		(property "Reference" "#PWR035"
+			(at 93.98 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND_CHRG"
+			(at 91.44 269.2401 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 87.63 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 87.63 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 87.63 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "68b7c33e-17c9-41d4-a817-7afb6c831d0d")
+		)
+		(instances
+			(project "MicroLightDevBoardV2"
+				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
+					(reference "#PWR035")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
 		(at 125.73 166.37 270)
 		(unit 1)
 		(exclude_from_sim no)
@@ -16638,7 +16755,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "1uh 25v"
 			(at 106.68 215.8999 0)
 			(effects
 				(font
@@ -17722,6 +17839,74 @@
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
 					(reference "J40")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Small")
+		(at 83.82 269.24 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e1780f6a-66ce-4593-b079-d93bd1eb6bb6")
+		(property "Reference" "R16"
+			(at 83.82 264.16 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "10k"
+			(at 83.82 266.7 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0603_1608Metric"
+			(at 83.82 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 83.82 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor, small symbol"
+			(at 83.82 269.24 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "682763bb-2bb8-4694-b872-047dea626adc")
+		)
+		(pin "2"
+			(uuid "aa0b7681-df9e-4fdb-a66e-bc02f19d94e9")
+		)
+		(instances
+			(project "MicroLightDevBoardV2"
+				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
+					(reference "R16")
 					(unit 1)
 				)
 			)
