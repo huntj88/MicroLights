@@ -5776,6 +5776,16 @@
 	)
 	(wire
 		(pts
+			(xy 116.84 194.31) (xy 116.84 196.85)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "31a47544-c4cf-4082-8c69-b58030ddfe2c")
+	)
+	(wire
+		(pts
 			(xy 367.03 139.7) (xy 367.03 142.24)
 		)
 		(stroke
@@ -7483,6 +7493,28 @@
 		(uuid "0f042996-4b02-49a4-978d-5f6a92415251")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 156.2486 101.6 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "VREF_CHG"
+		(shape input)
+		(at 116.84 194.31 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "0f499967-2d2d-47fd-a723-56291121cb87")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 104.4205 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11226,7 +11258,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "01257e7a-86de-4eba-b659-353126c57482")
-		(property "Reference" "J30"
+		(property "Reference" "J31"
 			(at 278.13 103.5049 90)
 			(effects
 				(font
@@ -11280,7 +11312,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J30")
+					(reference "J31")
 					(unit 1)
 				)
 			)
@@ -11296,7 +11328,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "01ae5f26-173a-4f4c-b9aa-6787f62a00f1")
-		(property "Reference" "J16"
+		(property "Reference" "J17"
 			(at 132.08 171.4499 0)
 			(effects
 				(font
@@ -11350,7 +11382,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J16")
+					(reference "J17")
 					(unit 1)
 				)
 			)
@@ -11848,7 +11880,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1c0f0de9-d6f5-475d-91d6-61e6c53269a9")
-		(property "Reference" "J32"
+		(property "Reference" "J33"
 			(at 278.13 121.2849 90)
 			(effects
 				(font
@@ -11902,7 +11934,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J32")
+					(reference "J33")
 					(unit 1)
 				)
 			)
@@ -11985,7 +12017,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1d45560d-2c42-41be-a488-4127cab91c17")
-		(property "Reference" "J20"
+		(property "Reference" "J21"
 			(at 170.18 121.9199 0)
 			(effects
 				(font
@@ -12045,7 +12077,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J20")
+					(reference "J21")
 					(unit 1)
 				)
 			)
@@ -12061,7 +12093,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "1d946079-bc06-4e84-8049-3a2865afa643")
-		(property "Reference" "J42"
+		(property "Reference" "J43"
 			(at 344.17 240.0299 0)
 			(effects
 				(font
@@ -12121,7 +12153,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J42")
+					(reference "J43")
 					(unit 1)
 				)
 			)
@@ -12343,7 +12375,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "250169f3-e1d4-47ba-b9fb-f182a5258019")
-		(property "Reference" "J55"
+		(property "Reference" "J56"
 			(at 373.38 228.5999 0)
 			(effects
 				(font
@@ -12403,7 +12435,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J55")
+					(reference "J56")
 					(unit 1)
 				)
 			)
@@ -12987,7 +13019,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2ba274c7-7b22-4567-92a6-be854501227f")
-		(property "Reference" "J56"
+		(property "Reference" "J57"
 			(at 373.38 240.0299 0)
 			(effects
 				(font
@@ -13047,7 +13079,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J56")
+					(reference "J57")
 					(unit 1)
 				)
 			)
@@ -13063,7 +13095,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "2bcf385b-ceba-45bd-9235-59300d60702b")
-		(property "Reference" "J15"
+		(property "Reference" "J16"
 			(at 132.08 163.8299 0)
 			(effects
 				(font
@@ -13117,7 +13149,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J15")
+					(reference "J16")
 					(unit 1)
 				)
 			)
@@ -13265,7 +13297,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "31cfdb51-6ba3-47bd-afd5-14038daf818e")
-		(property "Reference" "J31"
+		(property "Reference" "J32"
 			(at 278.13 112.3949 90)
 			(effects
 				(font
@@ -13319,7 +13351,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J31")
+					(reference "J32")
 					(unit 1)
 				)
 			)
@@ -13335,7 +13367,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3437a99a-b76f-47f2-9b60-a8c47d304e44")
-		(property "Reference" "J50"
+		(property "Reference" "J51"
 			(at 373.38 171.4499 0)
 			(effects
 				(font
@@ -13395,7 +13427,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J50")
+					(reference "J51")
 					(unit 1)
 				)
 			)
@@ -13411,7 +13443,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "34eae4ae-ec16-43e4-b5b0-23ebc5e3c2b2")
-		(property "Reference" "J40"
+		(property "Reference" "J41"
 			(at 332.74 134.6199 0)
 			(effects
 				(font
@@ -13471,7 +13503,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J40")
+					(reference "J41")
 					(unit 1)
 				)
 			)
@@ -13615,6 +13647,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:Conn_01x02_Socket")
+		(at 121.92 194.31 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "379a7473-7d63-4f1e-be41-9e847a8b9478")
+		(property "Reference" "J13"
+			(at 127.254 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Conn_01x02_Socket"
+			(at 142.494 196.85 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x02_P2.54mm_Vertical"
+			(at 121.92 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 121.92 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x02, script generated"
+			(at 121.92 194.31 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "88260d7a-def7-4773-812b-47b3727b60cb")
+		)
+		(pin "2"
+			(uuid "0e100c38-5d70-4345-9569-4a961c759ea4")
+		)
+		(instances
+			(project "MicroLightDevBoardV2"
+				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
+					(reference "J13")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "MicroLightDevBoard:LED_RGBK")
 		(at 328.93 33.02 0)
 		(unit 1)
@@ -13698,7 +13799,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "3f895d13-2e08-4f29-b5c7-01e2ff8588d5")
-		(property "Reference" "J23"
+		(property "Reference" "J24"
 			(at 182.88 21.5899 0)
 			(effects
 				(font
@@ -13758,7 +13859,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J23")
+					(reference "J24")
 					(unit 1)
 				)
 			)
@@ -13841,7 +13942,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "44172920-27f9-4c3d-979f-1e4cf428df07")
-		(property "Reference" "J54"
+		(property "Reference" "J55"
 			(at 373.38 217.1699 0)
 			(effects
 				(font
@@ -13901,7 +14002,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J54")
+					(reference "J55")
 					(unit 1)
 				)
 			)
@@ -14118,7 +14219,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4a034091-4bc7-4837-b339-03e101c0a73f")
-		(property "Reference" "J29"
+		(property "Reference" "J30"
 			(at 278.13 94.6149 90)
 			(effects
 				(font
@@ -14172,7 +14273,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J29")
+					(reference "J30")
 					(unit 1)
 				)
 			)
@@ -14254,7 +14355,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4c63e68c-0920-470d-9e06-cacc6879eb8e")
-		(property "Reference" "J48"
+		(property "Reference" "J49"
 			(at 373.38 148.5899 0)
 			(effects
 				(font
@@ -14314,7 +14415,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J48")
+					(reference "J49")
 					(unit 1)
 				)
 			)
@@ -14330,7 +14431,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4eaee4c9-65d4-48dd-8ef9-be3608073cd1")
-		(property "Reference" "J47"
+		(property "Reference" "J48"
 			(at 373.38 137.1599 0)
 			(effects
 				(font
@@ -14390,7 +14491,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J47")
+					(reference "J48")
 					(unit 1)
 				)
 			)
@@ -14540,7 +14641,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "52b6de49-8eec-4965-8cb2-7f3be16a78de")
-		(property "Reference" "J17"
+		(property "Reference" "J18"
 			(at 170.18 88.8999 0)
 			(effects
 				(font
@@ -14603,7 +14704,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J17")
+					(reference "J18")
 					(unit 1)
 				)
 			)
@@ -14686,7 +14787,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5534f920-d131-4e79-80be-835dbf6c8ee0")
-		(property "Reference" "J19"
+		(property "Reference" "J20"
 			(at 170.18 109.2199 0)
 			(effects
 				(font
@@ -14746,7 +14847,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J19")
+					(reference "J20")
 					(unit 1)
 				)
 			)
@@ -14827,7 +14928,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "5671ba31-82cb-4824-bea1-cd016154d4fc")
-		(property "Reference" "J13"
+		(property "Reference" "J14"
 			(at 128.27 24.13 0)
 			(effects
 				(font
@@ -14912,7 +15013,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J13")
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -16290,7 +16391,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7afb3c28-62f2-4ee5-ad57-aa6171422d6a")
-		(property "Reference" "J36"
+		(property "Reference" "J37"
 			(at 332.74 88.8999 0)
 			(effects
 				(font
@@ -16350,7 +16451,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J36")
+					(reference "J37")
 					(unit 1)
 				)
 			)
@@ -16366,7 +16467,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7c90302b-c683-40cd-8557-be9f90011ff7")
-		(property "Reference" "J39"
+		(property "Reference" "J40"
 			(at 332.74 123.1899 0)
 			(effects
 				(font
@@ -16426,7 +16527,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J39")
+					(reference "J40")
 					(unit 1)
 				)
 			)
@@ -16442,7 +16543,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "8445d07b-1c44-4636-8422-221a1ec45607")
-		(property "Reference" "J28"
+		(property "Reference" "J29"
 			(at 278.13 83.1849 90)
 			(effects
 				(font
@@ -16496,7 +16597,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J28")
+					(reference "J29")
 					(unit 1)
 				)
 			)
@@ -16512,7 +16613,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "86bc8454-42b0-49b1-9eb1-9f2d29481e73")
-		(property "Reference" "J14"
+		(property "Reference" "J15"
 			(at 132.08 157.4799 0)
 			(effects
 				(font
@@ -16566,7 +16667,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J14")
+					(reference "J15")
 					(unit 1)
 				)
 			)
@@ -17056,7 +17157,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "93b704f7-9874-4808-9b58-3f6048c39b4a")
-		(property "Reference" "J24"
+		(property "Reference" "J25"
 			(at 205.105 182.88 0)
 			(effects
 				(font
@@ -17108,7 +17209,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J24")
+					(reference "J25")
 					(unit 1)
 				)
 			)
@@ -17124,7 +17225,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "93d5373e-3c83-4a3c-9247-f2ac90ef151c")
-		(property "Reference" "J38"
+		(property "Reference" "J39"
 			(at 332.74 111.7599 0)
 			(effects
 				(font
@@ -17184,7 +17285,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J38")
+					(reference "J39")
 					(unit 1)
 				)
 			)
@@ -17267,7 +17368,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "95989846-da87-4ad0-a632-74cde4860530")
-		(property "Reference" "J44"
+		(property "Reference" "J45"
 			(at 373.38 100.3299 0)
 			(effects
 				(font
@@ -17327,7 +17428,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J44")
+					(reference "J45")
 					(unit 1)
 				)
 			)
@@ -17418,7 +17519,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "96e7ad38-08b7-4b78-91d6-d752e9767210")
-		(property "Reference" "J22"
+		(property "Reference" "J23"
 			(at 174.244 147.32 0)
 			(effects
 				(font
@@ -17472,7 +17573,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J22")
+					(reference "J23")
 					(unit 1)
 				)
 			)
@@ -17488,7 +17589,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "98d72f18-0663-414c-a904-002c52106c79")
-		(property "Reference" "J21"
+		(property "Reference" "J22"
 			(at 170.18 135.8899 0)
 			(effects
 				(font
@@ -17551,7 +17652,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J21")
+					(reference "J22")
 					(unit 1)
 				)
 			)
@@ -17932,7 +18033,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "a7b96a1d-3e82-4a22-b14d-d28f61db1133")
-		(property "Reference" "J49"
+		(property "Reference" "J50"
 			(at 373.38 160.0199 0)
 			(effects
 				(font
@@ -17992,7 +18093,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J49")
+					(reference "J50")
 					(unit 1)
 				)
 			)
@@ -18225,7 +18326,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ac376980-83c7-4447-a7d7-d449899016ee")
-		(property "Reference" "J37"
+		(property "Reference" "J38"
 			(at 332.74 100.3299 0)
 			(effects
 				(font
@@ -18285,7 +18386,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J37")
+					(reference "J38")
 					(unit 1)
 				)
 			)
@@ -18368,7 +18469,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "acf031e0-3798-4080-9f4e-bc4b7125e14f")
-		(property "Reference" "J27"
+		(property "Reference" "J28"
 			(at 236.22 62.2299 0)
 			(effects
 				(font
@@ -18428,7 +18529,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J27")
+					(reference "J28")
 					(unit 1)
 				)
 			)
@@ -18650,7 +18751,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b06f568b-21df-431e-9b7f-59a184b0d4fc")
-		(property "Reference" "J45"
+		(property "Reference" "J46"
 			(at 373.38 113.0299 0)
 			(effects
 				(font
@@ -18710,7 +18811,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J45")
+					(reference "J46")
 					(unit 1)
 				)
 			)
@@ -18891,7 +18992,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "b9f35b21-42cc-4fc2-bed9-266af62013d2")
-		(property "Reference" "J53"
+		(property "Reference" "J54"
 			(at 373.38 205.7399 0)
 			(effects
 				(font
@@ -18951,7 +19052,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J53")
+					(reference "J54")
 					(unit 1)
 				)
 			)
@@ -19099,7 +19200,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bbd781c9-b1eb-47f1-a3d5-2ac70d2bbaf1")
-		(property "Reference" "J41"
+		(property "Reference" "J42"
 			(at 344.17 228.5999 0)
 			(effects
 				(font
@@ -19159,7 +19260,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J41")
+					(reference "J42")
 					(unit 1)
 				)
 			)
@@ -19303,7 +19404,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "bdc800a5-56b5-4906-8e59-d77dc412c1a1")
-		(property "Reference" "J26"
+		(property "Reference" "J27"
 			(at 236.22 50.7999 0)
 			(effects
 				(font
@@ -19363,7 +19464,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J26")
+					(reference "J27")
 					(unit 1)
 				)
 			)
@@ -19928,7 +20029,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ccca9bb9-abeb-4c2a-bed1-68032c29b7fe")
-		(property "Reference" "J35"
+		(property "Reference" "J36"
 			(at 332.74 46.9899 0)
 			(effects
 				(font
@@ -19988,7 +20089,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J35")
+					(reference "J36")
 					(unit 1)
 				)
 			)
@@ -20208,7 +20309,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "d07cd443-ab33-446d-a598-a0e53e3e1301")
-		(property "Reference" "J51"
+		(property "Reference" "J52"
 			(at 373.38 182.8799 0)
 			(effects
 				(font
@@ -20268,7 +20369,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J51")
+					(reference "J52")
 					(unit 1)
 				)
 			)
@@ -20615,7 +20716,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "da9d43a6-3ec6-46b9-96b2-2d684bb03cc4")
-		(property "Reference" "J46"
+		(property "Reference" "J47"
 			(at 373.38 125.7299 0)
 			(effects
 				(font
@@ -20675,7 +20776,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J46")
+					(reference "J47")
 					(unit 1)
 				)
 			)
@@ -21012,7 +21113,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "eceaa59f-0144-4909-b023-e792e3753e32")
-		(property "Reference" "J33"
+		(property "Reference" "J34"
 			(at 279.4 54.6099 0)
 			(effects
 				(font
@@ -21072,7 +21173,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J33")
+					(reference "J34")
 					(unit 1)
 				)
 			)
@@ -21088,7 +21189,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ef506bc5-8543-47ae-baaf-5a9463720c03")
-		(property "Reference" "J18"
+		(property "Reference" "J19"
 			(at 170.18 99.0599 0)
 			(effects
 				(font
@@ -21142,7 +21243,7 @@
 		(instances
 			(project ""
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J18")
+					(reference "J19")
 					(unit 1)
 				)
 			)
@@ -21225,7 +21326,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f2abbce7-e2ea-49b0-a6e3-495e7bbe24c5")
-		(property "Reference" "J34"
+		(property "Reference" "J35"
 			(at 279.4 63.4999 0)
 			(effects
 				(font
@@ -21279,7 +21380,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J34")
+					(reference "J35")
 					(unit 1)
 				)
 			)
@@ -21432,7 +21533,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f80f2023-a7aa-4b06-9126-4ce5131cd213")
-		(property "Reference" "J52"
+		(property "Reference" "J53"
 			(at 373.38 194.3099 0)
 			(effects
 				(font
@@ -21492,7 +21593,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J52")
+					(reference "J53")
 					(unit 1)
 				)
 			)
@@ -21573,7 +21674,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "f9ff2f2f-6e2f-480a-a5a7-cf0e49bc8488")
-		(property "Reference" "J25"
+		(property "Reference" "J26"
 			(at 205.105 213.36 0)
 			(effects
 				(font
@@ -21625,7 +21726,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J25")
+					(reference "J26")
 					(unit 1)
 				)
 			)
@@ -21909,7 +22010,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "fffc2c71-d6f0-460d-8890-d66ef2afd335")
-		(property "Reference" "J43"
+		(property "Reference" "J44"
 			(at 373.38 88.8999 0)
 			(effects
 				(font
@@ -21969,7 +22070,7 @@
 		(instances
 			(project "MicroLightDevBoardV2"
 				(path "/4d4b60a6-56d4-4632-90b9-cd9e4f577154"
-					(reference "J43")
+					(reference "J44")
 					(unit 1)
 				)
 			)
