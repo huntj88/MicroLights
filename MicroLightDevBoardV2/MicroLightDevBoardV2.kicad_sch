@@ -6795,7 +6795,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 116.84 194.31 180)
 		(fields_autoplaced yes)
@@ -6807,7 +6807,7 @@
 		)
 		(uuid "0f499967-2d2d-47fd-a723-56291121cb87")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.4205 194.31 0)
+			(at 103.1505 194.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6817,7 +6817,7 @@
 			)
 		)
 	)
-	(global_label "TS_MR_CHG"
+	(global_label "TS_MR_CHRG"
 		(shape input)
 		(at 35.56 273.05 180)
 		(fields_autoplaced yes)
@@ -6829,7 +6829,7 @@
 		)
 		(uuid "10410ff5-f9bb-49ae-ada7-aabff74555f1")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 21.8706 273.05 0)
+			(at 20.6006 273.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6926,7 +6926,7 @@
 			)
 		)
 	)
-	(global_label "BAT_CHG"
+	(global_label "BAT_CHRG"
 		(shape input)
 		(at 102.87 218.44 0)
 		(fields_autoplaced yes)
@@ -6938,7 +6938,7 @@
 		)
 		(uuid "1538ead7-4383-4b28-8622-bd5e791b5e4d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 114.0195 218.44 0)
+			(at 115.2895 218.44 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7122,7 +7122,7 @@
 			)
 		)
 	)
-	(global_label "VBUS_CHG"
+	(global_label "VBUS_CHRG"
 		(shape input)
 		(at 40.64 213.36 180)
 		(fields_autoplaced yes)
@@ -7134,7 +7134,7 @@
 		)
 		(uuid "26991308-6c8e-493e-8d15-c016f5137136")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 27.9181 213.36 0)
+			(at 26.6481 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7144,7 +7144,7 @@
 			)
 		)
 	)
-	(global_label "BAT_CHG"
+	(global_label "BAT_CHRG"
 		(shape input)
 		(at 35.56 245.11 180)
 		(fields_autoplaced yes)
@@ -7156,7 +7156,7 @@
 		)
 		(uuid "26a1882f-b455-42fd-9146-db752e4bc573")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.4105 245.11 0)
+			(at 23.1405 245.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7275,7 +7275,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 120.65 265.43 0)
 		(fields_autoplaced yes)
@@ -7287,7 +7287,7 @@
 		)
 		(uuid "332c909d-0fa1-4838-b65d-a9a025cb8635")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.0695 265.43 0)
+			(at 134.3395 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7404,7 +7404,7 @@
 			)
 		)
 	)
-	(global_label "SDA_CHG"
+	(global_label "SDA_CHRG"
 		(shape input)
 		(at 35.56 270.51 180)
 		(fields_autoplaced yes)
@@ -7416,7 +7416,7 @@
 		)
 		(uuid "480c8f5d-77e9-441d-9a76-2fa6c2b93d8f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.1686 270.51 0)
+			(at 22.8986 270.51 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7535,7 +7535,7 @@
 			)
 		)
 	)
-	(global_label "SDA_CHG"
+	(global_label "SDA_CHRG"
 		(shape input)
 		(at 115.57 254 180)
 		(fields_autoplaced yes)
@@ -7547,7 +7547,7 @@
 		)
 		(uuid "51194e86-b54f-43f4-8393-fc6e9bf03d2a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.1786 254 0)
+			(at 102.9086 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7665,7 +7665,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 120.65 274.32 0)
 		(fields_autoplaced yes)
@@ -7677,7 +7677,7 @@
 		)
 		(uuid "61165dd2-b157-4956-a794-1c9266fb4c99")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.0695 274.32 0)
+			(at 134.3395 274.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7753,7 +7753,7 @@
 			)
 		)
 	)
-	(global_label "SYS_CHG"
+	(global_label "SYS_CHRG"
 		(shape input)
 		(at 85.09 213.36 0)
 		(fields_autoplaced yes)
@@ -7765,7 +7765,7 @@
 		)
 		(uuid "6c6fbe67-f941-47a5-8e55-c3d7c219c9c5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.4209 213.36 0)
+			(at 97.6909 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7819,7 +7819,7 @@
 			)
 		)
 	)
-	(global_label "SYS_CHG"
+	(global_label "SYS_CHRG"
 		(shape input)
 		(at 83.82 256.54 180)
 		(fields_autoplaced yes)
@@ -7831,7 +7831,7 @@
 		)
 		(uuid "6d7fa747-ac4a-4e4a-9453-9a2c1c4bf760")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 72.4891 256.54 0)
+			(at 71.2191 256.54 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7929,7 +7929,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 123.19 245.11 0)
 		(fields_autoplaced yes)
@@ -7941,7 +7941,7 @@
 		)
 		(uuid "76285555-c9cb-42c6-b702-893853b098a0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 135.6095 245.11 0)
+			(at 136.8795 245.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7951,7 +7951,7 @@
 			)
 		)
 	)
-	(global_label "TS_MR_CHG"
+	(global_label "TS_MR_CHRG"
 		(shape input)
 		(at 82.55 223.52 0)
 		(fields_autoplaced yes)
@@ -7963,7 +7963,7 @@
 		)
 		(uuid "784768e3-bc41-4603-8fae-ca0df43d5e79")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.2394 223.52 0)
+			(at 97.5094 223.52 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8017,7 +8017,7 @@
 			)
 		)
 	)
-	(global_label "SCL_CHG"
+	(global_label "SCL_CHRG"
 		(shape input)
 		(at 44.45 226.06 180)
 		(fields_autoplaced yes)
@@ -8029,7 +8029,7 @@
 		)
 		(uuid "7f87f650-daec-4c02-8394-44e25a060b5c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 33.1191 226.06 0)
+			(at 31.8491 226.06 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8105,7 +8105,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 123.19 254 0)
 		(fields_autoplaced yes)
@@ -8117,7 +8117,7 @@
 		)
 		(uuid "885cd5d2-22ee-4742-9b66-71932bb771ef")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 135.6095 254 0)
+			(at 136.8795 254 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8127,7 +8127,7 @@
 			)
 		)
 	)
-	(global_label "SDA_CHG"
+	(global_label "SDA_CHRG"
 		(shape input)
 		(at 44.45 228.6 180)
 		(fields_autoplaced yes)
@@ -8139,7 +8139,7 @@
 		)
 		(uuid "8f513f89-13da-4905-90b8-e2fca351fbbc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 33.0586 228.6 0)
+			(at 31.7886 228.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8149,7 +8149,7 @@
 			)
 		)
 	)
-	(global_label "SYS_CHG"
+	(global_label "SYS_CHRG"
 		(shape input)
 		(at 35.56 240.03 180)
 		(fields_autoplaced yes)
@@ -8161,7 +8161,7 @@
 		)
 		(uuid "8f56d644-fa54-4a78-8166-1c2714037f0f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.2291 240.03 0)
+			(at 22.9591 240.03 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8193,7 +8193,7 @@
 			)
 		)
 	)
-	(global_label "VBUS_CHG"
+	(global_label "VBUS_CHRG"
 		(shape input)
 		(at 35.56 237.49 180)
 		(fields_autoplaced yes)
@@ -8205,7 +8205,7 @@
 		)
 		(uuid "8ff1d847-968d-4051-ba8b-29b4ecfbb8e8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 22.8381 237.49 0)
+			(at 21.5681 237.49 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8325,7 +8325,7 @@
 			)
 		)
 	)
-	(global_label "INT_CHG"
+	(global_label "INT_CHRG"
 		(shape input)
 		(at 35.56 265.43 180)
 		(fields_autoplaced yes)
@@ -8337,7 +8337,7 @@
 		)
 		(uuid "9b9f0e22-8342-45c2-a825-503cce948f95")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.8338 265.43 0)
+			(at 23.5638 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8369,7 +8369,7 @@
 			)
 		)
 	)
-	(global_label "VREF_CHG"
+	(global_label "VREF_CHRG"
 		(shape input)
 		(at 123.19 227.33 0)
 		(fields_autoplaced yes)
@@ -8381,7 +8381,7 @@
 		)
 		(uuid "9d890966-8d60-4d48-8013-5137f079fb30")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 135.6095 227.33 0)
+			(at 136.8795 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8808,7 +8808,7 @@
 			)
 		)
 	)
-	(global_label "SCL_CHG"
+	(global_label "SCL_CHRG"
 		(shape input)
 		(at 115.57 245.11 180)
 		(fields_autoplaced yes)
@@ -8820,7 +8820,7 @@
 		)
 		(uuid "be00be45-a10f-49b2-b2d4-e59932b17ec6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.2391 245.11 0)
+			(at 102.9691 245.11 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8918,7 +8918,7 @@
 			)
 		)
 	)
-	(global_label "SCL_CHG"
+	(global_label "SCL_CHRG"
 		(shape input)
 		(at 35.56 267.97 180)
 		(fields_autoplaced yes)
@@ -8930,7 +8930,7 @@
 		)
 		(uuid "c5fce986-ada0-47e4-84f3-af6995856df5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 24.2291 267.97 0)
+			(at 22.9591 267.97 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9091,7 +9091,7 @@
 			)
 		)
 	)
-	(global_label "INT_CHG"
+	(global_label "INT_CHRG"
 		(shape input)
 		(at 115.57 227.33 180)
 		(fields_autoplaced yes)
@@ -9103,7 +9103,7 @@
 		)
 		(uuid "d41c9b2d-690b-4de7-a845-00e48f2866e6")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 104.8438 227.33 0)
+			(at 103.5738 227.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9113,7 +9113,7 @@
 			)
 		)
 	)
-	(global_label "BAT_CHG"
+	(global_label "BAT_CHRG"
 		(shape input)
 		(at 83.82 251.46 180)
 		(fields_autoplaced yes)
@@ -9125,7 +9125,7 @@
 		)
 		(uuid "d5317b53-f5d5-4c26-b168-1aefdf5d1827")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 72.6705 251.46 0)
+			(at 71.4005 251.46 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9135,7 +9135,7 @@
 			)
 		)
 	)
-	(global_label "SCL_CHG"
+	(global_label "SCL_CHRG"
 		(shape input)
 		(at 118.11 265.43 180)
 		(fields_autoplaced yes)
@@ -9147,7 +9147,7 @@
 		)
 		(uuid "d66be1a6-929b-43a3-96ef-b36fd1316364")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 106.7791 265.43 0)
+			(at 105.5091 265.43 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9310,7 +9310,7 @@
 			)
 		)
 	)
-	(global_label "INT_CHG"
+	(global_label "INT_CHRG"
 		(shape input)
 		(at 44.45 220.98 180)
 		(fields_autoplaced yes)
@@ -9322,7 +9322,7 @@
 		)
 		(uuid "e714661e-d4fa-4ed3-b72b-b1a8a41f410a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 33.7238 220.98 0)
+			(at 32.4538 220.98 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9442,7 +9442,7 @@
 			)
 		)
 	)
-	(global_label "VBUS_CHG"
+	(global_label "VBUS_CHRG"
 		(shape input)
 		(at 83.82 246.38 180)
 		(fields_autoplaced yes)
@@ -9454,7 +9454,7 @@
 		)
 		(uuid "f30ef2fb-cd46-4f05-8aeb-14a05a6f9331")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 71.0981 246.38 0)
+			(at 69.8281 246.38 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9529,7 +9529,7 @@
 			)
 		)
 	)
-	(global_label "SDA_CHG"
+	(global_label "SDA_CHRG"
 		(shape input)
 		(at 118.11 274.32 180)
 		(fields_autoplaced yes)
@@ -9541,7 +9541,7 @@
 		)
 		(uuid "f5e661bd-9043-4f62-b927-75d02880186a")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 106.7186 274.32 0)
+			(at 105.4486 274.32 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9763,7 +9763,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 42.8752 213.36 0)
 			(effects
 				(font
@@ -11605,7 +11605,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 84.7852 213.36 0)
 			(effects
 				(font
@@ -13020,8 +13020,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
-			(at 102.8701 207.01 90)
+		(property "Value" "GND_CHRG"
+			(at 97.79 207.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13414,7 +13414,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
+		(property "Value" "GND_CHRG"
 			(at 86.36 228.6001 90)
 			(effects
 				(font
@@ -16159,8 +16159,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
-			(at 83.8201 201.93 90)
+		(property "Value" "GND_CHRG"
+			(at 78.74 201.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16647,7 +16647,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 103.8352 218.44 0)
 			(effects
 				(font
@@ -16919,7 +16919,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
+		(property "Value" "GND_CHRG"
 			(at 80.01 241.2999 90)
 			(effects
 				(font
@@ -17536,7 +17536,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
+		(property "Value" "GND_CHRG"
 			(at 31.75 252.7299 90)
 			(effects
 				(font
@@ -17745,8 +17745,8 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "GND_CHG"
-			(at 41.9101 201.93 90)
+		(property "Value" "GND_CHRG"
+			(at 36.83 201.676 0)
 			(effects
 				(font
 					(size 1.27 1.27)
