@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import React from "react";
 
+// TODO: migrate to fluentUI, delete this file
+
 interface TypographyProps extends React.HTMLAttributes<HTMLParagraphElement> {
   children?: React.ReactNode;
   fontWeight?: number | string;

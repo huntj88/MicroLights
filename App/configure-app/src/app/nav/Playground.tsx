@@ -10,12 +10,19 @@ import {
 import { SidebarHeader } from "./SidebarHeader";
 import { Typography } from "./typography";
 import {
-  DismissSquareRegular,
-  CookiesRegular,
-  Delete24Regular,
+  Delete48Regular,
+  Desk48Regular,
+  Diamond48Regular,
+  Doctor48Regular,
+  Food48Filled,
+  Games48Regular,
+  Glasses48Regular,
+  Guest48Regular,
 } from "@fluentui/react-icons";
 import { Switch } from "./Switch";
+import { Divider } from "@fluentui/react-components";
 
+// TODO: integrate with fluentUI themeing instead of this
 type Theme = "light" | "dark";
 
 const themes = {
@@ -68,7 +75,7 @@ export const Playground: React.FC = () => {
   const [collapsed, setCollapsed] = React.useState(false);
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
-  const [theme, setTheme] = React.useState<Theme>("light");
+  const [theme, setTheme] = React.useState<Theme>("dark");
 
   // handle on theme change event
   const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,10 +99,7 @@ export const Playground: React.FC = () => {
     subMenuContent: ({ level }) => ({
       backgroundColor:
         level === 0
-          ? hexToRgba(
-              themes[theme].menu.menuContent,
-              !collapsed ? 0.4 : 1,
-            )
+          ? hexToRgba(themes[theme].menu.menuContent, !collapsed ? 0.4 : 1)
           : "transparent",
     }),
     button: {
@@ -103,10 +107,7 @@ export const Playground: React.FC = () => {
         color: themes[theme].menu.disabled.color,
       },
       "&:hover": {
-        backgroundColor: hexToRgba(
-          themes[theme].menu.hover.backgroundColor,
-          1,
-        ),
+        backgroundColor: hexToRgba(themes[theme].menu.hover.backgroundColor, 1),
         color: themes[theme].menu.hover.color,
       },
     },
@@ -130,10 +131,9 @@ export const Playground: React.FC = () => {
         image="https://user-images.githubusercontent.com/25878302/144499035-2911184c-76d3-4611-86e7-bc4e8ff84ff5.jpg"
         rtl={false}
         breakPoint="md"
-        backgroundColor={hexToRgba(
-          themes[theme].sidebar.backgroundColor,
-          1,
-        )}
+        backgroundColor={hexToRgba(themes[theme].sidebar.backgroundColor, 1)}
+        width="300px"
+        collapsedWidth="100px"
         rootStyles={{
           color: themes[theme].sidebar.color,
         }}
@@ -145,31 +145,34 @@ export const Playground: React.FC = () => {
             rtl={false}
             style={{ marginBottom: "24px", marginTop: "16px" }}
           />
-          <div style={{ flex: 1, marginBottom: "32px" }}>
-            <div style={{ padding: "0 24px", marginBottom: "8px" }}>
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                style={{ opacity: collapsed ? 0 : 0.7, letterSpacing: "0.5px" }}
-              >
-                General
-              </Typography>
-            </div>
+          <div style={{ flex: 1, marginBottom: "32px", paddingLeft: "10px" }}>
             <Menu menuItemStyles={menuItemStyles}>
-              <SubMenu label="Charts" icon={<CookiesRegular />}>
+              <SubMenu
+                label={collapsed ? "" : "Charts"}
+                icon={<Doctor48Regular />}
+              >
                 <MenuItem> Pie charts</MenuItem>
                 <MenuItem> Line charts</MenuItem>
                 <MenuItem> Bar charts</MenuItem>
               </SubMenu>
-              <SubMenu label="Maps" icon={<Delete24Regular />}>
+              <SubMenu
+                label={collapsed ? "" : "Maps"}
+                icon={<Diamond48Regular />}
+              >
                 <MenuItem> Google maps</MenuItem>
                 <MenuItem> Open street maps</MenuItem>
               </SubMenu>
-              <SubMenu label="Theme" icon={<DismissSquareRegular />}>
+              <SubMenu
+                label={collapsed ? "" : "Theme"}
+                icon={<Delete48Regular />}
+              >
                 <MenuItem> Dark</MenuItem>
                 <MenuItem> Light</MenuItem>
               </SubMenu>
-              <SubMenu label="Components" icon={<DismissSquareRegular />}>
+              <SubMenu
+                label={collapsed ? "" : "Components"}
+                icon={<Desk48Regular />}
+              >
                 <MenuItem> Grid</MenuItem>
                 <MenuItem> Layout</MenuItem>
                 <SubMenu label="Forms">
@@ -181,7 +184,10 @@ export const Playground: React.FC = () => {
                   </SubMenu>
                 </SubMenu>
               </SubMenu>
-              <SubMenu label="E-commerce" icon={<DismissSquareRegular />}>
+              <SubMenu
+                label={collapsed ? "" : "E-commerce"}
+                icon={<Food48Filled />}
+              >
                 <MenuItem> Product</MenuItem>
                 <MenuItem> Orders</MenuItem>
                 <MenuItem> Credit card</MenuItem>
@@ -205,10 +211,14 @@ export const Playground: React.FC = () => {
             </div>
 
             <Menu menuItemStyles={menuItemStyles}>
-              <MenuItem icon={<DismissSquareRegular />}>Calendar</MenuItem>
-              <MenuItem icon={<DismissSquareRegular />}>Documentation</MenuItem>
-              <MenuItem disabled icon={<DismissSquareRegular />}>
-                Examples
+              <MenuItem icon={<Games48Regular />}>
+                {collapsed ? "" : "Calendar"}
+              </MenuItem>
+              <MenuItem icon={<Glasses48Regular />}>
+                {collapsed ? "" : "Documentation"}
+              </MenuItem>
+              <MenuItem disabled icon={<Guest48Regular />}>
+                {collapsed ? "" : "Examples"}
               </MenuItem>
             </Menu>
           </div>

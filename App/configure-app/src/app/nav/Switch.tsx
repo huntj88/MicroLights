@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import React from "react";
 
+// TODO: Temporary file, delete later
+
 interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
 }

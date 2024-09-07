@@ -1,28 +1,37 @@
 import styled from "@emotion/styled";
 import React from "react";
-import { Typography } from "./typography";
+import { makeStyles } from "@fluentui/react-components";
+import { Text } from "@fluentui/react-components";
 
 interface SidebarHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
   rtl: boolean;
 }
 
-const StyledSidebarHeader = styled.div`
-  height: 64px;
-  min-height: 64px;
-  display: flex;
-  align-items: center;
-  padding: 0 20px;
+const useStyles = makeStyles({
+  header: {
+    height: "64px",
+    minHeight: "64px",
+    width: "100%",
+    overflow: "hidden",
+    display: "flex",
+    alignItems: "center",
+    padding: "20px",
+  },
+  text: {
+    fontSize: "20px",
+    lineHeight: "30px",
+    fontWeight: 700,
+    color: "#0098e5",
+    margin: 0,
+    whiteSpace: "nowrap",
+  },
+});
 
-  > div {
-    width: 100%;
-    overflow: hidden;
-  }
-`;
-
+// TODO: migrate to makeStyles
 const StyledLogo = styled.div<{ rtl?: boolean }>`
-  width: 35px;
-  min-width: 35px;
+  width: 64px;
+  min-width: 64px;
   height: 35px;
   min-height: 35px;
   display: flex;
@@ -34,16 +43,7 @@ const StyledLogo = styled.div<{ rtl?: boolean }>`
   font-weight: 700;
   background-color: #009fdb;
   background: linear-gradient(45deg, rgb(21 87 205) 0%, rgb(90 225 255) 100%);
-  ${({ rtl }) =>
-    rtl
-      ? `
-      margin-left: 10px;
-      margin-right: 4px;
-      `
-      : `
-      margin-right: 10px;
-      margin-left: 4px;
-      `}
+  margin-right: 20px;
 `;
 
 export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
@@ -51,14 +51,14 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   rtl,
   ...rest
 }) => {
+  const styles = useStyles();
+
   return (
-    <StyledSidebarHeader {...rest}>
+    <div className={styles.header}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <StyledLogo rtl={rtl}>P</StyledLogo>
-        <Typography variant="subtitle1" fontWeight={700} color="#0098e5">
-          Pro Sidebar
-        </Typography>
+        <StyledLogo rtl={rtl}>FAF</StyledLogo>
+        <Text className={styles.text}>Flow Art Forge</Text>
       </div>
-    </StyledSidebarHeader>
+    </div>
   );
 };
