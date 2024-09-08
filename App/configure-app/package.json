@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "tauri": "tauri",
     "doctor": "npx eslint --fix src && npx prettier . --write"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "react-pro-sidebar": "^1.1.0"
   },
   "devDependencies": {
+    "@tauri-apps/cli": "^1.6.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
