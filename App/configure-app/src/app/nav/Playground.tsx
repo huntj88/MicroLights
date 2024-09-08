@@ -18,41 +18,42 @@ import {
   PanelLeftExpandRegular,
   PanelLeftContractRegular,
 } from "@fluentui/react-icons";
-import { makeStyles, Text } from "@fluentui/react-components";
+import {
+  makeStyles,
+  Text,
+  webDarkTheme,
+  webLightTheme,
+} from "@fluentui/react-components";
 import { useThemeContext } from "../ThemeProvider";
 
 const themes = {
   light: {
     sidebar: {
-      backgroundColor: "#ffffff",
-      color: "#607489",
+      backgroundColor: webLightTheme.colorBrandBackground2,
     },
     menu: {
-      menuContent: "#fbfcfd",
-      icon: "#0098e5",
+      menuContent: webLightTheme.colorBrandBackground2Hover,
+      icon: webLightTheme.colorBrandForeground2,
       hover: {
-        backgroundColor: "#c5e4ff",
-        color: "#44596e",
+        backgroundColor: webLightTheme.colorBrandBackground2Hover,
       },
       disabled: {
-        color: "#9fb6cf",
+        color: webLightTheme.colorNeutralForegroundDisabled,
       },
     },
   },
   dark: {
     sidebar: {
-      backgroundColor: "#0b2948",
-      color: "#8ba1b7",
+      backgroundColor: webDarkTheme.colorBrandBackground2,
     },
     menu: {
-      menuContent: "#082440",
-      icon: "#59d0ff",
+      menuContent: webDarkTheme.colorBrandBackground2Hover,
+      icon: webDarkTheme.colorBrandForeground2,
       hover: {
-        backgroundColor: "#00458b",
-        color: "#b6c8d9",
+        backgroundColor: webDarkTheme.colorBrandBackground2Hover,
       },
       disabled: {
-        color: "#3e5e7e",
+        color: webDarkTheme.colorNeutralForegroundDisabled,
       },
     },
   },
@@ -63,7 +64,6 @@ const useStyles = makeStyles({
     fontSize: "12px",
     lineHeight: "18px",
     fontWeight: 600,
-    color: "#0098e5",
     margin: 0,
     whiteSpace: "nowrap",
     letterSpacing: "0.5px",
@@ -112,7 +112,6 @@ export const Playground: React.FC = () => {
       },
       "&:hover": {
         backgroundColor: hexToRgba(themes[theme].menu.hover.backgroundColor, 1),
-        color: themes[theme].menu.hover.color,
       },
     },
     label: ({ open }) => ({
@@ -132,15 +131,11 @@ export const Playground: React.FC = () => {
         toggled={toggled}
         onBackdropClick={() => setToggled(false)}
         onBreakPoint={setBroken}
-        image="https://user-images.githubusercontent.com/25878302/144499035-2911184c-76d3-4611-86e7-bc4e8ff84ff5.jpg"
         rtl={false}
         breakPoint="md"
         backgroundColor={hexToRgba(themes[theme].sidebar.backgroundColor, 1)}
         width="300px"
         collapsedWidth="100px"
-        rootStyles={{
-          color: themes[theme].sidebar.color,
-        }}
       >
         <div
           style={{ display: "flex", flexDirection: "column", height: "100%" }}
