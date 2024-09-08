@@ -5,7 +5,6 @@ import { Text } from "@fluentui/react-components";
 
 interface SidebarHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children?: React.ReactNode;
-  rtl: boolean;
 }
 
 const useStyles = makeStyles({
@@ -29,7 +28,7 @@ const useStyles = makeStyles({
 });
 
 // TODO: migrate to makeStyles
-const StyledLogo = styled.div<{ rtl?: boolean }>`
+const StyledLogo = styled.div`
   width: 64px;
   min-width: 64px;
   height: 35px;
@@ -46,17 +45,13 @@ const StyledLogo = styled.div<{ rtl?: boolean }>`
   margin-right: 20px;
 `;
 
-export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
-  children,
-  rtl,
-  ...rest
-}) => {
+export const SidebarHeader: React.FC<SidebarHeaderProps> = () => {
   const styles = useStyles();
 
   return (
     <div className={styles.header}>
       <div style={{ display: "flex", alignItems: "center" }}>
-        <StyledLogo rtl={rtl}>FAF</StyledLogo>
+        <StyledLogo>FAF</StyledLogo>
         <Text className={styles.text}>Flow Art Forge</Text>
       </div>
     </div>

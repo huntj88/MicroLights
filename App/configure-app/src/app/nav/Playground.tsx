@@ -8,7 +8,6 @@ import {
   SubMenu,
 } from "react-pro-sidebar";
 import { SidebarHeader } from "./SidebarHeader";
-import { Typography } from "./typography";
 import {
   Delete48Regular,
   Desk48Regular,
@@ -19,6 +18,7 @@ import {
   PanelLeftExpandRegular,
   PanelLeftContractRegular,
 } from "@fluentui/react-icons";
+import { makeStyles, Text } from "@fluentui/react-components";
 
 // TODO: integrate with fluentUI themeing instead of this
 type Theme = "light" | "dark";
@@ -60,6 +60,18 @@ const themes = {
   },
 };
 
+const useStyles = makeStyles({
+  extraText: {
+    fontSize: "12px",
+    lineHeight: "18px",
+    fontWeight: 600,
+    color: "#0098e5",
+    margin: 0,
+    whiteSpace: "nowrap",
+    letterSpacing: "0.5px",
+  },
+});
+
 // hex to rgba converter
 const hexToRgba = (hex: string, alpha: number) => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -74,6 +86,7 @@ export const Playground: React.FC = () => {
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
   const [theme, setTheme] = React.useState<Theme>("dark");
+  const styles = useStyles();
 
   const menuItemStyles: MenuItemStyles = {
     root: {
@@ -134,10 +147,7 @@ export const Playground: React.FC = () => {
         <div
           style={{ display: "flex", flexDirection: "column", height: "100%" }}
         >
-          <SidebarHeader
-            rtl={false}
-            style={{ marginBottom: "24px", marginTop: "16px" }}
-          />
+          <SidebarHeader style={{ marginBottom: "24px", marginTop: "16px" }} />
           <div style={{ flex: 1, marginBottom: "32px", paddingLeft: "10px" }}>
             <Menu menuItemStyles={menuItemStyles}>
               <SubMenu
@@ -163,13 +173,12 @@ export const Playground: React.FC = () => {
                 marginTop: "32px",
               }}
             >
-              <Typography
-                variant="body2"
-                fontWeight={600}
-                style={{ opacity: collapsed ? 0 : 0.7, letterSpacing: "0.5px" }}
+              <Text
+                className={styles.extraText}
+                style={{ opacity: collapsed ? 0 : 0.7 }}
               >
                 Extra
-              </Typography>
+              </Text>
             </div>
 
             <Menu menuItemStyles={menuItemStyles}>
