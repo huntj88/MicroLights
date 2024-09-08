@@ -148,50 +148,19 @@ export const Playground: React.FC = () => {
           <div style={{ flex: 1, marginBottom: "32px", paddingLeft: "10px" }}>
             <Menu menuItemStyles={menuItemStyles}>
               <SubMenu
-                label={collapsed ? "" : "Charts"}
+                label={collapsed ? "" : "Create"}
                 icon={<Doctor48Regular />}
               >
-                <MenuItem> Pie charts</MenuItem>
-                <MenuItem> Line charts</MenuItem>
-                <MenuItem> Bar charts</MenuItem>
+                <MenuItem>Bulb</MenuItem>
+                <MenuItem>RGB</MenuItem>
               </SubMenu>
-              <SubMenu
-                label={collapsed ? "" : "Maps"}
-                icon={<Diamond48Regular />}
-              >
-                <MenuItem> Google maps</MenuItem>
-                <MenuItem> Open street maps</MenuItem>
-              </SubMenu>
-              <SubMenu
-                label={collapsed ? "" : "Theme"}
-                icon={<Delete48Regular />}
-              >
-                <MenuItem> Dark</MenuItem>
-                <MenuItem> Light</MenuItem>
-              </SubMenu>
-              <SubMenu
-                label={collapsed ? "" : "Components"}
-                icon={<Desk48Regular />}
-              >
-                <MenuItem> Grid</MenuItem>
-                <MenuItem> Layout</MenuItem>
-                <SubMenu label="Forms">
-                  <MenuItem> Input</MenuItem>
-                  <MenuItem> Select</MenuItem>
-                  <SubMenu label="More">
-                    <MenuItem> CheckBox</MenuItem>
-                    <MenuItem> Radio</MenuItem>
-                  </SubMenu>
-                </SubMenu>
-              </SubMenu>
-              <SubMenu
-                label={collapsed ? "" : "E-commerce"}
-                icon={<Food48Filled />}
-              >
-                <MenuItem> Product</MenuItem>
-                <MenuItem> Orders</MenuItem>
-                <MenuItem> Credit card</MenuItem>
-              </SubMenu>
+              <MenuItem icon={<Diamond48Regular />}>
+                {collapsed ? "" : "Browse"}
+              </MenuItem>
+              
+              <MenuItem icon={<Desk48Regular />}>
+                {collapsed ? "" : "Program"}
+              </MenuItem>
             </Menu>
 
             <div
@@ -211,9 +180,13 @@ export const Playground: React.FC = () => {
             </div>
 
             <Menu menuItemStyles={menuItemStyles}>
-              <MenuItem icon={<Games48Regular />}>
-                {collapsed ? "" : "Calendar"}
-              </MenuItem>
+            <SubMenu
+                label={collapsed ? "" : "Theme"}
+                icon={<Delete48Regular />}
+              >
+                <MenuItem> Dark</MenuItem>
+                <MenuItem> Light</MenuItem>
+              </SubMenu>
               <MenuItem icon={<Glasses48Regular />}>
                 {collapsed ? "" : "Documentation"}
               </MenuItem>
