@@ -19,9 +19,7 @@ import {
   PanelLeftContractRegular,
 } from "@fluentui/react-icons";
 import { makeStyles, Text } from "@fluentui/react-components";
-
-// TODO: integrate with fluentUI themeing instead of this
-type Theme = "light" | "dark";
+import { useThemeContext } from "../ThemeProvider";
 
 const themes = {
   light: {
@@ -85,8 +83,8 @@ export const Playground: React.FC = () => {
   const [collapsed, setCollapsed] = React.useState(false);
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
-  const [theme, setTheme] = React.useState<Theme>("dark");
   const styles = useStyles();
+  const { theme, setTheme } = useThemeContext();
 
   const menuItemStyles: MenuItemStyles = {
     root: {
