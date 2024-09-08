@@ -27,7 +27,6 @@ import {
   webLightTheme,
 } from "@fluentui/react-components";
 import { useThemeContext } from "../ThemeProvider";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const themes = {
@@ -83,9 +82,7 @@ const hexToRgba = (hex: string, alpha: number) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-export const Navigation: React.FC<{ children: ReactNode }> = ({
-  children 
-}) => {
+export const Navigation: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [collapsed, setCollapsed] = React.useState(false);
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
@@ -154,9 +151,13 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({
                 label={collapsed ? "" : "Create"}
                 icon={<Doctor48Regular />}
               >
-                <MenuItem onClick={() => {
-                  router.replace("/create")
-                }}>Bulb</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    router.replace("/create");
+                  }}
+                >
+                  Bulb
+                </MenuItem>
                 <MenuItem>RGB</MenuItem>
               </SubMenu>
               <MenuItem icon={<Diamond48Regular />}>
@@ -221,7 +222,6 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({
       <main>
         <div style={{ padding: "16px 24px", color: "#44596e" }}>
           <div style={{ marginBottom: "16px" }}>
-            {children}
             {broken && (
               <button
                 className="sb-button"
@@ -230,6 +230,7 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({
                 Toggle
               </button>
             )}
+            {children}
           </div>
         </div>
       </main>

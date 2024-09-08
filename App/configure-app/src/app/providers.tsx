@@ -41,5 +41,9 @@ const WrappedFluentProvider = ({ children }: { children: React.ReactNode }) => {
   // Set the app's theme to a corresponding Fluent UI theme.
   const currentTheme = theme === "light" ? webLightTheme : webDarkTheme;
 
-  return <FluentProvider theme={currentTheme}>{children}</FluentProvider>;
+  return (
+    <FluentProvider theme={currentTheme} style={{ height: "100%" }}>
+      {children}
+    </FluentProvider>
+  );
 };

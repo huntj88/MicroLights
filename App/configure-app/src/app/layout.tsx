@@ -14,8 +14,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body style={{ margin: 0 }}>
+    <html lang="en" style={{ height: "100%" }}>
+      <body style={{ margin: 0, height: "100%" }}>
         <ErudaWrapper />
         <Providers>
           <Navigation>{children}</Navigation>
