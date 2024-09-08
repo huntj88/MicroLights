@@ -14,13 +14,11 @@ import {
   Desk48Regular,
   Diamond48Regular,
   Doctor48Regular,
-  Food48Filled,
-  Games48Regular,
   Glasses48Regular,
   Guest48Regular,
+  PanelLeftExpandRegular,
+  PanelLeftContractRegular,
 } from "@fluentui/react-icons";
-import { Switch } from "./Switch";
-import { Divider } from "@fluentui/react-components";
 
 // TODO: integrate with fluentUI themeing instead of this
 type Theme = "light" | "dark";
@@ -76,11 +74,6 @@ export const Playground: React.FC = () => {
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
   const [theme, setTheme] = React.useState<Theme>("dark");
-
-  // handle on theme change event
-  const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTheme(e.target.checked ? "dark" : "light");
-  };
 
   const menuItemStyles: MenuItemStyles = {
     root: {
@@ -157,7 +150,7 @@ export const Playground: React.FC = () => {
               <MenuItem icon={<Diamond48Regular />}>
                 {collapsed ? "" : "Browse"}
               </MenuItem>
-              
+
               <MenuItem icon={<Desk48Regular />}>
                 {collapsed ? "" : "Program"}
               </MenuItem>
@@ -180,18 +173,34 @@ export const Playground: React.FC = () => {
             </div>
 
             <Menu menuItemStyles={menuItemStyles}>
-            <SubMenu
+              <SubMenu
                 label={collapsed ? "" : "Theme"}
                 icon={<Delete48Regular />}
               >
-                <MenuItem> Dark</MenuItem>
-                <MenuItem> Light</MenuItem>
+                <MenuItem onClick={() => setTheme("dark")}>Dark</MenuItem>
+                <MenuItem onClick={() => setTheme("light")}>Light</MenuItem>
               </SubMenu>
               <MenuItem icon={<Glasses48Regular />}>
                 {collapsed ? "" : "Documentation"}
               </MenuItem>
               <MenuItem disabled icon={<Guest48Regular />}>
                 {collapsed ? "" : "Examples"}
+              </MenuItem>
+              <MenuItem
+                onClick={() => setCollapsed((prev) => !prev)}
+                icon={
+                  collapsed ? (
+                    <PanelLeftExpandRegular
+                      style={{ width: "48px", height: "48px" }}
+                    />
+                  ) : (
+                    <PanelLeftContractRegular
+                      style={{ width: "48px", height: "48px" }}
+                    />
+                  )
+                }
+              >
+                {collapsed ? "" : "Collapse"}
               </MenuItem>
             </Menu>
           </div>
@@ -209,35 +218,6 @@ export const Playground: React.FC = () => {
                 Toggle
               </button>
             )}
-          </div>
-          <div style={{ marginBottom: "48px" }}>
-            <Typography variant="h4" fontWeight={600}>
-              React Pro Sidebar
-            </Typography>
-            <Typography variant="body2">
-              React Pro Sidebar provides a set of components for creating high
-              level and customizable side navigation
-            </Typography>
-          </div>
-
-          <div style={{ padding: "0 8px" }}>
-            <div style={{ marginBottom: 16 }}>
-              <Switch
-                id="collapse"
-                checked={collapsed}
-                onChange={() => setCollapsed(!collapsed)}
-                label="Collapse"
-              />
-            </div>
-
-            <div style={{ marginBottom: 16 }}>
-              <Switch
-                id="theme"
-                checked={theme === "dark"}
-                onChange={handleThemeChange}
-                label="Dark theme"
-              />
-            </div>
           </div>
         </div>
       </main>
