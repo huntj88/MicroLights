@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { ReactNode } from "react";
 import {
   Menu,
   menuClasses,
@@ -25,6 +27,8 @@ import {
   webLightTheme,
 } from "@fluentui/react-components";
 import { useThemeContext } from "../ThemeProvider";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const themes = {
   light: {
@@ -79,12 +83,15 @@ const hexToRgba = (hex: string, alpha: number) => {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-export const Navigation: React.FC = () => {
+export const Navigation: React.FC<{ children: ReactNode }> = ({
+  children 
+}) => {
   const [collapsed, setCollapsed] = React.useState(false);
   const [toggled, setToggled] = React.useState(false);
   const [broken, setBroken] = React.useState(false);
   const styles = useStyles();
   const { theme, setTheme } = useThemeContext();
+  const router = useRouter();
 
   const menuItemStyles: MenuItemStyles = {
     root: {
@@ -147,7 +154,9 @@ export const Navigation: React.FC = () => {
                 label={collapsed ? "" : "Create"}
                 icon={<Doctor48Regular />}
               >
-                <MenuItem>Bulb</MenuItem>
+                <MenuItem onClick={() => {
+                  router.replace("/create")
+                }}>Bulb</MenuItem>
                 <MenuItem>RGB</MenuItem>
               </SubMenu>
               <MenuItem icon={<Diamond48Regular />}>
@@ -212,6 +221,7 @@ export const Navigation: React.FC = () => {
       <main>
         <div style={{ padding: "16px 24px", color: "#44596e" }}>
           <div style={{ marginBottom: "16px" }}>
+            {children}
             {broken && (
               <button
                 className="sb-button"

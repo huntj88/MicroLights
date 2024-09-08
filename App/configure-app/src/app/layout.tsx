@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
-import { NoSSR } from "./NoSSR";
 import ErudaWrapper from "./ErudaWrapper";
+import { Navigation } from "./nav/Navigation";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,10 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body style={{ margin: 0 }}>
-        <NoSSR>
-          <ErudaWrapper />
-        </NoSSR>
-        <Providers>{children}</Providers>
+        <ErudaWrapper />
+        <Providers>
+          <Navigation>{children}</Navigation>
+        </Providers>
       </body>
     </html>
   );
