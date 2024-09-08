@@ -1,7 +1,7 @@
 "use client";
 
-import { Playground } from "./nav/Playground";
+import { Navigation } from "./nav/Navigation";
 
 export default function Home() {
-  return <Playground />;
+  return <Navigation />;
 }
