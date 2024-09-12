@@ -160,7 +160,12 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({ children }) => {
                 </MenuItem>
                 <MenuItem>RGB</MenuItem>
               </SubMenu>
-              <MenuItem icon={<Diamond48Regular />}>
+              <MenuItem
+                onClick={() => {
+                  router.replace("/browse");
+                }}
+                icon={<Diamond48Regular />}
+              >
                 {collapsed ? "" : "Browse"}
               </MenuItem>
 
