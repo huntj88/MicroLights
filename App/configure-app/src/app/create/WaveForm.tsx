@@ -19,7 +19,9 @@ export const WaveForm: React.FC<{ bulbconfig: BulbConfig }> = ({
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const scaleFactor = 20;
-  const padding = 2;
+  const horizontalPadding = 16;
+  const topPadding = 5;
+  const indexCircleRadius = 10;
 
   useEffect(() => {
     const ctx = canvasRef.current?.getContext("2d");
@@ -29,37 +31,58 @@ export const WaveForm: React.FC<{ bulbconfig: BulbConfig }> = ({
 
     ctx.beginPath();
     ctx.strokeStyle = "green";
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 7;
 
     const pixelHeight = (change: LogicLevelChange) =>
-      change.output === "high" ? 10 : 90;
+      (change.output === "high" ? 10 : 90) + topPadding;
 
     const startY = pixelHeight(bulbconfig.changeAt[0]);
-    ctx.moveTo(padding, startY);
+    ctx.moveTo(horizontalPadding, startY);
 
     let previousY = startY;
     bulbconfig.changeAt.forEach((change, index) => {
+      const x = horizontalPadding + change.tick * scaleFactor;
       const y = pixelHeight(change);
       if (index !== 0) {
-        ctx.lineTo(padding + change.tick * scaleFactor, previousY);
+        ctx.lineTo(x, previousY);
       }
-      ctx.lineTo(padding + change.tick * scaleFactor, y);
+      ctx.lineTo(x, y);
       previousY = y;
     });
 
-    ctx.lineTo(padding + bulbconfig.totalTicks * scaleFactor, previousY);
+    ctx.lineTo(
+      horizontalPadding + bulbconfig.totalTicks * scaleFactor,
+      previousY,
+    );
 
     ctx.stroke();
+
+    // index markers
+    ctx.fillStyle = "black";
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1;
+    bulbconfig.changeAt.forEach((change, index) => {
+      const x = horizontalPadding + change.tick * scaleFactor;
+      const y = pixelHeight(change);
+      ctx.beginPath();
+      ctx.arc(x, y, indexCircleRadius, 0, 360);
+      ctx.fill();
+      ctx.stroke();
+      ctx.strokeText(index + "", x - 3, y + 4);
+      previousY = y;
+    });
+
+    return () => {
+      ctx.reset();
+    };
   }, [bulbconfig]);
 
   return (
     <div>
       <canvas
-        ref={(ref) => {
-          canvasRef.current = ref;
-        }}
-        width={bulbconfig.totalTicks * scaleFactor + padding * 2}
-        height={100}
+        ref={canvasRef}
+        width={bulbconfig.totalTicks * scaleFactor + horizontalPadding * 2}
+        height={90 + indexCircleRadius * 2}
       />
     </div>
   );
