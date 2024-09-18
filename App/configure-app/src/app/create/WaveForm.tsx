@@ -1,4 +1,4 @@
-import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { MouseEvent, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
 
 export type LogicLevel = "low" | "high";
 
@@ -19,8 +19,11 @@ export const WaveForm: React.FC<{
   updateConfig: (BulbConfig: BulbConfig) => void;
 }> = ({ bulbconfig, updateConfig }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const scaleFactor = 20;
-  const horizontalPadding = 16;
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(
+    canvasRef.current,
+  );
+  const scaleFactor = (canvasRef.current?.width ?? 0) / 71.5;
+  const horizontalPadding = (canvasRef.current?.width ?? 0) / 100;
   const indexCircleRadius = 10;
   const topPadding = 5;
   const pixelHeight = (change: LogicLevelChange) =>
@@ -33,6 +36,13 @@ export const WaveForm: React.FC<{
   });
 
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>();
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      canvasRef.current.width = canvasRef.current?.offsetWidth;
+      canvasRef.current.height = canvasRef.current?.offsetHeight;
+    }
+  }, [canvas, canvasRef.current?.offsetHeight, canvasRef.current?.offsetWidth]);
 
   useEffect(() => {
     if (!mousePressed) {
@@ -136,7 +146,11 @@ export const WaveForm: React.FC<{
     return () => {
       ctx.reset();
     };
-  }, [bulbconfig]);
+  }, [
+    bulbconfig,
+    canvasRef.current?.offsetHeight,
+    canvasRef.current?.offsetWidth,
+  ]);
 
   const onMouseEnter = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
     if (e.buttons === 0) {
@@ -162,9 +176,11 @@ export const WaveForm: React.FC<{
   return (
     <div>
       <canvas
-        ref={canvasRef}
-        width={bulbconfig.totalTicks * scaleFactor + horizontalPadding * 2}
-        height={90 + indexCircleRadius * 2}
+        ref={(ref: HTMLCanvasElement) => {
+          canvasRef.current = ref;
+          setCanvas(ref);
+        }}
+        style={{ width: "100%", height: "100%" }}
         onMouseEnter={onMouseEnter}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
