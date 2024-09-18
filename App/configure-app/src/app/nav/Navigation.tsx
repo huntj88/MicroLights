@@ -224,19 +224,14 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({ children }) => {
         </div>
       </Sidebar>
 
-      <main>
-        <div style={{ padding: "16px 24px", color: "#44596e" }}>
-          <div style={{ marginBottom: "16px" }}>
-            {broken && (
-              <button
-                className="sb-button"
-                onClick={() => setToggled(!toggled)}
-              >
-                Toggle
-              </button>
-            )}
-            {children}
-          </div>
+      <main style={{ height: "100%", width: "100%" }}>
+        <div style={{ color: "#44596e", height: "100%", width: "100%" }}>
+          {broken && (
+            <button className="sb-button" onClick={() => setToggled(!toggled)}>
+              Toggle
+            </button>
+          )}
+          {children}
         </div>
       </main>
     </div>

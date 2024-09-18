@@ -15,13 +15,18 @@ const useStyles = makeStyles({
     flexDirection: "column",
     overflowAnchor: "none",
     overflowY: "auto",
-    width: "100%",
     height: "100%",
+    paddingLeft: "16px",
+    paddingRight: "16px",
+    paddingTop: "16px",
+    paddingBottom: "16px",
   },
   child: {
-    height: "100px",
-    lineHeight: "100px",
     width: "100%",
+    paddingLeft: "8px",
+    paddingRight: "8px",
+    paddingTop: "8px",
+    paddingBottom: "8px",
   },
 });
 

@@ -58,7 +58,6 @@ export const WaveForm: React.FC<{ bulbconfig: BulbConfig }> = ({
         ref={(ref) => {
           canvasRef.current = ref;
         }}
-        style={{ paddingTop: "16px" }}
         width={bulbconfig.totalTicks * scaleFactor + padding * 2}
         height={100}
       />
