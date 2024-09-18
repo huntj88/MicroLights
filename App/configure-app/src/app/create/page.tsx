@@ -29,7 +29,7 @@ export default function Create() {
           setJson(data.value);
         }}
       />
-      <WaveForm bulbconfig={config} />
+      <WaveForm bulbconfig={config} updateConfig={setConfig} />
     </div>
   );
 }

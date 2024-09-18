@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "tauri": "tauri",
-    "doctor": "npx eslint --fix src && npx prettier . --write"
+    "doctor": "npx prettier . --write && npx eslint --fix src"
   },
   "dependencies": {
     "@fluentui/react-components": "^9.54.13",

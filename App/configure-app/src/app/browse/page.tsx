@@ -55,7 +55,12 @@ export default function Browse() {
               key={`test-virtualizer-child-${index}`}
               className={styles.child}
             >
-              <WaveForm bulbconfig={modes[index]} />
+              <WaveForm
+                bulbconfig={modes[index]}
+                updateConfig={() => {
+                  /* TODO */
+                }}
+              />
             </span>
           );
         }}
