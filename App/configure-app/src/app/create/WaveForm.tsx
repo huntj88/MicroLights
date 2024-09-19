@@ -1,4 +1,4 @@
-import { MouseEvent, SetStateAction, useCallback, useEffect, useRef, useState } from "react";
+import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
 
 export type LogicLevel = "low" | "high";
 
@@ -67,10 +67,12 @@ export const WaveForm: React.FC<{
       }
     });
   }, [
+    bulbconfig,
+    horizontalPadding,
     mousePressed,
     mousePosition.x,
     mousePosition.y,
-    bulbconfig,
+    scaleFactor,
     selectedIndex,
   ]);
 
@@ -92,7 +94,9 @@ export const WaveForm: React.FC<{
     }
   }, [
     // bulbConfig intentionally excluded. TODO: lint rule
+    horizontalPadding,
     mousePosition,
+    scaleFactor,
     selectedIndex,
     updateConfig,
   ]);
@@ -150,6 +154,8 @@ export const WaveForm: React.FC<{
     bulbconfig,
     canvasRef.current?.offsetHeight,
     canvasRef.current?.offsetWidth,
+    horizontalPadding,
+    scaleFactor,
   ]);
 
   const onMouseEnter = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
