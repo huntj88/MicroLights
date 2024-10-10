@@ -1,4 +1,12 @@
-import { MouseEvent, useCallback, useEffect, useRef, useState } from "react";
+import { Button } from "@fluentui/react-components";
+import {
+  MouseEvent,
+  TouchEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export type LogicLevel = "low" | "high";
 
@@ -26,8 +34,6 @@ export const WaveForm: React.FC<{
   const horizontalPadding = (canvasRef.current?.width ?? 0) / 100;
   const indexCircleRadius = 10;
   const topPadding = 5;
-  const pixelHeight = (change: LogicLevelChange) =>
-    (change.output === "high" ? 10 : 90) + topPadding;
 
   const [mousePressed, setMousePressed] = useState(false);
   const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({
@@ -36,6 +42,16 @@ export const WaveForm: React.FC<{
   });
 
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>();
+
+  const pixelHeight = useCallback(
+    (change: LogicLevelChange, index?: number) => {
+      if (index !== undefined && selectedIndex === index && mousePressed) {
+        return mousePosition.y;
+      }
+      return (change?.output === "high" ? 10 : 90) + topPadding;
+    },
+    [selectedIndex, mousePressed, mousePosition],
+  );
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -50,18 +66,19 @@ export const WaveForm: React.FC<{
       return;
     }
 
-    if (selectedIndex) {
+    if (selectedIndex !== undefined) {
       return;
     }
 
     bulbconfig.changeAt.forEach((change, index) => {
-      const x = horizontalPadding + change.tick * scaleFactor;
-      const y = pixelHeight(change);
+      const x =
+        horizontalPadding + change.tick * scaleFactor + indexCircleRadius;
+      const y = pixelHeight(change, undefined) + indexCircleRadius;
 
       if (
-        Math.abs(mousePosition.x - x) < 10 &&
-        Math.abs(mousePosition.y - y) < 10 &&
-        !selectedIndex
+        Math.abs(mousePosition.x - x) < indexCircleRadius * 1.25 &&
+        Math.abs(mousePosition.y - y) < indexCircleRadius * 1.25 &&
+        selectedIndex === undefined
       ) {
         setSelectedIndex(index);
       }
@@ -72,12 +89,13 @@ export const WaveForm: React.FC<{
     mousePressed,
     mousePosition.x,
     mousePosition.y,
+    pixelHeight,
     scaleFactor,
     selectedIndex,
   ]);
 
   useEffect(() => {
-    if (selectedIndex) {
+    if (selectedIndex !== undefined) {
       const copy = { ...bulbconfig };
       const current = copy.changeAt[selectedIndex];
       const x = horizontalPadding + current.tick * scaleFactor;
@@ -86,10 +104,18 @@ export const WaveForm: React.FC<{
         mousePosition.x - x > 20 ? 1 : mousePosition.x - x < -20 ? -1 : 0;
       const newTickLocation = current.tick + tickOffset;
 
-      copy.changeAt[selectedIndex] = {
+      const verticalPosition: LogicLevel =
+        mousePosition.y > 50 ? "low" : "high";
+
+      const change = {
         tick: newTickLocation,
-        output: current.output,
+        output: verticalPosition,
       };
+      copy.changeAt[selectedIndex] = change;
+      copy.changeAt.sort((a, b) => a.tick - b.tick);
+
+      setSelectedIndex(copy.changeAt.indexOf(change));
+
       updateConfig(copy);
     }
   }, [
@@ -111,13 +137,13 @@ export const WaveForm: React.FC<{
     ctx.strokeStyle = "green";
     ctx.lineWidth = 7;
 
-    const startY = pixelHeight(bulbconfig.changeAt[0]);
+    const startY = pixelHeight(bulbconfig.changeAt[0], undefined);
     ctx.moveTo(horizontalPadding, startY);
 
     let previousY = startY;
     bulbconfig.changeAt.forEach((change, index) => {
       const x = horizontalPadding + change.tick * scaleFactor;
-      const y = pixelHeight(change);
+      const y = pixelHeight(change, undefined);
       if (index !== 0) {
         ctx.lineTo(x, previousY);
       }
@@ -133,18 +159,47 @@ export const WaveForm: React.FC<{
     ctx.stroke();
 
     // index markers
-    ctx.fillStyle = "black";
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 1;
-    bulbconfig.changeAt.forEach((change, index) => {
+    const previewMarker = () => {
+      if (selectedIndex === undefined) return;
+      ctx.fillStyle = "#222222";
+      ctx.strokeStyle = "#777777";
+
+      const change = bulbconfig.changeAt[selectedIndex];
       const x = horizontalPadding + change.tick * scaleFactor;
-      const y = pixelHeight(change);
+      const y = pixelHeight(change, undefined);
+      renderMarker(x, y, selectedIndex);
+    };
+
+    const tickMarker = (change: LogicLevelChange, index: number) => {
+      ctx.fillStyle = "black";
+      ctx.strokeStyle = "white";
+      const x =
+        index === selectedIndex
+          ? mousePosition.x
+          : horizontalPadding + change.tick * scaleFactor;
+      const y = pixelHeight(change, index);
+      renderMarker(x, y, index);
+    };
+
+    const renderMarker = (x: number, y: number, index: number) => {
+      ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.arc(x, y, indexCircleRadius, 0, 360);
       ctx.fill();
       ctx.stroke();
-      ctx.strokeText(index + "", x - 3, y + 4);
-      previousY = y;
+      const text = index + "";
+      const metrics = ctx.measureText(text);
+      ctx.strokeText(
+        text,
+        x - metrics.width / 2,
+        y + metrics.hangingBaseline / 2,
+      );
+    };
+
+    previewMarker();
+    bulbconfig.changeAt.forEach((change, index) => {
+      tickMarker(change, index);
+      previousY = pixelHeight(change, index);
     });
 
     return () => {
@@ -155,7 +210,10 @@ export const WaveForm: React.FC<{
     canvasRef.current?.offsetHeight,
     canvasRef.current?.offsetWidth,
     horizontalPadding,
+    mousePosition.x,
     scaleFactor,
+    selectedIndex,
+    pixelHeight,
   ]);
 
   const onMouseEnter = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
@@ -179,6 +237,32 @@ export const WaveForm: React.FC<{
     setMousePosition({ x, y });
   }, []);
 
+  const onTouchMove = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.touches.item(0).clientX - rect.left;
+    const y = e.touches.item(0).clientY - rect.top;
+    setMousePosition({ x, y });
+  }, []);
+
+  const onAddChange = useCallback(() => {
+    const copy = { ...bulbconfig };
+    const lastIndex = copy.changeAt.length - 1;
+    const last = copy.changeAt[lastIndex];
+    const newChange: LogicLevelChange = {
+      tick: last ? last.tick + 1 : 0,
+      output: "high",
+    };
+    copy.changeAt = copy.changeAt.concat([newChange]);
+    copy.totalTicks = Math.max(copy.totalTicks, newChange.tick);
+    updateConfig(copy);
+  }, [bulbconfig, updateConfig]);
+
+  const onRemoveChange = useCallback(() => {
+    const copy = { ...bulbconfig };
+    copy.changeAt = copy.changeAt.slice(0, -1);
+    updateConfig(copy);
+  }, [bulbconfig, updateConfig]);
+
   return (
     <div>
       <canvas
@@ -191,7 +275,12 @@ export const WaveForm: React.FC<{
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onMouseMove={onMouseMove}
+        onTouchStart={onMouseDown}
+        onTouchEnd={onMouseUp}
+        onTouchMove={onTouchMove}
       />
+      <Button onClick={onAddChange}>Add</Button>
+      <Button onClick={onRemoveChange}>Remove</Button>
     </div>
   );
 };
