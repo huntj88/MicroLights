@@ -133,30 +133,35 @@ export const WaveForm: React.FC<{
       return;
     }
 
-    ctx.beginPath();
-    ctx.strokeStyle = "green";
+    let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
+    let previousX = horizontalPadding;
     ctx.lineWidth = 7;
+    ctx.strokeStyle = bulbconfig.changeAt[0].output == "high" ? "green" : "red"
 
-    const startY = pixelHeight(bulbconfig.changeAt[0], undefined);
-    ctx.moveTo(horizontalPadding, startY);
+    ctx.beginPath();
+    ctx.moveTo(previousX, previousY);
+    ctx.lineTo(horizontalPadding + bulbconfig.changeAt[0].tick * scaleFactor, previousY)
 
-    let previousY = startY;
-    bulbconfig.changeAt.forEach((change, index) => {
+    bulbconfig.changeAt.forEach((change) => {
       const x = horizontalPadding + change.tick * scaleFactor;
       const y = pixelHeight(change, undefined);
-      if (index !== 0) {
-        ctx.lineTo(x, previousY);
+
+      const offsetX = change.output == "high" ? - 3 : 3;
+      const offsetY = change.output == "high" ? 3 : -3;
+      ctx.lineTo(x + offsetX, previousY)
+
+      if (previousY !== y) {
+        ctx.stroke()
+        ctx.beginPath();
+        ctx.strokeStyle = change.output == "high" ? "green" : "red";
+        ctx.moveTo(x, previousY + offsetY)
       }
-      ctx.lineTo(x, y);
+
+      ctx.lineTo(x, y)
+
+      previousX = x;
       previousY = y;
-    });
-
-    ctx.lineTo(
-      horizontalPadding + bulbconfig.totalTicks * scaleFactor,
-      previousY,
-    );
-
-    ctx.stroke();
+    })
 
     // index markers
     const previewMarker = () => {
