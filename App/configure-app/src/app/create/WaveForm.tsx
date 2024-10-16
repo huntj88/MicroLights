@@ -133,35 +133,43 @@ export const WaveForm: React.FC<{
       return;
     }
 
-    let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
     let previousX = horizontalPadding;
+    let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
     ctx.lineWidth = 7;
     ctx.strokeStyle = bulbconfig.changeAt[0].output == "high" ? "green" : "red"
 
     ctx.beginPath();
     ctx.moveTo(previousX, previousY);
+    // render first horizontal bar before first config
     ctx.lineTo(horizontalPadding + bulbconfig.changeAt[0].tick * scaleFactor, previousY)
 
     bulbconfig.changeAt.forEach((change) => {
       const x = horizontalPadding + change.tick * scaleFactor;
       const y = pixelHeight(change, undefined);
 
-      const offsetX = change.output == "high" ? - 3 : 3;
-      const offsetY = change.output == "high" ? 3 : -3;
-      ctx.lineTo(x + offsetX, previousY)
+      const renderOffsetX = change.output == "high" ? - 3 : 3;
+      const renderOffsetY = change.output == "high" ? 3 : -3;
+      
+      // horizontal bar
+      ctx.lineTo(x + renderOffsetX, previousY)
 
       if (previousY !== y) {
         ctx.stroke()
         ctx.beginPath();
         ctx.strokeStyle = change.output == "high" ? "green" : "red";
-        ctx.moveTo(x, previousY + offsetY)
+        ctx.moveTo(x, previousY + renderOffsetY)
       }
 
+      // vertical bar
       ctx.lineTo(x, y)
 
       previousX = x;
       previousY = y;
     })
+
+    // render last horizontal bar after last config
+    ctx.lineTo(horizontalPadding + bulbconfig.totalTicks * scaleFactor, previousY)
+    ctx.stroke()
 
     // index markers
     const previewMarker = () => {
