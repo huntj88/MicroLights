@@ -133,46 +133,58 @@ export const WaveForm: React.FC<{
       return;
     }
 
-    let previousX = horizontalPadding;
-    let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
-    ctx.lineWidth = 7;
-    ctx.strokeStyle = bulbconfig.changeAt[0].output == "high" ? "green" : "red"
+    const renderWaveFormLines = () => {
+      let previousX = horizontalPadding;
+      let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
 
-    ctx.beginPath();
-    ctx.moveTo(previousX, previousY);
-    // render first horizontal bar before first config
-    ctx.lineTo(horizontalPadding + bulbconfig.changeAt[0].tick * scaleFactor, previousY)
+      const colorOn = "green";
+      const colorOff = "#CC0000";
+      ctx.strokeStyle =
+        bulbconfig.changeAt[0].output == "high" ? colorOn : colorOff;
+      ctx.lineWidth = 7;
 
-    bulbconfig.changeAt.forEach((change) => {
-      const x = horizontalPadding + change.tick * scaleFactor;
-      const y = pixelHeight(change, undefined);
+      ctx.beginPath();
+      ctx.moveTo(previousX, previousY);
+      // render first horizontal bar before first config
+      ctx.lineTo(
+        horizontalPadding + bulbconfig.changeAt[0].tick * scaleFactor,
+        previousY,
+      );
 
-      const renderOffsetX = change.output == "high" ? - 3 : 3;
-      const renderOffsetY = change.output == "high" ? 3 : -3;
-      
-      // horizontal bar
-      ctx.lineTo(x + renderOffsetX, previousY)
+      bulbconfig.changeAt.forEach((change) => {
+        const x = horizontalPadding + change.tick * scaleFactor;
+        const y = pixelHeight(change, undefined);
 
-      if (previousY !== y) {
-        ctx.stroke()
-        ctx.beginPath();
-        ctx.strokeStyle = change.output == "high" ? "green" : "red";
-        ctx.moveTo(x, previousY + renderOffsetY)
-      }
+        const renderOffsetX = change.output == "high" ? -3 : 3;
+        const renderOffsetY = change.output == "high" ? 3 : -3;
 
-      // vertical bar
-      ctx.lineTo(x, y)
+        // horizontal bar
+        ctx.lineTo(x + renderOffsetX, previousY);
 
-      previousX = x;
-      previousY = y;
-    })
+        if (previousY !== y) {
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.strokeStyle = change.output == "high" ? colorOn : colorOff;
+          ctx.moveTo(x, previousY + renderOffsetY);
+        }
 
-    // render last horizontal bar after last config
-    ctx.lineTo(horizontalPadding + bulbconfig.totalTicks * scaleFactor, previousY)
-    ctx.stroke()
+        // vertical bar
+        ctx.lineTo(x, y);
+
+        previousX = x;
+        previousY = y;
+      });
+
+      // render last horizontal bar after last config
+      ctx.lineTo(
+        horizontalPadding + bulbconfig.totalTicks * scaleFactor,
+        previousY,
+      );
+      ctx.stroke();
+    };
 
     // index markers
-    const previewMarker = () => {
+    const renderPreviewMarker = () => {
       if (selectedIndex === undefined) return;
       ctx.fillStyle = "#222222";
       ctx.strokeStyle = "#777777";
@@ -183,7 +195,7 @@ export const WaveForm: React.FC<{
       renderMarker(x, y, selectedIndex);
     };
 
-    const tickMarker = (change: LogicLevelChange, index: number) => {
+    const renderTickMarker = (change: LogicLevelChange, index: number) => {
       ctx.fillStyle = "black";
       ctx.strokeStyle = "white";
       const x =
@@ -209,10 +221,10 @@ export const WaveForm: React.FC<{
       );
     };
 
-    previewMarker();
+    renderWaveFormLines();
+    renderPreviewMarker();
     bulbconfig.changeAt.forEach((change, index) => {
-      tickMarker(change, index);
-      previousY = pixelHeight(change, index);
+      renderTickMarker(change, index);
     });
 
     return () => {
