@@ -134,22 +134,21 @@ export const WaveForm: React.FC<{
     }
 
     const renderWaveFormLines = () => {
+      const defaultIfEmpty = { output: "high", tick: 0 };
+      const firstChange = bulbconfig.changeAt[0] ?? defaultIfEmpty;
+
       let previousX = horizontalPadding;
-      let previousY = pixelHeight(bulbconfig.changeAt[0], undefined);
+      let previousY = pixelHeight(firstChange, undefined);
 
       const colorOn = "green";
       const colorOff = "#CC0000";
-      ctx.strokeStyle =
-        bulbconfig.changeAt[0].output == "high" ? colorOn : colorOff;
+      ctx.strokeStyle = firstChange.output == "high" ? colorOn : colorOff;
       ctx.lineWidth = 7;
 
       ctx.beginPath();
       ctx.moveTo(previousX, previousY);
       // render first horizontal bar before first config
-      ctx.lineTo(
-        horizontalPadding + bulbconfig.changeAt[0].tick * scaleFactor,
-        previousY,
-      );
+      ctx.lineTo(horizontalPadding + firstChange.tick * scaleFactor, previousY);
 
       bulbconfig.changeAt.forEach((change) => {
         const x = horizontalPadding + change.tick * scaleFactor;
