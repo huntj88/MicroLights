@@ -1764,6 +1764,15 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C15850"
+			(at 99.06 99.0599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "5047cc73-98ec-4698-b1a7-04fb31efc8f3")
 		)
@@ -1960,6 +1969,15 @@
 		)
 		(property "Description" "https://www.ti.com/lit/ds/symlink/bq25180.pdf"
 			(at 75.184 89.408 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C3682423"
+			(at 55.88 104.14 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2357,6 +2375,15 @@
 				(hide yes)
 			)
 		)
+		(property "LCSC" "C1712"
+			(at 56.388 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
 		(pin "1"
 			(uuid "ee306224-8fe4-40de-84c9-9c50ef4d611c")
 		)
@@ -2417,6 +2444,15 @@
 		)
 		(property "Description" "Resistor, small symbol"
 			(at 121.92 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C17414"
+			(at 122.174 90.932 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2687,6 +2723,15 @@
 		)
 		(property "Description" "Unpolarized capacitor"
 			(at 114.3 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C1712"
+			(at 118.11 104.1399 0)
 			(effects
 				(font
 					(size 1.27 1.27)

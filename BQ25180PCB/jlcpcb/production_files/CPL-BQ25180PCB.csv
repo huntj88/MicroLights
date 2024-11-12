@@ -1,0 +1,8 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+C1,1uF 25v,C_0805_2012Metric,30.695,-20.975,0.0,top
+C2,10uF,C_0805_2012Metric,34.595,-22.275,180.0,top
+C3,1uF 25v,C_0805_2012Metric,34.645,-24.975,180.0,top
+J1,Conn_01x04_Socket,PinSocket_1x04_P2.54mm_Vertical,26.655,-24.835,0.0,top
+J3,Conn_01x04_Socket,PinSocket_1x04_P2.54mm_Vertical,39.355,-24.835,0.0,top
+R1,10k,R_0805_2012Metric,30.58,-29.02,0.0,top
+U1,BQ25180,BQ25180,31.495,-23.675,0.0,top

@@ -1,0 +1,6 @@
+Comment,Designator,Footprint,LCSC
+10uF,C2,C_0805_2012Metric,C15850
+1uF 25v,"C1,C3",C_0805_2012Metric,C1712
+10k,R1,R_0805_2012Metric,C17414
+Conn_01x04_Socket,"J1,J3",PinSocket_1x04_P2.54mm_Vertical,C2718488
+BQ25180,U1,BQ25180,C3682423
