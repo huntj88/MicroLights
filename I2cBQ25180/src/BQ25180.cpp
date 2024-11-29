@@ -130,6 +130,7 @@ void dumpStat1Register(Adafruit_I2CDevice * i2c) {
     // Bitwise extraction for each bit field
     bool VIN_OVP_STAT = flags & 0b10000000;
     bool BUVLO_STAT = flags & 0b01000000;
+    bool RESERVED = flags & 0b00100000;  // This is reserved, but we check it for completeness
     uint8 TS_STAT_1_0 = (flags & 0b00011000) >> 3;  // Bits 4-3 for TS Status (2 bits)
     bool SAFETY_TMR_FAULT_FLAG = flags & 0b00000100;
     bool WAKE1_FLAG = flags & 0b00000010;
@@ -155,7 +156,11 @@ void dumpStat1Register(Adafruit_I2CDevice * i2c) {
 
     // RESERVED (Bit 5)
     Serial.println("Bit 5 RESERVED");
-    Serial.println(" 0 Reserved bit, no valid status");
+    if (RESERVED) {
+        Serial.println(" 1 Reserved bit, no valid status.");
+    } else {
+        Serial.println(" 0 Reserved bit, no valid status.");
+    }
 
     // TS_STAT_1:0 (Bits 4-3)
     Serial.println("Bits 4-3 TS_STAT_1:0");
