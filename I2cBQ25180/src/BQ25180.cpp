@@ -1284,9 +1284,11 @@ void BQ25180::dumpInfo()
 
 // SYS_REG_CTRL_2: 3b000 = Battery Tracking Mode, more efficient use of power?
 // VBATREG_6: 4.4v, (3.5v) + (90 * 10mV), 90 = 0b1011010
+// VBATREG_6: 4.3v, (3.5v) + (80 * 10mV), 80 = 0b1010000
 
 // maybe start at like 50, instead of 70?
-// ICHG_6: 70 milliamp, 40 + ((34) - 31) * 10, 33 = 0b100010
+// ICHG_6: 70 milliamp, 40 + ((34) - 31) * 10, 34 = 0b100010
+// ICHG_6: 50 milliamp, 40 + ((32) - 31) * 10, 32 = 0b100000
 
 // TS_EN: 1b0 = TS auto function disabled (Only charge control is disabled. TS monitoring is enabled)
 

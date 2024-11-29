@@ -16,12 +16,12 @@
  * uint8_t STAT0 = 0x00; // Example initial value (all bits are 0)
  *
  * // Enable bit 2 (binary 00000100 = 0x04)
- * setBit(&STAT0, 00000100, 1);
+ * setBit(&STAT0, 0b00000100, 1);
  * setBit(&STAT0, 0x04, 1);
  * // Now STAT0 will be 0x04 (00000100)
  *
  * // Disable bit 5 (binary 00100000 = 0x20)
- * setBit(&STAT0, 00100000, 0);
+ * setBit(&STAT0, 0b00100000, 0);
  * setBit(&STAT0, 0x20, 0);
  * // Now STAT0 will still be 0x04 (00000100), since bit 5 is already 0
  *
