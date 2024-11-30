@@ -1,18 +1,16 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
-#include <SPI.h>
 #include "Wire.h"
-// #include "BQ25628.hpp"
+#include "BQ25180.hpp"
 #include "mcuRegisterAlias.hpp"
-#include "Screen.hpp"
 
 #define colorPWMFactor 4
 
-// BQ25628 chargerIC;
+BQ25180 chargerIC;
 
-uint8_t rTarget = 100;
-uint8_t gTarget = 100;
-uint8_t bTarget = 100;
+uint8_t rTarget = 0;
+uint8_t gTarget = 0;
+uint8_t bTarget = 20;
 
 void setup() {
   R_LED_reg.DIR |= R_LED_bm; // red led set mode output
@@ -28,21 +26,19 @@ void setup() {
 
   set_sleep_mode(SLEEP_MODE_IDLE);
 
+  if (chargerIC.begin()) {
+    gTarget = 20;
+  } else {
+    rTarget = 20;
+  }
+
+  // delay(1000);
+  
   sei();
-
-  setupScreen();
-  displayTitleSubtitle("hello", "brittani");
-
-  // Wire.beginTransmission(I2CADDR_DEFAULT);
-  // if (!chargerIC.begin()) {
-  //   rTarget = 100;
-  // } else {
-  //   gTarget = 100;
-  // }
 }
 
 void loop() {
-  sleep_mode();
+  // sleep_mode();
 }
 
 // count only used within the scope of TCA0_OVF_vect, volatile not needed
