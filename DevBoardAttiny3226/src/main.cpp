@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <avr/sleep.h>
 #include "Wire.h"
-#include "BQ25180.hpp"
 #include "mcuRegisterAlias.hpp"
+#include "battery/config.hpp"
 
 #define colorPWMFactor 4
 
@@ -41,12 +41,9 @@ void setup() {
 
   set_sleep_mode(SLEEP_MODE_IDLE);
 
-  if (chargerIC.begin()) {
-    chargerIC.dumpInfo();
-    gTarget = 20;
-  } else {
-    rTarget = 20;
-  }
+  setupBatteryCharger(&chargerIC);
+
+  rTarget = 20;
 
   // delay(1000);
   
@@ -54,6 +51,11 @@ void setup() {
 }
 
 void loop() {
+  // TODO: call setup regularly to prevent charger ic watchdog from resetting, or disable watchdog?
+  // setupBatteryCharger(&chargerIC);
+
+  // TODO: sleep mode not working.
+  // Serial.println("loop");
   // sleep_mode();
 }
 
