@@ -6,6 +6,8 @@
 
 #define colorPWMFactor 4
 
+// TODO: Important: For lowest power consumption, disable the digital input buffer of unused pins and pins that are used as analog inputs or outputs
+
 BQ25180 chargerIC;
 
 uint8_t rTarget = 0;
@@ -42,6 +44,7 @@ void setup() {
   set_sleep_mode(SLEEP_MODE_IDLE);
 
   setupBatteryCharger(&chargerIC);
+  chargerIC.dumpInfo();
 
   rTarget = 20;
 
@@ -50,13 +53,30 @@ void setup() {
   sei();
 }
 
-void loop() {
-  // TODO: call setup regularly to prevent charger ic watchdog from resetting, or disable watchdog?
-  // setupBatteryCharger(&chargerIC);
+int watchdogResetCount = 0;
+int watchdogResetCountScaled = 0;
 
-  // TODO: sleep mode not working.
-  // Serial.println("loop");
-  // sleep_mode();
+// TODO: extend or even disable watchdog timer via i2c? by default it resets every 40 seconds
+// send i2c command every ~30 seconds to charger to refresh watchdog timer
+void handleChargerIcWatchdogTimer() {
+   watchdogResetCount++;
+
+  if (watchdogResetCount == 0b11111111) {
+    watchdogResetCount = 0;
+
+    watchdogResetCountScaled++;
+    if (watchdogResetCountScaled > 350) {
+      Serial.println("resetting charger ic watchdog timer");
+      watchdogResetCountScaled = 0;
+
+      setupBatteryCharger(&chargerIC);
+    }
+  }
+}
+
+void loop() {
+  handleChargerIcWatchdogTimer();
+  sleep_mode();
 }
 
 // PORTC external interrupts

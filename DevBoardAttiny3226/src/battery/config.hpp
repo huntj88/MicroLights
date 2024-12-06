@@ -71,11 +71,12 @@ void setupBatteryCharger(BQ25180 *chargerIC)
 {
   if (chargerIC->begin())
   {
-    if (configureRegister_IC_CTRL(chargerIC) && configureRegister_ICHG_CTRL(chargerIC) && configureRegister_VBAT_CTRL(chargerIC) && configureRegister_CHARGECTRL1(chargerIC) && configureRegister_MASK_ID(chargerIC))
-    {
-      chargerIC->dumpInfo();
-    }
-    else
+    bool didConfig = configureRegister_IC_CTRL(chargerIC) &&
+                     configureRegister_ICHG_CTRL(chargerIC) &&
+                     configureRegister_VBAT_CTRL(chargerIC) &&
+                     configureRegister_CHARGECTRL1(chargerIC) &&
+                     configureRegister_MASK_ID(chargerIC);
+    if (!didConfig)
     {
       Serial.println("write error");
     }
