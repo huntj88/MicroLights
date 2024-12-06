@@ -12,6 +12,11 @@ uint8_t rTarget = 0;
 uint8_t gTarget = 0;
 uint8_t bTarget = 0;
 
+void configButtonInterrupt() {
+  PORTC.PIN2CTRL |= (1 << PORT_PULLUPEN_bp); // pullup enable
+  PORTC.PIN2CTRL |= 0x3; // Input/Sense Configuration, falling edge detection
+}
+
 void setup() {
 
   // oscillator calibration config
@@ -24,6 +29,8 @@ void setup() {
   R_LED_reg.DIR |= R_LED_bm; // red led set mode output
   G_LED_reg.DIR |= G_LED_bm; // green led set mode output
   B_LED_reg.DIR |= B_LED_bm; // blue led set mode output
+
+  configButtonInterrupt();
 
   // CCP = CCP_IOREG_gc;
   // CLKCTRL.MCLKCTRLB |= 0x4 | CLKCTRL_PEN_bm;  // div 32 main clock prescaler, clock prescaler enabled
@@ -48,6 +55,13 @@ void setup() {
 
 void loop() {
   // sleep_mode();
+}
+
+// PORTC external interrupts
+ISR(PORTC_PORT_vect) {
+  // only using PC2 right now, always clear PC2
+  PORTC.INTFLAGS |= PIN2_bm; // clear interrupt flag
+  Serial.println("interrupt");
 }
 
 // count only used within the scope of TCA0_OVF_vect, volatile not needed
