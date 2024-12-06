@@ -10,9 +10,17 @@ BQ25180 chargerIC;
 
 uint8_t rTarget = 0;
 uint8_t gTarget = 0;
-uint8_t bTarget = 20;
+uint8_t bTarget = 0;
 
 void setup() {
+
+  // oscillator calibration config
+  CCP = CCP_IOREG_gc;
+  FUSE.OSCCFG &= ~(1 << FUSE_OSCLOCK_bp); // oscillator unlocked, can make config changes
+  CCP = CCP_IOREG_gc;
+  CLKCTRL.OSC20MCALIBA = 0b0100100; // oscillator adjustment value, this value is likely to be different for each mcu
+
+  Serial.begin(9600);
   R_LED_reg.DIR |= R_LED_bm; // red led set mode output
   G_LED_reg.DIR |= G_LED_bm; // green led set mode output
   B_LED_reg.DIR |= B_LED_bm; // blue led set mode output
@@ -27,6 +35,7 @@ void setup() {
   set_sleep_mode(SLEEP_MODE_IDLE);
 
   if (chargerIC.begin()) {
+    chargerIC.dumpInfo();
     gTarget = 20;
   } else {
     rTarget = 20;
