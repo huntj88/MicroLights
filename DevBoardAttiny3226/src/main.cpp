@@ -14,9 +14,14 @@ uint8_t rTarget = 0;
 uint8_t gTarget = 0;
 uint8_t bTarget = 0;
 
-void configButtonInterrupt() {
+void configChargerInterrupt() {
   PORTC.PIN2CTRL |= (1 << PORT_PULLUPEN_bp); // pullup enable
   PORTC.PIN2CTRL |= 0x3; // Input/Sense Configuration, falling edge detection
+}
+
+void configButtonInterrupt() {
+  PORTA.PIN2CTRL |= (1 << PORT_PULLUPEN_bp); // pullup enable
+  PORTA.PIN2CTRL |= 0x3; // Input/Sense Configuration, falling edge detection
 }
 
 void setup() {
@@ -33,6 +38,7 @@ void setup() {
   B_LED_reg.DIR |= B_LED_bm; // blue led set mode output
 
   configButtonInterrupt();
+  configChargerInterrupt();
 
   // CCP = CCP_IOREG_gc;
   // CLKCTRL.MCLKCTRLB |= 0x4 | CLKCTRL_PEN_bm;  // div 32 main clock prescaler, clock prescaler enabled
@@ -46,7 +52,9 @@ void setup() {
   setupBatteryCharger(&chargerIC);
   chargerIC.dumpInfo();
 
-  rTarget = 20;
+  rTarget = 120;
+  gTarget = 120;
+  bTarget = 120;
 
   // delay(1000);
   
@@ -65,7 +73,7 @@ void handleChargerIcWatchdogTimer() {
     watchdogResetCount = 0;
 
     watchdogResetCountScaled++;
-    if (watchdogResetCountScaled > 350) {
+    if (watchdogResetCountScaled > 400) {
       Serial.println("resetting charger ic watchdog timer");
       watchdogResetCountScaled = 0;
 
@@ -74,8 +82,14 @@ void handleChargerIcWatchdogTimer() {
   }
 }
 
+volatile bool dump = false;
+
 void loop() {
   handleChargerIcWatchdogTimer();
+  if (dump) {
+    dump = false;
+    chargerIC.dumpInfo();
+  }
   sleep_mode();
 }
 
@@ -83,7 +97,16 @@ void loop() {
 ISR(PORTC_PORT_vect) {
   // only using PC2 right now, always clear PC2
   PORTC.INTFLAGS |= PIN2_bm; // clear interrupt flag
-  Serial.println("interrupt");
+  Serial.println("interrupt C");
+
+  dump = true;
+}
+
+// PORTC external interrupts
+ISR(PORTA_PORT_vect) {
+  // only using PC2 right now, always clear PC2
+  PORTA.INTFLAGS |= PIN2_bm; // clear interrupt flag
+  Serial.println("interrupt A");
 }
 
 // count only used within the scope of TCA0_OVF_vect, volatile not needed

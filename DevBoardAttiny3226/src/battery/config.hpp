@@ -21,7 +21,10 @@ bool configureRegister_ICHG_CTRL(BQ25180 *chargerIC)
 bool configureRegister_VBAT_CTRL(BQ25180 *chargerIC)
 {
   // 4.3v, (3.5v) + (80 * 10mV), 80 = 0b1010000
-  return chargerIC->write(BQ25180_VBAT_CTRL, 0b01010000);
+  // return chargerIC->write(BQ25180_VBAT_CTRL, 0b01010000);
+
+  // 4160.00 mV
+  return chargerIC->write(BQ25180_VBAT_CTRL, 0b01000010);
 }
 
 bool configureRegister_CHARGECTRL1(BQ25180 *chargerIC)
