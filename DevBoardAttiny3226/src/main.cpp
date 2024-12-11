@@ -2,11 +2,12 @@
 #include <avr/sleep.h>
 #include "Wire.h"
 #include "mcuRegisterAlias.hpp"
-#include "battery/config.hpp"
+#include "battery/ChargerConfig.hpp"
 
 #define colorPWMFactor 4
 
 // TODO: Important: For lowest power consumption, disable the digital input buffer of unused pins and pins that are used as analog inputs or outputs
+// TODO: buck voltage regulator must have grounds connected, whoops, yay breadboard
 
 BQ25180 chargerIC;
 
@@ -43,7 +44,7 @@ void setup() {
   // CCP = CCP_IOREG_gc;
   // CLKCTRL.MCLKCTRLB |= 0x4 | CLKCTRL_PEN_bm;  // div 32 main clock prescaler, clock prescaler enabled
 
-  TCA0.SINGLE.PER = 120;  // period, count to from zero before firing interrupt
+  TCA0.SINGLE.PER = 60;  // period, count to from zero before firing interrupt
   TCA0.SINGLE.INTCTRL = TCA_SINGLE_OVF_bm;
   TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV64_gc | TCA_SINGLE_ENABLE_bm;  // enable counter with /64 counter prescaling
 
@@ -53,8 +54,8 @@ void setup() {
   chargerIC.dumpInfo();
 
   rTarget = 120;
-  gTarget = 120;
-  bTarget = 120;
+  gTarget = 90;
+  bTarget = 160;
 
   // delay(1000);
   

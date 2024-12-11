@@ -13,8 +13,8 @@ bool configureRegister_IC_CTRL(BQ25180 *chargerIC)
 bool configureRegister_ICHG_CTRL(BQ25180 *chargerIC)
 {
   // enable charging = bit 7 in data sheet 0
-  // 50 milliamp max charge current
-  return chargerIC->write(BQ25180_ICHG_CTRL, 0b00100000);
+  // 70 milliamp max charge current
+  return chargerIC->write(BQ25180_ICHG_CTRL, 0b00100010);
 }
 
 // TODO: change to 4.4v?
@@ -23,8 +23,8 @@ bool configureRegister_VBAT_CTRL(BQ25180 *chargerIC)
   // 4.3v, (3.5v) + (80 * 10mV), 80 = 0b1010000
   // return chargerIC->write(BQ25180_VBAT_CTRL, 0b01010000);
 
-  // 4160.00 mV
-  return chargerIC->write(BQ25180_VBAT_CTRL, 0b01000010);
+  // 4.4v, (3.5v) + (90 * 10mV), 90 = 0b1011010
+  return chargerIC->write(BQ25180_VBAT_CTRL, 0b01011010);
 }
 
 bool configureRegister_CHARGECTRL1(BQ25180 *chargerIC)
@@ -64,11 +64,8 @@ bool configureRegister_MASK_ID(BQ25180 *chargerIC)
   // Device_ID: A 4-bit field indicating the device ID.
   //   4b0000: Device ID for the BQ25180.
 
-  return chargerIC->write(BQ25180_MASK_ID, 0b01110000);
+  return chargerIC->write(BQ25180_MASK_ID, 0b00000000);
 }
-
-// TODO: SYS_REG_CTRL, SYS Regulation Voltage = Battery Tracking Mode
-// TODO: interrupt masks
 
 void setupBatteryCharger(BQ25180 *chargerIC)
 {
