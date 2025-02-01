@@ -40,14 +40,10 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
 
 I2C_HandleTypeDef hi2c1;
 
-SPI_HandleTypeDef hspi1;
-
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -56,10 +52,7 @@ UART_HandleTypeDef huart2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_ADC1_Init(void);
-static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
@@ -98,10 +91,7 @@ int main(void) {
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
-	MX_ADC1_Init();
-	MX_SPI1_Init();
 	MX_USART1_UART_Init();
-	MX_USART2_UART_Init();
 	MX_I2C1_Init();
 	/* USER CODE BEGIN 2 */
 
@@ -110,18 +100,27 @@ int main(void) {
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 
-
 	while (1) {
 		uint8_t writeBuffer[] = "R"; // DATA to send
-		uint8_t readBuffer[12]={0};
+		uint8_t readBuffer[12] = { 0 };
+		uint8_t readBatteryICBuffer[1] = { 0 };
 
-		HAL_StatusTypeDef statusOfReadRequest = HAL_I2C_Master_Transmit(&hi2c1, (0x6F << 1),
-							&writeBuffer, sizeof(writeBuffer), 1000);
+		HAL_StatusTypeDef statusOfReadRequest = HAL_I2C_Master_Transmit(&hi2c1,
+				(0x6F << 1), &writeBuffer, sizeof(writeBuffer), 1000);
 		HAL_Delay(500);
-		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, (0x6F << 1) | 0b00000001,
-						&readBuffer, sizeof(readBuffer), 1000);
+		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
+				(0x6F << 1), &readBuffer, sizeof(readBuffer), 1000);
 
-		HAL_UART_Transmit(&huart1, (uint8_t*) readBuffer, sizeof(readBuffer), 100);
+		HAL_UART_Transmit(&huart1, (uint8_t*) readBuffer, sizeof(readBuffer),
+				100);
+		HAL_Delay(1000);
+
+		read_register(0x6A << 1, 0x05, readBatteryICBuffer);
+		read_register(0x6A << 1, 0x06, readBatteryICBuffer);
+		read_register(0x6A << 1, 0x07, readBatteryICBuffer);
+		read_register(0x6A << 1, 0x03, readBatteryICBuffer);
+		read_register(0x6A << 1, 0x04, readBatteryICBuffer);
+
 		HAL_Delay(5000);
 
 		/* USER CODE END WHILE */
@@ -167,60 +166,6 @@ void SystemClock_Config(void) {
 }
 
 /**
- * @brief ADC1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_ADC1_Init(void) {
-
-	/* USER CODE BEGIN ADC1_Init 0 */
-
-	/* USER CODE END ADC1_Init 0 */
-
-	ADC_ChannelConfTypeDef sConfig = { 0 };
-
-	/* USER CODE BEGIN ADC1_Init 1 */
-
-	/* USER CODE END ADC1_Init 1 */
-
-	/** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-	 */
-	hadc1.Instance = ADC1;
-	hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
-	hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-	hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	hadc1.Init.ScanConvMode = ADC_SCAN_SEQ_FIXED;
-	hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-	hadc1.Init.LowPowerAutoWait = DISABLE;
-	hadc1.Init.LowPowerAutoPowerOff = DISABLE;
-	hadc1.Init.ContinuousConvMode = DISABLE;
-	hadc1.Init.NbrOfConversion = 1;
-	hadc1.Init.DiscontinuousConvMode = DISABLE;
-	hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-	hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	hadc1.Init.DMAContinuousRequests = DISABLE;
-	hadc1.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-	hadc1.Init.SamplingTimeCommon1 = ADC_SAMPLETIME_1CYCLE_5;
-	hadc1.Init.OversamplingMode = DISABLE;
-	hadc1.Init.TriggerFrequencyMode = ADC_TRIGGER_FREQ_HIGH;
-	if (HAL_ADC_Init(&hadc1) != HAL_OK) {
-		Error_Handler();
-	}
-
-	/** Configure Regular Channel
-	 */
-	sConfig.Channel = ADC_CHANNEL_8;
-	sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK) {
-		Error_Handler();
-	}
-	/* USER CODE BEGIN ADC1_Init 2 */
-
-	/* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
  * @brief I2C1 Initialization Function
  * @param None
  * @retval None
@@ -262,44 +207,6 @@ static void MX_I2C1_Init(void) {
 	/* USER CODE BEGIN I2C1_Init 2 */
 
 	/* USER CODE END I2C1_Init 2 */
-
-}
-
-/**
- * @brief SPI1 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI1_Init(void) {
-
-	/* USER CODE BEGIN SPI1_Init 0 */
-
-	/* USER CODE END SPI1_Init 0 */
-
-	/* USER CODE BEGIN SPI1_Init 1 */
-
-	/* USER CODE END SPI1_Init 1 */
-	/* SPI1 parameter configuration*/
-	hspi1.Instance = SPI1;
-	hspi1.Init.Mode = SPI_MODE_MASTER;
-	hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-	hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-	hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-	hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-	hspi1.Init.NSS = SPI_NSS_HARD_OUTPUT;
-	hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
-	hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-	hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-	hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-	hspi1.Init.CRCPolynomial = 7;
-	hspi1.Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
-	hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-	if (HAL_SPI_Init(&hspi1) != HAL_OK) {
-		Error_Handler();
-	}
-	/* USER CODE BEGIN SPI1_Init 2 */
-
-	/* USER CODE END SPI1_Init 2 */
 
 }
 
@@ -349,40 +256,6 @@ static void MX_USART1_UART_Init(void) {
 }
 
 /**
- * @brief USART2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USART2_UART_Init(void) {
-
-	/* USER CODE BEGIN USART2_Init 0 */
-
-	/* USER CODE END USART2_Init 0 */
-
-	/* USER CODE BEGIN USART2_Init 1 */
-
-	/* USER CODE END USART2_Init 1 */
-	huart2.Instance = USART2;
-	huart2.Init.BaudRate = 115200;
-	huart2.Init.WordLength = UART_WORDLENGTH_8B;
-	huart2.Init.StopBits = UART_STOPBITS_1;
-	huart2.Init.Parity = UART_PARITY_NONE;
-	huart2.Init.Mode = UART_MODE_TX_RX;
-	huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-	huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-	huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-	huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-	huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-	if (HAL_UART_Init(&huart2) != HAL_OK) {
-		Error_Handler();
-	}
-	/* USER CODE BEGIN USART2_Init 2 */
-
-	/* USER CODE END USART2_Init 2 */
-
-}
-
-/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -419,6 +292,20 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+void read_register(uint16_t devAddress, uint8_t register_pointer,
+		uint8_t *receive_buffer) {
+	// first set the register pointer to the register wanted to be read
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
+			devAddress, &register_pointer, 1, 1000); // note the & operator which gives us the address of the register_pointer variable
+
+	// receive the 2 x 8bit data into the receive buffer
+	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress,
+			receive_buffer, 2, 1000);
+
+	HAL_UART_Transmit(&huart1, (uint8_t*) receive_buffer,
+			sizeof(receive_buffer), 100);
+}
 
 /* USER CODE END 4 */
 
