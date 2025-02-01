@@ -20,7 +20,7 @@
 #include "main.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "bq25180.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,15 +110,17 @@ int main(void) {
 		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
 				(0x6F << 1), &readBuffer, sizeof(readBuffer), 1000);
 
-		HAL_UART_Transmit(&huart1, (uint8_t*) readBuffer, sizeof(readBuffer),
-				100);
+//		HAL_UART_Transmit(&huart1, (uint8_t*) readBuffer, sizeof(readBuffer),
+//				100);
 		HAL_Delay(1000);
 
-		read_register(0x6A << 1, 0x05, &readBatteryICBuffer);
-		read_register(0x6A << 1, 0x06, &readBatteryICBuffer);
-		read_register(0x6A << 1, 0x07, &readBatteryICBuffer);
-		read_register(0x6A << 1, 0x03, &readBatteryICBuffer);
-		read_register(0x6A << 1, 0x04, &readBatteryICBuffer);
+
+		configureChargerIC(&hi2c1);
+		read_register(0x6A << 1, BQ25180_IC_CTRL, &readBatteryICBuffer);
+		read_register(0x6A << 1, BQ25180_ICHG_CTRL, &readBatteryICBuffer);
+		read_register(0x6A << 1, BQ25180_VBAT_CTRL, &readBatteryICBuffer);
+		read_register(0x6A << 1, BQ25180_CHARGECTRL1, &readBatteryICBuffer);
+		read_register(0x6A << 1, BQ25180_MASK_ID, &readBatteryICBuffer);
 
 		HAL_Delay(5000);
 
