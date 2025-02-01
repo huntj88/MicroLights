@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -115,11 +114,11 @@ int main(void) {
 				100);
 		HAL_Delay(1000);
 
-		read_register(0x6A << 1, 0x05, readBatteryICBuffer);
-		read_register(0x6A << 1, 0x06, readBatteryICBuffer);
-		read_register(0x6A << 1, 0x07, readBatteryICBuffer);
-		read_register(0x6A << 1, 0x03, readBatteryICBuffer);
-		read_register(0x6A << 1, 0x04, readBatteryICBuffer);
+		read_register(0x6A << 1, 0x05, &readBatteryICBuffer);
+		read_register(0x6A << 1, 0x06, &readBatteryICBuffer);
+		read_register(0x6A << 1, 0x07, &readBatteryICBuffer);
+		read_register(0x6A << 1, 0x03, &readBatteryICBuffer);
+		read_register(0x6A << 1, 0x04, &readBatteryICBuffer);
 
 		HAL_Delay(5000);
 
@@ -295,16 +294,31 @@ static void MX_GPIO_Init(void) {
 
 void read_register(uint16_t devAddress, uint8_t register_pointer,
 		uint8_t *receive_buffer) {
-	// first set the register pointer to the register wanted to be read
+
 	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
-			devAddress, &register_pointer, 1, 1000); // note the & operator which gives us the address of the register_pointer variable
+			devAddress, &register_pointer, 1, 1000);
 
-	// receive the 2 x 8bit data into the receive buffer
 	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress,
-			receive_buffer, 2, 1000);
+			receive_buffer, 1, 1000);
 
-	HAL_UART_Transmit(&huart1, (uint8_t*) receive_buffer,
-			sizeof(receive_buffer), 100);
+	printBinary(*receive_buffer);
+}
+
+void printBinary(uint8_t num) {
+	char buffer[9] = { 0 };
+	char *bufferPtr = &buffer;
+
+	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
+	sprintf(bufferPtr + 8, "\n");
+
+	HAL_UART_Transmit(&huart1, &buffer, sizeof(buffer), 100);
 }
 
 /* USER CODE END 4 */
