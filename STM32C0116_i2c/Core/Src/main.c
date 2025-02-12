@@ -47,6 +47,8 @@ TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
 
+BQ25180 chargerIC;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -58,6 +60,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
+static void BQ25180_Init(void);
 
 /* USER CODE END PFP */
 
@@ -99,6 +102,7 @@ int main(void) {
 	MX_TIM1_Init();
 	/* USER CODE BEGIN 2 */
 
+	BQ25180_Init();
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
 	/* USER CODE END 2 */
@@ -119,13 +123,8 @@ int main(void) {
 
 		HAL_Delay(1000);
 
-		configureChargerIC(&hi2c1);
-		readRegister_STAT0(&hi2c1, &huart1,0x6A << 1);
-		read_register(0x6A << 1, BQ25180_IC_CTRL, &readBatteryICBuffer);
-		read_register(0x6A << 1, BQ25180_ICHG_CTRL, &readBatteryICBuffer);
-		read_register(0x6A << 1, BQ25180_VBAT_CTRL, &readBatteryICBuffer);
-		read_register(0x6A << 1, BQ25180_CHARGECTRL1, &readBatteryICBuffer);
-		read_register(0x6A << 1, BQ25180_MASK_ID, &readBatteryICBuffer);
+		configureChargerIC(&chargerIC);
+		readRegisters(&chargerIC);
 
 		HAL_Delay(5000);
 
@@ -377,33 +376,10 @@ static void MX_GPIO_Init(void) {
 
 /* USER CODE BEGIN 4 */
 
-void read_register(uint16_t devAddress, uint8_t register_pointer,
-		uint8_t *receive_buffer) {
-
-	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
-			devAddress, &register_pointer, 1, 1000);
-
-	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress,
-			receive_buffer, 1, 1000);
-
-	printBinary(*receive_buffer);
-}
-
-void printBinary(uint8_t num) {
-	char buffer[10] = { 0 };
-	char *bufferPtr = &buffer;
-
-	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
-	sprintf(bufferPtr + 8, "\n");
-
-	HAL_UART_Transmit(&huart1, &buffer, sizeof(buffer), 100);
+static void BQ25180_Init(void) {
+	chargerIC.hi2c = &hi2c1;
+	chargerIC.huart = &huart1;
+	chargerIC.devAddress = (0x6A << 1);
 }
 
 /* USER CODE END 4 */

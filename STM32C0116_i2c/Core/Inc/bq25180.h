@@ -40,8 +40,14 @@
 #define TS_CONTROL_DEFAULT 0b00000000  // Default value for TS_CONTROL register (Offset = 0xB)
 #define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
 
-void configureChargerIC(I2C_HandleTypeDef *hi2c);
-void readRegister_STAT0(I2C_HandleTypeDef *hi2c, UART_HandleTypeDef *huart, uint16_t devAddress);
+typedef struct BQ25180 {
+	I2C_HandleTypeDef *hi2c;
+	UART_HandleTypeDef *huart;
+	uint16_t devAddress;
+} BQ25180;
+
+void configureChargerIC(BQ25180 *chargerIC);
+void readRegisters(BQ25180 *chargerIC);
 
 
 #endif /* INC_BQ25180_H_ */
