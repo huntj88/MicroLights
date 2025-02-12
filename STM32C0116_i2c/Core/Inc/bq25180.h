@@ -41,6 +41,7 @@
 #define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
 
 void configureChargerIC(I2C_HandleTypeDef *hi2c);
+void readRegister_STAT0(I2C_HandleTypeDef *hi2c, UART_HandleTypeDef *huart, uint16_t devAddress);
 
 
 #endif /* INC_BQ25180_H_ */

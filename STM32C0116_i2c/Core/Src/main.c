@@ -117,11 +117,10 @@ int main(void) {
 		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
 				(0x6F << 1), &readBuffer, sizeof(readBuffer), 1000);
 
-//		HAL_UART_Transmit(&huart1, (uint8_t*) readBuffer, sizeof(readBuffer),
-//				100);
 		HAL_Delay(1000);
 
 		configureChargerIC(&hi2c1);
+		readRegister_STAT0(&hi2c1, &huart1,0x6A << 1);
 		read_register(0x6A << 1, BQ25180_IC_CTRL, &readBatteryICBuffer);
 		read_register(0x6A << 1, BQ25180_ICHG_CTRL, &readBatteryICBuffer);
 		read_register(0x6A << 1, BQ25180_VBAT_CTRL, &readBatteryICBuffer);
@@ -391,7 +390,7 @@ void read_register(uint16_t devAddress, uint8_t register_pointer,
 }
 
 void printBinary(uint8_t num) {
-	char buffer[9] = { 0 };
+	char buffer[10] = { 0 };
 	char *bufferPtr = &buffer;
 
 	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
