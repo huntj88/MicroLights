@@ -109,8 +109,14 @@ int main(void) {
 	/* USER CODE BEGIN 2 */
 
 	BQ25180_Init();
+
+	// Blue
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+
+	// Green
 	HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+
+	// Red
 	HAL_TIM_PWM_Start(&htim14, TIM_CHANNEL_1);
 
 	/* USER CODE END 2 */
@@ -334,7 +340,7 @@ static void MX_TIM3_Init(void) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = 9600;
+	sConfigOC.Pulse = 5000;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1)
@@ -377,7 +383,7 @@ static void MX_TIM14_Init(void) {
 		Error_Handler();
 	}
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = 9600;
+	sConfigOC.Pulse = 1000;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	if (HAL_TIM_PWM_ConfigChannel(&htim14, &sConfigOC, TIM_CHANNEL_1)
