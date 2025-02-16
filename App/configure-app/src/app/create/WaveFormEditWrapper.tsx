@@ -9,9 +9,19 @@ import { WaveFormConfig, WaveForm, LogicLevelChange } from "./WaveForm";
 import { firstThenAllBulbConfig } from "../config";
 import { useLocalStorage } from "../useLocalStorage";
 import { useCallback, useEffect, useState } from "react";
+import dynamic from 'next/dynamic'
 
-export default function WaveFormEditWrapper() {
-  const [storedConfig, setStoredConfig] = useLocalStorage("firstThenAllBulbConfig", firstThenAllBulbConfig);
+export interface WaveFormEditWrapperProps {
+  name: string;
+}
+
+// dyanmic import to prevent server side rendering, localStorage is not available on the server
+export const WaveFormEditWrapper: React.ComponentType<WaveFormEditWrapperProps> = dynamic(() =>
+  import("./WaveFormEditWrapper").then(x => x.WaveFormEditWrapperInternal), { ssr: false }
+)
+
+export const WaveFormEditWrapperInternal: React.FC<WaveFormEditWrapperProps> = ({ name }) => {
+  const [storedConfig, setStoredConfig] = useLocalStorage(name, firstThenAllBulbConfig);
   const [json, setJson] = useState<string>(
     JSON.stringify(storedConfig, null, 2),
   );
@@ -93,4 +103,4 @@ export default function WaveFormEditWrapper() {
       />
     </div>
   );
-}
+};
