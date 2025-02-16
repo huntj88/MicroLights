@@ -30,9 +30,11 @@ export const WaveForm: React.FC<{
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(
     canvasRef.current,
   );
+
+  const height = 200;
   const scaleFactor = (canvasRef.current?.width ?? 0) / 71.5;
   const horizontalPadding = (canvasRef.current?.width ?? 0) / 100;
-  const indexCircleRadius = 10;
+  const indexCircleRadius = 17;
   const topPadding = 5;
 
   const [mousePressed, setMousePressed] = useState(false);
@@ -48,7 +50,7 @@ export const WaveForm: React.FC<{
       if (index !== undefined && selectedIndex === index && mousePressed) {
         return mousePosition.y;
       }
-      return (change?.output === "high" ? 10 : 90) + topPadding;
+      return (change?.output === "high" ? indexCircleRadius : height - indexCircleRadius) + topPadding;
     },
     [selectedIndex, mousePressed, mousePosition],
   );
@@ -60,6 +62,7 @@ export const WaveForm: React.FC<{
     }
   }, [canvas, canvasRef.current?.offsetHeight, canvasRef.current?.offsetWidth]);
 
+  // handles selecting new marker
   useEffect(() => {
     if (!mousePressed) {
       setSelectedIndex(undefined);
@@ -94,6 +97,7 @@ export const WaveForm: React.FC<{
     selectedIndex,
   ]);
 
+  // handles moving the selected index around
   useEffect(() => {
     if (selectedIndex !== undefined) {
       const copy = { ...bulbconfig };
@@ -105,7 +109,7 @@ export const WaveForm: React.FC<{
       const newTickLocation = current.tick + tickOffset;
 
       const verticalPosition: LogicLevel =
-        mousePosition.y > 50 ? "low" : "high";
+        mousePosition.y > height / 2 ? "low" : "high";
 
       const change = {
         tick: newTickLocation,
@@ -185,7 +189,7 @@ export const WaveForm: React.FC<{
     // index markers
     const renderPreviewMarker = () => {
       if (selectedIndex === undefined) return;
-      ctx.fillStyle = "#222222";
+      ctx.fillStyle = "#222222aa";
       ctx.strokeStyle = "#777777";
 
       const change = bulbconfig.changeAt[selectedIndex];
@@ -195,7 +199,7 @@ export const WaveForm: React.FC<{
     };
 
     const renderTickMarker = (change: LogicLevelChange, index: number) => {
-      ctx.fillStyle = "black";
+      ctx.fillStyle = "#000000aa";
       ctx.strokeStyle = "white";
       const x =
         index === selectedIndex
@@ -246,8 +250,9 @@ export const WaveForm: React.FC<{
     }
   }, []);
 
-  const onMouseDown = useCallback(() => {
+  const onMouseDown = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
     setMousePressed(true);
+    onMouseMove(e)
   }, []);
 
   const onMouseUp = useCallback(() => {
@@ -259,6 +264,11 @@ export const WaveForm: React.FC<{
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     setMousePosition({ x, y });
+  }, []);
+
+  const onTouchDown = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
+    setMousePressed(true);
+    onTouchMove(e)
   }, []);
 
   const onTouchMove = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
@@ -294,12 +304,12 @@ export const WaveForm: React.FC<{
           canvasRef.current = ref;
           setCanvas(ref);
         }}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: height + topPadding + 1 }}
         onMouseEnter={onMouseEnter}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
         onMouseMove={onMouseMove}
-        onTouchStart={onMouseDown}
+        onTouchStart={onTouchDown}
         onTouchEnd={onMouseUp}
         onTouchMove={onTouchMove}
       />
