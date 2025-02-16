@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "tauri": "tauri",
-    "doctor": "npx prettier . --write && npx eslint --fix src"
+    "doctor": "next lint && npx prettier . --write && npx eslint --fix src"
   },
   "dependencies": {
     "@fluentui/react-color-picker-preview": "^0.1.6",

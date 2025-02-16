@@ -100,6 +100,7 @@ export const WaveForm: React.FC<WaveFormProps> = (props: {
       }
     });
   }, [
+    canEdit,
     config,
     horizontalPadding,
     mousePressed,
@@ -137,6 +138,7 @@ export const WaveForm: React.FC<WaveFormProps> = (props: {
     }
   }, [
     // bulbConfig intentionally excluded. TODO: lint rule
+    canEdit,
     horizontalPadding,
     mousePosition,
     scaleFactor,
@@ -263,15 +265,6 @@ export const WaveForm: React.FC<WaveFormProps> = (props: {
     }
   }, []);
 
-  const onMouseDown = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
-    setMousePressed(true);
-    onMouseMove(e);
-  }, []);
-
-  const onMouseUp = useCallback(() => {
-    setMousePressed(false);
-  }, []);
-
   const onMouseMove = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -279,9 +272,16 @@ export const WaveForm: React.FC<WaveFormProps> = (props: {
     setMousePosition({ x, y });
   }, []);
 
-  const onTouchDown = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
-    setMousePressed(true);
-    onTouchMove(e);
+  const onMouseDown = useCallback(
+    (e: MouseEvent<HTMLCanvasElement>) => {
+      setMousePressed(true);
+      onMouseMove(e);
+    },
+    [onMouseMove],
+  );
+
+  const onMouseUp = useCallback(() => {
+    setMousePressed(false);
   }, []);
 
   const onTouchMove = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
@@ -290,6 +290,14 @@ export const WaveForm: React.FC<WaveFormProps> = (props: {
     const y = e.touches.item(0).clientY - rect.top;
     setMousePosition({ x, y });
   }, []);
+
+  const onTouchDown = useCallback(
+    (e: TouchEvent<HTMLCanvasElement>) => {
+      setMousePressed(true);
+      onTouchMove(e);
+    },
+    [onTouchMove],
+  );
 
   return (
     <div>
