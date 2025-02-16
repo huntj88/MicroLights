@@ -21,7 +21,7 @@ export const WaveFormEditWrapper: React.ComponentType<WaveFormEditWrapperProps> 
 )
 
 export const WaveFormEditWrapperInternal: React.FC<WaveFormEditWrapperProps> = ({ name }) => {
-  const [storedConfig, setStoredConfig] = useLocalStorage(name, firstThenAllBulbConfig);
+  const [storedConfig, setStoredConfig] = useLocalStorage(`${waveFormPrefix}${name}`, firstThenAllBulbConfig);
   const [json, setJson] = useState<string>(
     JSON.stringify(storedConfig, null, 2),
   );

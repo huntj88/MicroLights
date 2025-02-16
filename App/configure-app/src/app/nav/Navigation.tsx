@@ -153,12 +153,18 @@ export const Navigation: React.FC<{ children: ReactNode }> = ({ children }) => {
               >
                 <MenuItem
                   onClick={() => {
-                    router.replace("/create");
+                    router.replace("/create/set");
                   }}
                 >
-                  Bulb
+                  Set
                 </MenuItem>
-                <MenuItem>RGB</MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    router.replace("/create/wave");
+                  }}
+                >
+                  Wave
+                </MenuItem>
               </SubMenu>
               <MenuItem
                 onClick={() => {

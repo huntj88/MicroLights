@@ -1,5 +1,6 @@
 "use client";
-import { WaveFormEditWrapper } from './WaveFormEditWrapper';
+import { FingerDropdown } from '@/app/FingerDropdown';
+import { WaveFormEditWrapper } from '../WaveFormEditWrapper';
 
 export default function Create() {
   return (

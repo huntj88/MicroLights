@@ -22,8 +22,9 @@ export type LogicLevelChange = {
 
 export const WaveForm: React.FC<{
   bulbconfig: WaveFormConfig;
-  updateConfig: (BulbConfig: WaveFormConfig) => void;
+  updateConfig?: (BulbConfig: WaveFormConfig) => void;
 }> = ({ bulbconfig, updateConfig }) => {
+  const canEdit = updateConfig !== undefined;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(
     canvasRef.current,
@@ -62,6 +63,9 @@ export const WaveForm: React.FC<{
 
   // handles selecting new marker
   useEffect(() => {
+    if (!canEdit) {
+      return;
+    }
     if (!mousePressed) {
       setSelectedIndex(undefined);
       return;
@@ -97,7 +101,7 @@ export const WaveForm: React.FC<{
 
   // handles moving the selected index around
   useEffect(() => {
-    if (selectedIndex !== undefined) {
+    if (selectedIndex !== undefined && canEdit) {
       const copy = { ...bulbconfig };
       const current = copy.changeAt[selectedIndex];
       const x = horizontalPadding + current.tick * scaleFactor;
