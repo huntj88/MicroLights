@@ -1,1 +1,1 @@
-const waveFormPrefix = "waveForm-";
+export const waveFormPrefix = "waveForm-";

@@ -9,19 +9,30 @@ import { WaveFormConfig, WaveForm, LogicLevelChange } from "./WaveForm";
 import { firstThenAllBulbConfig } from "../config";
 import { useLocalStorage } from "../useLocalStorage";
 import { useCallback, useEffect, useState } from "react";
-import dynamic from 'next/dynamic'
+import dynamic from "next/dynamic";
+import { waveFormPrefix } from "../constants";
 
 export interface WaveFormEditWrapperProps {
   name: string;
 }
 
 // dyanmic import to prevent server side rendering, localStorage is not available on the server
-export const WaveFormEditWrapper: React.ComponentType<WaveFormEditWrapperProps> = dynamic(() =>
-  import("./WaveFormEditWrapper").then(x => x.WaveFormEditWrapperInternal), { ssr: false }
-)
+export const WaveFormEditWrapper: React.ComponentType<WaveFormEditWrapperProps> =
+  dynamic(
+    () =>
+      import("./WaveFormEditWrapper").then(
+        (x) => x.WaveFormEditWrapperInternal,
+      ),
+    { ssr: false },
+  );
 
-export const WaveFormEditWrapperInternal: React.FC<WaveFormEditWrapperProps> = ({ name }) => {
-  const [storedConfig, setStoredConfig] = useLocalStorage(`${waveFormPrefix}${name}`, firstThenAllBulbConfig);
+export const WaveFormEditWrapperInternal: React.FC<
+  WaveFormEditWrapperProps
+> = (props: { name: string }) => {
+  const [storedConfig, setStoredConfig] = useLocalStorage(
+    `${waveFormPrefix}${props.name}`,
+    firstThenAllBulbConfig,
+  );
   const [json, setJson] = useState<string>(
     JSON.stringify(storedConfig, null, 2),
   );
@@ -41,6 +52,7 @@ export const WaveFormEditWrapperInternal: React.FC<WaveFormEditWrapperProps> = (
         }
       }
     } catch (e) {
+      console.error(e);
       // TODO: set error state
     }
   }, [config, json, recentlyChanged]);
@@ -84,15 +96,17 @@ export const WaveFormEditWrapperInternal: React.FC<WaveFormEditWrapperProps> = (
   }, [config, onUpdateConfig]);
 
   const onSaveWaveFormConfig = useCallback(() => {
-    setStoredConfig(config)
+    setStoredConfig(config);
   }, [config, setStoredConfig]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
-      <WaveForm bulbconfig={config} updateConfig={onUpdateConfig} />
+      <WaveForm config={config} updateConfig={onUpdateConfig} />
       <Button onClick={onAddMarker}>Add Marker to end</Button>
       <Button onClick={onRemoveMarker}>Remove Marker from end</Button>
-      <Button disabled={config === storedConfig} onClick={onSaveWaveFormConfig}>Save Wave Form</Button>
+      <Button disabled={config === storedConfig} onClick={onSaveWaveFormConfig}>
+        Save Wave Form
+      </Button>
 
       <Text>Json Config</Text>
       <Textarea

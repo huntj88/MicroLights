@@ -1,7 +1,5 @@
 "use client";
-import { Card, Input, makeStyles, Text, tokens } from "@fluentui/react-components";
-import { WaveForm } from "../WaveForm";
-import { firstThenAllBulbConfig } from "@/app/config";
+import { Card, makeStyles, Text, tokens } from "@fluentui/react-components";
 import { ColorPicker } from "../ColorPicker";
 import tinycolor, { HSVA, Numberify } from "@ctrl/tinycolor";
 import { useState } from "react";
@@ -10,8 +8,8 @@ import { WaveFormDropdown } from "@/app/WaveFormDropdown";
 
 const useStyles = makeStyles({
   previewColor: {
-    width: '50px',
-    height: '50px',
+    width: "50px",
+    height: "50px",
     borderRadius: tokens.borderRadiusMedium,
     border: `1px solid ${tokens.colorNeutralStroke1}`,
     margin: `${tokens.spacingVerticalMNudge} 0`,
@@ -26,15 +24,24 @@ export default function Create() {
     setColor(color);
   };
 
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", width: "300px", padding: "16px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "300px",
+        padding: "16px",
+      }}
+    >
       <Card>
         <FingerDropdown />
         <WaveFormDropdown />
         {/* <WaveForm bulbconfig={firstThenAllBulbConfig} /> */}
         <Text>Case Light</Text>
-        <div className={styles.previewColor} style={{ backgroundColor: tinycolor(color).toRgbString() }} />
+        <div
+          className={styles.previewColor}
+          style={{ backgroundColor: tinycolor(color).toRgbString() }}
+        />
         <ColorPicker initialColor={"#8888ff"} onColorChange={handleChange} />
       </Card>
     </div>

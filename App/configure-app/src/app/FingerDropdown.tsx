@@ -36,11 +36,14 @@ export const FingerDropdown = (props: Partial<DropdownProps>) => {
   return (
     <div className={styles.root}>
       <label htmlFor={dropdownId}>Config for finger</label>
-      <Dropdown inlinePopup id={dropdownId} placeholder="Select finger" {...props}>
+      <Dropdown
+        inlinePopup
+        id={dropdownId}
+        placeholder="Select finger"
+        {...props}
+      >
         {options.map((option) => (
-          <Option key={option}>
-            {option}
-          </Option>
+          <Option key={option}>{option}</Option>
         ))}
       </Dropdown>
     </div>

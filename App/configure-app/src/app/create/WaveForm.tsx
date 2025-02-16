@@ -20,10 +20,17 @@ export type LogicLevelChange = {
   output: LogicLevel;
 };
 
-export const WaveForm: React.FC<{
-  bulbconfig: WaveFormConfig;
-  updateConfig?: (BulbConfig: WaveFormConfig) => void;
-}> = ({ bulbconfig, updateConfig }) => {
+export interface WaveFormProps {
+  config: WaveFormConfig;
+  updateConfig?: (config: WaveFormConfig) => void;
+}
+
+export const WaveForm: React.FC<WaveFormProps> = (props: {
+  config: WaveFormConfig;
+  updateConfig?: (config: WaveFormConfig) => void;
+}) => {
+  const { config, updateConfig } = props;
+
   const canEdit = updateConfig !== undefined;
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(
@@ -49,7 +56,11 @@ export const WaveForm: React.FC<{
       if (index !== undefined && selectedIndex === index && mousePressed) {
         return mousePosition.y;
       }
-      return (change?.output === "high" ? indexCircleRadius : height - indexCircleRadius) + topPadding;
+      return (
+        (change?.output === "high"
+          ? indexCircleRadius
+          : height - indexCircleRadius) + topPadding
+      );
     },
     [selectedIndex, mousePressed, mousePosition],
   );
@@ -75,7 +86,7 @@ export const WaveForm: React.FC<{
       return;
     }
 
-    bulbconfig.changeAt.forEach((change, index) => {
+    config.changeAt.forEach((change, index) => {
       const x =
         horizontalPadding + change.tick * scaleFactor + indexCircleRadius;
       const y = pixelHeight(change, undefined) + indexCircleRadius;
@@ -89,7 +100,7 @@ export const WaveForm: React.FC<{
       }
     });
   }, [
-    bulbconfig,
+    config,
     horizontalPadding,
     mousePressed,
     mousePosition.x,
@@ -102,7 +113,7 @@ export const WaveForm: React.FC<{
   // handles moving the selected index around
   useEffect(() => {
     if (selectedIndex !== undefined && canEdit) {
-      const copy = { ...bulbconfig };
+      const copy = { ...config };
       const current = copy.changeAt[selectedIndex];
       const x = horizontalPadding + current.tick * scaleFactor;
 
@@ -141,7 +152,7 @@ export const WaveForm: React.FC<{
 
     const renderWaveFormLines = () => {
       const defaultIfEmpty = { output: "high", tick: 0 };
-      const firstChange = bulbconfig.changeAt[0] ?? defaultIfEmpty;
+      const firstChange = config.changeAt[0] ?? defaultIfEmpty;
 
       let previousX = horizontalPadding;
       let previousY = pixelHeight(firstChange, undefined);
@@ -156,7 +167,7 @@ export const WaveForm: React.FC<{
       // render first horizontal bar before first config
       ctx.lineTo(horizontalPadding + firstChange.tick * scaleFactor, previousY);
 
-      bulbconfig.changeAt.forEach((change) => {
+      config.changeAt.forEach((change) => {
         const x = horizontalPadding + change.tick * scaleFactor;
         const y = pixelHeight(change, undefined);
 
@@ -182,7 +193,7 @@ export const WaveForm: React.FC<{
 
       // render last horizontal bar after last config
       ctx.lineTo(
-        horizontalPadding + bulbconfig.totalTicks * scaleFactor,
+        horizontalPadding + config.totalTicks * scaleFactor,
         previousY,
       );
       ctx.stroke();
@@ -194,7 +205,7 @@ export const WaveForm: React.FC<{
       ctx.fillStyle = "#222222aa";
       ctx.strokeStyle = "#777777";
 
-      const change = bulbconfig.changeAt[selectedIndex];
+      const change = config.changeAt[selectedIndex];
       const x = horizontalPadding + change.tick * scaleFactor;
       const y = pixelHeight(change, undefined);
       renderMarker(x, y, selectedIndex);
@@ -228,7 +239,7 @@ export const WaveForm: React.FC<{
 
     renderWaveFormLines();
     renderPreviewMarker();
-    bulbconfig.changeAt.forEach((change, index) => {
+    config.changeAt.forEach((change, index) => {
       renderTickMarker(change, index);
     });
 
@@ -236,7 +247,7 @@ export const WaveForm: React.FC<{
       ctx.reset();
     };
   }, [
-    bulbconfig,
+    config,
     canvasRef.current?.offsetHeight,
     canvasRef.current?.offsetWidth,
     horizontalPadding,
@@ -254,7 +265,7 @@ export const WaveForm: React.FC<{
 
   const onMouseDown = useCallback((e: MouseEvent<HTMLCanvasElement>) => {
     setMousePressed(true);
-    onMouseMove(e)
+    onMouseMove(e);
   }, []);
 
   const onMouseUp = useCallback(() => {
@@ -270,7 +281,7 @@ export const WaveForm: React.FC<{
 
   const onTouchDown = useCallback((e: TouchEvent<HTMLCanvasElement>) => {
     setMousePressed(true);
-    onTouchMove(e)
+    onTouchMove(e);
   }, []);
 
   const onTouchMove = useCallback((e: TouchEvent<HTMLCanvasElement>) => {

@@ -7,6 +7,7 @@ import {
   useId,
 } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
+import { waveFormPrefix } from "./constants";
 
 const useStyles = makeStyles({
   root: {
@@ -26,20 +27,23 @@ export const WaveFormDropdown = (props: Partial<DropdownProps>) => {
   const [options, setOptions] = useState<string[]>([]);
   useEffect(() => {
     const availableWaveForms = Object.keys(localStorage)
-      .filter(key => key.includes(waveFormPrefix))
-      .map(key => key.replace(waveFormPrefix, ""));
+      .filter((key) => key.includes(waveFormPrefix))
+      .map((key) => key.replace(waveFormPrefix, ""));
 
-    setOptions(availableWaveForms)
+    setOptions(availableWaveForms);
   }, []);
 
   return (
     <div className={styles.root}>
       <label htmlFor={dropdownId}>Config for finger</label>
-      <Dropdown inlinePopup id={dropdownId} placeholder="Select WaveForm" {...props}>
+      <Dropdown
+        inlinePopup
+        id={dropdownId}
+        placeholder="Select WaveForm"
+        {...props}
+      >
         {options.map((option) => (
-          <Option key={option}>
-            {option}
-          </Option>
+          <Option key={option}>{option}</Option>
         ))}
       </Dropdown>
     </div>
