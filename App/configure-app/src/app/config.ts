@@ -1,8 +1,7 @@
-import { BulbConfig } from "./create/WaveForm";
+import { WaveFormConfig } from "./create/WaveForm";
 
-export const firstColorBulbConfig: BulbConfig = {
+export const firstColorBulbConfig: WaveFormConfig = {
   name: "first",
-  type: "bulb",
   totalTicks: 5,
   changeAt: [
     {
@@ -16,9 +15,8 @@ export const firstColorBulbConfig: BulbConfig = {
   ],
 };
 
-export const flashyBulbConfig: BulbConfig = {
+export const flashyBulbConfig: WaveFormConfig = {
   name: "flashy",
-  type: "bulb",
   totalTicks: 30,
   changeAt: [
     {
@@ -32,9 +30,8 @@ export const flashyBulbConfig: BulbConfig = {
   ],
 };
 
-export const firstThenAllBulbConfig: BulbConfig = {
+export const firstThenAllBulbConfig: WaveFormConfig = {
   name: "default",
-  type: "bulb",
   totalTicks: 70,
   changeAt: [
     {

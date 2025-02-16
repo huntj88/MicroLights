@@ -1,4 +1,3 @@
-import { Button } from "@fluentui/react-components";
 import {
   MouseEvent,
   TouchEvent,
@@ -10,9 +9,8 @@ import {
 
 export type LogicLevel = "low" | "high";
 
-export type BulbConfig = {
+export type WaveFormConfig = {
   name: string;
-  type: "bulb";
   totalTicks: number;
   changeAt: LogicLevelChange[];
 };
@@ -23,8 +21,8 @@ export type LogicLevelChange = {
 };
 
 export const WaveForm: React.FC<{
-  bulbconfig: BulbConfig;
-  updateConfig: (BulbConfig: BulbConfig) => void;
+  bulbconfig: WaveFormConfig;
+  updateConfig: (BulbConfig: WaveFormConfig) => void;
 }> = ({ bulbconfig, updateConfig }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(
@@ -278,25 +276,6 @@ export const WaveForm: React.FC<{
     setMousePosition({ x, y });
   }, []);
 
-  const onAddChange = useCallback(() => {
-    const copy = { ...bulbconfig };
-    const lastIndex = copy.changeAt.length - 1;
-    const last = copy.changeAt[lastIndex];
-    const newChange: LogicLevelChange = {
-      tick: last ? last.tick + 1 : 0,
-      output: "high",
-    };
-    copy.changeAt = copy.changeAt.concat([newChange]);
-    copy.totalTicks = Math.max(copy.totalTicks, newChange.tick);
-    updateConfig(copy);
-  }, [bulbconfig, updateConfig]);
-
-  const onRemoveChange = useCallback(() => {
-    const copy = { ...bulbconfig };
-    copy.changeAt = copy.changeAt.slice(0, -1);
-    updateConfig(copy);
-  }, [bulbconfig, updateConfig]);
-
   return (
     <div>
       <canvas
@@ -313,8 +292,6 @@ export const WaveForm: React.FC<{
         onTouchEnd={onMouseUp}
         onTouchMove={onTouchMove}
       />
-      <Button onClick={onAddChange}>Add</Button>
-      <Button onClick={onRemoveChange}>Remove</Button>
     </div>
   );
 };
