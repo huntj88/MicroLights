@@ -56,7 +56,7 @@ export default function Browse() {
               className={styles.child}
             >
               <WaveForm
-                bulbconfig={modes[index]}
+                config={modes[index]}
                 updateConfig={() => {
                   /* TODO */
                 }}
