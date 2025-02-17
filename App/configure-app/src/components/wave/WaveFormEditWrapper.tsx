@@ -5,12 +5,12 @@ import {
   Textarea,
   TextareaOnChangeData,
 } from "@fluentui/react-components";
-import { WaveFormConfig, WaveForm, LogicLevelChange } from "./WaveForm";
-import { firstThenAllBulbConfig } from "../config";
-import { useLocalStorage } from "../useLocalStorage";
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { waveFormPrefix } from "../constants";
+import { useLocalStorage } from "@/app/useLocalStorage";
+import { waveFormPrefix } from "@/app/constants";
+import { firstThenAllBulbConfig } from "@/app/config";
+import { LogicLevelChange, WaveForm, WaveFormConfig } from "./WaveForm";
 
 export interface WaveFormEditWrapperProps {
   name: string;

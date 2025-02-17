@@ -1,4 +1,4 @@
-import { WaveFormConfig } from "./create/WaveForm";
+import { WaveFormConfig } from "@/components/wave/WaveForm";
 
 export const firstColorBulbConfig: WaveFormConfig = {
   name: "first",

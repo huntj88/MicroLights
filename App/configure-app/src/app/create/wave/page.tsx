@@ -1,5 +1,6 @@
 "use client";
-import { WaveFormEditWrapper } from "../WaveFormEditWrapper";
+
+import { WaveFormEditWrapper } from "@/components/wave/WaveFormEditWrapper";
 
 export default function Create() {
   return (

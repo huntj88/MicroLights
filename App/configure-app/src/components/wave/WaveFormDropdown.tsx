@@ -7,7 +7,7 @@ import {
   useId,
 } from "@fluentui/react-components";
 import { useEffect, useState } from "react";
-import { waveFormPrefix } from "./constants";
+import { waveFormPrefix } from "@/app/constants";
 
 const useStyles = makeStyles({
   root: {
@@ -35,7 +35,7 @@ export const WaveFormDropdown = (props: Partial<DropdownProps>) => {
 
   return (
     <div className={styles.root}>
-      <label htmlFor={dropdownId}>Config for finger</label>
+      <label htmlFor={dropdownId}>Waveform</label>
       <Dropdown
         inlinePopup
         id={dropdownId}

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./providers";
-import ErudaWrapper from "./ErudaWrapper";
 import { Navigation } from "./nav/Navigation";
+import ErudaWrapper from "@/components/ErudaWrapper";
 
 export const metadata: Metadata = {
   title: "Create Next App",

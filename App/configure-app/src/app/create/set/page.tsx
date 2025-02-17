@@ -1,10 +1,12 @@
 "use client";
 import { Card, makeStyles, Text, tokens } from "@fluentui/react-components";
-import { ColorPicker } from "../ColorPicker";
 import tinycolor, { HSVA, Numberify } from "@ctrl/tinycolor";
 import { useState } from "react";
-import { FingerDropdown } from "@/app/FingerDropdown";
-import { WaveFormDropdown } from "@/app/WaveFormDropdown";
+import { WaveFormDropdown } from "@/components/wave/WaveFormDropdown";
+import { firstThenAllBulbConfig } from "@/app/config";
+import { FingerCheckboxArea } from "@/components/FingerCheckboxArea";
+import { WaveForm } from "@/components/wave/WaveForm";
+import { ColorPicker } from "../ColorPicker";
 
 const useStyles = makeStyles({
   previewColor: {
@@ -18,8 +20,9 @@ const useStyles = makeStyles({
 
 export default function Create() {
   const styles = useStyles();
-  const DEFAULT_COLOR_HSV = tinycolor("#111111").toHsv();
-  const [color, setColor] = useState(DEFAULT_COLOR_HSV);
+  const defaultColor = "#8888ff";
+  const defaultColorHSV = tinycolor(defaultColor).toHsv();
+  const [color, setColor] = useState(defaultColorHSV);
   const handleChange = (color: Numberify<HSVA>) => {
     setColor(color);
   };
@@ -34,15 +37,15 @@ export default function Create() {
       }}
     >
       <Card>
-        <FingerDropdown />
         <WaveFormDropdown />
-        {/* <WaveForm bulbconfig={firstThenAllBulbConfig} /> */}
+        <FingerCheckboxArea />
+        <WaveForm config={firstThenAllBulbConfig} />
         <Text>Case Light</Text>
         <div
           className={styles.previewColor}
           style={{ backgroundColor: tinycolor(color).toRgbString() }}
         />
-        <ColorPicker initialColor={"#8888ff"} onColorChange={handleChange} />
+        <ColorPicker initialColor={defaultColor} onColorChange={handleChange} />
       </Card>
     </div>
   );

@@ -7,7 +7,7 @@ import {
   firstThenAllBulbConfig,
   flashyBulbConfig,
 } from "../config";
-import { WaveForm } from "../create/WaveForm";
+import { WaveForm } from "@/components/wave/WaveForm";
 
 const useStyles = makeStyles({
   container: {
