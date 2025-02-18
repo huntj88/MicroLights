@@ -7,10 +7,10 @@ import {
 } from "@fluentui/react-components";
 import { useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
-import { useLocalStorage } from "@/app/useLocalStorage";
-import { waveFormPrefix } from "@/app/constants";
-import { firstThenAllBulbConfig } from "@/app/config";
 import { LogicLevelChange, WaveForm, WaveFormConfig } from "./WaveForm";
+import { flashyBulbConfig } from "@/app/config";
+import { waveFormPrefix } from "@/app/constants";
+import { getFromLocalStorage } from "@/app/useLocalStorage";
 
 export interface WaveFormEditWrapperProps {
   name: string;
@@ -21,18 +21,50 @@ export const WaveFormEditWrapper: React.ComponentType<WaveFormEditWrapperProps> 
   dynamic(
     () =>
       import("./WaveFormEditWrapper").then(
-        (x) => x.WaveFormEditWrapperInternal,
+        (x) => x.WaveFormEditWrapperInternalLocalStorage,
       ),
     { ssr: false },
   );
 
-export const WaveFormEditWrapperInternal: React.FC<
-  WaveFormEditWrapperProps
-> = (props: { name: string }) => {
-  const [storedConfig, setStoredConfig] = useLocalStorage(
-    `${waveFormPrefix}${props.name}`,
-    firstThenAllBulbConfig,
+export const WaveFormEditWrapperInternalLocalStorage = (props: {
+  name: string;
+}) => {
+  const { name } = props;
+  const configFromStorage = getFromLocalStorage<WaveFormConfig>(
+    `${waveFormPrefix}-${name}`,
   );
+
+  const [config, setConfig] = useState<WaveFormConfig | undefined>(
+    configFromStorage,
+  );
+
+  const defaultWithName = {
+    ...flashyBulbConfig,
+    name,
+  };
+  return (
+    <WaveFormEditWrapperInternal
+      storedConfig={config || defaultWithName}
+      onSaveConfig={(config) => {
+        localStorage.setItem(
+          `${waveFormPrefix}${config.name}`,
+          JSON.stringify(config),
+        );
+        setConfig(config);
+      }}
+    />
+  );
+};
+
+export interface WaveFormEditWrapperInternalProps {
+  storedConfig: WaveFormConfig;
+  onSaveConfig: (config: WaveFormConfig) => void;
+}
+
+export const WaveFormEditWrapperInternal: React.FC<
+  WaveFormEditWrapperInternalProps
+> = (props: WaveFormEditWrapperInternalProps) => {
+  const { storedConfig, onSaveConfig } = props;
   const [json, setJson] = useState<string>(
     JSON.stringify(storedConfig, null, 2),
   );
@@ -96,18 +128,21 @@ export const WaveFormEditWrapperInternal: React.FC<
   }, [config, onUpdateConfig]);
 
   const onSaveWaveFormConfig = useCallback(() => {
-    setStoredConfig(config);
-  }, [config, setStoredConfig]);
+    onSaveConfig(config);
+  }, [config, onSaveConfig]);
+
+  const nameRequired = config.name === "";
+  const saveDisabled = config === storedConfig || nameRequired;
 
   return (
     <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <WaveForm config={config} updateConfig={onUpdateConfig} />
       <Button onClick={onAddMarker}>Add Marker to end</Button>
       <Button onClick={onRemoveMarker}>Remove Marker from end</Button>
-      <Button disabled={config === storedConfig} onClick={onSaveWaveFormConfig}>
+      <Button disabled={saveDisabled} onClick={onSaveWaveFormConfig}>
         Save Wave Form
       </Button>
-
+      {nameRequired && <Text style={{ color: "red" }}>Name must be set</Text>}
       <Text>Json Config</Text>
       <Textarea
         contentEditable

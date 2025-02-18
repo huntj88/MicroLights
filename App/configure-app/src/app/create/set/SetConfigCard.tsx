@@ -13,6 +13,8 @@ import { WaveFormDropdown } from "@/components/wave/WaveFormDropdown";
 import { FingerCheckboxArea } from "@/components/FingerCheckboxArea";
 import { WaveForm, WaveFormConfig } from "@/components/wave/WaveForm";
 import { ColorPicker } from "../ColorPicker";
+import { cloneValue } from "@/utils";
+import { waveFormPrefix } from "@/app/constants";
 
 export type ChipSetConfig = {
   name: string;
@@ -41,11 +43,6 @@ const useStyles = makeStyles({
   },
 });
 
-// TODO: move to utils
-export function cloneValue<T>(value: T): T {
-  return typeof value == "object" ? JSON.parse(JSON.stringify(value)) : value;
-}
-
 export default function SetConfigCard({
   chipSetConfig,
   partIndex,
@@ -68,7 +65,9 @@ export default function SetConfigCard({
   const onWaveFormSelected = useCallback(
     (_: SelectionEvents, data: OptionOnSelectData) => {
       if (data.optionText) {
-        const jsonConfig = localStorage.getItem(data.optionText);
+        const jsonConfig = localStorage.getItem(
+          `${waveFormPrefix}${data.optionText}`,
+        );
         if (jsonConfig) {
           const newConfig = JSON.parse(jsonConfig);
           setConfigState(newConfig);
