@@ -1,0 +1,1 @@
+python3 tinyusb/tools/get_deps.py stm32c0

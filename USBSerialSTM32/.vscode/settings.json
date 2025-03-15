@@ -1,0 +1,10 @@
+{
+    "files.exclude": {
+        "tinyusb/test": true,
+    },
+    "files.associations": {
+        "board_api.h": "c",
+        "tusb.h": "c",
+        "cdc.h": "c"
+    }
+}
