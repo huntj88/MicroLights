@@ -1,0 +1,36 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "name": "ST-Link Debug with Embedded Tools ",
+            "executable": "${workspaceFolder}/_build/stm32c071nucleo/USBSerialSTM32.elf",
+            "cwd": "${workspaceFolder}",
+            "type": "cortex-debug",
+            "device": "STM32C07x",
+            "serverpath": "/opt/st/stm32cubeide_1.17.0/plugins/com.st.stm32cube.ide.mcu.externaltools.stlink-gdb-server.linux64_2.2.0.202409170845/tools/bin/ST-LINK_gdbserver",
+            "servertype": "stlink",
+            "interface": "swd",
+            "gdbTarget": "localhost",
+            "request": "launch",
+            "runToEntryPoint": "main",
+            "cmsisPack": "${workspaceFolder}/tools/debug/Keil.STM32C0xx_DFP.2.1.0.pack",
+            "svdFile": "${workspaceFolder}/tools/debug/STM32C071.svd",
+            "stm32cubeprogrammer": "/opt/st/stm32cubeide_1.17.0/plugins/com.st.stm32cube.ide.mcu.externaltools.cubeprogrammer.linux64_2.2.0.202409170845/tools/bin",
+            "showDevDebugOutput": "parsed",
+            "armToolchainPath": "/opt/st/stm32cubeide_1.17.0/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.12.3.rel1.linux64_1.1.0.202410170702/tools/bin",
+            "serverArgs": [
+                "-v",
+                "-e"
+            ],
+            "preRestartCommands": [
+                "load",
+                "enable breakpoint",
+                "monitor reset"
+            ],
+        }
+    ]
+}
