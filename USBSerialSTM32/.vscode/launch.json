@@ -4,9 +4,9 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
         {
             "name": "ST-Link Debug with Embedded Tools ",
+            "preLaunchTask": "BuildAndFlash",
             "executable": "${workspaceFolder}/_build/stm32c071nucleo/USBSerialSTM32.elf",
             "cwd": "${workspaceFolder}",
             "type": "cortex-debug",

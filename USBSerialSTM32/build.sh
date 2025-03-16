@@ -1,1 +1,0 @@
-make BOARD=stm32c071nucleo all
