@@ -94,6 +94,11 @@ static void echo_serial_port(uint8_t itf, uint8_t buf[], uint32_t count)
   tud_cdc_n_write_flush(itf);
 }
 
+static void parseJson(uint8_t buf[], uint32_t count)
+{
+
+}
+
 static void cdc_task(void)
 {
   uint8_t itf;
