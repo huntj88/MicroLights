@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.c
+ * @brief          : Main program body
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tusb.h"
+#include "lwjson/lwjson.h"
 
 /* USER CODE END Includes */
 
@@ -68,59 +69,51 @@ static void MX_USB_PCD_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// echo to either Serial0 or Serial1
-// with Serial0 as all lower case, Serial1 as all upper case
-static void echo_serial_port(uint8_t itf, uint8_t buf[], uint32_t count)
-{
-  uint8_t const case_diff = 'a' - 'A';
+static lwjson_token_t tokens[128];
 
-  for (uint32_t i = 0; i < count; i++)
-  {
-    if (itf == 0)
-    {
-      // echo back 1st port as lower case
-      if (isupper(buf[i]))
-        buf[i] += case_diff;
-    }
-    else
-    {
-      // echo back 2nd port as upper case
-      if (islower(buf[i]))
-        buf[i] -= case_diff;
-    }
+static lwjson_t lwjson;
 
-    tud_cdc_n_write_char(itf, buf[i]);
-  }
-  tud_cdc_n_write_flush(itf);
+static void parseJson(uint8_t buf[], uint32_t count) {
+	uint32_t indexOfNewLine = 0;
+	for (uint32_t i = 0; i < count; i++) {
+		char current = buf[i];
+		if (current == '\n')
+		{
+			indexOfNewLine = i;
+			break;
+		}
+	}
+
+	uint8_t bufJson[indexOfNewLine];
+	for (uint32_t i = 0; i < indexOfNewLine; i++) {
+		bufJson[i] = buf[i];
+	}
+
+	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
+		const lwjson_token_t *t;
+		if ((t = lwjson_find(&lwjson, "mykey")) != NULL) {
+			printf("Key found with data type: %d\r\n", (int) t->type);
+		}
+		lwjson_free(&lwjson);
+	}
 }
 
-static void parseJson(uint8_t buf[], uint32_t count)
-{
+static void cdc_task(void) {
+	uint8_t itf;
 
-}
-
-static void cdc_task(void)
-{
-  uint8_t itf;
-
-  for (itf = 0; itf < CFG_TUD_CDC; itf++)
-  {
-    // connected() check for DTR bit
-    // Most but not all terminal client set this when making connection
-    // if ( tud_cdc_n_connected(itf) )
-    {
-      if (tud_cdc_n_available(itf))
-      {
-        uint8_t buf[64];
-
-        uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-
-        // echo back to both serial ports
-        echo_serial_port(0, buf, count);
-        // echo_serial_port(1, buf, count);
-      }
-    }
-  }
+	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
+		// connected() check for DTR bit
+		// Most but not all terminal client set this when making connection
+		// if ( tud_cdc_n_connected(itf) )
+		{
+			if (tud_cdc_n_available(itf)) {
+				uint8_t buf[128];
+				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+				parseJson(buf, count);
+			}
+		}
+	}
 }
 
 /* USER CODE END 0 */
@@ -160,24 +153,23 @@ int main(void)
   MX_USB_PCD_Init();
   /* USER CODE BEGIN 2 */
 
-  tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  tud_task();
-	  cdc_task();
+	while (1) {
+		tud_task();
+		cdc_task();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-  }
+	}
   /* USER CODE END 3 */
 }
 
@@ -501,11 +493,10 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
-  }
+	/* User can add his own implementation to report the HAL error return state */
+	__disable_irq();
+	while (1) {
+	}
   /* USER CODE END Error_Handler_Debug */
 }
 
