@@ -93,7 +93,7 @@ static void parseJson(uint8_t buf[], uint32_t count) {
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
-		if ((t = lwjson_find(&lwjson, "mykey")) != NULL) {
+		if ((t = lwjson_find(&lwjson, "name")) != NULL) {
 			printf("Key found with data type: %d\r\n", (int) t->type);
 		}
 		lwjson_free(&lwjson);
@@ -116,6 +116,9 @@ static void testRead() {
 		printf("Value: %4s\n",kv2.value.str);
 }
 
+uint8_t jsonBuf[1024];
+uint16_t jsonIndex = 0;
+
 static void cdc_task(void) {
 	uint8_t itf;
 
@@ -129,22 +132,30 @@ static void cdc_task(void) {
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
 //				parseJson(buf, count);
 
-				kved_data_t kv1 = {
-					.type = KVED_DATA_TYPE_UINT32,
-					.key = "ca1",
-					.value.u32 = 0x12345677
-				};
+				for (uint8_t i = 0; i < 64; i++) {
+					jsonBuf[jsonIndex + i] = buf[i];
+				}
+				jsonIndex += 64;
 
-				kved_data_t kv2 = {
-					.type = KVED_DATA_TYPE_STRING,
-					.key = "ID",
-					.value.str ="N02"
-				};
-
-				kved_data_write(&kv1);
-				kved_data_write(&kv2);
-
-				testRead();
+//				kved_data_t kv1 = {
+//					.type = KVED_DATA_TYPE_UINT32,
+//					.key = "ca1",
+//					.value.u32 = 0x12345677
+//				};
+//
+//				kved_data_t kv2 = {
+//					.type = KVED_DATA_TYPE_STRING,
+//					.key = "ID",
+//					.value.str ="N02"
+//				};
+//
+//				kved_data_write(&kv1);
+//				kved_data_write(&kv2);
+//
+//				testRead();
+			} else if (jsonIndex != 0) {
+				jsonIndex = 0;
+				parseJson(jsonBuf, 1024);
 			}
 		}
 	}
