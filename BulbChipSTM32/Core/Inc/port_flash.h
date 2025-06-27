@@ -1,14 +1,16 @@
 /*
-kved (key/value embedded database), a simple key/value database 
-implementation for microcontrollers.
+ * port_flash.h
+ *
+ *  Created on: Jun 27, 2025
+ *      Author: jameshunt
+ */
 
-Copyright (c) 2022 Fabricio Lucas de Almeida <fabriciolucasfbr@gmail.com>
-*/
+#ifndef INC_PORT_FLASH_H_
+#define INC_PORT_FLASH_H_
 
-#pragma once
 
-/**
-@brief Flash word size.
-Max supported is 16 bytes, but used 8 bytes only.
-*/
-#define PORT_KVED_FLASH_WORD_SIZE (8)
+
+#endif /* INC_PORT_FLASH_H_ */
+
+// use the port for SMT32C0 mcu
+#include "port/stm32c0/port_flash.h"
