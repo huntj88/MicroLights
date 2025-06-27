@@ -24,33 +24,26 @@ void writeBytes(uint32_t hexPage, uint8_t buf[], uint32_t bufCount)
 
 	HAL_FLASH_Unlock();
 
-	uint8_t doubleWord[DATA_SPACE];
-	for (int32_t i = 0; i < bufCount; i++)
+	uint8_t emptyPaddingLength = DATA_SPACE - (bufCount % DATA_SPACE);
+	uint8_t dataSpaceBuf[DATA_SPACE];
+
+	// write DATA_SPACE bytes at a time, pad with zero's at end if bytes count is not a multiple of DATA_SPACE
+	for (int32_t i = 0; i < bufCount + emptyPaddingLength; i++)
 	{
-		doubleWord[i % DATA_SPACE] = buf[i];
+		if (i < bufCount) {
+			dataSpaceBuf[i % DATA_SPACE] = buf[i];
+		} else {
+			dataSpaceBuf[i % DATA_SPACE] = '0';
+		}
 
 		if (i % DATA_SPACE == DATA_SPACE - 1) {
-			HAL_FLASH_Program(TYPEPROGRAM_DOUBLEWORD, hexPage + (DATA_SPACE * (i / DATA_SPACE)), doubleWord);
+			HAL_FLASH_Program(TYPEPROGRAM_DOUBLEWORD, hexPage + (DATA_SPACE * (i / DATA_SPACE)), dataSpaceBuf);
 		}
-	}
-
-	if (bufCount % DATA_SPACE != 0) {
-		uint8_t padding = (bufCount % DATA_SPACE);
-		for (uint8_t i = padding - 1; i < DATA_SPACE; i++)
-		{
-			uint8_t bufPos = bufCount - padding + i;
-			if (bufPos < bufCount) {
-				doubleWord[i] = buf[bufCount - padding + i];
-			} else {
-				doubleWord[i] = '0';
-			}
-		}
-		HAL_FLASH_Program(TYPEPROGRAM_DOUBLEWORD, hexPage + (DATA_SPACE * (bufCount / DATA_SPACE)), doubleWord);
 	}
 
 	HAL_FLASH_Lock();
 }
 
-uint32_t retrieveDataFromAddress(uint32_t hexAddress){
-	return *(uint32_t*)hexAddress;
+uint32_t * retrieveDataFromAddress(uint32_t hexAddress) {
+	return (uint32_t*)hexAddress;
 }

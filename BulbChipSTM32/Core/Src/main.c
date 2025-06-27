@@ -24,6 +24,7 @@
 #include "tusb.h"
 #include "lwjson/lwjson.h"
 #include "storage.h"
+#include "kved.h"
 
 /* USER CODE END Includes */
 
@@ -100,6 +101,22 @@ static void parseJson(uint8_t buf[], uint32_t count) {
 	}
 }
 
+static void testRead() {
+	kved_data_t kv1 = {
+		.key = "ca1",
+	};
+
+	kved_data_t kv2 = {
+		.key = "ID",
+	};
+
+	if(kved_data_read(&kv1))
+		printf("Value: %d\n",kv1.value.u32);
+
+	if(kved_data_read(&kv2))
+		printf("Value: %4s\n",kv2.value.str);
+}
+
 static void cdc_task(void) {
 	uint8_t itf;
 
@@ -109,11 +126,28 @@ static void cdc_task(void) {
 		// if ( tud_cdc_n_connected(itf) )
 		{
 			if (tud_cdc_n_available(itf)) {
-				uint8_t buf[128];
+				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
 				uint32_t hexPage = getHexAddressPage(DATA_PAGE); //Get our hex page
-				writeBytes(hexPage, buf, count);
-				parseJson(buf, count);
+//				writeBytes(hexPage, buf, count);
+//				parseJson(buf, count);
+
+				kved_data_t kv1 = {
+					.type = KVED_DATA_TYPE_UINT32,
+					.key = "ca1",
+					.value.u32 = 0x12345678
+				};
+
+				kved_data_t kv2 = {
+					.type = KVED_DATA_TYPE_STRING,
+					.key = "ID",
+					.value.str ="N01"
+				};
+
+				kved_data_write(&kv1);
+				kved_data_write(&kv2);
+
+				testRead();
 			}
 		}
 	}
@@ -157,6 +191,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+
+	kved_init();
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

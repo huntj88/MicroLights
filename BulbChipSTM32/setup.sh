@@ -12,4 +12,11 @@ tar -xzf tinyusb.tar.gz &&
 rm tinyusb.tar.gz &&
 mv tinyusb-0.18.0 tinyusb &&
 
-python3 tinyusb/tools/get_deps.py stm32c0
+python3 tinyusb/tools/get_deps.py stm32c0 &&
+
+rm -rf kved &&
+curl -L https://github.com/marcelobarrosufu/kved/archive/refs/heads/main.zip > kved.zip &&
+unzip kved.zip &&
+rm kved.zip &&
+mv kved-main kved
+
