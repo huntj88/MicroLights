@@ -1,3 +1,4 @@
+mkdir -p libs &&
 cd libs &&
 
 rm -rf lwjson &&
