@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tusb.h"
 #include "lwjson/lwjson.h"
+#include "storage.h"
 
 /* USER CODE END Includes */
 
@@ -110,6 +111,8 @@ static void cdc_task(void) {
 			if (tud_cdc_n_available(itf)) {
 				uint8_t buf[128];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+				uint32_t hexPage = getHexAddressPage(DATA_PAGE); //Get our hex page
+				writeBytes(hexPage, buf, count);
 				parseJson(buf, count);
 			}
 		}
