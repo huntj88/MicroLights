@@ -23,7 +23,6 @@
 /* USER CODE BEGIN Includes */
 #include "tusb.h"
 #include "lwjson/lwjson.h"
-#include "storage.h"
 #include "kved.h"
 
 /* USER CODE END Includes */
@@ -128,20 +127,18 @@ static void cdc_task(void) {
 			if (tud_cdc_n_available(itf)) {
 				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				uint32_t hexPage = getHexAddressPage(DATA_PAGE); //Get our hex page
-//				writeBytes(hexPage, buf, count);
 //				parseJson(buf, count);
 
 				kved_data_t kv1 = {
 					.type = KVED_DATA_TYPE_UINT32,
 					.key = "ca1",
-					.value.u32 = 0x12345678
+					.value.u32 = 0x12345677
 				};
 
 				kved_data_t kv2 = {
 					.type = KVED_DATA_TYPE_STRING,
 					.key = "ID",
-					.value.str ="N01"
+					.value.str ="N02"
 				};
 
 				kved_data_write(&kv1);

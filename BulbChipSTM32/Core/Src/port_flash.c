@@ -12,18 +12,12 @@ Copyright (c) 2022 Marcelo Barros de Almeida <marcelobarrosalmeida@gmail.com>
 #include "kved.h"
 #include "kved_flash.h"
 #include "main.h"
-#include "storage.h"
 
-//#define FLASH_KEY1 0x45670123U /*!< Flash key1 */
-//#define FLASH_KEY2 0xCDEF89ABU /*!< Flash key2 */
-
-#define FLASH_SECTOR_SIZE 2048
-
-//const uint32_t sector_size[KVED_FLASH_NUM_SECTORS] = { FLASH_SECTOR_SIZE, FLASH_SECTOR_SIZE };
-//const uint32_t sector_address[KVED_FLASH_NUM_SECTORS] = { getHexAddressPage(31), getHexAddressPage(32) };
+#define FLASH_INIT  0x08000000   //This is the page zero of our flash
+#define FLASH_PAGE_SECTOR_SIZE 2048
 const uint8_t pages[KVED_FLASH_NUM_SECTORS] = { 31, 32 };
 
-bool kved_flash_sector_erase(kved_flash_sector_t sec_idx)
+bool kved_flash_sector_erase(kved_flash_sector_t sec)
 {
 	uint32_t sector_error;
 	FLASH_EraseInitTypeDef sector = 
@@ -32,7 +26,7 @@ bool kved_flash_sector_erase(kved_flash_sector_t sec_idx)
 		.NbPages = 1,
 	};
 
-	sector.Page = pages[sec_idx];
+	sector.Page = pages[sec];
 
 	HAL_FLASH_Unlock();
 	HAL_StatusTypeDef status = HAL_FLASHEx_Erase(&sector,&sector_error);
@@ -41,10 +35,15 @@ bool kved_flash_sector_erase(kved_flash_sector_t sec_idx)
 	return status == HAL_OK;
 }
 
-void kved_flash_data_write(kved_flash_sector_t sec_idx, uint16_t index, kved_word_t data)
+uint32_t getHexAddressPage(int dataPage){
+	uint32_t bits       = FLASH_PAGE_SECTOR_SIZE * dataPage;
+	uint32_t hexAddress = FLASH_INIT + bits;
+	return hexAddress;
+}
+
+void kved_flash_data_write(kved_flash_sector_t sec, uint16_t index, kved_word_t data)
 {
-	uint32_t sector_address[KVED_FLASH_NUM_SECTORS] = { getHexAddressPage(31), getHexAddressPage(32) };
-	uint32_t addr = sector_address[sec_idx] + index*sizeof(kved_word_t);
+	uint32_t addr = getHexAddressPage(pages[sec]) + index*sizeof(kved_word_t);
 
 	HAL_FLASH_Unlock();
 	HAL_FLASH_Program(TYPEPROGRAM_DOUBLEWORD,addr,data);
@@ -53,15 +52,13 @@ void kved_flash_data_write(kved_flash_sector_t sec_idx, uint16_t index, kved_wor
 
 kved_word_t kved_flash_data_read(kved_flash_sector_t sec, uint16_t index)
 {
-	uint32_t sector_address[KVED_FLASH_NUM_SECTORS] = { getHexAddressPage(31), getHexAddressPage(32) };
-	uint32_t addr = sector_address[sec] + index*sizeof(kved_word_t);
-
+	uint32_t addr = getHexAddressPage(pages[sec]) + index*sizeof(kved_word_t);
 	return *((kved_word_t *)addr);
 }
 
 uint32_t kved_flash_sector_size(void)
 {
-	return FLASH_SECTOR_SIZE;
+	return FLASH_PAGE_SECTOR_SIZE;
 }
 
 void kved_flash_init(void)
