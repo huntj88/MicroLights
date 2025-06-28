@@ -74,12 +74,26 @@ static lwjson_token_t tokens[128];
 
 static lwjson_t lwjson;
 
-static void parseJson(uint8_t buf[], uint32_t count) {
+enum Output {
+	low, high
+};
+
+typedef struct ChangeAt {
+	uint16_t tick;
+	enum Output output;
+} ChangeAt;
+
+typedef struct BulbMode {
+	uint16_t totalTicks;
+	ChangeAt changeAt[64];
+	uint8_t numChanges;
+} BulbMode;
+
+static BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	uint32_t indexOfNewLine = 0;
 	for (uint32_t i = 0; i < count; i++) {
 		char current = buf[i];
-		if (current == '\n')
-		{
+		if (current == '\n') {
 			indexOfNewLine = i;
 			break;
 		}
@@ -90,25 +104,50 @@ static void parseJson(uint8_t buf[], uint32_t count) {
 		bufJson[i] = buf[i];
 	}
 
+	BulbMode mode;
+
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
+
+		if ((t = lwjson_find(&lwjson, "totalTicks")) != NULL) {
+			mode.totalTicks = t->u.num_int;
+		}
+
 		if ((t = lwjson_find(&lwjson, "changeAt")) != NULL) {
-			for (const lwjson_token_t *tkn = lwjson_get_first_child(t); tkn != NULL; tkn = tkn->next) {
-				if (tkn->type == LWJSON_TYPE_ARRAY) {
+			uint8_t changeIndex = 0;
+			for (const lwjson_token_t *tkn = lwjson_get_first_child(t);
+					tkn != NULL; tkn = tkn->next) {
+				if (tkn->type == LWJSON_TYPE_OBJECT) {
 					const lwjson_token_t *tObject;
+					enum Output output;
+					uint16_t tick;
+
 					if ((tObject = lwjson_find_ex(&lwjson, tkn, "output"))
 							!= NULL) {
-						printf("Key found with data type: %d\r\n", (int) tObject->type);
+						if (strncmp(tObject->u.str.token_value, "high", 4)
+								== 0) {
+							output = high;
+						} else {
+							output = low;
+						}
 					}
+
 					if ((tObject = lwjson_find_ex(&lwjson, tkn, "tick")) != NULL) {
-						printf("Key found with data type: %d\r\n", (int) tObject->type);
+						tick = tObject->u.num_int;
 					}
+
+					ChangeAt change = { tick, output };
+					mode.changeAt[changeIndex] = change;
+					changeIndex++;
 				}
 			}
+			mode.numChanges = changeIndex;
 		}
 		lwjson_free(&lwjson);
 	}
+
+	return mode;
 }
 
 
@@ -167,7 +206,7 @@ static void cdc_task(void) {
 //				testRead();
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
-				parseJson(jsonBuf, 1024);
+				BulbMode mode = parseJson(jsonBuf, 1024);
 			}
 		}
 	}
