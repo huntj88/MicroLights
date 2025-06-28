@@ -86,19 +86,31 @@ static void parseJson(uint8_t buf[], uint32_t count) {
 	}
 
 	uint8_t bufJson[indexOfNewLine];
-	for (uint32_t i = 0; i < indexOfNewLine; i++) {
+	for (uint32_t i = 0; i <= indexOfNewLine; i++) {
 		bufJson[i] = buf[i];
 	}
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
-		if ((t = lwjson_find(&lwjson, "name")) != NULL) {
-			printf("Key found with data type: %d\r\n", (int) t->type);
+		if ((t = lwjson_find(&lwjson, "changeAt")) != NULL) {
+			for (const lwjson_token_t *tkn = lwjson_get_first_child(t); tkn != NULL; tkn = tkn->next) {
+				if (tkn->type == LWJSON_TYPE_ARRAY) {
+					const lwjson_token_t *tObject;
+					if ((tObject = lwjson_find_ex(&lwjson, tkn, "output"))
+							!= NULL) {
+						printf("Key found with data type: %d\r\n", (int) tObject->type);
+					}
+					if ((tObject = lwjson_find_ex(&lwjson, tkn, "tick")) != NULL) {
+						printf("Key found with data type: %d\r\n", (int) tObject->type);
+					}
+				}
+			}
 		}
 		lwjson_free(&lwjson);
 	}
 }
+
 
 static void testRead() {
 	kved_data_t kv1 = {
