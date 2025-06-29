@@ -1,7 +1,6 @@
 #include "stm32c0xx.h"
 
 #define FLASH_INIT  0x08000000   //This is the page zero of our flash
-#define DATA_SPACE  4            //Samples between each saved element
 #define PAGE_SECTOR 2048         //Page size
 
 //uint32_t * retrieveDataFromAddress(uint32_t page);                 //Retrieve our stored data
