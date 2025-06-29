@@ -25,6 +25,7 @@
 //#include "lwjson/lwjson.h"
 #include "storage.h"
 #include "bulb_json.h"
+#include "chip_state.h"
 
 /* USER CODE END Includes */
 
@@ -97,6 +98,7 @@ static void cdc_task(void) {
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
 					writeBulbMode(mode.modeIndex, jsonBuf, mode.jsonLength);
+					setCurrentMode(mode);
 				}
 			}
 		}
@@ -109,9 +111,6 @@ static void cdc_task(void) {
   * @brief  The application entry point.
   * @retval int
   */
-
-volatile BulbMode currentMode;
-
 int main(void)
 {
 
@@ -146,18 +145,16 @@ int main(void)
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
+	char buffer[1024];
+	readBulbMode(0, buffer, 1024);
+	BulbMode mode = parseJson(buffer, 1024);
+	setCurrentMode(mode);
+
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 	HAL_TIM_Base_Start_IT(&htim2);
 
-	char buffer[1024];
-	BulbMode mode;
-	readBulbMode(0, buffer, 1024);
-	mode = parseJson(buffer, 1024);
-
-	readBulbMode(1, buffer, 1024);
-	mode = parseJson(buffer, 1024);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -497,7 +494,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5|GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(User_LED2_GPIO_Port, User_LED2_Pin, GPIO_PIN_RESET);
@@ -508,8 +505,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  /*Configure GPIO pins : PA5 PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

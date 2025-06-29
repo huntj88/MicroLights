@@ -24,11 +24,14 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 // this function assumes the json only has a new line at the very end
 BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	uint32_t indexOfTerminalChar = jsonLength(buf, count);
+	uint8_t includeTerimalChar = 1;
+	uint8_t bufJson[indexOfTerminalChar + includeTerimalChar];
 
-	uint8_t bufJson[indexOfTerminalChar + 1];
-	for (uint32_t i = 0; i < indexOfTerminalChar; i++) {
+	for (uint32_t i = 0; i < indexOfTerminalChar + includeTerimalChar; i++) {
 		bufJson[i] = buf[i];
 	}
+
+	// ensure terminal character is \0 and not \n
 	bufJson[indexOfTerminalChar] = '\0';
 
 	BulbMode mode;

@@ -8,6 +8,8 @@
 #ifndef INC_BULB_JSON_H_
 #define INC_BULB_JSON_H_
 
+#include <stdint.h>
+
 enum Output {
 	low, high
 };

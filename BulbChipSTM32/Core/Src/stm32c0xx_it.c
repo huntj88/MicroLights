@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32c0xx_it.h"
+#include "chip_state.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -51,6 +52,11 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+uint8_t modeInterruptCount = 0;  // only used in the scope of timer 2 interrupt to track
+uint8_t nextTickInMode = 0;
+uint8_t currentChangeIndex = 0;
+volatile BulbMode currentMode;
 
 /* USER CODE END 0 */
 
@@ -159,14 +165,37 @@ void PendSV_Handler(void)
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM2_IRQn 0 */
+ {
+	/* USER CODE BEGIN TIM2_IRQn 0 */
 
-  /* USER CODE END TIM2_IRQn 0 */
-  HAL_TIM_IRQHandler(&htim2);
-  /* USER CODE BEGIN TIM2_IRQn 1 */
+	/* USER CODE END TIM2_IRQn 0 */
+	HAL_TIM_IRQHandler(&htim2);
+	/* USER CODE BEGIN TIM2_IRQn 1 */
 
-  // TODO: handle bulb chip modes
+
+
+	BulbMode mode = getCurrentMode();
+	if (mode.totalTicks <= modeInterruptCount) {
+		modeInterruptCount = 0;
+		currentChangeIndex = 0;
+		nextTickInMode = 0; // TODO: fix always assuming length >= 2
+	}
+
+	if (modeInterruptCount == nextTickInMode) {
+		if (mode.changeAt[currentChangeIndex].output == high) {
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+		} else {
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+		}
+
+		if (currentChangeIndex + 1 < mode.numChanges) {
+			nextTickInMode = mode.changeAt[currentChangeIndex + 1].tick;
+		}
+
+		currentChangeIndex++;
+	}
+
+	modeInterruptCount++;
 
   /* USER CODE END TIM2_IRQn 1 */
 }

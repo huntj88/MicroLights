@@ -27,6 +27,9 @@ static void readBytes(uint32_t page, char *buffer, uint32_t length) {
 }
 
 static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
+
+	// TODO: only write if bytes are different.
+
 	uint8_t numBytesToWrite = 8;
 	memoryPageErase(page);
 
