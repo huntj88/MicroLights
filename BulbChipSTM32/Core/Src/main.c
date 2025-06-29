@@ -23,8 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "tusb.h"
 #include "lwjson/lwjson.h"
-#include "kved.h"
-#include "storage.h";
+#include "storage.h"
 
 /* USER CODE END Includes */
 
@@ -163,16 +162,6 @@ static BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	return mode;
 }
 
-
-//static void testRead() {
-//	kved_data_t kv1 = {
-//		.key = "first"
-//	};
-//
-//	if(kved_data_read(&kv1))
-//		printf("Value: %4s\n",kv1.value.str);
-//}
-
 uint8_t jsonBuf[1024];
 uint16_t jsonIndex = 0;
 
@@ -197,29 +186,8 @@ static void cdc_task(void) {
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
 					uint32_t indexOfNewLine = jsonLengthUntilNewLine(jsonBuf, 1024);
-//					writeBytes(35, jsonBuf, indexOfNewLine);
 
-//					uint32_t * address = retrieveDataFromAddress(35);
-//					uint8_t test[10];
-//					for (uint32_t i = 0; i < 10; i++) {
-//						test[i] = address[i];
-//					}
-
-
-//					kved_data_t kv1 = {
-//						.type = KVED_DATA_TYPE_STRING
-//					};
-//					for (uint8_t i = 0; i < strlen(mode.name); i++) {
-//						kv1.key[i] = mode.name[i];
-//					}
-//
-//					uint32_t indexOfNewLine = jsonLengthUntilNewLine(jsonBuf, 1024);
-//					for (uint32_t i = 0; i < 50; i++) {
-//						kv1.value.str[i] = jsonBuf[i];
-//					}
-//
-//					kved_data_write(&kv1);
-//					testRead();
+					// TODO: save into flash
 				}
 			}
 		}
@@ -264,8 +232,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
-
-//	kved_init();
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
