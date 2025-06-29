@@ -54,3 +54,9 @@ void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount)
 uint32_t * retrieveDataFromAddress(uint32_t page) {
 	return (uint32_t*)getHexAddressOfPage(page);
 }
+
+void readTextFromFlash(uint32_t page, char* buffer, uint32_t length) {
+	uint32_t address = getHexAddressOfPage(page);
+    memcpy(buffer, (void*)address, length);
+    buffer[length] = '\0'; // Null-terminate the string
+}
