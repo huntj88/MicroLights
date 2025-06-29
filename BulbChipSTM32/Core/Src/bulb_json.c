@@ -11,10 +11,10 @@
 static lwjson_token_t tokens[128];
 static lwjson_t lwjson;
 
-static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
+static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
 		char current = buf[i];
-		if (current == '\n') {
+		if (current == '\n' || current == '\0') {
 			return i;
 		}
 	}
@@ -23,16 +23,16 @@ static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
 
 // this function assumes the json only has a new line at the very end
 BulbMode parseJson(uint8_t buf[], uint32_t count) {
-	uint32_t indexOfNewLine = jsonLengthUntilNewLine(buf, count);
+	uint32_t indexOfTerminalChar = jsonLength(buf, count);
 
-	uint8_t bufJson[indexOfNewLine + 1];
-	for (uint32_t i = 0; i < indexOfNewLine; i++) {
+	uint8_t bufJson[indexOfTerminalChar + 1];
+	for (uint32_t i = 0; i < indexOfTerminalChar; i++) {
 		bufJson[i] = buf[i];
 	}
-	bufJson[indexOfNewLine] = '\0';
+	bufJson[indexOfTerminalChar] = '\0';
 
 	BulbMode mode;
-	mode.jsonLength = indexOfNewLine;
+	mode.jsonLength = indexOfTerminalChar;
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {

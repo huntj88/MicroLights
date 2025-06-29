@@ -109,6 +109,9 @@ static void cdc_task(void) {
   * @brief  The application entry point.
   * @retval int
   */
+
+volatile BulbMode currentMode;
+
 int main(void)
 {
 
@@ -149,7 +152,12 @@ int main(void)
 	HAL_TIM_Base_Start_IT(&htim2);
 
 	char buffer[1024];
+	BulbMode mode;
 	readBulbMode(0, buffer, 1024);
+	mode = parseJson(buffer, 1024);
+
+	readBulbMode(1, buffer, 1024);
+	mode = parseJson(buffer, 1024);
   /* USER CODE END 2 */
 
   /* Infinite loop */
