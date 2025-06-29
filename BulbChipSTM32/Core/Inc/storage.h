@@ -5,5 +5,6 @@
 #define BULB_PAGE_0_OFFSET 56    // 16K flash reserved for bulb modes starting at page 56
 
 void writeBulbMode(uint8_t mode, uint8_t buf[], uint32_t bufCount);
-void readTextFromFlash(uint32_t page, char *buffer, uint32_t length);
+void readBulbMode(uint8_t mode, char *buffer, uint32_t length);
+//void readTextFromFlash(uint32_t page, char *buffer, uint32_t length);
 

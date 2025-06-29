@@ -1,11 +1,5 @@
 #include "storage.h"
 
-static uint32_t getHexAddressOfPage(uint32_t dataPage) {
-	uint32_t bits = PAGE_SECTOR * dataPage;
-	uint32_t hexAddress = FLASH_INIT + bits;
-	return hexAddress;
-}
-
 // Erase a memory page from the flash retrieve
 static void memoryPageErase(uint32_t memoryPage) {
 	HAL_StatusTypeDef eraseHandler = HAL_FLASH_Unlock();
@@ -18,6 +12,18 @@ static void memoryPageErase(uint32_t memoryPage) {
 	eraseHandler = FLASH_WaitForLastOperation(500);
 	CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
 	HAL_FLASH_Lock();
+}
+
+static uint32_t getHexAddressOfPage(uint32_t dataPage) {
+	uint32_t bits = PAGE_SECTOR * dataPage;
+	uint32_t hexAddress = FLASH_INIT + bits;
+	return hexAddress;
+}
+
+static void readBytes(uint32_t page, char *buffer, uint32_t length) {
+	uint32_t address = getHexAddressOfPage(page);
+	memcpy(buffer, (void*) address, length);
+	buffer[length] = '\0'; // Null-terminate the string
 }
 
 static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
@@ -58,8 +64,7 @@ void writeBulbMode(uint8_t mode, uint8_t buf[], uint32_t bufCount) {
 	writeBytes(page, buf, bufCount);
 }
 
-void readTextFromFlash(uint32_t page, char *buffer, uint32_t length) {
-	uint32_t address = getHexAddressOfPage(page);
-	memcpy(buffer, (void*) address, length);
-	buffer[length] = '\0'; // Null-terminate the string
+void readBulbMode(uint8_t mode, char *buffer, uint32_t length) {
+	uint32_t page = BULB_PAGE_0_OFFSET + mode;
+	readBytes(page, buffer, length);
 }
