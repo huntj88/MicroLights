@@ -158,41 +158,12 @@ int main(void) {
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-	int16_t buttonDownCounter = 0; // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
 
 	while (1) {
 		tud_task();
 		cdc_task();
 
-		if (hasClickStarted()) {
-
-			// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
-
-			GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
-			uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
-
-			if (buttonCurrentlyDown) {
-				buttonDownCounter += 1;
-				if (buttonDownCounter > 200) {
-					// TODO: Hold button down to shut down.
-				}
-			} else {
-				buttonDownCounter -= 10; // Large decrement to allow any hold time to "discharge" quickly.
-				if (buttonDownCounter < -200) {
-					// Button clicked and released.
-					setClickEnded();
-					buttonDownCounter = 0;
-
-					int newModeIndex = getCurrentMode().modeIndex + 1;
-					if (newModeIndex > 2) {
-						newModeIndex = 0;
-					}
-					readBulbMode(newModeIndex, buffer, 1024);
-					BulbMode newMode = parseJson(buffer, 1024);
-					setCurrentMode(newMode);
-				}
-			}
-		}
+		handleButtonInput();
 
 		HAL_SuspendTick();
 		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

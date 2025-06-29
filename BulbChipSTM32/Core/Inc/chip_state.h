@@ -11,8 +11,7 @@
 #include "bulb_json.h"
 
 void setClickStarted();
-void setClickEnded();
-uint8_t hasClickStarted();
+void handleButtonInput();
 
 void setCurrentMode(BulbMode mode);
 BulbMode getCurrentMode();
