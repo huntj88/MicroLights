@@ -20,6 +20,7 @@ void memoryPageErase(uint32_t memoryPage){
 
 void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount)
 {
+	// TODO: const for numBytes = 8
 	memoryPageErase(page);
 
 	HAL_FLASH_Unlock();
@@ -49,10 +50,6 @@ void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount)
 	}
 
 	HAL_FLASH_Lock();
-}
-
-uint32_t * retrieveDataFromAddress(uint32_t page) {
-	return (uint32_t*)getHexAddressOfPage(page);
 }
 
 void readTextFromFlash(uint32_t page, char* buffer, uint32_t length) {

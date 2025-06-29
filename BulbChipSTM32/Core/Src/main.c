@@ -22,8 +22,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "tusb.h"
-#include "lwjson/lwjson.h"
+//#include "lwjson/lwjson.h"
 #include "storage.h"
+#include "bulb_json.h"
 
 /* USER CODE END Includes */
 
@@ -70,98 +71,6 @@ static void MX_USB_PCD_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-static lwjson_token_t tokens[128];
-
-static lwjson_t lwjson;
-
-enum Output {
-	low, high
-};
-
-typedef struct ChangeAt {
-	uint16_t tick;
-	enum Output output;
-} ChangeAt;
-
-typedef struct BulbMode {
-	char name[32];
-	uint16_t totalTicks;
-	ChangeAt changeAt[64];
-	uint8_t numChanges;
-} BulbMode;
-
-static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
-	for (uint32_t i = 0; i < count; i++) {
-		char current = buf[i];
-		if (current == '\n') {
-			return i;
-		}
-	}
-	return -1;
-}
-
-static BulbMode parseJson(uint8_t buf[], uint32_t count) {
-	uint32_t indexOfNewLine = jsonLengthUntilNewLine(buf, count);
-
-	uint8_t bufJson[indexOfNewLine];
-	for (uint32_t i = 0; i <= indexOfNewLine; i++) {
-		bufJson[i] = buf[i];
-	}
-
-	BulbMode mode;
-
-	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
-		const lwjson_token_t *t;
-
-		if ((t = lwjson_find(&lwjson, "name")) != NULL) {
-			char *nameRaw = t->u.str.token_value;
-			for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-				mode.name[i] = nameRaw[i];
-			}
-			mode.name[t->u.str.token_value_len] = '\0';
-		}
-
-		if ((t = lwjson_find(&lwjson, "totalTicks")) != NULL) {
-			mode.totalTicks = t->u.num_int;
-		}
-
-		if ((t = lwjson_find(&lwjson, "changeAt")) != NULL) {
-			uint8_t changeIndex = 0;
-			for (const lwjson_token_t *tkn = lwjson_get_first_child(t);
-					tkn != NULL; tkn = tkn->next) {
-				if (tkn->type == LWJSON_TYPE_OBJECT) {
-					const lwjson_token_t *tObject;
-					enum Output output;
-					uint16_t tick;
-
-					if ((tObject = lwjson_find_ex(&lwjson, tkn, "output"))
-							!= NULL) {
-						if (strncmp(tObject->u.str.token_value, "high", 4)
-								== 0) {
-							output = high;
-						} else {
-							output = low;
-						}
-					}
-
-					if ((tObject = lwjson_find_ex(&lwjson, tkn, "tick")) != NULL) {
-						tick = tObject->u.num_int;
-					}
-
-					ChangeAt change = { tick, output };
-					mode.changeAt[changeIndex] = change;
-					changeIndex++;
-				}
-			}
-			mode.numChanges = changeIndex;
-		}
-		lwjson_free(&lwjson);
-	}
-
-	return mode;
-}
-
 uint8_t jsonBuf[1024];
 uint16_t jsonIndex = 0;
 
@@ -185,7 +94,6 @@ static void cdc_task(void) {
 				BulbMode mode = parseJson(jsonBuf, 1024);
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
-					uint32_t indexOfNewLine = jsonLengthUntilNewLine(jsonBuf, 1024);
 
 					// TODO: save into flash
 				}
@@ -236,7 +144,7 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-	const char *testJson = "{\"name\":\"default\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}";
+//	const char *testJson = "{\"name\":\"default\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}";
 
 //	writeBytes(56, testJson, strlen(testJson));
 	char buffer[1024];
