@@ -97,7 +97,7 @@ static void cdc_task(void) {
 				BulbMode mode = parseJson(jsonBuf, 1024);
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
-					writeBulbMode(mode.modeIndex, jsonBuf, mode.jsonLength);
+					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
 					setCurrentMode(mode);
 				}
 			}
@@ -144,10 +144,7 @@ int main(void) {
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-	char buffer[1024];
-	readBulbMode(0, buffer, 1024);
-	BulbMode mode = parseJson(buffer, 1024);
-	setCurrentMode(mode);
+	setInitialState();
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

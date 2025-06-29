@@ -10,6 +10,8 @@
 
 #include "bulb_json.h"
 
+void setInitialState();
+
 void setClickStarted();
 void handleButtonInput();
 

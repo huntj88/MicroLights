@@ -8,10 +8,23 @@
 #include <stdint.h>
 #include "stm32c0xx_hal.h"
 #include "chip_state.h"
+#include "storage.h"
 
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
+static char flashReadBuffer[1024];
+
+BulbMode readBulbMode(uint8_t modeIndex) {
+	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
+	BulbMode mode = parseJson(flashReadBuffer, 1024);
+	return mode;
+}
+
+void setInitialState() {
+	BulbMode mode = readBulbMode(0);
+	setCurrentMode(mode);
+}
 
 void setClickStarted() {
 	clickStarted = 1;
@@ -34,11 +47,8 @@ BulbMode getCurrentMode() {
 }
 
 static int16_t buttonDownCounter = 0;
-static char buffer[1024];
-
 void handleButtonInput() {
 	if (hasClickStarted()) {
-
 		// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
 
 		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
@@ -56,12 +66,11 @@ void handleButtonInput() {
 				setClickEnded();
 				buttonDownCounter = 0;
 
-				int newModeIndex = getCurrentMode().modeIndex + 1;
-				if (newModeIndex > 2) {
+				uint8_t newModeIndex = currentMode.modeIndex + 1;
+				if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
 					newModeIndex = 0;
 				}
-				readBulbMode(newModeIndex, buffer, 1024);
-				BulbMode newMode = parseJson(buffer, 1024);
+				BulbMode newMode = readBulbMode(newModeIndex);
 				setCurrentMode(newMode);
 			}
 		}
