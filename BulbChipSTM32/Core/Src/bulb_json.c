@@ -21,15 +21,17 @@ static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
 	return -1;
 }
 
+// this function assumes the json only has a new line at the very end
 BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	uint32_t indexOfNewLine = jsonLengthUntilNewLine(buf, count);
 
 	uint8_t bufJson[indexOfNewLine];
-	for (uint32_t i = 0; i <= indexOfNewLine; i++) {
+	for (uint32_t i = 0; i < indexOfNewLine; i++) {
 		bufJson[i] = buf[i];
 	}
 
 	BulbMode mode;
+	mode.jsonLength = indexOfNewLine;
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {

@@ -22,6 +22,7 @@ typedef struct BulbMode {
 	uint16_t totalTicks;
 	ChangeAt changeAt[64];
 	uint8_t numChanges;
+	uint16_t jsonLength;
 } BulbMode;
 
 BulbMode parseJson(uint8_t buf[], uint32_t count);
