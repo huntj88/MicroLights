@@ -94,7 +94,7 @@ static void cdc_task(void) {
 				BulbMode mode = parseJson(jsonBuf, 1024);
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
-					writeBulbMode(0, jsonBuf, mode.jsonLength);
+					writeBulbMode(mode.modeIndex, jsonBuf, mode.jsonLength);
 				}
 			}
 		}

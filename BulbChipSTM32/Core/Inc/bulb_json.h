@@ -19,6 +19,7 @@ typedef struct ChangeAt {
 
 typedef struct BulbMode {
 	char name[32];
+	uint8_t modeIndex;
 	uint16_t totalTicks;
 	ChangeAt changeAt[64];
 	uint8_t numChanges;

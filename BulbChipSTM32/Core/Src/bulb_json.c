@@ -25,10 +25,11 @@ static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
 BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	uint32_t indexOfNewLine = jsonLengthUntilNewLine(buf, count);
 
-	uint8_t bufJson[indexOfNewLine];
+	uint8_t bufJson[indexOfNewLine + 1];
 	for (uint32_t i = 0; i < indexOfNewLine; i++) {
 		bufJson[i] = buf[i];
 	}
+	bufJson[indexOfNewLine] = '\0';
 
 	BulbMode mode;
 	mode.jsonLength = indexOfNewLine;
@@ -43,6 +44,10 @@ BulbMode parseJson(uint8_t buf[], uint32_t count) {
 				mode.name[i] = nameRaw[i];
 			}
 			mode.name[t->u.str.token_value_len] = '\0';
+		}
+
+		if ((t = lwjson_find(&lwjson, "modeIndex")) != NULL) {
+			mode.modeIndex = t->u.num_int;
 		}
 
 		if ((t = lwjson_find(&lwjson, "totalTicks")) != NULL) {

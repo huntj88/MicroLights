@@ -6,5 +6,4 @@
 
 void writeBulbMode(uint8_t mode, uint8_t buf[], uint32_t bufCount);
 void readBulbMode(uint8_t mode, char *buffer, uint32_t length);
-//void readTextFromFlash(uint32_t page, char *buffer, uint32_t length);
 
