@@ -20,25 +20,25 @@ void memoryPageErase(uint32_t memoryPage){
 
 void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount)
 {
-	// TODO: const for numBytes = 8
+	uint8_t numBytesToWrite = 8;
 	memoryPageErase(page);
 
 	HAL_FLASH_Unlock();
 
-	uint8_t emptyPaddingLength = 8 - (bufCount % 8);
-	uint8_t dataSpaceBuf[8];
+	uint8_t emptyPaddingLength = numBytesToWrite - (bufCount % numBytesToWrite);
+	uint8_t dataSpaceBuf[numBytesToWrite];
 
 	// write 8 bytes at a time, pad with \0 at end if bytes count is not a multiple of 8
 	for (int32_t i = 0; i < bufCount + emptyPaddingLength; i++)
 	{
 		if (i < bufCount) {
-			dataSpaceBuf[i % 8] = buf[i];
+			dataSpaceBuf[i % numBytesToWrite] = buf[i];
 		} else {
-			dataSpaceBuf[i % 8] = '\0';
+			dataSpaceBuf[i % numBytesToWrite] = '\0';
 		}
 
 		if (i % 8 == 8 - 1) {
-			uint32_t address = getHexAddressOfPage(page) + ((8 * (i / 8)));
+			uint32_t address = getHexAddressOfPage(page) + ((numBytesToWrite * (i / numBytesToWrite)));
 
 			uint64_t data, *ptr;
 
