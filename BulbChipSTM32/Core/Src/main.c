@@ -24,6 +24,7 @@
 #include "tusb.h"
 #include "lwjson/lwjson.h"
 #include "kved.h"
+#include "storage.h";
 
 /* USER CODE END Includes */
 
@@ -84,20 +85,24 @@ typedef struct ChangeAt {
 } ChangeAt;
 
 typedef struct BulbMode {
+	char name[32];
 	uint16_t totalTicks;
 	ChangeAt changeAt[64];
 	uint8_t numChanges;
 } BulbMode;
 
-static BulbMode parseJson(uint8_t buf[], uint32_t count) {
-	uint32_t indexOfNewLine = 0;
+static uint32_t jsonLengthUntilNewLine(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
 		char current = buf[i];
 		if (current == '\n') {
-			indexOfNewLine = i;
-			break;
+			return i;
 		}
 	}
+	return -1;
+}
+
+static BulbMode parseJson(uint8_t buf[], uint32_t count) {
+	uint32_t indexOfNewLine = jsonLengthUntilNewLine(buf, count);
 
 	uint8_t bufJson[indexOfNewLine];
 	for (uint32_t i = 0; i <= indexOfNewLine; i++) {
@@ -109,6 +114,14 @@ static BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
+
+		if ((t = lwjson_find(&lwjson, "name")) != NULL) {
+			char *nameRaw = t->u.str.token_value;
+			for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
+				mode.name[i] = nameRaw[i];
+			}
+			mode.name[t->u.str.token_value_len] = '\0';
+		}
 
 		if ((t = lwjson_find(&lwjson, "totalTicks")) != NULL) {
 			mode.totalTicks = t->u.num_int;
@@ -151,21 +164,14 @@ static BulbMode parseJson(uint8_t buf[], uint32_t count) {
 }
 
 
-static void testRead() {
-	kved_data_t kv1 = {
-		.key = "ca1",
-	};
-
-	kved_data_t kv2 = {
-		.key = "ID",
-	};
-
-	if(kved_data_read(&kv1))
-		printf("Value: %d\n",kv1.value.u32);
-
-	if(kved_data_read(&kv2))
-		printf("Value: %4s\n",kv2.value.str);
-}
+//static void testRead() {
+//	kved_data_t kv1 = {
+//		.key = "first"
+//	};
+//
+//	if(kved_data_read(&kv1))
+//		printf("Value: %4s\n",kv1.value.str);
+//}
 
 uint8_t jsonBuf[1024];
 uint16_t jsonIndex = 0;
@@ -181,32 +187,40 @@ static void cdc_task(void) {
 			if (tud_cdc_n_available(itf)) {
 				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-//				parseJson(buf, count);
-
-				for (uint8_t i = 0; i < 64; i++) {
+				for (uint8_t i = 0; i < count; i++) {
 					jsonBuf[jsonIndex + i] = buf[i];
 				}
-				jsonIndex += 64;
-
-//				kved_data_t kv1 = {
-//					.type = KVED_DATA_TYPE_UINT32,
-//					.key = "ca1",
-//					.value.u32 = 0x12345677
-//				};
-//
-//				kved_data_t kv2 = {
-//					.type = KVED_DATA_TYPE_STRING,
-//					.key = "ID",
-//					.value.str ="N02"
-//				};
-//
-//				kved_data_write(&kv1);
-//				kved_data_write(&kv2);
-//
-//				testRead();
+				jsonIndex += count;
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
 				BulbMode mode = parseJson(jsonBuf, 1024);
+
+				if (mode.numChanges > 0 && mode.totalTicks > 0) {
+					uint32_t indexOfNewLine = jsonLengthUntilNewLine(jsonBuf, 1024);
+//					writeBytes(35, jsonBuf, indexOfNewLine);
+
+//					uint32_t * address = retrieveDataFromAddress(35);
+//					uint8_t test[10];
+//					for (uint32_t i = 0; i < 10; i++) {
+//						test[i] = address[i];
+//					}
+
+
+//					kved_data_t kv1 = {
+//						.type = KVED_DATA_TYPE_STRING
+//					};
+//					for (uint8_t i = 0; i < strlen(mode.name); i++) {
+//						kv1.key[i] = mode.name[i];
+//					}
+//
+//					uint32_t indexOfNewLine = jsonLengthUntilNewLine(jsonBuf, 1024);
+//					for (uint32_t i = 0; i < 50; i++) {
+//						kv1.value.str[i] = jsonBuf[i];
+//					}
+//
+//					kved_data_write(&kv1);
+//					testRead();
+				}
 			}
 		}
 	}
@@ -251,11 +265,20 @@ int main(void)
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-	kved_init();
+//	kved_init();
 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+
+//	testRead();
+
+	writeBytes(31, "{\"name\":\"default ba\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}", strlen("{\"name\":\"default ba\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}"));
+	uint32_t * address = retrieveDataFromAddress(31);
+//	uint8_t test[10];
+//	for (uint32_t i = 0; i < 10; i++) {
+//		test = *address;
+//	}
 
   /* USER CODE END 2 */
 
