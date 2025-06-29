@@ -111,37 +111,36 @@ static void cdc_task(void) {
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
+int main(void) {
 
-  /* USER CODE BEGIN 1 */
+	/* USER CODE BEGIN 1 */
 
-  /* USER CODE END 1 */
+	/* USER CODE END 1 */
 
-  /* MCU Configuration--------------------------------------------------------*/
+	/* MCU Configuration--------------------------------------------------------*/
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
 
-  /* USER CODE BEGIN Init */
+	/* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+	/* USER CODE END Init */
 
-  /* Configure the system clock */
-  SystemClock_Config();
+	/* Configure the system clock */
+	SystemClock_Config();
 
-  /* USER CODE BEGIN SysInit */
+	/* USER CODE BEGIN SysInit */
 
-  /* USER CODE END SysInit */
+	/* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_USART2_UART_Init();
-  MX_I2C2_Init();
-  MX_TIM1_Init();
-  MX_USB_PCD_Init();
-  MX_TIM2_Init();
-  /* USER CODE BEGIN 2 */
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USART2_UART_Init();
+	MX_I2C2_Init();
+	MX_TIM1_Init();
+	MX_USB_PCD_Init();
+	MX_TIM2_Init();
+	/* USER CODE BEGIN 2 */
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
@@ -155,25 +154,59 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 	HAL_TIM_Base_Start_IT(&htim2);
 
-  /* USER CODE END 2 */
+	/* USER CODE END 2 */
 
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-	uint32_t buttonDownCounter = 0;  // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	int16_t buttonDownCounter = 0; // Used for detecting clicking button vs holding button by counting up or down to debounce button noise.
 
 	while (1) {
 		tud_task();
 		cdc_task();
 
-		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+		if (hasClickStarted()) {
 
-		// TODO: figure out sleep/shutdown modes
+			// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
 
-    /* USER CODE END WHILE */
+			GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+			uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
 
-    /* USER CODE BEGIN 3 */
+			if (buttonCurrentlyDown) {
+				buttonDownCounter += 1;
+				if (buttonDownCounter > 200) {
+					// TODO: Hold button down to shut down.
+				}
+			} else {
+				buttonDownCounter -= 10; // Large decrement to allow any hold time to "discharge" quickly.
+				if (buttonDownCounter < -200) {
+					// Button clicked and released.
+					setClickEnded();
+					buttonDownCounter = 0;
+
+					int newModeIndex = getCurrentMode().modeIndex + 1;
+					if (newModeIndex > 2) {
+						newModeIndex = 0;
+					}
+					readBulbMode(newModeIndex, buffer, 1024);
+					BulbMode newMode = parseJson(buffer, 1024);
+					setCurrentMode(newMode);
+				}
+			}
+		}
+
+		HAL_SuspendTick();
+		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+
+		// TODO: resumeTick in a slower timer, run the main loop less frequently and sleep longer. mostly let the interrupts do the LED patterns
+		HAL_ResumeTick();
+
+		// TODO: figure out shutdown modes
+
+		/* USER CODE END WHILE */
+
+		/* USER CODE BEGIN 3 */
 	}
-  /* USER CODE END 3 */
+	/* USER CODE END 3 */
 }
 
 /**
