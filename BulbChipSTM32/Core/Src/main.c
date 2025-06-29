@@ -144,9 +144,10 @@ int main(void)
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-//	const char *testJson = "{\"name\":\"default\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}";
 
-//	writeBytes(56, testJson, strlen(testJson));
+	const char *testJson = "{\"name\":\"default\",\"totalTicks\":70,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":6,\"output\":\"low\"},{\"tick\":7,\"output\":\"high\"},{\"tick\":14,\"output\":\"low\"},{\"tick\":15,\"output\":\"high\"},{\"tick\":22,\"output\":\"low\"},{\"tick\":23,\"output\":\"high\"},{\"tick\":30,\"output\":\"low\"},{\"tick\":31,\"output\":\"high\"},{\"tick\":70,\"output\":\"low\"}]}";
+	writeBulbMode(0, testJson, strlen(testJson));
+
 	char buffer[1024];
 	readTextFromFlash(56, buffer, 1024);
   /* USER CODE END 2 */
