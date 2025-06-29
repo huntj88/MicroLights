@@ -20,9 +20,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32c0xx_it.h"
-#include "chip_state.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "chip_state.h";
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,7 +91,6 @@ void NMI_Handler(void)
 //void HardFault_Handler(void)
 //{
 //  /* USER CODE BEGIN HardFault_IRQn 0 */
-//
 //  /* USER CODE END HardFault_IRQn 0 */
 //  while (1)
 //  {
@@ -132,11 +131,9 @@ void PendSV_Handler(void)
 //void SysTick_Handler(void)
 //{
 //  /* USER CODE BEGIN SysTick_IRQn 0 */
-//
 //  /* USER CODE END SysTick_IRQn 0 */
 //  HAL_IncTick();
 //  /* USER CODE BEGIN SysTick_IRQn 1 */
-//
 //  /* USER CODE END SysTick_IRQn 1 */
 //}
 
@@ -148,16 +145,28 @@ void PendSV_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles EXTI line 4 to 15 interrupts.
+  */
+void EXTI4_15_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_15_IRQn 0 */
+
+  /* USER CODE END EXTI4_15_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13);
+  /* USER CODE BEGIN EXTI4_15_IRQn 1 */
+
+  /* USER CODE END EXTI4_15_IRQn 1 */
+}
+
+/**
   * @brief This function handles USB global interrupt (combined with EXTI 33).
   */
 //void USB_DRD_FS_IRQHandler(void)
 //{
 //  /* USER CODE BEGIN USB_DRD_FS_IRQn 0 */
-//
 //  /* USER CODE END USB_DRD_FS_IRQn 0 */
 //  HAL_PCD_IRQHandler(&hpcd_USB_DRD_FS);
 //  /* USER CODE BEGIN USB_DRD_FS_IRQn 1 */
-//
 //  /* USER CODE END USB_DRD_FS_IRQn 1 */
 //}
 
@@ -165,12 +174,12 @@ void PendSV_Handler(void)
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
- {
-	/* USER CODE BEGIN TIM2_IRQn 0 */
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
 
-	/* USER CODE END TIM2_IRQn 0 */
-	HAL_TIM_IRQHandler(&htim2);
-	/* USER CODE BEGIN TIM2_IRQn 1 */
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
 
 
 
