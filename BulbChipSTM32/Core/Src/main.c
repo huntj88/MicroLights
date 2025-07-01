@@ -74,6 +74,16 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+// expect red, green, blue to be in range of 0 to 255
+void showColor(uint8_t red, uint8_t green, uint8_t blue) {
+	uint16_t max = 30000; // 100% duty cycle is actually 47999 (check ioc file), but limiting for now
+	uint16_t increment = max / 256;
+
+	TIM1->CCR1 = blue * increment;
+	TIM1->CCR2 = green * increment;
+	TIM1->CCR3 = red * increment;
+}
+
 uint8_t jsonBuf[1024];
 uint16_t jsonIndex = 0;
 
@@ -86,6 +96,7 @@ static void cdc_task(void) {
 		// if ( tud_cdc_n_connected(itf) )
 		{
 			if (tud_cdc_n_available(itf)) {
+				showColor(100, 100, 100);
 				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
 				for (uint8_t i = 0; i < count; i++) {
@@ -100,6 +111,7 @@ static void cdc_task(void) {
 					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
 					setCurrentMode(mode);
 				}
+				showColor(0, 0, 0);
 			}
 		}
 	}
@@ -111,36 +123,37 @@ static void cdc_task(void) {
   * @brief  The application entry point.
   * @retval int
   */
-int main(void) {
+int main(void)
+{
 
-	/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-	/* USER CODE END 1 */
+  /* USER CODE END 1 */
 
-	/* MCU Configuration--------------------------------------------------------*/
+  /* MCU Configuration--------------------------------------------------------*/
 
-	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-	HAL_Init();
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
 
-	/* USER CODE BEGIN Init */
+  /* USER CODE BEGIN Init */
 
-	/* USER CODE END Init */
+  /* USER CODE END Init */
 
-	/* Configure the system clock */
-	SystemClock_Config();
+  /* Configure the system clock */
+  SystemClock_Config();
 
-	/* USER CODE BEGIN SysInit */
+  /* USER CODE BEGIN SysInit */
 
-	/* USER CODE END SysInit */
+  /* USER CODE END SysInit */
 
-	/* Initialize all configured peripherals */
-	MX_GPIO_Init();
-	MX_USART2_UART_Init();
-	MX_I2C2_Init();
-	MX_TIM1_Init();
-	MX_USB_PCD_Init();
-	MX_TIM2_Init();
-	/* USER CODE BEGIN 2 */
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART2_UART_Init();
+  MX_I2C2_Init();
+  MX_TIM1_Init();
+  MX_USB_PCD_Init();
+  MX_TIM2_Init();
+  /* USER CODE BEGIN 2 */
 
 	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
@@ -151,10 +164,12 @@ int main(void) {
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
 	HAL_TIM_Base_Start_IT(&htim2);
 
-	/* USER CODE END 2 */
+  /* USER CODE END 2 */
 
-	/* Infinite loop */
-	/* USER CODE BEGIN WHILE */
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+
+	showColor(5, 5, 5);
 
 	while (1) {
 		tud_task();
@@ -164,17 +179,15 @@ int main(void) {
 
 		HAL_SuspendTick();
 		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
-
-		// TODO: resumeTick in a slower timer, run the main loop less frequently and sleep longer. mostly let the interrupts do the LED patterns
 		HAL_ResumeTick();
 
 		// TODO: figure out shutdown modes
 
-		/* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+    /* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
+  /* USER CODE END 3 */
 }
 
 /**
@@ -286,7 +299,7 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = 2;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 47999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -376,7 +389,7 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 2;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim2.Init.Period = 47999;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;

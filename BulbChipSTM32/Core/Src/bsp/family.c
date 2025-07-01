@@ -178,9 +178,8 @@ int board_uart_write(void const *buf, int len) {
 #if CFG_TUSB_OS == OPT_OS_NONE
 volatile uint32_t system_ticks = 0;
 
-void SysTick_Handler(void) {
+void SysTick_Handler_TinyUSB(void) {
 	system_ticks++;
-	HAL_IncTick();
 }
 
 uint32_t board_millis(void) {
@@ -188,7 +187,7 @@ uint32_t board_millis(void) {
 }
 #endif
 
-void HardFault_Handler(void) {
+void HardFault_Handler_TinyUSB(void) {
 	__asm("BKPT #0\n");
 }
 
