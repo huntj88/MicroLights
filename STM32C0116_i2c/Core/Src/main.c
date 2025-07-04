@@ -125,15 +125,15 @@ int main(void) {
 	/* USER CODE BEGIN WHILE */
 
 	while (1) {
-		uint8_t writeBuffer[] = "R"; // DATA to send
-		uint8_t readBuffer[12] = { 0 };
-		uint8_t readBatteryICBuffer[1] = { 0 };
-
-		HAL_StatusTypeDef statusOfReadRequest = HAL_I2C_Master_Transmit(&hi2c1,
-				(0x6F << 1), &writeBuffer, sizeof(writeBuffer), 1000);
-		HAL_Delay(500);
-		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
-				(0x6F << 1), &readBuffer, sizeof(readBuffer), 1000);
+//		uint8_t writeBuffer[] = "R"; // DATA to send
+//		uint8_t readBuffer[12] = { 0 };
+//		uint8_t readBatteryICBuffer[1] = { 0 };
+//
+//		HAL_StatusTypeDef statusOfReadRequest = HAL_I2C_Master_Transmit(&hi2c1,
+//				(0x6F << 1), &writeBuffer, sizeof(writeBuffer), 1000);
+//		HAL_Delay(500);
+//		HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
+//				(0x6F << 1), &readBuffer, sizeof(readBuffer), 1000);
 
 		HAL_Delay(1000);
 

@@ -13,7 +13,7 @@
 void setInitialState();
 
 void setClickStarted();
-void handleButtonInput();
+void handleButtonInput(void (*shutdown)());
 
 void setCurrentMode(BulbMode mode);
 BulbMode getCurrentMode();

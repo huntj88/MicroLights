@@ -47,31 +47,41 @@ BulbMode getCurrentMode() {
 }
 
 static int16_t buttonDownCounter = 0;
-void handleButtonInput() {
+static uint8_t buttonState = 0;
+void handleButtonInput(void (*shutdown)()) {
 	if (hasClickStarted()) {
-		// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
 
-		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_13);
+		// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
+		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
 		uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
-			if (buttonDownCounter > 200) {
-				// TODO: Hold button down to shut down.
+			if (buttonDownCounter > 200 && buttonState == 0) {
+				showColor(0, 0, 20);
+				buttonState = 1; // shutdown
+			} else if (buttonDownCounter > 600 && buttonState == 1) {
+//				buttonState = 2; // shutdown and lock
 			}
 		} else {
 			buttonDownCounter -= 10; // Large decrement to allow any hold time to "discharge" quickly.
 			if (buttonDownCounter < -200) {
-				// Button clicked and released.
-				setClickEnded();
 				buttonDownCounter = 0;
+				if (buttonState == 0) {
+					// Button clicked and released.
+					setClickEnded();
 
-				uint8_t newModeIndex = currentMode.modeIndex + 1;
-				if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
-					newModeIndex = 0;
+					uint8_t newModeIndex = currentMode.modeIndex + 1;
+					if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
+						newModeIndex = 0;
+					}
+					BulbMode newMode = readBulbMode(newModeIndex);
+					setCurrentMode(newMode);
+				} else if (buttonState == 1) {
+					shutdown();
+				} else if (buttonState == 2) {
+					// TODO: Lock
 				}
-				BulbMode newMode = readBulbMode(newModeIndex);
-				setCurrentMode(newMode);
 			}
 		}
 	}
