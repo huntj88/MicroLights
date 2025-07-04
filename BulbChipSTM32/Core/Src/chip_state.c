@@ -9,6 +9,7 @@
 #include "stm32c0xx_hal.h"
 #include "chip_state.h"
 #include "storage.h"
+#include "rgb.h"
 
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile BulbMode currentMode;
@@ -50,17 +51,16 @@ static int16_t buttonDownCounter = 0;
 static uint8_t buttonState = 0;
 void handleButtonInput(void (*shutdown)()) {
 	if (hasClickStarted()) {
-
-		// TODO: Disable button interrupt when button is clicked, until click is over, or until shutdown? not sure if necessary
 		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
 		uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
 			if (buttonDownCounter > 200 && buttonState == 0) {
-				showColor(0, 0, 20);
+				showColor(0, 0, 0);
 				buttonState = 1; // shutdown
-			} else if (buttonDownCounter > 600 && buttonState == 1) {
+			} else if (buttonDownCounter > 1200 && buttonState == 1) {
+				showLocked();
 //				buttonState = 2; // shutdown and lock
 			}
 		} else {

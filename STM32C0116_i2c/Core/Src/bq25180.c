@@ -14,6 +14,7 @@ HAL_StatusTypeDef write(BQ25180 *chargerIC, uint8_t register_pointer,
 	writeBuffer[0] = register_pointer;
 	writeBuffer[1] = register_value;
 
+	// TODO: convert to interrupt api
 	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(chargerIC->hi2c,
 			chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 

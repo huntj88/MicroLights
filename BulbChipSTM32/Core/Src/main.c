@@ -77,16 +77,6 @@ static void MX_I2C1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-// expect red, green, blue to be in range of 0 to 255
-void showColor(uint8_t red, uint8_t green, uint8_t blue) {
-	uint16_t max = 30000; // 100% duty cycle is actually 47999 (check ioc file), but limiting for now
-	uint16_t increment = max / 256;
-
-	TIM1->CCR1 = blue * increment;
-	TIM1->CCR2 = green * increment;
-	TIM1->CCR3 = red * increment;
-}
-
 uint8_t jsonBuf[1024];
 uint16_t jsonIndex = 0;
 
@@ -99,7 +89,6 @@ static void cdc_task(void) {
 		// if ( tud_cdc_n_connected(itf) )
 		{
 			if (tud_cdc_n_available(itf)) {
-				showColor(100, 100, 100);
 				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
 				for (uint8_t i = 0; i < count; i++) {
@@ -113,8 +102,8 @@ static void cdc_task(void) {
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
 					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
 					setCurrentMode(mode);
+					showSuccess();
 				}
-				showColor(0, 0, 0);
 			}
 		}
 	}
@@ -168,7 +157,7 @@ int main(void)
   MX_TIM2_Init();
   MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
-//	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+	tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
 	setInitialState();
 
@@ -189,17 +178,16 @@ int main(void)
 	while (1) {
 		tud_task();
 		cdc_task();
+		rgb_task();
 
 		handleButtonInput(shutdown);
 
 		configureChargerIC(&chargerIC);
-		readRegisters(&chargerIC);
+//		readRegisters(&chargerIC);
 
 		HAL_SuspendTick();
 		HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 		HAL_ResumeTick();
-
-		// TODO: figure out shutdown modes
 
     /* USER CODE END WHILE */
 
