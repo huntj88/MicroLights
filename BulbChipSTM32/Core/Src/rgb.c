@@ -9,34 +9,35 @@
 #include "stm32c0xx_hal.h"
 #include "rgb.h"
 
-static uint8_t loopCount = 0;
-static uint8_t tickOfNotification = 0;
-static uint8_t showingNotification = 0;
+static uint8_t tickCount = 0;
+static uint8_t tickOfStatusUpdate = 0;
+static uint8_t showingStatus = 0;
 
 void rgb_task() {
-	loopCount++;
+	tickCount++;
 
-	if (showingNotification && tickOfNotification + 40 == loopCount) {
-		showingNotification = 0;
+	// show status color for 40 ticks
+	if (showingStatus && tickOfStatusUpdate + 40 == tickCount) {
+		showingStatus = 0;
 		showColor(0, 0, 0);
 	}
 }
 
 void showFailure() {
-	tickOfNotification = loopCount;
-	showingNotification = 1;
+	tickOfStatusUpdate = tickCount;
+	showingStatus = 1;
 	showColor(20, 0, 0);
 }
 
 void showSuccess() {
-	tickOfNotification = loopCount;
-	showingNotification = 1;
+	tickOfStatusUpdate = tickCount;
+	showingStatus = 1;
 	showColor(0, 20, 0);
 }
 
 void showLocked() {
-	tickOfNotification = loopCount;
-	showingNotification = 1;
+	tickOfStatusUpdate = tickCount;
+	showingStatus = 1;
 	showColor(0, 0, 20);
 }
 

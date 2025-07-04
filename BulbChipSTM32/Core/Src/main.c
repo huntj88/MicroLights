@@ -27,7 +27,7 @@
 #include "bulb_json.h"
 #include "chip_state.h"
 #include "bq25180.h"
-
+#include "rgb.h"
 
 /* USER CODE END Includes */
 
@@ -173,7 +173,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-	showColor(20, 0, 0);
+	showSuccess();
 
 	while (1) {
 		tud_task();
