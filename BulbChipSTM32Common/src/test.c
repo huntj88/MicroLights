@@ -6,6 +6,7 @@
  */
 
 #include "include/test.h"
+#include "lwjson/lwjson.h"
 
 void test() {
 
