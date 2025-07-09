@@ -23,7 +23,11 @@ BulbMode readBulbMode(uint8_t modeIndex) {
 }
 
 void setInitialState() {
-	BulbMode mode = readBulbMode(0);
+	// TODO
+//	BulbMode mode = readBulbMode(0);
+
+	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
+	BulbMode mode = parseJson(json, 1024);
 	setCurrentMode(mode);
 }
 
@@ -51,7 +55,7 @@ static int16_t buttonDownCounter = 0;
 static uint8_t buttonState = 0;
 void handleButtonInput(void (*shutdown)()) {
 	if (hasClickStarted()) {
-		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_5);
+		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
 		uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
 
 		if (buttonCurrentlyDown) {
@@ -71,12 +75,12 @@ void handleButtonInput(void (*shutdown)()) {
 					// Button clicked and released.
 					setClickEnded();
 
-					uint8_t newModeIndex = currentMode.modeIndex + 1;
-					if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
-						newModeIndex = 0;
-					}
-					BulbMode newMode = readBulbMode(newModeIndex);
-					setCurrentMode(newMode);
+//					uint8_t newModeIndex = currentMode.modeIndex + 1;
+//					if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
+//						newModeIndex = 0;
+//					}
+//					BulbMode newMode = readBulbMode(newModeIndex);
+//					setCurrentMode(newMode);
 				} else if (buttonState == 1) {
 					shutdown();
 				} else if (buttonState == 2) {
