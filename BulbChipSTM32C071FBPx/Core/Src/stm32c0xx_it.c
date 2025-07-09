@@ -165,9 +165,9 @@ void TIM2_IRQHandler(void)
 
   if (modeInterruptCount == nextTickInMode) {
 	  if (mode.changeAt[currentChangeIndex].output == high) {
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
 	  } else {
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 	  }
 
 	  if (currentChangeIndex + 1 < mode.numChanges) {

@@ -75,10 +75,46 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+uint8_t jsonBuf[1024];
+uint16_t jsonIndex = 0;
+
+static void cdc_task(void) {
+	uint8_t itf;
+
+	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
+		// connected() check for DTR bit
+		// Most but not all terminal client set this when making connection
+		// if ( tud_cdc_n_connected(itf) )
+		{
+			if (tud_cdc_n_available(itf)) {
+				uint8_t buf[64];
+				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+				for (uint8_t i = 0; i < count; i++) {
+					jsonBuf[jsonIndex + i] = buf[i];
+				}
+				jsonIndex += count;
+			} else if (jsonIndex != 0) {
+				jsonIndex = 0;
+				BulbMode mode = parseJson(jsonBuf, 1024);
+
+				if (mode.numChanges > 0 && mode.totalTicks > 0) {
+					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
+					setCurrentMode(mode);
+					showSuccess();
+				}
+			}
+		}
+	}
+}
+
 static void BQ25180_Init(void) {
 	chargerIC.hi2c = &hi2c1;
 	chargerIC.huart = &huart2;
 	chargerIC.devAddress = (0x6A << 1);
+}
+
+void shutdown() {
+	// TODO: enter ship mode on battey charging IC
 }
 /* USER CODE END 0 */
 
@@ -133,8 +169,21 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
+  showSuccess();
+
+  while (1) {
+	  tud_task();
+	  cdc_task();
+	  rgb_task();
+
+	  handleButtonInput(shutdown);
+
+	  configureChargerIC(&chargerIC);
+	  // readRegisters(&chargerIC);
+
+	  HAL_SuspendTick();
+	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+	  HAL_ResumeTick();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -458,12 +507,23 @@ static void MX_USB_PCD_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 /* USER CODE BEGIN MX_GPIO_Init_1 */
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
