@@ -145,3 +145,36 @@ void readRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
 	char newline[2] = "\n";
 	HAL_UART_Transmit(chargerIC->huart, &newline, sizeof(newline), 100);
 }
+
+// power must be unplugged to enter ship mode.
+void enableShipMode(BQ25180 *chargerIC) {
+     // REG_RST - Software Reset
+     // 1b0 = Do nothing
+     // 1b1 = Software Reset
+
+     // EN_RST_SHIP_1 - Shipmode Enable and Hardware Reset, once bits set, power must be unplugged to enter ship mode.
+     // 2b00 = Do nothing
+     // 2b01 = Enable shutdown mode with wake on adapter insert only
+     // 2b10 = Enable shipmode with wake on button press or adapter insert
+     // 2b11 = Hardware Reset
+
+     // PB_LPRESS_ACTION_1 - Pushbutton long press action
+     // 2b00 = Do nothing
+     // 2b01 = Hardware Reset
+     // 2b10 = Enable shipmode
+     // 2b11 = Enable shutdown mode
+
+     // WAKE1_TMR - Wake 1 Timer Set
+     // 1b0 = 300ms
+     // 1b1 = 1s
+
+     // WAKE2_TMR - Wake 2 Timer Set
+     // 1b0 = 2s
+     // 1b1 = 3s
+
+     // EN_PUSH - Enable Push Button and Reset Function on Battery Only
+     // 1b0 = Disable
+     // 1b1 = Enable
+
+     return write(chargerIC, BQ25180_SHIP_RST, 0b01000001);
+}

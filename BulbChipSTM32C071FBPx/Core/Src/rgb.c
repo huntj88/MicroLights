@@ -41,6 +41,12 @@ void showLocked() {
 	showColor(0, 0, 20);
 }
 
+void showShutdown() {
+	tickOfStatusUpdate = tickCount;
+	showingStatus = 1;
+	showColor(20, 20, 20);
+}
+
 // expect red, green, blue to be in range of 0 to 255
 void showColor(uint8_t red, uint8_t green, uint8_t blue) {
 	uint16_t max = 30000; // 100% duty cycle is actually 47999 (check ioc file), but limiting for now

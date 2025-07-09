@@ -48,6 +48,7 @@ typedef struct BQ25180 {
 
 void configureChargerIC(BQ25180 *chargerIC);
 void readRegisters(BQ25180 *chargerIC);
+void enableShipMode(BQ25180 *chargerIC);
 
 
 #endif /* INC_BQ25180_H_ */

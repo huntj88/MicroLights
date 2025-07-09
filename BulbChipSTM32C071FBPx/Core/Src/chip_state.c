@@ -61,7 +61,7 @@ void handleButtonInput(void (*shutdown)()) {
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
 			if (buttonDownCounter > 200 && buttonState == 0) {
-				showColor(0, 0, 0);
+				showShutdown();
 				buttonState = 1; // shutdown
 			} else if (buttonDownCounter > 1200 && buttonState == 1) {
 				showLocked();
@@ -72,8 +72,9 @@ void handleButtonInput(void (*shutdown)()) {
 			if (buttonDownCounter < -200) {
 				buttonDownCounter = 0;
 				if (buttonState == 0) {
+					showSuccess(); // debugging
 					// Button clicked and released.
-					setClickEnded();
+
 
 //					uint8_t newModeIndex = currentMode.modeIndex + 1;
 //					if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
@@ -82,10 +83,14 @@ void handleButtonInput(void (*shutdown)()) {
 //					BulbMode newMode = readBulbMode(newModeIndex);
 //					setCurrentMode(newMode);
 				} else if (buttonState == 1) {
+					showShutdown();
 					shutdown();
 				} else if (buttonState == 2) {
 					// TODO: Lock
 				}
+
+				setClickEnded();
+				buttonState = 0;
 			}
 		}
 	}

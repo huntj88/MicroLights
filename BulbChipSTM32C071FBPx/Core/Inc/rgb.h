@@ -14,6 +14,7 @@ void showColor(uint8_t red, uint8_t green, uint8_t blue);
 void showSuccess();
 void showFailure();
 void showLocked();
+void showShutdown();
 void rgb_task();
 
 #endif /* INC_RGB_H_ */
