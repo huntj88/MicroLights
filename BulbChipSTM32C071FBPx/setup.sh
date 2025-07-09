@@ -14,3 +14,4 @@ rm tinyusb.tar.gz &&
 mv tinyusb-0.18.0 tinyusb &&
 
 python3 tinyusb/tools/get_deps.py stm32c0
+
