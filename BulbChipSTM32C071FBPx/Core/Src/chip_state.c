@@ -60,7 +60,7 @@ void handleButtonInput(void (*shutdown)()) {
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
-			if (buttonDownCounter > 200 && buttonState == 0) {
+			if (buttonDownCounter > 100 && buttonState == 0) {
 				showShutdown();
 				buttonState = 1; // shutdown
 			} else if (buttonDownCounter > 1200 && buttonState == 1) {
@@ -69,7 +69,7 @@ void handleButtonInput(void (*shutdown)()) {
 			}
 		} else {
 			buttonDownCounter -= 10; // Large decrement to allow any hold time to "discharge" quickly.
-			if (buttonDownCounter < -200) {
+			if (buttonDownCounter < -100) {
 				buttonDownCounter = 0;
 				if (buttonState == 0) {
 					showSuccess(); // debugging
