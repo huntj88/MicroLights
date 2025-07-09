@@ -22,6 +22,7 @@
 #include "stm32c0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "chip_state.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +42,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+uint8_t modeInterruptCount = 0;  // only used in the scope of timer 2 interrupt to track
+uint8_t nextTickInMode = 0;
+uint8_t currentChangeIndex = 0;
+volatile BulbMode currentMode;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -84,7 +88,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-
+  HardFault_Handler_TinyUSB();
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
@@ -125,7 +129,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
-
+  SysTick_Handler_TinyUSB();
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
@@ -151,6 +155,29 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
+  // TODO: move to separate file?
+  BulbMode mode = getCurrentMode();
+  if (mode.totalTicks <= modeInterruptCount) {
+	  modeInterruptCount = 0;
+	  currentChangeIndex = 0;
+	  nextTickInMode = 0;
+  }
+
+  if (modeInterruptCount == nextTickInMode) {
+	  if (mode.changeAt[currentChangeIndex].output == high) {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_SET);
+	  } else {
+		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_9, GPIO_PIN_RESET);
+	  }
+
+	  if (currentChangeIndex + 1 < mode.numChanges) {
+		  nextTickInMode = mode.changeAt[currentChangeIndex + 1].tick;
+	  }
+
+	  currentChangeIndex++;
+  }
+
+  modeInterruptCount++;
   /* USER CODE END TIM2_IRQn 1 */
 }
 
