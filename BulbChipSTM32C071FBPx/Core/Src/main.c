@@ -155,7 +155,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-//  tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+  tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   setInitialState();
 
