@@ -50,5 +50,11 @@ void configureChargerIC(BQ25180 *chargerIC);
 void readRegisters(BQ25180 *chargerIC);
 void enableShipMode(BQ25180 *chargerIC);
 
+// TODO: Handle interrupts from bq25180 and check status/fault registers
+//       - show charging led indicator
+//       - show finished charging led indicator
+//       - show error indicator related to charging
+//       - send errors over usb to app
+
 
 #endif /* INC_BQ25180_H_ */

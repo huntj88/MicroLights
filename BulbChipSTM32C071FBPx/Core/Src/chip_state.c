@@ -24,10 +24,10 @@ BulbMode readBulbMode(uint8_t modeIndex) {
 
 void setInitialState() {
 	// TODO
-//	BulbMode mode = readBulbMode(0);
+	BulbMode mode = readBulbMode(0);
 
-	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
-	BulbMode mode = parseJson(json, 1024);
+//	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
+//	BulbMode mode = parseJson(json, 1024);
 	setCurrentMode(mode);
 }
 
@@ -76,12 +76,12 @@ void handleButtonInput(void (*shutdown)()) {
 					// Button clicked and released.
 
 
-//					uint8_t newModeIndex = currentMode.modeIndex + 1;
-//					if (newModeIndex > 2) { // TODO: config json to track settings, like how many modes exist?
-//						newModeIndex = 0;
-//					}
-//					BulbMode newMode = readBulbMode(newModeIndex);
-//					setCurrentMode(newMode);
+					uint8_t newModeIndex = currentMode.modeIndex + 1;
+					if (newModeIndex > 1) { // TODO: config json to track settings, like how many modes exist?
+						newModeIndex = 0;
+					}
+					BulbMode newMode = readBulbMode(newModeIndex);
+					setCurrentMode(newMode);
 				} else if (buttonState == 1) {
 					showShutdown();
 					shutdown();

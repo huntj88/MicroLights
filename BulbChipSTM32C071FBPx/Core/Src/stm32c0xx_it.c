@@ -150,11 +150,10 @@ void SysTick_Handler(void)
 void EXTI4_15_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI4_15_IRQn 0 */
-
   /* USER CODE END EXTI4_15_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
+  HAL_GPIO_EXTI_IRQHandler(chargerIT_Pin);
+  HAL_GPIO_EXTI_IRQHandler(button_Pin);
   /* USER CODE BEGIN EXTI4_15_IRQn 1 */
-  setClickStarted();
   /* USER CODE END EXTI4_15_IRQn 1 */
 }
 
@@ -196,5 +195,17 @@ void TIM2_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == button_Pin) {
+		setClickStarted();
+	}
+}
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == chargerIT_Pin) {
+		// TODO: battery stats/faults
+	}
+}
 
 /* USER CODE END 1 */

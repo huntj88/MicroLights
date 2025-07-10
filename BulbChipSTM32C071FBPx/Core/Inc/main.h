@@ -59,6 +59,18 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define blue_Pin GPIO_PIN_0
+#define blue_GPIO_Port GPIOA
+#define green_Pin GPIO_PIN_1
+#define green_GPIO_Port GPIOA
+#define red_Pin GPIO_PIN_2
+#define red_GPIO_Port GPIOA
+#define chargerIT_Pin GPIO_PIN_6
+#define chargerIT_GPIO_Port GPIOA
+#define chargerIT_EXTI_IRQn EXTI4_15_IRQn
+#define button_Pin GPIO_PIN_7
+#define button_GPIO_Port GPIOA
+#define button_EXTI_IRQn EXTI4_15_IRQn
 
 /* USER CODE BEGIN Private defines */
 
