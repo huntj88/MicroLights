@@ -16,17 +16,11 @@ static uint8_t showingStatus = 0;
 void rgb_task() {
 	tickCount++;
 
-	// show status color for 40 ticks
-	if (showingStatus && tickOfStatusUpdate + 40 == tickCount) {
+	// show status color for 3 ticks
+	if (showingStatus && tickOfStatusUpdate + 3 == tickCount) {
 		showingStatus = 0;
-		showColor(0, 0, 0);
+		showNoColor();
 	}
-}
-
-void showFailure() {
-	tickOfStatusUpdate = tickCount;
-	showingStatus = 1;
-	showColor(20, 0, 0);
 }
 
 void showSuccess() {
@@ -35,16 +29,26 @@ void showSuccess() {
 	showColor(0, 20, 0);
 }
 
+void showFailure() {
+//	tickOfStatusUpdate = tickCount;
+//	showingStatus = 1;
+	showColor(20, 0, 0);
+}
+
 void showLocked() {
-	tickOfStatusUpdate = tickCount;
-	showingStatus = 1;
+//	tickOfStatusUpdate = tickCount;
+//	showingStatus = 1;
 	showColor(0, 0, 20);
 }
 
 void showShutdown() {
-	tickOfStatusUpdate = tickCount;
-	showingStatus = 1;
+//	tickOfStatusUpdate = tickCount;
+//	showingStatus = 1;
 	showColor(20, 20, 20);
+}
+
+void showNoColor() {
+	showColor(0, 0, 0);
 }
 
 // expect red, green, blue to be in range of 0 to 255

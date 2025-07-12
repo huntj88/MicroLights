@@ -51,8 +51,15 @@ BulbMode getCurrentMode() {
 	return currentMode;
 }
 
-static int16_t buttonDownCounter = 0;
+// Button states
+// 0: confirming click
+// 1: clicked
+// 2: shutdown
+// 3: lock and shutdown
+// 4: lock cancelled, shutdown
 static uint8_t buttonState = 0;
+static int16_t buttonDownCounter = 0;
+
 void handleButtonInput(void (*shutdown)()) {
 	if (hasClickStarted()) {
 		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
@@ -60,35 +67,44 @@ void handleButtonInput(void (*shutdown)()) {
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
-			if (buttonDownCounter > 100 && buttonState == 0) {
+			if (buttonDownCounter > 2 && buttonState == 0) {
+				buttonState = 1;// will register as button click
+			} else if (buttonDownCounter > 50 && buttonState == 1) {
+				buttonState = 2; // shutdown
 				showShutdown();
-				buttonState = 1; // shutdown
-			} else if (buttonDownCounter > 1200 && buttonState == 1) {
+			} else if (buttonDownCounter > 150 && buttonState == 2) {
+				buttonState = 3; // shutdown and lock
 				showLocked();
-//				buttonState = 2; // shutdown and lock
+			} else if (buttonDownCounter > 200 && buttonState == 3) {
+				buttonState = 4; // lock cancelled, shut down
+				showNoColor();
+			}
+
+			// prevent long holds from increasing time for button action to start
+			if (buttonDownCounter > 200) {
+				buttonDownCounter = 200;
 			}
 		} else {
-			buttonDownCounter -= 10; // Large decrement to allow any hold time to "discharge" quickly.
-			if (buttonDownCounter < -100) {
+			buttonDownCounter -= 25; // Large decrement to allow any hold time to "discharge" quickly.
+			if (buttonDownCounter < -50) {
 				buttonDownCounter = 0;
 				if (buttonState == 0) {
-					showSuccess(); // debugging
+					// ignore, probably pulse from chargerIC?
+				} else if (buttonState == 1) {
 					// Button clicked and released.
-
-
+					showSuccess();
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
 					if (newModeIndex > 1) { // TODO: config json to track settings, like how many modes exist?
 						newModeIndex = 0;
 					}
 					BulbMode newMode = readBulbMode(newModeIndex);
 					setCurrentMode(newMode);
-				} else if (buttonState == 1) {
-					showShutdown();
+				} else if (buttonState == 2 || buttonState == 4) {
 					shutdown();
-				} else if (buttonState == 2) {
-					// TODO: Lock
+				} else if (buttonState == 3) {
+					// TODO: lock
+					shutdown();
 				}
-
 				setClickEnded();
 				buttonState = 0;
 			}

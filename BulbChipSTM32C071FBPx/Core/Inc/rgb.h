@@ -15,6 +15,6 @@ void showSuccess();
 void showFailure();
 void showLocked();
 void showShutdown();
-void rgb_task();
+void showNoColor();
 
 #endif /* INC_RGB_H_ */

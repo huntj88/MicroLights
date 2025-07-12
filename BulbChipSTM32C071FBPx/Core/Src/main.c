@@ -180,7 +180,7 @@ int main(void)
 	  handleButtonInput(shutdown);
 
 	  configureChargerIC(&chargerIC);
-	  readRegisters(&chargerIC);
+//	  readRegisters(&chargerIC);
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
