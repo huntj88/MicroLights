@@ -70,20 +70,20 @@ void handleButtonInput(void (*shutdown)()) {
 			buttonDownCounter += 1;
 			if (buttonDownCounter > 2 && buttonState == 0) {
 				buttonState = 1;// will register as button click
-			} else if (buttonDownCounter > 50 && buttonState == 1) {
+			} else if (buttonDownCounter > 400 && buttonState == 1) {
 				buttonState = 2; // shutdown
 				showShutdown();
-			} else if (buttonDownCounter > 150 && buttonState == 2) {
+			} else if (buttonDownCounter > 800 && buttonState == 2) {
 				buttonState = 3; // shutdown and lock
 				showLocked();
-			} else if (buttonDownCounter > 200 && buttonState == 3) {
+			} else if (buttonDownCounter > 1000 && buttonState == 3) {
 				buttonState = 4; // lock cancelled, shut down
 				showNoColor();
 			}
 
 			// prevent long holds from increasing time for button action to start
-			if (buttonDownCounter > 200) {
-				buttonDownCounter = 200;
+			if (buttonDownCounter > 1000) {
+				buttonDownCounter = 1000;
 			}
 		} else {
 			buttonDownCounter -= 25; // Large decrement to allow any hold time to "discharge" quickly.

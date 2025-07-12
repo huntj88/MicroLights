@@ -59,7 +59,7 @@ void charger_task(BQ25180 *chargerIC) {
 		readNow = 0;
 		uint8_t state = getChargingState(chargerIC);
 		if (state == NotConnected) {
-			showColor(0, 0, 40);
+			showColor(0, 0, 0);
 		} else if (state == NotCharging) {
 			showColor(40, 0, 0);
 		} else if (state == ConstantCurrentCharging) {
