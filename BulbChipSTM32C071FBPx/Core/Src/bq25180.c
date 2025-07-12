@@ -31,21 +31,38 @@ uint8_t getChargingState(BQ25180 *chargerIC) {
 	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(chargerIC->hi2c,
 			chargerIC->devAddress, &receive_buffer, 1, 1000);
 
-	if (*receive_buffer & 0b01000000 > 0) {
-		if (*receive_buffer & 0b00100000 > 0) {
+	uint8_t regResults = *receive_buffer;
+
+	if ((regResults & 0b01000000) > 0) {
+		if ((regResults & 0b00100000) > 0) {
 			return DoneCharging;
 		} else {
 			return ConstantVoltageCharging;
 		}
-	} else if (*receive_buffer & 0b00100000 > 0) {
+	} else if ((regResults & 0b00100000) > 0) {
 		return ConstantCurrentCharging;
 	}
 
 	// check if plugged in
-	if (*receive_buffer & 0b00000001 > 0) {
+	if ((regResults & 0b00000001) > 0) {
 		return NotCharging;
 	} else {
 		return NotConnected;
+	}
+}
+
+void showChargingState(BQ25180 *chargerIC) {
+	uint8_t state = getChargingState(chargerIC);
+	if (state == NotConnected) {
+		showColor(0, 0, 0);
+	} else if (state == NotCharging) {
+		showColor(40, 0, 0);
+	} else if (state == ConstantCurrentCharging) {
+		showColor(30, 10, 0);
+	} else if (state == ConstantVoltageCharging) {
+		showColor(10, 30, 0);
+	} else if (state == DoneCharging) {
+		showColor(0, 40, 0);
 	}
 }
 
@@ -53,22 +70,13 @@ void charger_task(BQ25180 *chargerIC) {
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
 		readRegisters(chargerIC);
+		showChargingState(chargerIC);
 	}
 
 	if (readNow) {
 		readNow = 0;
-		uint8_t state = getChargingState(chargerIC);
-		if (state == NotConnected) {
-			showColor(0, 0, 0);
-		} else if (state == NotCharging) {
-			showColor(40, 0, 0);
-		} else if (state == ConstantCurrentCharging) {
-			showColor(30, 10, 0);
-		} else if (state == ConstantVoltageCharging) {
-			showColor(10, 30, 0);
-		} else if (state == DoneCharging) {
-			showColor(0, 40, 0);
-		}
+		showChargingState(chargerIC);
+		readRegisters(chargerIC);
 	}
 
 	tickCount++;
