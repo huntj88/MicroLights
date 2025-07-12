@@ -22,7 +22,7 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 }
 
 // this function assumes the json only has a new line at the very end
-BulbMode parseJson(uint8_t buf[], uint32_t count) {
+void parseJson(uint8_t buf[], uint32_t count, BulbMode *mode) {
 	uint32_t indexOfTerminalChar = jsonLength(buf, count);
 	uint8_t includeTerimalChar = 1;
 	uint8_t bufJson[indexOfTerminalChar + includeTerimalChar];
@@ -34,8 +34,7 @@ BulbMode parseJson(uint8_t buf[], uint32_t count) {
 	// ensure terminal character is \0 and not \n
 	bufJson[indexOfTerminalChar] = '\0';
 
-	BulbMode mode;
-	mode.jsonLength = indexOfTerminalChar;
+	mode->jsonLength = indexOfTerminalChar;
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
@@ -44,17 +43,17 @@ BulbMode parseJson(uint8_t buf[], uint32_t count) {
 		if ((t = lwjson_find(&lwjson, "name")) != NULL) {
 			char *nameRaw = t->u.str.token_value;
 			for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-				mode.name[i] = nameRaw[i];
+				mode->name[i] = nameRaw[i];
 			}
-			mode.name[t->u.str.token_value_len] = '\0';
+			mode->name[t->u.str.token_value_len] = '\0';
 		}
 
 		if ((t = lwjson_find(&lwjson, "modeIndex")) != NULL) {
-			mode.modeIndex = t->u.num_int;
+			mode->modeIndex = t->u.num_int;
 		}
 
 		if ((t = lwjson_find(&lwjson, "totalTicks")) != NULL) {
-			mode.totalTicks = t->u.num_int;
+			mode->totalTicks = t->u.num_int;
 		}
 
 		if ((t = lwjson_find(&lwjson, "changeAt")) != NULL) {
@@ -81,14 +80,12 @@ BulbMode parseJson(uint8_t buf[], uint32_t count) {
 					}
 
 					ChangeAt change = { tick, output };
-					mode.changeAt[changeIndex] = change;
+					mode->changeAt[changeIndex] = change;
 					changeIndex++;
 				}
 			}
-			mode.numChanges = changeIndex;
+			mode->numChanges = changeIndex;
 		}
 		lwjson_free(&lwjson);
 	}
-
-	return mode;
 }

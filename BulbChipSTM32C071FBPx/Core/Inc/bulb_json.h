@@ -28,6 +28,6 @@ typedef struct BulbMode {
 	uint16_t jsonLength;
 } BulbMode;
 
-BulbMode parseJson(uint8_t buf[], uint32_t count);
+void parseJson(uint8_t buf[], uint32_t count, BulbMode *mode);
 
 #endif /* INC_BULB_JSON_H_ */

@@ -169,22 +169,22 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
 
   // TODO: move to separate file?
-  BulbMode mode = getCurrentMode();
-  if (mode.totalTicks <= modeInterruptCount) {
+  BulbMode* mode = getCurrentMode();
+  if (mode->totalTicks <= modeInterruptCount) {
 	  modeInterruptCount = 0;
 	  currentChangeIndex = 0;
 	  nextTickInMode = 0;
   }
 
   if (modeInterruptCount == nextTickInMode) {
-	  if (mode.changeAt[currentChangeIndex].output == high) {
+	  if (mode->changeAt[currentChangeIndex].output == high) {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
 	  } else {
 		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 	  }
 
-	  if (currentChangeIndex + 1 < mode.numChanges) {
-		  nextTickInMode = mode.changeAt[currentChangeIndex + 1].tick;
+	  if (currentChangeIndex + 1 < mode->numChanges) {
+		  nextTickInMode = mode->changeAt[currentChangeIndex + 1].tick;
 	  }
 
 	  currentChangeIndex++;

@@ -16,6 +16,6 @@ void setClickStarted();
 void handleButtonInput(void (*shutdown)());
 
 void setCurrentMode(BulbMode mode);
-BulbMode getCurrentMode();
+volatile BulbMode* getCurrentMode();
 
 #endif /* INC_CHIP_STATE_H_ */

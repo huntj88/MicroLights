@@ -16,15 +16,16 @@ static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static char flashReadBuffer[1024];
 
-BulbMode readBulbMode(uint8_t modeIndex) {
+void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-	BulbMode mode = parseJson(flashReadBuffer, 1024);
-	return mode;
+	parseJson(flashReadBuffer, 1024, mode);
 }
 
 void setInitialState() {
 	// TODO
-	BulbMode mode = readBulbMode(0);
+
+	BulbMode mode;
+	readBulbMode(0, &mode);
 
 //	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
 //	BulbMode mode = parseJson(json, 1024);
@@ -47,8 +48,8 @@ void setCurrentMode(BulbMode mode) {
 	currentMode = mode;
 }
 
-BulbMode getCurrentMode() {
-	return currentMode;
+volatile BulbMode* getCurrentMode() {
+	return &currentMode;
 }
 
 // Button states
@@ -97,7 +98,8 @@ void handleButtonInput(void (*shutdown)()) {
 					if (newModeIndex > 1) { // TODO: config json to track settings, like how many modes exist?
 						newModeIndex = 0;
 					}
-					BulbMode newMode = readBulbMode(newModeIndex);
+					BulbMode newMode;
+					readBulbMode(newModeIndex, &newMode);
 					setCurrentMode(newMode);
 				} else if (buttonState == 2 || buttonState == 4) {
 					shutdown();

@@ -95,7 +95,8 @@ static void cdc_task(void) {
 				jsonIndex += count;
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
-				BulbMode mode = parseJson(jsonBuf, 1024);
+				BulbMode mode;
+				parseJson(jsonBuf, 1024, &mode);
 
 				if (mode.numChanges > 0 && mode.totalTicks > 0) {
 					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
