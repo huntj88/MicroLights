@@ -47,8 +47,10 @@ typedef struct BQ25180 {
 } BQ25180;
 
 void configureChargerIC(BQ25180 *chargerIC);
+void charger_task(BQ25180 *chargerIC);
 void readRegisters(BQ25180 *chargerIC);
 void enableShipMode(BQ25180 *chargerIC);
+void checkInterrupt();
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - show charging led indicator

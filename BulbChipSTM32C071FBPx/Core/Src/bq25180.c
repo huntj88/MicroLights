@@ -6,13 +6,69 @@
  */
 
 #include "bq25180.h"
+#include "rgb.h"
 
-static uint8_t tickCount = 0;
+#define NotConnected 0
+#define NotCharging 1
+#define ConstantCurrentCharging 2
+#define ConstantVoltageCharging 3
+#define DoneCharging 4
+
+static uint16_t tickCount = 0;
+static uint8_t readNow = 0;
+
+void checkInterrupt() {
+	readNow = 1;
+}
+
+uint8_t getChargingState(BQ25180 *chargerIC) {
+	uint8_t receive_buffer[1] = { 0 };
+	uint8_t reg = BQ25180_STAT0;
+
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(chargerIC->hi2c,
+			chargerIC->devAddress, &reg, 1, 1000);
+
+	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(chargerIC->hi2c,
+			chargerIC->devAddress, &receive_buffer, 1, 1000);
+
+	if (*receive_buffer & 0b01000000 > 0) {
+		if (*receive_buffer & 0b00100000 > 0) {
+			return DoneCharging;
+		} else {
+			return ConstantVoltageCharging;
+		}
+	} else if (*receive_buffer & 0b00100000 > 0) {
+		return ConstantCurrentCharging;
+	}
+
+	// check if plugged in
+	if (*receive_buffer & 0b00000001 > 0) {
+		return NotCharging;
+	} else {
+		return NotConnected;
+	}
+}
 
 void charger_task(BQ25180 *chargerIC) {
-	if (tickCount == 0) {
+	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
 		readRegisters(chargerIC);
+	}
+
+	if (readNow) {
+		readNow = 0;
+		uint8_t state = getChargingState(chargerIC);
+		if (state == NotConnected) {
+			showColor(0, 0, 40);
+		} else if (state == NotCharging) {
+			showColor(40, 0, 0);
+		} else if (state == ConstantCurrentCharging) {
+			showColor(30, 10, 0);
+		} else if (state == ConstantVoltageCharging) {
+			showColor(10, 30, 0);
+		} else if (state == DoneCharging) {
+			showColor(0, 40, 0);
+		}
 	}
 
 	tickCount++;
@@ -59,11 +115,11 @@ HAL_StatusTypeDef configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
 	// Battery Undervoltage LockOut Falling Threshold.
 	// 3b000 = 3.0V
 
-	// Mask Charging Status Interrupt = OFF 1b1
+	// Mask Charging Status Interrupt = ON 1b0
 	// Mask ILIM Fault Interrupt = OFF 1b1
 	// Mask VINDPM and VDPPM Interrupt = OFF 1b1, TODO: turn back on?, 1b0
 
-	return write(chargerIC, BQ25180_CHARGECTRL1, 0b00000111);
+	return write(chargerIC, BQ25180_CHARGECTRL1, 0b00000011);
 }
 
 HAL_StatusTypeDef configureRegister_MASK_ID(BQ25180 *chargerIC) {
@@ -159,33 +215,34 @@ void readRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
 
 // power must be unplugged to enter ship mode.
 void enableShipMode(BQ25180 *chargerIC) {
-     // REG_RST - Software Reset
-     // 1b0 = Do nothing
-     // 1b1 = Software Reset
+	// REG_RST - Software Reset
+	// 1b0 = Do nothing
+	// 1b1 = Software Reset
 
-     // EN_RST_SHIP_1 - Shipmode Enable and Hardware Reset, once bits set, power must be unplugged to enter ship mode.
-     // 2b00 = Do nothing
-     // 2b01 = Enable shutdown mode with wake on adapter insert only
-     // 2b10 = Enable shipmode with wake on button press or adapter insert
-     // 2b11 = Hardware Reset
+	// EN_RST_SHIP_1 - Shipmode Enable and Hardware Reset, once bits set, power must be unplugged to enter ship mode.
+	// 2b00 = Do nothing
+	// 2b01 = Enable shutdown mode with wake on adapter insert only
+	// 2b10 = Enable shipmode with wake on button press or adapter insert
+	// 2b11 = Hardware Reset
 
-     // PB_LPRESS_ACTION_1 - Pushbutton long press action
-     // 2b00 = Do nothing
-     // 2b01 = Hardware Reset
-     // 2b10 = Enable shipmode
-     // 2b11 = Enable shutdown mode
+	// PB_LPRESS_ACTION_1 - Pushbutton long press action
+	// 2b00 = Do nothing
+	// 2b01 = Hardware Reset
+	// 2b10 = Enable shipmode
+	// 2b11 = Enable shutdown mode
 
-     // WAKE1_TMR - Wake 1 Timer Set
-     // 1b0 = 300ms
-     // 1b1 = 1s
+	// WAKE1_TMR - Wake 1 Timer Set
+	// 1b0 = 300ms
+	// 1b1 = 1s
 
-     // WAKE2_TMR - Wake 2 Timer Set
-     // 1b0 = 2s
-     // 1b1 = 3s
+	// WAKE2_TMR - Wake 2 Timer Set
+	// 1b0 = 2s
+	// 1b1 = 3s
 
-     // EN_PUSH - Enable Push Button and Reset Function on Battery Only
-     // 1b0 = Disable
-     // 1b1 = Enable
+	// EN_PUSH - Enable Push Button and Reset Function on Battery Only
+	// 1b0 = Disable
+	// 1b1 = Enable
 
-     return write(chargerIC, BQ25180_SHIP_RST, 0b01000001);
+	write(chargerIC, BQ25180_SHIP_RST, 0b01000001);
+	//     write(chargerIC, BQ25180_SHIP_RST, 0b10000001); // software reset
 }

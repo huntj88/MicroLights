@@ -115,7 +115,6 @@ static void BQ25180_Init(void) {
 }
 
 void shutdown() {
-	// TODO: enter ship mode on battey charging IC
 	enableShipMode(&chargerIC);
 }
 /* USER CODE END 0 */
@@ -518,17 +517,11 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : chargerIT_Pin */
-  GPIO_InitStruct.Pin = chargerIT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(chargerIT_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : button_Pin */
-  GPIO_InitStruct.Pin = button_Pin;
+  /*Configure GPIO pins : chargerIT_Pin button_Pin */
+  GPIO_InitStruct.Pin = chargerIT_Pin|button_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(button_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PA8 */
   GPIO_InitStruct.Pin = GPIO_PIN_8;
