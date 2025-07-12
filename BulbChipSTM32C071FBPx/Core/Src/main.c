@@ -176,11 +176,9 @@ int main(void)
 	  tud_task();
 	  cdc_task();
 	  rgb_task();
+	  charger_task(&chargerIC);
 
 	  handleButtonInput(shutdown);
-
-	  configureChargerIC(&chargerIC);
-//	  readRegisters(&chargerIC);
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

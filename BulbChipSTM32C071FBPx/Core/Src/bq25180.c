@@ -7,6 +7,17 @@
 
 #include "bq25180.h"
 
+static uint8_t tickCount = 0;
+
+void charger_task(BQ25180 *chargerIC) {
+	if (tickCount == 0) {
+		configureChargerIC(chargerIC);
+		readRegisters(chargerIC);
+	}
+
+	tickCount++;
+}
+
 HAL_StatusTypeDef write(BQ25180 *chargerIC, uint8_t register_pointer,
 		uint8_t register_value) {
 
