@@ -75,38 +75,6 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t jsonBuf[1024];
-uint16_t jsonIndex = 0;
-
-static void cdc_task(void) {
-	uint8_t itf;
-
-	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
-		// connected() check for DTR bit
-		// Most but not all terminal client set this when making connection
-		// if ( tud_cdc_n_connected(itf) )
-		{
-			if (tud_cdc_n_available(itf)) {
-				uint8_t buf[64];
-				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				for (uint8_t i = 0; i < count; i++) {
-					jsonBuf[jsonIndex + i] = buf[i];
-				}
-				jsonIndex += count;
-			} else if (jsonIndex != 0) {
-				jsonIndex = 0;
-				BulbMode mode;
-				parseJson(jsonBuf, 1024, &mode);
-
-				if (mode.numChanges > 0 && mode.totalTicks > 0) {
-					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
-					setCurrentMode(mode);
-					showSuccess();
-				}
-			}
-		}
-	}
-}
 
 static void BQ25180_Init(void) {
 	chargerIC.hi2c = &hi2c1;
@@ -171,7 +139,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  showSuccess();
 
   while (1) {
 	  tud_task();

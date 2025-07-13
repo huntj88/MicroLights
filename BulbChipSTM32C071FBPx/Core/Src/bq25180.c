@@ -8,11 +8,11 @@
 #include "bq25180.h"
 #include "rgb.h"
 
-#define NotConnected 0
-#define NotCharging 1
-#define ConstantCurrentCharging 2
-#define ConstantVoltageCharging 3
-#define DoneCharging 4
+#define NOT_CONNECTED 0
+#define NOT_CHARGING 1
+#define CONSTANT_CURRENT_CHARGING 2
+#define CONSTANT_VOLTAGE_CHARGING 3
+#define DONE_CHARGING 4
 
 static uint16_t tickCount = 0;
 static uint8_t readNow = 0;
@@ -35,33 +35,33 @@ uint8_t getChargingState(BQ25180 *chargerIC) {
 
 	if ((regResults & 0b01000000) > 0) {
 		if ((regResults & 0b00100000) > 0) {
-			return DoneCharging;
+			return DONE_CHARGING;
 		} else {
-			return ConstantVoltageCharging;
+			return CONSTANT_VOLTAGE_CHARGING;
 		}
 	} else if ((regResults & 0b00100000) > 0) {
-		return ConstantCurrentCharging;
+		return CONSTANT_CURRENT_CHARGING;
 	}
 
 	// check if plugged in
 	if ((regResults & 0b00000001) > 0) {
-		return NotCharging;
+		return NOT_CHARGING;
 	} else {
-		return NotConnected;
+		return NOT_CONNECTED;
 	}
 }
 
 void showChargingState(BQ25180 *chargerIC) {
 	uint8_t state = getChargingState(chargerIC);
-	if (state == NotConnected) {
+	if (state == NOT_CONNECTED) {
 		showColor(0, 0, 0);
-	} else if (state == NotCharging) {
+	} else if (state == NOT_CHARGING) {
 		showColor(40, 0, 0);
-	} else if (state == ConstantCurrentCharging) {
+	} else if (state == CONSTANT_CURRENT_CHARGING) {
 		showColor(30, 10, 0);
-	} else if (state == ConstantVoltageCharging) {
+	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
 		showColor(10, 30, 0);
-	} else if (state == DoneCharging) {
+	} else if (state == DONE_CHARGING) {
 		showColor(0, 40, 0);
 	}
 }

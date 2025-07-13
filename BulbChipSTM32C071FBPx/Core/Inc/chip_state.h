@@ -11,11 +11,10 @@
 #include "bulb_json.h"
 
 void setInitialState();
+void cdc_task();
 
 void setClickStarted();
 void handleButtonInput(void (*shutdown)());
-
-void setCurrentMode(BulbMode mode);
-volatile BulbMode* getCurrentMode();
+void modeTimerInterrupt();
 
 #endif /* INC_CHIP_STATE_H_ */

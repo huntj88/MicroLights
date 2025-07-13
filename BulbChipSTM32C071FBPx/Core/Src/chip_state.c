@@ -10,6 +10,7 @@
 #include "chip_state.h"
 #include "storage.h"
 #include "rgb.h"
+#include "tusb.h"
 
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile BulbMode currentMode;
@@ -22,14 +23,12 @@ void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 }
 
 void setInitialState() {
-	// TODO
-
 	BulbMode mode;
 	readBulbMode(0, &mode);
 
 //	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
 //	BulbMode mode = parseJson(json, 1024);
-	setCurrentMode(mode);
+	currentMode = mode;
 }
 
 void setClickStarted() {
@@ -44,24 +43,16 @@ uint8_t hasClickStarted() {
 	return clickStarted;
 }
 
-void setCurrentMode(BulbMode mode) {
-	currentMode = mode;
-}
-
-volatile BulbMode* getCurrentMode() {
-	return &currentMode;
-}
-
-// Button states
-// 0: confirming click
-// 1: clicked
-// 2: shutdown
-// 3: lock and shutdown
-// 4: lock cancelled, shutdown
-static uint8_t buttonState = 0;
-static int16_t buttonDownCounter = 0;
-
 void handleButtonInput(void (*shutdown)()) {
+	// Button states
+	// 0: confirming click
+	// 1: clicked
+	// 2: shutdown
+	// 3: lock and shutdown
+	// 4: lock cancelled, shutdown
+	static uint8_t buttonState = 0;
+	static int16_t buttonDownCounter = 0;
+
 	if (hasClickStarted()) {
 		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
 		uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
@@ -100,7 +91,7 @@ void handleButtonInput(void (*shutdown)()) {
 					}
 					BulbMode newMode;
 					readBulbMode(newModeIndex, &newMode);
-					setCurrentMode(newMode);
+					currentMode = newMode;
 				} else if (buttonState == 2 || buttonState == 4) {
 					shutdown();
 				} else if (buttonState == 3) {
@@ -109,6 +100,66 @@ void handleButtonInput(void (*shutdown)()) {
 				}
 				setClickEnded();
 				buttonState = 0;
+			}
+		}
+	}
+}
+
+void modeTimerInterrupt() {
+	static uint8_t modeInterruptCount = 0;
+	static uint8_t nextTickInMode = 0;
+	static uint8_t currentChangeIndex = 0;
+
+	if (currentMode.totalTicks <= modeInterruptCount) {
+		modeInterruptCount = 0;
+		currentChangeIndex = 0;
+		nextTickInMode = 0;
+	}
+
+	if (modeInterruptCount == nextTickInMode) {
+		if (currentMode.changeAt[currentChangeIndex].output == high) {
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		} else {
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		}
+
+		if (currentChangeIndex + 1 < currentMode.numChanges) {
+			nextTickInMode = currentMode.changeAt[currentChangeIndex + 1].tick;
+		}
+
+		currentChangeIndex++;
+	}
+
+	modeInterruptCount++;
+}
+
+void cdc_task() {
+	static uint8_t jsonBuf[1024];
+	static uint16_t jsonIndex = 0;
+	uint8_t itf;
+
+	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
+		// connected() check for DTR bit
+		// Most but not all terminal client set this when making connection
+		// if ( tud_cdc_n_connected(itf) )
+		{
+			if (tud_cdc_n_available(itf)) {
+				uint8_t buf[64];
+				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+				for (uint8_t i = 0; i < count; i++) {
+					jsonBuf[jsonIndex + i] = buf[i];
+				}
+				jsonIndex += count;
+			} else if (jsonIndex != 0) {
+				jsonIndex = 0;
+				BulbMode mode;
+				parseJson(jsonBuf, 1024, &mode);
+
+				if (mode.numChanges > 0 && mode.totalTicks > 0) {
+					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
+					currentMode = mode;
+					showSuccess();
+				}
 			}
 		}
 	}
