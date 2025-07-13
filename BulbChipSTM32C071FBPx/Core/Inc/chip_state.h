@@ -11,7 +11,7 @@
 #include "bulb_json.h"
 
 void setInitialState();
-void cdc_task();
+void handleJson(uint8_t buf[], uint32_t count);
 
 void setClickStarted();
 void handleButtonInput(void (*shutdown)());

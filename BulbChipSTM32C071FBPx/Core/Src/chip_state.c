@@ -10,14 +10,13 @@
 #include "chip_state.h"
 #include "storage.h"
 #include "rgb.h"
-#include "tusb.h"
 
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
-static char flashReadBuffer[1024];
 
 void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
+	char flashReadBuffer[1024];
 	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
 	parseJson(flashReadBuffer, 1024, mode);
 }
@@ -133,34 +132,13 @@ void modeTimerInterrupt() {
 	modeInterruptCount++;
 }
 
-void cdc_task() {
-	static uint8_t jsonBuf[1024];
-	static uint16_t jsonIndex = 0;
-	uint8_t itf;
+void handleJson(uint8_t buf[], uint32_t count) {
+	BulbMode mode;
+	parseJson(buf, count, &mode);
 
-	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
-		// connected() check for DTR bit
-		// Most but not all terminal client set this when making connection
-		// if ( tud_cdc_n_connected(itf) )
-		{
-			if (tud_cdc_n_available(itf)) {
-				uint8_t buf[64];
-				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				for (uint8_t i = 0; i < count; i++) {
-					jsonBuf[jsonIndex + i] = buf[i];
-				}
-				jsonIndex += count;
-			} else if (jsonIndex != 0) {
-				jsonIndex = 0;
-				BulbMode mode;
-				parseJson(jsonBuf, 1024, &mode);
-
-				if (mode.numChanges > 0 && mode.totalTicks > 0) {
-					writeBulbModeToFlash(mode.modeIndex, jsonBuf, mode.jsonLength);
-					currentMode = mode;
-					showSuccess();
-				}
-			}
-		}
+	if (mode.numChanges > 0 && mode.totalTicks > 0) {
+		writeBulbModeToFlash(mode.modeIndex, buf, mode.jsonLength);
+		currentMode = mode;
+		showSuccess();
 	}
 }

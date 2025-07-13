@@ -86,6 +86,31 @@ void shutdown() {
 	enableShipMode(&chargerIC);
 	NVIC_SystemReset();
 }
+
+void cdc_task() {
+	static uint8_t jsonBuf[1024];
+	static uint16_t jsonIndex = 0;
+	uint8_t itf;
+
+	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
+		// connected() check for DTR bit
+		// Most but not all terminal client set this when making connection
+		// if ( tud_cdc_n_connected(itf) )
+		{
+			if (tud_cdc_n_available(itf)) {
+				uint8_t buf[64];
+				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+				for (uint8_t i = 0; i < count; i++) {
+					jsonBuf[jsonIndex + i] = buf[i];
+				}
+				jsonIndex += count;
+			} else if (jsonIndex != 0) {
+				jsonIndex = 0;
+				handleJson(jsonBuf, 1024);
+			}
+		}
+	}
+}
 /* USER CODE END 0 */
 
 /**
