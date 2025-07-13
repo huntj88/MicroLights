@@ -120,7 +120,7 @@ static void BQ25180_Init(void) {
 	chargerIC.devAddress = (0x6A << 1);
 }
 
-void shutdown() {
+static void shutdown() {
 	enableShipMode(&chargerIC);
 	NVIC_SystemReset();
 }
@@ -189,14 +189,13 @@ int main(void)
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-  configureChipState(echo_serial_port_usb);
+  BQ25180_Init();
+  configureChipState(&chargerIC, echo_serial_port_usb, shutdown);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
   HAL_TIM_Base_Start_IT(&htim2);
-
-  BQ25180_Init();
 
   /* USER CODE END 2 */
 
@@ -207,9 +206,8 @@ int main(void)
 	  tud_task();
 	  cdc_task();
 	  rgb_task();
-	  charger_task(&chargerIC);
 
-	  handleButtonInput(shutdown);
+	  stateTask();
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

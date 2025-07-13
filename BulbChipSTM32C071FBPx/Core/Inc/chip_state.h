@@ -9,14 +9,17 @@
 #define INC_CHIP_STATE_H_
 
 #include "bulb_json.h"
+#include "bq25180.h"
 
 typedef void WriteToUsbSerial(uint8_t itf, uint8_t buf[], uint32_t count);
 
-void configureChipState(WriteToUsbSerial *writeToUsb);
+void configureChipState(BQ25180 *chargerIC, WriteToUsbSerial *writeUsbSerial, void (*shutdown)());
 void handleJson(uint8_t buf[], uint32_t count);
 
 void setClickStarted();
-void handleButtonInput(void (*shutdown)());
+void stateTask();
 void modeTimerInterrupt();
+void handleChargerInterrupt();
+
 
 #endif /* INC_CHIP_STATE_H_ */

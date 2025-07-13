@@ -6,20 +6,6 @@
  */
 
 #include "bq25180.h"
-#include "rgb.h"
-
-#define NOT_CONNECTED 0
-#define NOT_CHARGING 1
-#define CONSTANT_CURRENT_CHARGING 2
-#define CONSTANT_VOLTAGE_CHARGING 3
-#define DONE_CHARGING 4
-
-static uint16_t tickCount = 0;
-volatile static uint8_t readNow = 0;
-
-void handleChargerInterrupt() {
-	readNow = 1;
-}
 
 uint8_t getChargingState(BQ25180 *chargerIC) {
 	uint8_t regResult = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
@@ -40,37 +26,6 @@ uint8_t getChargingState(BQ25180 *chargerIC) {
 	} else {
 		return NOT_CONNECTED;
 	}
-}
-
-void showChargingState(BQ25180 *chargerIC) {
-	uint8_t state = getChargingState(chargerIC);
-	if (state == NOT_CONNECTED) {
-		showColor(0, 0, 0);
-	} else if (state == NOT_CHARGING) {
-		showColor(40, 0, 0);
-	} else if (state == CONSTANT_CURRENT_CHARGING) {
-		showColor(30, 10, 0);
-	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
-		showColor(10, 30, 0);
-	} else if (state == DONE_CHARGING) {
-		showColor(0, 40, 0);
-	}
-}
-
-void charger_task(BQ25180 *chargerIC) {
-	if (tickCount % 1024 == 0) {
-		configureChargerIC(chargerIC);
-		printAllRegisters(chargerIC);
-		showChargingState(chargerIC);
-	}
-
-	if (readNow) {
-		readNow = 0;
-		showChargingState(chargerIC);
-//		printAllRegisters(chargerIC);
-	}
-
-	tickCount++;
 }
 
 void configureRegister_IC_CTRL(BQ25180 *chargerIC) {

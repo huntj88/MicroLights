@@ -15,9 +15,13 @@
 static volatile uint8_t modeCount = 0;
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
-static WriteToUsbSerial *writeUsbSerial;
+static volatile uint8_t readChargerNow = 0;
 
-void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
+static BQ25180 *chargerIC;
+static WriteToUsbSerial *writeUsbSerial;
+static void (*shutdown)();
+
+static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	CliInput input;
 	char flashReadBuffer[1024];
 	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
@@ -34,7 +38,7 @@ void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	}
 }
 
-void readSettings(ChipSettings *settings) {
+static void readSettings(ChipSettings *settings) {
 	CliInput input;
 	char flashReadBuffer[1024];
 	readSettingsFromFlash(flashReadBuffer, 1024);
@@ -42,8 +46,10 @@ void readSettings(ChipSettings *settings) {
 	*settings = input.settings;
 }
 
-void configureChipState(WriteToUsbSerial *writeToUsb) {
-	writeUsbSerial = writeToUsb;
+void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_shutdown)()) {
+	chargerIC = _chargerIC;
+	shutdown = _shutdown;
+	writeUsbSerial = _writeUsbSerial;
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
@@ -59,17 +65,32 @@ void setClickStarted() {
 	clickStarted = 1;
 }
 
-void setClickEnded() {
+static void setClickEnded() {
 	clickStarted = 0;
 	char *blah = "clicked\n";
 	writeUsbSerial(0, blah, strlen(blah));
 }
 
-uint8_t hasClickStarted() {
+static uint8_t hasClickStarted() {
 	return clickStarted;
 }
 
-void handleButtonInput(void (*shutdown)()) {
+static void showChargingState() {
+	uint8_t state = getChargingState(chargerIC);
+	if (state == NOT_CONNECTED) {
+		showColor(0, 0, 0);
+	} else if (state == NOT_CHARGING) {
+		showColor(40, 0, 0);
+	} else if (state == CONSTANT_CURRENT_CHARGING) {
+		showColor(30, 10, 0);
+	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
+		showColor(10, 30, 0);
+	} else if (state == DONE_CHARGING) {
+		showColor(0, 40, 0);
+	}
+}
+
+static void handleButtonInput(void (*shutdown)()) {
 	// Button states
 	// 0: confirming click
 	// 1: clicked
@@ -103,8 +124,8 @@ void handleButtonInput(void (*shutdown)()) {
 				buttonDownCounter = 1000;
 			}
 		} else {
-			buttonDownCounter -= 25; // Large decrement to allow any hold time to "discharge" quickly.
-			if (buttonDownCounter < -50) {
+			buttonDownCounter -= 500; // Large decrement to allow any hold time to "discharge" quickly.
+			if (buttonDownCounter < -1000) {
 				buttonDownCounter = 0;
 				if (buttonState == 0) {
 					// ignore, probably pulse from chargerIC?
@@ -130,6 +151,30 @@ void handleButtonInput(void (*shutdown)()) {
 			}
 		}
 	}
+}
+
+void stateTask() {
+	static uint16_t tickCount = 0;
+
+	if (tickCount % 1024 == 0) {
+		configureChargerIC(chargerIC);
+		printAllRegisters(chargerIC);
+		showChargingState(chargerIC);
+	}
+
+	if (readChargerNow) {
+		readChargerNow = 0;
+		showChargingState(chargerIC);
+//		printAllRegisters(chargerIC);
+	}
+
+	handleButtonInput(shutdown);
+
+	tickCount++;
+}
+
+void handleChargerInterrupt() {
+	readChargerNow = 1;
 }
 
 void modeTimerInterrupt() {

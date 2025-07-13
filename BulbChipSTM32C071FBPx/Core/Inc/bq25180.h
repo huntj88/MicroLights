@@ -40,6 +40,13 @@
 #define TS_CONTROL_DEFAULT 0b00000000  // Default value for TS_CONTROL register (Offset = 0xB)
 #define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
 
+// usb charge states
+#define NOT_CONNECTED 0
+#define NOT_CHARGING 1
+#define CONSTANT_CURRENT_CHARGING 2
+#define CONSTANT_VOLTAGE_CHARGING 3
+#define DONE_CHARGING 4
+
 typedef struct BQ25180 BQ25180; // forward declaration
 
 typedef uint8_t ReadRegister(BQ25180 *chargerIC, uint8_t reg);
@@ -57,7 +64,7 @@ void configureChargerIC(BQ25180 *chargerIC);
 void charger_task(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 void enableShipMode(BQ25180 *chargerIC);
-void handleChargerInterrupt();
+uint8_t getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - show charging led indicator
