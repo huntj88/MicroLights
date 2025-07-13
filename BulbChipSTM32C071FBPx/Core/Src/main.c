@@ -52,7 +52,7 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 
-UART_HandleTypeDef huart2;
+UART_HandleTypeDef huart2; // TODO: I need this if I have usb serial?
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -76,22 +76,53 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+static void echo_serial_port_usb(uint8_t itf, uint8_t buf[], uint32_t count) {
+	for (uint32_t i = 0; i < count; i += 64) {
+		if (i > count - 64) {
+			tud_cdc_n_write(itf, buf + i, 64);
+		} else {
+			tud_cdc_n_write(itf, buf + i, count - i);
+		}
+	}
+	tud_cdc_n_write_flush(itf);
+	tud_task();
+
+	// also log to uart serial in case usb doesn't work
+	HAL_UART_Transmit(&huart2, buf, count, 100);
+}
+
+static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
+	uint8_t receive_buffer[1] = { 0 };
+
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
+			chargerIC->devAddress, &reg, 1, 1000);
+
+	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
+			chargerIC->devAddress, &receive_buffer, 1, 1000);
+
+	return receive_buffer[0];
+}
+
+static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
+
+	uint8_t writeBuffer[2] = { 0 };
+	writeBuffer[0] = reg;
+	writeBuffer[1] = value;
+
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(
+			&hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
+}
+
 static void BQ25180_Init(void) {
-	chargerIC.hi2c = &hi2c1;
-	chargerIC.huart = &huart2;
+	chargerIC.readRegister = readRegister;
+	chargerIC.writeRegister = writeRegister;
+	chargerIC.writeToUsbSerial = echo_serial_port_usb;
 	chargerIC.devAddress = (0x6A << 1);
 }
 
 void shutdown() {
 	enableShipMode(&chargerIC);
 	NVIC_SystemReset();
-}
-
-static void echo_serial_port_usb(uint8_t itf, uint8_t buf[], uint32_t count) {
-	for (uint32_t i = 0; i < count; i++) {
-		tud_cdc_n_write_char(itf, buf[i]);
-	}
-	tud_cdc_n_write_flush(itf);
 }
 
 static void cdc_task() {
@@ -156,6 +187,7 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
+  tud_disconnect(); // disconnect in case already connected when power cuts, reconnect properly after boot
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   configureChipState(echo_serial_port_usb);

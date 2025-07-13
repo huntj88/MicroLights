@@ -40,9 +40,16 @@
 #define TS_CONTROL_DEFAULT 0b00000000  // Default value for TS_CONTROL register (Offset = 0xB)
 #define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
 
+typedef struct BQ25180 BQ25180; // forward declaration
+
+typedef uint8_t ReadRegister(BQ25180 *chargerIC, uint8_t reg);
+typedef void WriteRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value);
+typedef void WriteToUsbSerial(uint8_t itf, uint8_t buf[], uint32_t count);
+
 typedef struct BQ25180 {
-	I2C_HandleTypeDef *hi2c;
-	UART_HandleTypeDef *huart;
+	ReadRegister *readRegister;
+	WriteRegister *writeRegister;
+	WriteToUsbSerial *writeToUsbSerial;
 	uint16_t devAddress;
 } BQ25180;
 
