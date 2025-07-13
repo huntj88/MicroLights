@@ -12,6 +12,7 @@
 #include "rgb.h"
 
 // TODO: don't read flash every time mode changes?, can be cached
+static volatile uint8_t modeCount = 0;
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static WriteToUsbSerial *writeUsbSerial;
@@ -21,7 +22,24 @@ void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	char flashReadBuffer[1024];
 	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
 	parseJson(flashReadBuffer, 1024, &input);
-	*mode = input.mode;
+
+	if (input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
+		// successfully read from flash
+		*mode = input.mode;
+	} else {
+		// fallback to default
+		char * defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+		parseJson(defaultMode, 1024, &input);
+		*mode = input.mode;
+	}
+}
+
+void readSettings(ChipSettings *settings) {
+	CliInput input;
+	char flashReadBuffer[1024];
+	readSettingsFromFlash(flashReadBuffer, 1024);
+	parseJson(flashReadBuffer, 1024, &input);
+	*settings = input.settings;
 }
 
 void configureChipState(WriteToUsbSerial *writeToUsb) {
@@ -29,14 +47,12 @@ void configureChipState(WriteToUsbSerial *writeToUsb) {
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
-	if (mode.numChanges > 0 && mode.totalTicks > 0) {
-		currentMode = mode;
-	} else {
-		char * defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
-		CliInput input;
-		parseJson(defaultMode, 1024, &input);
-		currentMode = input.mode;
-	}
+	currentMode = mode;
+
+	ChipSettings settings;
+	readSettings(&settings);
+	modeCount = settings.modeCount;
+
 }
 
 void setClickStarted() {
@@ -96,9 +112,10 @@ void handleButtonInput(void (*shutdown)()) {
 					// Button clicked and released.
 					showSuccess();
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
-					if (newModeIndex > 1) { // TODO: config json to track settings, like how many modes exist?
+					if (newModeIndex > modeCount) {
 						newModeIndex = 0;
 					}
+
 					BulbMode newMode;
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
@@ -154,5 +171,10 @@ void handleJson(uint8_t buf[], uint32_t count) {
 			currentMode = mode;
 			showSuccess();
 		}
+	} else if (input.parsedType == 2) {
+		ChipSettings settings = input.settings;
+		writeSettingsToFlash(buf, input.jsonLength);
+		modeCount = settings.modeCount;
+		showSuccess();
 	}
 }

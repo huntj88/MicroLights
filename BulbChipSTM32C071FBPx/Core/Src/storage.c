@@ -62,12 +62,20 @@ static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
 	HAL_FLASH_Lock();
 }
 
+void writeSettingsToFlash(uint8_t buf[], uint32_t bufCount) {
+	writeBytes(SETTINGS_PAGE, buf, bufCount);
+}
+
+void readSettingsFromFlash(char *buffer, uint32_t length) {
+	readBytes(SETTINGS_PAGE, buffer, length);
+}
+
 void writeBulbModeToFlash(uint8_t mode, uint8_t buf[], uint32_t bufCount) {
-	uint32_t page = BULB_PAGE_0_OFFSET + mode;
+	uint32_t page = BULB_PAGE_0 + mode;
 	writeBytes(page, buf, bufCount);
 }
 
 void readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
-	uint32_t page = BULB_PAGE_0_OFFSET + mode;
+	uint32_t page = BULB_PAGE_0 + mode;
 	readBytes(page, buffer, length);
 }

@@ -79,10 +79,10 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 				input->mode.modeIndex = t->u.num_int;
 			}
 		} else if (strncmp(command, "setSettings", 11) == 0) {
-			if ((t = lwjson_find(&lwjson, "settings")) != NULL) {
-				// TODO
-				input->parsedType = 2;
-			}
+			ChipSettings settings;
+			parseSettingsJson(&lwjson, &settings);
+			input->settings = settings;
+			input->parsedType = 2;
 		} else {
 			// unable to parse
 			input->parsedType = 0;
@@ -135,5 +135,13 @@ void parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *m
 			}
 		}
 		mode->numChanges = changeIndex;
+	}
+}
+
+void parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
+	const lwjson_token_t *t;
+
+	if ((t = lwjson_find(lwjson, "modeCount")) != NULL) {
+		settings->modeCount = t->u.num_int;
 	}
 }
