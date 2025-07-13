@@ -14,6 +14,7 @@
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
+static WriteToUsbType *writeUsbSerial;
 
 void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	char flashReadBuffer[1024];
@@ -21,7 +22,8 @@ void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	parseJson(flashReadBuffer, 1024, mode);
 }
 
-void setInitialState() {
+void configureChipState(WriteToUsbType *writeToUsb) {
+	writeUsbSerial = writeToUsb;
 	BulbMode mode;
 	readBulbMode(0, &mode);
 
@@ -36,6 +38,8 @@ void setClickStarted() {
 
 void setClickEnded() {
 	clickStarted = 0;
+	char *blah = "clicked\n";
+	writeUsbSerial(0, blah, strlen(blah));
 }
 
 uint8_t hasClickStarted() {

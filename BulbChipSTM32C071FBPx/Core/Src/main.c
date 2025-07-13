@@ -87,7 +87,14 @@ void shutdown() {
 	NVIC_SystemReset();
 }
 
-void cdc_task() {
+static void echo_serial_port_usb(uint8_t itf, uint8_t buf[], uint32_t count) {
+	for (uint32_t i = 0; i < count; i++) {
+		tud_cdc_n_write_char(itf, buf[i]);
+	}
+	tud_cdc_n_write_flush(itf);
+}
+
+static void cdc_task() {
 	static uint8_t jsonBuf[1024];
 	static uint16_t jsonIndex = 0;
 	uint8_t itf;
@@ -151,7 +158,7 @@ int main(void)
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-  setInitialState();
+  configureChipState(echo_serial_port_usb);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

@@ -10,7 +10,9 @@
 
 #include "bulb_json.h"
 
-void setInitialState();
+typedef void WriteToUsbType(uint8_t itf, uint8_t buf[], uint32_t count);
+
+void configureChipState(WriteToUsbType *writeToUsb);
 void handleJson(uint8_t buf[], uint32_t count);
 
 void setClickStarted();
