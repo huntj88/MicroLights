@@ -174,7 +174,7 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == button_Pin) {
 		setClickStarted();
 	} else if (GPIO_Pin == chargerIT_Pin) {
-		checkInterrupt();
+		handleChargerInterrupt();
 	}
 }
 

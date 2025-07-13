@@ -15,9 +15,9 @@
 #define DONE_CHARGING 4
 
 static uint16_t tickCount = 0;
-static uint8_t readNow = 0;
+volatile static uint8_t readNow = 0;
 
-void checkInterrupt() {
+void handleChargerInterrupt() {
 	readNow = 1;
 }
 
@@ -60,14 +60,14 @@ void showChargingState(BQ25180 *chargerIC) {
 void charger_task(BQ25180 *chargerIC) {
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
-		readRegisters(chargerIC);
+		printAllRegisters(chargerIC);
 		showChargingState(chargerIC);
 	}
 
 	if (readNow) {
 		readNow = 0;
 		showChargingState(chargerIC);
-		readRegisters(chargerIC);
+//		printAllRegisters(chargerIC);
 	}
 
 	tickCount++;
@@ -159,7 +159,23 @@ void printBinary(BQ25180 *chargerIC, uint8_t num) {
 	chargerIC->writeToUsbSerial(0, buffer, sizeof(buffer));
 }
 
-void readRegisters(BQ25180 *chargerIC) {
+void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
+	uint8_t receive_buffer[1] = { 0 };
+
+	uint8_t regValue = chargerIC->readRegister(chargerIC, reg);
+
+	print(chargerIC, "register");
+	print(chargerIC, " ");
+	print(chargerIC, label);
+	print(chargerIC, ": ");
+
+	printBinary(chargerIC, regValue);
+
+	char newLine[1] = "\n";
+	chargerIC->writeToUsbSerial(0, newLine, sizeof(newLine));
+}
+
+void printAllRegisters(BQ25180 *chargerIC) {
 	char newLine[1] = "\n";
 	chargerIC->writeToUsbSerial(0, newLine, sizeof(newLine));
 
@@ -177,22 +193,6 @@ void readRegisters(BQ25180 *chargerIC) {
 	printRegister(chargerIC, BQ25180_SYS_REG, "SYS_REG");
 	printRegister(chargerIC, BQ25180_TS_CONTROL, "TS_CONTROL");
 	printRegister(chargerIC, BQ25180_MASK_ID, "MASK_ID");
-}
-
-void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
-	uint8_t receive_buffer[1] = { 0 };
-
-	uint8_t regValue = chargerIC->readRegister(chargerIC, reg);
-
-	print(chargerIC, "register");
-	print(chargerIC, " ");
-	print(chargerIC, label);
-	print(chargerIC, ": ");
-
-	printBinary(chargerIC, regValue);
-
-	char newLine[1] = "\n";
-	chargerIC->writeToUsbSerial(0, newLine, sizeof(newLine));
 }
 
 // power must be unplugged to enter ship mode.
