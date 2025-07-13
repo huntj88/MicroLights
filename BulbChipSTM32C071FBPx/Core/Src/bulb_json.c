@@ -37,6 +37,8 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
     ]
   }
 }
+
+{"command":"setSettings","modeCount":3}
 */
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	static lwjson_token_t tokens[128];

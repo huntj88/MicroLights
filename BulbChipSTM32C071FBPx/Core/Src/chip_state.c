@@ -75,18 +75,17 @@ static uint8_t hasClickStarted() {
 	return clickStarted;
 }
 
-static void showChargingState() {
-	uint8_t state = getChargingState(chargerIC);
+static void showChargingState(uint8_t state) {
 	if (state == NOT_CONNECTED) {
-		showColor(0, 0, 0);
+
 	} else if (state == NOT_CHARGING) {
-		showColor(40, 0, 0);
+		showNotCharging();
 	} else if (state == CONSTANT_CURRENT_CHARGING) {
-		showColor(30, 10, 0);
+		showConstantCurrentCharging();
 	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
-		showColor(10, 30, 0);
+		showConstantVoltageCharging();
 	} else if (state == DONE_CHARGING) {
-		showColor(0, 40, 0);
+		showDoneCharging();
 	}
 }
 
@@ -155,17 +154,26 @@ static void handleButtonInput(void (*shutdown)()) {
 
 void stateTask() {
 	static uint16_t tickCount = 0;
+	static uint8_t chargingState = 0;
 
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
 		printAllRegisters(chargerIC);
-		showChargingState(chargerIC);
+		chargingState = getChargingState(chargerIC);
+	}
+
+	if (tickCount % 256 == 0) {
+		// blink more frequently compared to reading state
+		showChargingState(chargingState);
 	}
 
 	if (readChargerNow) {
 		readChargerNow = 0;
-		showChargingState(chargerIC);
-//		printAllRegisters(chargerIC);
+		uint8_t state = getChargingState(chargerIC);
+		if (chargingState != state) {
+			showChargingState(state);
+			chargingState = state;
+		}
 	}
 
 	handleButtonInput(shutdown);
