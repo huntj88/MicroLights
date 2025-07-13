@@ -26,12 +26,17 @@ void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 
 void configureChipState(WriteToUsbSerial *writeToUsb) {
 	writeUsbSerial = writeToUsb;
+
 	BulbMode mode;
 	readBulbMode(0, &mode);
-
-//	char json[] = "{\"name\":\"blah0\",\"modeIndex\":0,\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":1,\"output\":\"low\"}]}";
-//	BulbMode mode = parseJson(json, 1024);
-	currentMode = mode;
+	if (mode.numChanges > 0 && mode.totalTicks > 0) {
+		currentMode = mode;
+	} else {
+		char * defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+		CliInput input;
+		parseJson(defaultMode, 1024, &input);
+		currentMode = input.mode;
+	}
 }
 
 void setClickStarted() {
