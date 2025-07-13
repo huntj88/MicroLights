@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "stm32c0xx_hal.h"
+#include <stdint.h>
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_

@@ -17,9 +17,11 @@ static volatile uint8_t clickStarted = 0;
 static WriteToUsbSerial *writeUsbSerial;
 
 void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
+	CliInput input;
 	char flashReadBuffer[1024];
 	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-	parseJson(flashReadBuffer, 1024, mode);
+	parseJson(flashReadBuffer, 1024, &input);
+	*mode = input.mode;
 }
 
 void configureChipState(WriteToUsbSerial *writeToUsb) {
@@ -137,12 +139,15 @@ void modeTimerInterrupt() {
 }
 
 void handleJson(uint8_t buf[], uint32_t count) {
-	BulbMode mode;
-	parseJson(buf, count, &mode);
+	CliInput input;
+	parseJson(buf, count, &input);
 
-	if (mode.numChanges > 0 && mode.totalTicks > 0) {
-		writeBulbModeToFlash(mode.modeIndex, buf, mode.jsonLength);
-		currentMode = mode;
-		showSuccess();
+	if (input.parsedType == 1) {
+		BulbMode mode = input.mode;
+		if (mode.numChanges > 0 && mode.totalTicks > 0) {
+			writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
+			currentMode = mode;
+			showSuccess();
+		}
 	}
 }

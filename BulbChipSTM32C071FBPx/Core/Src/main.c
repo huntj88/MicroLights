@@ -187,7 +187,6 @@ int main(void)
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 
-  tud_disconnect(); // disconnect in case already connected when power cuts, reconnect properly after boot
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   configureChipState(echo_serial_port_usb);

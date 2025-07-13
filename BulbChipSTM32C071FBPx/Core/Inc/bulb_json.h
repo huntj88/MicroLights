@@ -24,10 +24,28 @@ typedef struct BulbMode {
 	uint8_t modeIndex;
 	uint16_t totalTicks;
 	ChangeAt changeAt[64];
-	uint8_t numChanges;
-	uint16_t jsonLength;
+
+	// metadata calculated at runtime
+	uint8_t numChanges; // TODO: rename changeCount?
 } BulbMode;
 
-void parseJson(uint8_t buf[], uint32_t count, BulbMode *mode);
+typedef struct ChipSettings {
+	uint8_t modeCount;
+} ChipSettings;
+
+typedef struct CliInput {
+	// only one will be populated, see parsedType
+	BulbMode mode;
+	ChipSettings settings;
+
+	// metadata calculated at runtime
+	uint16_t jsonLength;
+	// 0 for not parsed successfully
+	// 1 for mode
+	// 2 for settings
+	uint8_t parsedType;
+} CliInput;
+
+void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
 
 #endif /* INC_BULB_JSON_H_ */
