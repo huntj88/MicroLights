@@ -9,10 +9,9 @@
 #include "stm32c0xx_hal.h"
 #include "rgb.h"
 
-static uint8_t tickCount = 0;
-static uint8_t tickOfStatusUpdate = 0;
+static uint16_t tickCount = 0;
+static uint16_t tickOfStatusUpdate = 0;
 static uint8_t showingTransientStatus = 0;
-static uint8_t tickCountToShowTransient = 75;
 
 // expect red, green, blue to be in range of 0 to 255
 static void showColor(uint8_t red, uint8_t green, uint8_t blue) {
@@ -49,7 +48,7 @@ void showLocked() {
 	showColor(0, 0, 20);
 }
 
-void showShutdown() {;
+void showShutdown() {
 	showColor(20, 20, 20);
 }
 

@@ -21,6 +21,8 @@ static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*shutdown)();
 
+static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+
 static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	CliInput input;
 	char flashReadBuffer[1024];
@@ -32,7 +34,6 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		*mode = input.mode;
 	} else {
 		// fallback to default
-		char * defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 		parseJson(defaultMode, 1024, &input);
 		*mode = input.mode;
 	}
@@ -73,20 +74,6 @@ static void setClickEnded() {
 
 static uint8_t hasClickStarted() {
 	return clickStarted;
-}
-
-static void showChargingState(uint8_t state) {
-	if (state == NOT_CONNECTED) {
-
-	} else if (state == NOT_CHARGING) {
-		showNotCharging();
-	} else if (state == CONSTANT_CURRENT_CHARGING) {
-		showConstantCurrentCharging();
-	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
-		showConstantVoltageCharging();
-	} else if (state == DONE_CHARGING) {
-		showDoneCharging();
-	}
 }
 
 static void handleButtonInput(void (*shutdown)()) {
@@ -152,8 +139,21 @@ static void handleButtonInput(void (*shutdown)()) {
 	}
 }
 
-void stateTask() {
-	static uint16_t tickCount = 0;
+static void showChargingState(uint8_t state) {
+	if (state == NOT_CONNECTED) {
+
+	} else if (state == NOT_CHARGING) {
+		showNotCharging();
+	} else if (state == CONSTANT_CURRENT_CHARGING) {
+		showConstantCurrentCharging();
+	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
+		showConstantVoltageCharging();
+	} else if (state == DONE_CHARGING) {
+		showDoneCharging();
+	}
+}
+
+static void chargerTask(uint8_t tickCount) {
 	static uint8_t chargingState = 0;
 
 	if (tickCount % 1024 == 0) {
@@ -175,7 +175,12 @@ void stateTask() {
 			chargingState = state;
 		}
 	}
+}
 
+void stateTask() {
+	static uint16_t tickCount = 0;
+
+	chargerTask(tickCount);
 	handleButtonInput(shutdown);
 
 	tickCount++;
