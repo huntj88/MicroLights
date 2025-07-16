@@ -27,6 +27,7 @@
 #include "chip_state.h"
 #include "bq25180.h"
 #include "rgb.h"
+#include "bootloader.h";
 
 /* USER CODE END Includes */
 
@@ -75,7 +76,6 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
 static void echo_serial_port_usb(uint8_t itf, uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i += 64) {
 		if (i > count - 64) {
@@ -158,6 +158,8 @@ static void cdc_task() {
 int main(void)
 {
 
+  handleBootFlag();
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -190,7 +192,7 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
-  configureChipState(&chargerIC, echo_serial_port_usb, shutdown);
+  configureChipState(&chargerIC, echo_serial_port_usb, shutdown, setBootloaderFlagAndReset);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

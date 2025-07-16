@@ -20,6 +20,7 @@ static volatile uint8_t readChargerNow = 0;
 static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*shutdown)();
+static void (*jumpToBootloader)();
 
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
@@ -47,10 +48,11 @@ static void readSettings(ChipSettings *settings) {
 	*settings = input.settings;
 }
 
-void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_shutdown)()) {
+void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_shutdown)(), void (*_jumpToBootloader)()) {
 	chargerIC = _chargerIC;
 	shutdown = _shutdown;
 	writeUsbSerial = _writeUsbSerial;
+	jumpToBootloader = _jumpToBootloader;
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
@@ -168,6 +170,7 @@ static void chargerTask(uint8_t tickCount) {
 	}
 
 	if (readChargerNow) {
+		// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 		readChargerNow = 0;
 		uint8_t state = getChargingState(chargerIC);
 		if (chargingState != state) {
@@ -234,5 +237,7 @@ void handleJson(uint8_t buf[], uint32_t count) {
 		writeSettingsToFlash(buf, input.jsonLength);
 		modeCount = settings.modeCount;
 		showSuccess();
+	} else if (input.parsedType == 3) {
+		jumpToBootloader();
 	}
 }

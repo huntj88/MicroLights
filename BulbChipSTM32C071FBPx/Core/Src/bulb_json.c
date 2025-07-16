@@ -85,6 +85,8 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			parseSettingsJson(&lwjson, &settings);
 			input->settings = settings;
 			input->parsedType = 2;
+		} else if (strncmp(command, "dfu", 3) == 0) {
+			input->parsedType = 3;
 		} else {
 			// unable to parse
 			input->parsedType = 0;

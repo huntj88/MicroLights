@@ -1,3 +1,4 @@
+#include "stm32c0xx.h"
 #include "storage.h"
 
 // Erase a memory page from the flash retrieve
