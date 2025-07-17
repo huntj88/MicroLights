@@ -20,7 +20,7 @@ static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
-void (*writeBulbLedPin)(uint8_t state);
+static void (*writeBulbLedPin)(uint8_t state);
 
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
