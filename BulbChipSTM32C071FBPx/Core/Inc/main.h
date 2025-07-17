@@ -55,6 +55,8 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+// used in bulb led timer interrupt
+void writeBulbLed(uint8_t state);
 
 /* USER CODE END EFP */
 

@@ -112,6 +112,23 @@ static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
 			&hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
+static uint8_t readButtonPin() {
+	GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
+	if (state == GPIO_PIN_RESET) {
+		return 0;
+	}
+	return 1;
+}
+
+// defined in main.h for use in timer interrupt
+void writeBulbLed(uint8_t state) {
+	if (state == 0) {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+	} else {
+		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+	}
+}
+
 static void BQ25180_Init(void) {
 	chargerIC.readRegister = readRegister;
 	chargerIC.writeRegister = writeRegister;
@@ -186,7 +203,7 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
-  configureChipState(&chargerIC, echo_serial_port_usb, setBootloaderFlagAndReset);
+  configureChipState(&chargerIC, echo_serial_port_usb, setBootloaderFlagAndReset, readButtonPin);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

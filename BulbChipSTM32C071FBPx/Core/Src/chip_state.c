@@ -6,7 +6,6 @@
  */
 
 #include <stdint.h>
-#include "stm32c0xx_hal.h"
 #include "chip_state.h"
 #include "storage.h"
 #include "rgb.h"
@@ -20,6 +19,7 @@ static volatile uint8_t readChargerNow = 0;
 static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
+static uint8_t (*readButtonPin)();
 
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
@@ -47,11 +47,12 @@ static void readSettings(ChipSettings *settings) {
 	*settings = input.settings;
 }
 
-// create fake off mode
-void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_enterDFU)()) {
+// TODO: create fake off mode
+void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_enterDFU)(), uint8_t (*_readButtonPin)()) {
 	chargerIC = _chargerIC;
 	writeUsbSerial = _writeUsbSerial;
 	enterDFU = _enterDFU;
+	readButtonPin = _readButtonPin;
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
@@ -95,8 +96,8 @@ static void handleButtonInput(void (*shutdown)()) {
 	static int16_t buttonDownCounter = 0;
 
 	if (hasClickStarted()) {
-		GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
-		uint8_t buttonCurrentlyDown = state == GPIO_PIN_RESET;
+		uint8_t state = readButtonPin();
+		uint8_t buttonCurrentlyDown = state == 0;
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
@@ -199,7 +200,7 @@ void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
-void modeTimerInterrupt() {
+void modeTimerInterrupt(void (*writeBulbLedPin)(uint8_t)) {
 	static uint8_t modeInterruptCount = 0;
 	static uint8_t nextTickInMode = 0;
 	static uint8_t currentChangeIndex = 0;
@@ -212,9 +213,9 @@ void modeTimerInterrupt() {
 
 	if (modeInterruptCount == nextTickInMode) {
 		if (currentMode.changeAt[currentChangeIndex].output == high) {
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+			writeBulbLedPin(1);
 		} else {
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+			writeBulbLedPin(0);
 		}
 
 		if (currentChangeIndex + 1 < currentMode.numChanges) {
