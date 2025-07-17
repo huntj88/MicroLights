@@ -20,6 +20,7 @@ static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
+void (*writeBulbLedPin)(uint8_t state);
 
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
@@ -48,11 +49,18 @@ static void readSettings(ChipSettings *settings) {
 }
 
 // TODO: create fake off mode
-void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_enterDFU)(), uint8_t (*_readButtonPin)()) {
+void configureChipState(
+		BQ25180 *_chargerIC,
+		WriteToUsbSerial *_writeUsbSerial,
+		void (*_enterDFU)(),
+		uint8_t (*_readButtonPin)(),
+		void (*_writeBulbLedPin)(uint8_t state)
+) {
 	chargerIC = _chargerIC;
 	writeUsbSerial = _writeUsbSerial;
 	enterDFU = _enterDFU;
 	readButtonPin = _readButtonPin;
+	writeBulbLedPin = _writeBulbLedPin;
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
@@ -200,7 +208,7 @@ void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
-void modeTimerInterrupt(void (*writeBulbLedPin)(uint8_t)) {
+void modeTimerInterrupt() {
 	static uint8_t modeInterruptCount = 0;
 	static uint8_t nextTickInMode = 0;
 	static uint8_t currentChangeIndex = 0;

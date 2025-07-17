@@ -13,7 +13,14 @@
 
 typedef void WriteToUsbSerial(uint8_t itf, uint8_t buf[], uint32_t count);
 
-void configureChipState(BQ25180 *chargerIC, WriteToUsbSerial *writeUsbSerial, void (*enterDFU)(), uint8_t (*readButtonPin)());
+void configureChipState(
+		BQ25180 *chargerIC,
+		WriteToUsbSerial *writeUsbSerial,
+		void (*enterDFU)(),
+		uint8_t (*readButtonPin)(),
+		void (*writeBulbLedPin)(uint8_t state)
+);
+
 void handleJson(uint8_t buf[], uint32_t count);
 
 void setClickStarted();

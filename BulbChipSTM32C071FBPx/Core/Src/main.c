@@ -121,7 +121,7 @@ static uint8_t readButtonPin() {
 }
 
 // defined in main.h for use in timer interrupt
-void writeBulbLed(uint8_t state) {
+static void writeBulbLed(uint8_t state) {
 	if (state == 0) {
 		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
 	} else {
@@ -203,7 +203,12 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
-  configureChipState(&chargerIC, echo_serial_port_usb, setBootloaderFlagAndReset, readButtonPin);
+  configureChipState(&chargerIC,
+		  echo_serial_port_usb,
+		  setBootloaderFlagAndReset,
+		  readButtonPin,
+		  writeBulbLed
+  );
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
