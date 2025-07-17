@@ -19,8 +19,7 @@ static volatile uint8_t readChargerNow = 0;
 
 static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
-static void (*shutdown)();
-static void (*jumpToBootloader)();
+static void (*enterDFU)();
 
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
@@ -48,11 +47,11 @@ static void readSettings(ChipSettings *settings) {
 	*settings = input.settings;
 }
 
-void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_shutdown)(), void (*_jumpToBootloader)()) {
+// create fake off mode
+void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, void (*_enterDFU)()) {
 	chargerIC = _chargerIC;
-	shutdown = _shutdown;
 	writeUsbSerial = _writeUsbSerial;
-	jumpToBootloader = _jumpToBootloader;
+	enterDFU = _enterDFU;
 
 	BulbMode mode;
 	readBulbMode(0, &mode);
@@ -61,7 +60,6 @@ void configureChipState(BQ25180 *_chargerIC, WriteToUsbSerial *_writeUsbSerial, 
 	ChipSettings settings;
 	readSettings(&settings);
 	modeCount = settings.modeCount;
-
 }
 
 void setClickStarted() {
@@ -76,6 +74,14 @@ static void setClickEnded() {
 
 static uint8_t hasClickStarted() {
 	return clickStarted;
+}
+static void shutdown() {
+	uint8_t state = getChargingState(chargerIC);
+	if (state == NOT_CONNECTED || state == NOT_CHARGING) {
+		enableShipMode(chargerIC);
+	} else {
+		hardwareReset(chargerIC);
+	}
 }
 
 static void handleButtonInput(void (*shutdown)()) {
@@ -155,7 +161,7 @@ static void showChargingState(uint8_t state) {
 	}
 }
 
-static void chargerTask(uint8_t tickCount) {
+static void chargerTask(uint16_t tickCount) {
 	static uint8_t chargingState = 0;
 
 	if (tickCount % 1024 == 0) {
@@ -238,6 +244,6 @@ void handleJson(uint8_t buf[], uint32_t count) {
 		modeCount = settings.modeCount;
 		showSuccess();
 	} else if (input.parsedType == 3) {
-		jumpToBootloader();
+		enterDFU();
 	}
 }

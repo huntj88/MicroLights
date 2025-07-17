@@ -32,13 +32,13 @@ void configureRegister_IC_CTRL(BQ25180 *chargerIC) {
 	uint8_t newConfig = IC_CTRL_DEFAULT;
 	uint8_t tsEnabledMask = 0b10000000;
 	newConfig &= ~tsEnabledMask; // disable ts current changes (no thermistor on my project?)
-	return chargerIC->writeRegister(chargerIC, BQ25180_IC_CTRL, newConfig);
+	chargerIC->writeRegister(chargerIC, BQ25180_IC_CTRL, newConfig);
 }
 
 void configureRegister_ICHG_CTRL(BQ25180 *chargerIC) {
 	// enable charging = bit 7 in data sheet 0
 	// 70 milliamp max charge current
-	return chargerIC->writeRegister(chargerIC, BQ25180_ICHG_CTRL, 0b00100010);
+	chargerIC->writeRegister(chargerIC, BQ25180_ICHG_CTRL, 0b00100010);
 }
 
 void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
@@ -46,7 +46,7 @@ void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
 	// return chargerIC->write(BQ25180_VBAT_CTRL, 0b01010000);
 
 	// 4.4v, (3.5v) + (90 * 10mV), 90 = 0b1011010
-	return chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01011010);
+	chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01011010);
 }
 
 void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
@@ -60,7 +60,24 @@ void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
 	// Mask ILIM Fault Interrupt = OFF 1b1
 	// Mask VINDPM and VDPPM Interrupt = OFF 1b1, TODO: turn back on?, 1b0
 
-	return chargerIC->writeRegister(chargerIC, BQ25180_CHARGECTRL1, 0b00000011);
+	chargerIC->writeRegister(chargerIC, BQ25180_CHARGECTRL1, 0b00000011);
+}
+
+void configureRegister_SYS_REG(BQ25180 *chargerIC) {
+	uint8_t newConfig = SYS_REG_DEFAULT;
+	uint8_t vinWatchdogMask = 0b00000010;
+	uint8_t systemRegulationMask = 0b11100000;
+
+	// enabled vin watchdog hardware reset, if no i2c with 15 seconds of vin
+	newConfig |= vinWatchdogMask;
+
+	// set all system regulation bits to 0 to enable battery tracking mode
+	// Idea being that less voltage conversions means higher efficiency?
+	// I Have a 3.3v buck regulator between chargingIC sys and mcu vin
+	// lowest SYS voltage will be 3.8v even if battery is at 3.0v
+	newConfig &= ~systemRegulationMask;
+
+	chargerIC->writeRegister(chargerIC, BQ25180_SYS_REG, newConfig);
 }
 
 void configureRegister_MASK_ID(BQ25180 *chargerIC) {
@@ -83,7 +100,7 @@ void configureRegister_MASK_ID(BQ25180 *chargerIC) {
 	// Device_ID: A 4-bit field indicating the device ID.
 	//   4b0000: Device ID for the BQ25180.
 
-	return chargerIC->writeRegister(chargerIC, BQ25180_MASK_ID, 0b00000000);
+	chargerIC->writeRegister(chargerIC, BQ25180_MASK_ID, 0b00000000);
 }
 
 void configureChargerIC(BQ25180 *chargerIC) {
@@ -91,6 +108,7 @@ void configureChargerIC(BQ25180 *chargerIC) {
 	configureRegister_ICHG_CTRL(chargerIC);
 	configureRegister_VBAT_CTRL(chargerIC);
 	configureRegister_CHARGECTRL1(chargerIC);
+	configureRegister_SYS_REG(chargerIC);
 	configureRegister_MASK_ID(chargerIC);
 }
 
@@ -180,6 +198,9 @@ void enableShipMode(BQ25180 *chargerIC) {
 	// 1b0 = Disable
 	// 1b1 = Enable
 
-	return chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01000001);
-	//     write(chargerIC, BQ25180_SHIP_RST, 0b10000001); // software reset
+	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01000001);
+}
+
+void hardwareReset(BQ25180 *chargerIC) {
+	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01100001);
 }

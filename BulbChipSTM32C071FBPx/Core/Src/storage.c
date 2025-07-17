@@ -64,7 +64,9 @@ static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
 }
 
 void writeSettingsToFlash(uint8_t buf[], uint32_t bufCount) {
+	__disable_irq();
 	writeBytes(SETTINGS_PAGE, buf, bufCount);
+	__enable_irq();
 }
 
 void readSettingsFromFlash(char *buffer, uint32_t length) {
@@ -73,7 +75,9 @@ void readSettingsFromFlash(char *buffer, uint32_t length) {
 
 void writeBulbModeToFlash(uint8_t mode, uint8_t buf[], uint32_t bufCount) {
 	uint32_t page = BULB_PAGE_0 + mode;
+	__disable_irq();
 	writeBytes(page, buf, bufCount);
+	__enable_irq();
 }
 
 void readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {

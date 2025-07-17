@@ -27,7 +27,7 @@
 #include "chip_state.h"
 #include "bq25180.h"
 #include "rgb.h"
-#include "bootloader.h";
+#include "bootloader.h"
 
 /* USER CODE END Includes */
 
@@ -104,7 +104,6 @@ static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
 }
 
 static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
-
 	uint8_t writeBuffer[2] = { 0 };
 	writeBuffer[0] = reg;
 	writeBuffer[1] = value;
@@ -118,11 +117,6 @@ static void BQ25180_Init(void) {
 	chargerIC.writeRegister = writeRegister;
 	chargerIC.writeToUsbSerial = echo_serial_port_usb;
 	chargerIC.devAddress = (0x6A << 1);
-}
-
-static void shutdown() {
-	enableShipMode(&chargerIC);
-	NVIC_SystemReset();
 }
 
 static void cdc_task() {
@@ -192,7 +186,7 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
-  configureChipState(&chargerIC, echo_serial_port_usb, shutdown, setBootloaderFlagAndReset);
+  configureChipState(&chargerIC, echo_serial_port_usb, setBootloaderFlagAndReset);
 
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);

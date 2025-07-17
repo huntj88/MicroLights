@@ -64,6 +64,7 @@ void configureChargerIC(BQ25180 *chargerIC);
 void charger_task(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 void enableShipMode(BQ25180 *chargerIC);
+void hardwareReset(BQ25180 *chargerIC);
 uint8_t getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers
