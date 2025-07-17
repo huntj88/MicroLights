@@ -113,7 +113,7 @@ static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
 }
 
 static uint8_t readButtonPin() {
-	GPIO_PinState state = HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_7);
+	GPIO_PinState state = HAL_GPIO_ReadPin(button_GPIO_Port, button_Pin);
 	if (state == GPIO_PIN_RESET) {
 		return 0;
 	}
@@ -123,9 +123,9 @@ static uint8_t readButtonPin() {
 // defined in main.h for use in timer interrupt
 static void writeBulbLed(uint8_t state) {
 	if (state == 0) {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
 	} else {
-		HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_SET);
 	}
 }
 
@@ -168,8 +168,6 @@ static void cdc_task() {
   */
 int main(void)
 {
-
-  handleBootFlag();
 
   /* USER CODE BEGIN 1 */
 
@@ -560,7 +558,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : chargerIT_Pin button_Pin */
   GPIO_InitStruct.Pin = chargerIT_Pin|button_Pin;
@@ -568,12 +566,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA8 */
-  GPIO_InitStruct.Pin = GPIO_PIN_8;
+  /*Configure GPIO pin : bulbLed_Pin */
+  GPIO_InitStruct.Pin = bulbLed_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(bulbLed_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);

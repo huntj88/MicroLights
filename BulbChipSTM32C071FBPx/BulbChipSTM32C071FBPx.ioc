@@ -1,6 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
-CAD.formats=
-CAD.pinconfig=
+CAD.formats=[]
+CAD.pinconfig=Dual
 CAD.provider=
 File.Version=6
 GPIO.groupedBy=Group By Peripherals
@@ -87,6 +87,8 @@ PA7.GPIO_Label=button
 PA7.GPIO_ModeDefaultEXTI=GPIO_MODE_IT_FALLING
 PA7.Locked=true
 PA7.Signal=GPXTI7
+PA8.GPIOParameters=GPIO_Label
+PA8.GPIO_Label=bulbLed
 PA8.Locked=true
 PA8.Signal=GPIO_Output
 PB3__PB4__PB5__PB6.StandardMode=true

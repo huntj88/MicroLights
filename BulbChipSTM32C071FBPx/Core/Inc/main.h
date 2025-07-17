@@ -71,6 +71,8 @@ void Error_Handler(void);
 #define button_Pin GPIO_PIN_7
 #define button_GPIO_Port GPIOA
 #define button_EXTI_IRQn EXTI4_15_IRQn
+#define bulbLed_Pin GPIO_PIN_8
+#define bulbLed_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
