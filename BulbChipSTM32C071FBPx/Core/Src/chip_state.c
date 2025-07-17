@@ -18,8 +18,13 @@ static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static volatile uint8_t readChargerNow = 0;
 
-// TODO: calculate 1 hour default?, specify time and calculate ticks? make it cli configurable
-static const uint32_t numTicksBeforeAutoShutoff = 500000;
+// TODO:
+// calculate 1 hour default?,
+// specify time and calculate ticks?
+// make it cli configurable
+// different shorter value when fakeOff mode is the current mode?
+static const uint32_t numTicksBeforeAutoShutOff = 100000;
+static const uint32_t numTicksBeforeAutoShutOffDuringFakeOff = 50000;
 static uint32_t ticksSinceLastUserActivity = 0;
 
 static BQ25180 *chargerIC;
@@ -102,7 +107,13 @@ static void setClickEnded() {
 static uint8_t hasClickStarted() {
 	return clickStarted;
 }
-static void shutdown() {
+static void shutdownFake() {
+	BulbMode mode;
+	readBulbMode(fakeOffModeIndex, &mode);
+	currentMode = mode;
+}
+
+static void lock() {
 	uint8_t state = getChargingState(chargerIC);
 	if (state == NOT_CONNECTED) {
 		enableShipMode(chargerIC);
@@ -162,10 +173,10 @@ static void handleButtonInput() {
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
 				} else if (buttonState == 2 || buttonState == 4) {
-					shutdown();
+					shutdownFake();
 				} else if (buttonState == 3) {
 					// TODO: lock
-					shutdown();
+					lock();
 				}
 				setClickEnded();
 				buttonState = 0;
@@ -200,7 +211,7 @@ static void chargerTask(uint16_t tickCount) {
 	if (tickCount % 256 == 0) {
 		if (tickCount != 0 && chargingState == NOT_CONNECTED && currentMode.modeIndex == fakeOffModeIndex) {
 			// if in fake off mode and power is unplugged, put into ship mode
-			shutdown();
+			lock();
 		}
 		showChargingState(chargingState);
 	}
@@ -224,8 +235,14 @@ void stateTask() {
 	handleButtonInput();
 
 	ticksSinceLastUserActivity++;
-	if (ticksSinceLastUserActivity > numTicksBeforeAutoShutoff && getChargingState(chargerIC) == NOT_CONNECTED) {
-		shutdown();
+
+	// check if auto off triggered
+	// fakeOff mode has a lower value
+	uint8_t enterLockFakeOff = ticksSinceLastUserActivity > numTicksBeforeAutoShutOffDuringFakeOff;
+	uint8_t enterLockNormal = ticksSinceLastUserActivity > numTicksBeforeAutoShutOff;
+	uint8_t enterLock = enterLockNormal || enterLockFakeOff;
+	if (enterLock && getChargingState(chargerIC) == NOT_CONNECTED) {
+		lock();
 	}
 
 	tickCount++;
