@@ -19,6 +19,8 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 }
 
 /**
+ * Example commands
+ *
 {
   "command": "setMode",
   "index": 1,
@@ -37,8 +39,8 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
     ]
   }
 }
-
 {"command":"setSettings","modeCount":3}
+{"command":"dfu"}
 */
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	static lwjson_token_t tokens[128];

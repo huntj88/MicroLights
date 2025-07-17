@@ -10,11 +10,17 @@
 #include "storage.h"
 #include "rgb.h"
 
+static const uint8_t fakeOffModeIndex = 255;
+
 // TODO: don't read flash every time mode changes?, can be cached
 static volatile uint8_t modeCount = 0;
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static volatile uint8_t readChargerNow = 0;
+
+// TODO: calculate 1 hour default?, specify time and calculate ticks? make it cli configurable
+static const uint32_t numTicksBeforeAutoShutoff = 500000;
+static uint32_t ticksSinceLastUserActivity = 0;
 
 static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
@@ -22,21 +28,27 @@ static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
 
+static const char *fakeOffMode = "{\"command\":\"setMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
 static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	CliInput input;
-	char flashReadBuffer[1024];
-	readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-	parseJson(flashReadBuffer, 1024, &input);
-
-	if (input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
-		// successfully read from flash
+	if (modeIndex == fakeOffModeIndex) {
+		parseJson(fakeOffMode, 1024, &input);
 		*mode = input.mode;
 	} else {
-		// fallback to default
-		parseJson(defaultMode, 1024, &input);
-		*mode = input.mode;
+		char flashReadBuffer[1024];
+		readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
+		parseJson(flashReadBuffer, 1024, &input);
+
+		if (input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
+			// successfully read from flash
+			*mode = input.mode;
+		} else {
+			// fallback to default
+			parseJson(defaultMode, 1024, &input);
+			*mode = input.mode;
+		}
 	}
 }
 
@@ -62,8 +74,13 @@ void configureChipState(
 	readButtonPin = _readButtonPin;
 	writeBulbLedPin = _writeBulbLedPin;
 
+	uint8_t state = getChargingState(chargerIC);
 	BulbMode mode;
-	readBulbMode(0, &mode);
+	if (state == NOT_CONNECTED) {
+		readBulbMode(0, &mode);
+	} else {
+		readBulbMode(fakeOffModeIndex, &mode);
+	}
 	currentMode = mode;
 
 	ChipSettings settings;
@@ -77,6 +94,7 @@ void setClickStarted() {
 
 static void setClickEnded() {
 	clickStarted = 0;
+	ticksSinceLastUserActivity = 0;
 	char *blah = "clicked\n";
 	writeUsbSerial(0, blah, strlen(blah));
 }
@@ -86,14 +104,14 @@ static uint8_t hasClickStarted() {
 }
 static void shutdown() {
 	uint8_t state = getChargingState(chargerIC);
-	if (state == NOT_CONNECTED || state == NOT_CHARGING) {
+	if (state == NOT_CONNECTED) {
 		enableShipMode(chargerIC);
 	} else {
 		hardwareReset(chargerIC);
 	}
 }
 
-static void handleButtonInput(void (*shutdown)()) {
+static void handleButtonInput() {
 	// Button states
 	// 0: confirming click
 	// 1: clicked
@@ -180,7 +198,10 @@ static void chargerTask(uint16_t tickCount) {
 	}
 
 	if (tickCount % 256 == 0) {
-		// blink more frequently compared to reading state
+		if (tickCount != 0 && chargingState == NOT_CONNECTED && currentMode.modeIndex == fakeOffModeIndex) {
+			// if in fake off mode and power is unplugged, put into ship mode
+			shutdown();
+		}
 		showChargingState(chargingState);
 	}
 
@@ -188,6 +209,7 @@ static void chargerTask(uint16_t tickCount) {
 		// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 		readChargerNow = 0;
 		uint8_t state = getChargingState(chargerIC);
+
 		if (chargingState != state) {
 			showChargingState(state);
 			chargingState = state;
@@ -199,7 +221,12 @@ void stateTask() {
 	static uint16_t tickCount = 0;
 
 	chargerTask(tickCount);
-	handleButtonInput(shutdown);
+	handleButtonInput();
+
+	ticksSinceLastUserActivity++;
+	if (ticksSinceLastUserActivity > numTicksBeforeAutoShutoff && getChargingState(chargerIC) == NOT_CONNECTED) {
+		shutdown();
+	}
 
 	tickCount++;
 }
