@@ -224,7 +224,8 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
-  configureChipState(&chargerIC,
+  configureChipState(
+		  &chargerIC,
 		  writeToSerial,
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
