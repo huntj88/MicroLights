@@ -18,25 +18,24 @@ static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static volatile uint8_t readChargerNow = 0;
 
-// TODO:
-// calculate 1 hour default?,
-// specify time and calculate ticks?
-// make it cli configurable
-// different shorter value when fakeOff mode is the current mode?
-static const uint32_t numTicksBeforeAutoShutOff = 100000;
-static const uint32_t numTicksBeforeAutoShutOffDuringFakeOff = 50000;
-static uint32_t ticksSinceLastUserActivity = 0;
+// TODO:  make auto off cli configurable
+static uint16_t minutesUntilAutoOff = 90;
+static uint16_t minutesUntilLockAfterAutoOff = 10;
+volatile static uint32_t ticksSinceLastUserActivity = 0;
 
 static BQ25180 *chargerIC;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
+static void (*startLedTimers)();
+static void (*stopLedTimers)();
 
 static const char *fakeOffMode = "{\"command\":\"setMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
 static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
 
 static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
+	startLedTimers();
 	CliInput input;
 	if (modeIndex == fakeOffModeIndex) {
 		parseJson(fakeOffMode, 1024, &input);
@@ -71,13 +70,17 @@ void configureChipState(
 		WriteToUsbSerial *_writeUsbSerial,
 		void (*_enterDFU)(),
 		uint8_t (*_readButtonPin)(),
-		void (*_writeBulbLedPin)(uint8_t state)
+		void (*_writeBulbLedPin)(uint8_t state),
+		void (*_startLedTimers)(),
+		void (*_stopLedTimers)()
 ) {
 	chargerIC = _chargerIC;
 	writeUsbSerial = _writeUsbSerial;
 	enterDFU = _enterDFU;
 	readButtonPin = _readButtonPin;
 	writeBulbLedPin = _writeBulbLedPin;
+	startLedTimers = _startLedTimers;
+	stopLedTimers = _stopLedTimers;
 
 	uint8_t state = getChargingState(chargerIC);
 	BulbMode mode;
@@ -127,8 +130,7 @@ static void handleButtonInput() {
 	// 0: confirming click
 	// 1: clicked
 	// 2: shutdown
-	// 3: lock and shutdown
-	// 4: lock cancelled, shutdown
+	// 3: lock and shutdown, or hardware reset if plugged into usb
 	static uint8_t buttonState = 0;
 	static int16_t buttonDownCounter = 0;
 
@@ -146,14 +148,11 @@ static void handleButtonInput() {
 			} else if (buttonDownCounter > 800 && buttonState == 2) {
 				buttonState = 3; // shutdown and lock
 				showLocked();
-			} else if (buttonDownCounter > 1000 && buttonState == 3) {
-				buttonState = 4; // lock cancelled, shut down
-				showNoColor();
 			}
 
 			// prevent long holds from increasing time for button action to start
-			if (buttonDownCounter > 1000) {
-				buttonDownCounter = 1000;
+			if (buttonDownCounter > 800) {
+				buttonDownCounter = 800;
 			}
 		} else {
 			buttonDownCounter -= 500; // Large decrement to allow any hold time to "discharge" quickly.
@@ -175,7 +174,6 @@ static void handleButtonInput() {
 				} else if (buttonState == 2 || buttonState == 4) {
 					shutdownFake();
 				} else if (buttonState == 3) {
-					// TODO: lock
 					lock();
 				}
 				setClickEnded();
@@ -199,9 +197,13 @@ static void showChargingState(uint8_t state) {
 	}
 }
 
+
+
+
 static void chargerTask(uint16_t tickCount) {
 	static uint8_t chargingState = 0;
 
+	uint8_t previousState = chargingState;
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
 		printAllRegisters(chargerIC);
@@ -209,17 +211,19 @@ static void chargerTask(uint16_t tickCount) {
 	}
 
 	if (tickCount % 256 == 0) {
-		if (tickCount != 0 && chargingState == NOT_CONNECTED && currentMode.modeIndex == fakeOffModeIndex) {
-			// if in fake off mode and power is unplugged, put into ship mode
-			lock();
-		}
 		showChargingState(chargingState);
 	}
 
+	// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 	if (readChargerNow) {
-		// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 		readChargerNow = 0;
 		uint8_t state = getChargingState(chargerIC);
+
+		uint8_t wasUnplugged = previousState != NOT_CONNECTED && state == NOT_CONNECTED;
+		if (tickCount != 0 && wasUnplugged && currentMode.modeIndex == fakeOffModeIndex) {
+			// if in fake off mode and power is unplugged, put into ship mode
+			lock();
+		}
 
 		if (chargingState != state) {
 			showChargingState(state);
@@ -233,17 +237,6 @@ void stateTask() {
 
 	chargerTask(tickCount);
 	handleButtonInput();
-
-	ticksSinceLastUserActivity++;
-
-	// check if auto off triggered
-	// fakeOff mode has a lower value
-	uint8_t enterLockFakeOff = ticksSinceLastUserActivity > numTicksBeforeAutoShutOffDuringFakeOff;
-	uint8_t enterLockNormal = ticksSinceLastUserActivity > numTicksBeforeAutoShutOff;
-	uint8_t enterLock = enterLockNormal || enterLockFakeOff;
-	if (enterLock && getChargingState(chargerIC) == NOT_CONNECTED) {
-		lock();
-	}
 
 	tickCount++;
 }
@@ -278,6 +271,30 @@ void modeTimerInterrupt() {
 	}
 
 	modeInterruptCount++;
+}
+
+void autoOffTimerInterrupt() {
+	if (getChargingState(chargerIC) == NOT_CONNECTED) {
+		ticksSinceLastUserActivity++;
+
+		uint16_t ticksUntilAutoOff = minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
+		uint8_t enterLock = ticksSinceLastUserActivity > ticksUntilAutoOff;
+		if (currentMode.modeIndex == fakeOffModeIndex) {
+			uint16_t ticksUntilLockAfterAutoOff = minutesUntilLockAfterAutoOff * 60 / 10;
+			enterLock = ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
+		}
+
+		if (enterLock) {
+			if (currentMode.modeIndex == fakeOffModeIndex) {
+				lock();
+			} else {
+				ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
+				shutdownFake();
+				stopLedTimers();
+				// TODO: make sure outputs are low. Timer can be turned off before led pins set low from mode
+			}
+		}
+	}
 }
 
 void handleJson(uint8_t buf[], uint32_t count) {

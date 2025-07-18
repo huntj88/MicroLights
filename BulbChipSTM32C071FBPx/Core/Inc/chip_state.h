@@ -18,7 +18,10 @@ void configureChipState(
 		WriteToUsbSerial *writeUsbSerial,
 		void (*enterDFU)(),
 		uint8_t (*readButtonPin)(),
-		void (*writeBulbLedPin)(uint8_t state)
+		void (*writeBulbLedPin)(uint8_t state),
+		void (*startLedTimers)(),
+		void (*stopLedTimers)()
+
 );
 
 void handleJson(uint8_t buf[], uint32_t count);
@@ -27,6 +30,7 @@ void setClickStarted();
 void stateTask();
 void modeTimerInterrupt();
 void handleChargerInterrupt();
+void autoOffTimerInterrupt();
 
 
 #endif /* INC_CHIP_STATE_H_ */
