@@ -46,7 +46,7 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		parseJson(flashReadBuffer, 1024, &input);
 
 		if (input.parsedType == parseMode && input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
-			// successfully read from fash
+			// successfully read from flash
 			*mode = input.mode;
 		} else {
 			// fallback to default
@@ -137,13 +137,20 @@ static void lock() {
 	}
 }
 
+enum ButtonResult {
+	ignore,
+	clicked,
+	shutdown,
+	lockOrHardwareReset // hardware reset occurs when usb is plugged in
+};
+
 static void handleButtonInput() {
 	// Button states
 	// 0: confirming click
 	// 1: clicked
 	// 2: shutdown
 	// 3: lock and shutdown, or hardware reset if plugged into usb
-	static uint8_t buttonState = 0;
+	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
 
 	if (hasClickStarted()) {
@@ -153,12 +160,12 @@ static void handleButtonInput() {
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
 			if (buttonDownCounter > 2 && buttonState == 0) {
-				buttonState = 1;// will register as button click
+				buttonState = clicked;
 			} else if (buttonDownCounter > 400 && buttonState == 1) {
-				buttonState = 2; // shutdown
+				buttonState = shutdown;
 				showShutdown();
 			} else if (buttonDownCounter > 800 && buttonState == 2) {
-				buttonState = 3; // shutdown and lock
+				buttonState = lockOrHardwareReset;
 				showLocked();
 			}
 
@@ -170,9 +177,9 @@ static void handleButtonInput() {
 			buttonDownCounter -= 500; // Large decrement to allow any hold time to "discharge" quickly.
 			if (buttonDownCounter < -1000) {
 				buttonDownCounter = 0;
-				if (buttonState == 0) {
+				if (buttonState == ignore) {
 					// ignore, probably pulse from chargerIC?
-				} else if (buttonState == 1) {
+				} else if (buttonState == clicked) {
 					// Button clicked and released.
 					showSuccess();
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
@@ -183,13 +190,13 @@ static void handleButtonInput() {
 					BulbMode newMode;
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
-				} else if (buttonState == 2) {
+				} else if (buttonState == shutdown) {
 					shutdownFake();
-				} else if (buttonState == 3) {
+				} else if (buttonState == lockOrHardwareReset) {
 					lock();
 				}
 				setClickEnded();
-				buttonState = 0;
+				buttonState = ignore;
 			}
 		}
 	}
