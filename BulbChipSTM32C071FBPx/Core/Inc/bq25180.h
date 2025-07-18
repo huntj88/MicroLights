@@ -40,12 +40,13 @@
 #define TS_CONTROL_DEFAULT 0b00000000  // Default value for TS_CONTROL register (Offset = 0xB)
 #define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
 
-// usb charge states
-#define NOT_CONNECTED 0
-#define NOT_CHARGING 1
-#define CONSTANT_CURRENT_CHARGING 2
-#define CONSTANT_VOLTAGE_CHARGING 3
-#define DONE_CHARGING 4
+enum ChargeState {
+	notConnected,
+	notCharging,
+	constantCurrent,
+	constantVoltage,
+	done
+};
 
 typedef struct BQ25180 BQ25180; // forward declaration
 

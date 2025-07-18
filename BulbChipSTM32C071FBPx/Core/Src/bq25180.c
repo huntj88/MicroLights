@@ -7,24 +7,24 @@
 
 #include "bq25180.h"
 
-uint8_t getChargingState(BQ25180 *chargerIC) {
+enum ChargeState getChargingState(BQ25180 *chargerIC) {
 	uint8_t regResult = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
 
 	if ((regResult & 0b01000000) > 0) {
 		if ((regResult & 0b00100000) > 0) {
-			return DONE_CHARGING;
+			return done;
 		} else {
-			return CONSTANT_VOLTAGE_CHARGING;
+			return constantVoltage;
 		}
 	} else if ((regResult & 0b00100000) > 0) {
-		return CONSTANT_CURRENT_CHARGING;
+		return constantCurrent;
 	}
 
 	// check if plugged in
 	if ((regResult & 0b00000001) > 0) {
-		return NOT_CHARGING;
+		return notCharging;
 	} else {
-		return NOT_CONNECTED;
+		return notConnected;
 	}
 }
 

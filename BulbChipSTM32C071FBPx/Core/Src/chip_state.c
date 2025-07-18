@@ -68,13 +68,17 @@ static void readSettings(ChipSettings *settings) {
 	readSettingsFromFlash(flashReadBuffer, 1024);
 	parseJson(flashReadBuffer, 1024, &input);
 
-	// TODO: defined parsed type constants
 	if (input.parsedType == parseSettings) {
 		*settings = input.settings;
 	}
 }
 
-// TODO: create fake off mode
+static void shutdownFake() {
+	BulbMode mode;
+	readBulbMode(fakeOffModeIndex, &mode);
+	currentMode = mode;
+}
+
 void configureChipState(
 		BQ25180 *_chargerIC,
 		WriteToUsbSerial *_writeUsbSerial,
@@ -93,13 +97,14 @@ void configureChipState(
 	stopLedTimers = _stopLedTimers;
 
 	uint8_t state = getChargingState(chargerIC);
-	BulbMode mode;
-	if (state == NOT_CONNECTED) {
+
+	if (state == notConnected) {
+		BulbMode mode;
 		readBulbMode(0, &mode);
+		currentMode = mode;
 	} else {
-		readBulbMode(fakeOffModeIndex, &mode);
+		shutdownFake();
 	}
-	currentMode = mode;
 
 	ChipSettings settings;
 	readSettings(&settings);
@@ -122,15 +127,10 @@ static void setClickEnded() {
 static uint8_t hasClickStarted() {
 	return clickStarted;
 }
-static void shutdownFake() {
-	BulbMode mode;
-	readBulbMode(fakeOffModeIndex, &mode);
-	currentMode = mode;
-}
 
 static void lock() {
 	uint8_t state = getChargingState(chargerIC);
-	if (state == NOT_CONNECTED) {
+	if (state == notConnected) {
 		enableShipMode(chargerIC);
 	} else {
 		hardwareReset(chargerIC);
@@ -196,15 +196,15 @@ static void handleButtonInput() {
 }
 
 static void showChargingState(uint8_t state) {
-	if (state == NOT_CONNECTED) {
+	if (state == notConnected) {
 
-	} else if (state == NOT_CHARGING) {
+	} else if (state == notCharging) {
 		showNotCharging();
-	} else if (state == CONSTANT_CURRENT_CHARGING) {
+	} else if (state == constantCurrent) {
 		showConstantCurrentCharging();
-	} else if (state == CONSTANT_VOLTAGE_CHARGING) {
+	} else if (state == constantVoltage) {
 		showConstantVoltageCharging();
-	} else if (state == DONE_CHARGING) {
+	} else if (state == done) {
 		showDoneCharging();
 	}
 }
@@ -228,7 +228,7 @@ static void chargerTask(uint16_t tickCount) {
 		readChargerNow = 0;
 		uint8_t state = getChargingState(chargerIC);
 
-		uint8_t wasUnplugged = previousState != NOT_CONNECTED && state == NOT_CONNECTED;
+		uint8_t wasUnplugged = previousState != notConnected && state == notConnected;
 		if (tickCount != 0 && wasUnplugged && currentMode.modeIndex == fakeOffModeIndex) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock();
@@ -285,7 +285,7 @@ void modeTimerInterrupt() {
 // Auto off timer running at 0.1 hz
 // 12 megahertz / 65535 / 1831 = 0.1 hz
 void autoOffTimerInterrupt() {
-	if (getChargingState(chargerIC) == NOT_CONNECTED) {
+	if (getChargingState(chargerIC) == notConnected) {
 		ticksSinceLastUserActivity++;
 
 		uint16_t ticksUntilAutoOff = minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
