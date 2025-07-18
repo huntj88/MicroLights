@@ -8,9 +8,14 @@
 #include "stm32c0xx.h"
 #include "bootloader.h"
 
+/*
+ *  Handles entering the bootloader so that DFU mode can be used for firmware updates
+ *  Based off of this: https://stm32world.com/wiki/STM32_Jump_to_System_Memory_Bootloader#Evaluation
+ */
+
 #define BOOTLOADER_FLAG 0xABCDEF00
 
-extern int _bflag;
+extern int _bflag; // see linker script
 
 void setBootloaderFlagAndReset() {
 	__disable_irq();

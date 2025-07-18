@@ -192,7 +192,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  handleBootFlag();
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

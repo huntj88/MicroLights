@@ -13,8 +13,7 @@
 
 static const uint8_t fakeOffModeIndex = 255;
 
-// TODO: don't read flash every time mode changes?, can be cached
-static volatile uint8_t modeCount = 0;
+static volatile uint8_t modeCount;
 static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static volatile uint8_t readChargerNow = 0;
