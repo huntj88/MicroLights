@@ -14,6 +14,13 @@ enum Output {
 	low, high
 };
 
+enum ParseResult {
+	parseError,
+	parseMode,
+	parseSettings,
+	parseDfu
+};
+
 typedef struct ChangeAt {
 	uint16_t tick;
 	enum Output output;
@@ -45,7 +52,7 @@ typedef struct CliInput {
 	// 0 for not parsed successfully
 	// 1 for mode
 	// 2 for settings
-	uint8_t parsedType;
+	enum ParseResult parsedType;
 } CliInput;
 
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);

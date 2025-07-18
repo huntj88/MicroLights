@@ -18,7 +18,6 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	return -1;
 }
 
-
 static uint8_t parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	const lwjson_token_t *t;
 
@@ -42,6 +41,7 @@ static uint8_t parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	return parsedProperties == 3;
 }
 
+// TODO: add parsing validation
 static void parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
 	const lwjson_token_t *t;
 
@@ -89,7 +89,6 @@ static void parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 	}
 }
 
-
 /**
  * Example commands
  *
@@ -111,7 +110,14 @@ static void parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
     ]
   }
 }
-{"command":"setSettings","modeCount":3}
+
+{
+  "command": "setSettings",
+  "modeCount": 3,
+  "minutesUntilAutoOff": 90,
+  "minutesUntilLockAfterAutoOff": 10
+}
+
 {"command":"dfu"}
 */
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
@@ -148,7 +154,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 				BulbMode mode;
 				parseModeJson(&lwjson, t, &mode);
 				input->mode = mode;
-				input->parsedType = 1;
+				input->parsedType = parseMode;
 			}
 
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
@@ -158,15 +164,15 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			ChipSettings settings;
 			if (parseSettingsJson(&lwjson, &settings)) {
 				input->settings = settings;
-				input->parsedType = 2;
+				input->parsedType = parseSettings;
 			} else {
-				input->parsedType = 0;
+				input->parsedType = parseError;
 			}
 		} else if (strncmp(command, "dfu", 3) == 0) {
-			input->parsedType = 3;
+			input->parsedType = parseDfu;
 		} else {
 			// unable to parse
-			input->parsedType = 0;
+			input->parsedType = parseError;
 		}
 	}
 	lwjson_free(&lwjson);

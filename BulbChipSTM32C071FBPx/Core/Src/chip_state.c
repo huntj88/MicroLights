@@ -9,6 +9,7 @@
 #include "chip_state.h"
 #include "storage.h"
 #include "rgb.h"
+#include "bulb_json.h"
 
 static const uint8_t fakeOffModeIndex = 255;
 
@@ -44,8 +45,8 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
 		parseJson(flashReadBuffer, 1024, &input);
 
-		if (input.parsedType == 1 && input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
-			// successfully read from flash
+		if (input.parsedType == parseMode && input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
+			// successfully read from fash
 			*mode = input.mode;
 		} else {
 			// fallback to default
@@ -68,7 +69,7 @@ static void readSettings(ChipSettings *settings) {
 	parseJson(flashReadBuffer, 1024, &input);
 
 	// TODO: defined parsed type constants
-	if (input.parsedType == 2) {
+	if (input.parsedType == parseSettings) {
 		*settings = input.settings;
 	}
 }
@@ -175,7 +176,7 @@ static void handleButtonInput() {
 					// Button clicked and released.
 					showSuccess();
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
-					if (newModeIndex > modeCount) {
+					if (newModeIndex >= modeCount) {
 						newModeIndex = 0;
 					}
 
@@ -310,19 +311,22 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	CliInput input;
 	parseJson(buf, count, &input);
 
-	if (input.parsedType == 1) {
+	if (input.parsedType == parseMode) {
 		BulbMode mode = input.mode;
 		if (mode.numChanges > 0 && mode.totalTicks > 0) {
 			writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
 			currentMode = mode;
 			showSuccess();
 		}
-	} else if (input.parsedType == 2) {
+	} else if (input.parsedType == parseSettings) {
 		ChipSettings settings = input.settings;
 		writeSettingsToFlash(buf, input.jsonLength);
 		modeCount = settings.modeCount;
+		minutesUntilAutoOff = settings.minutesUntilAutoOff;
+		minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
+
 		showSuccess();
-	} else if (input.parsedType == 3) {
+	} else if (input.parsedType == parseDfu) {
 		enterDFU();
 	}
 }
