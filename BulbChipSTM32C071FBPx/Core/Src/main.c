@@ -143,6 +143,12 @@ static void stopLedTimers() {
 	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
 	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
 	HAL_TIM_Base_Stop_IT(&htim2);
+
+	// turn leds off
+	HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
 static void BQ25180_Init(void) {

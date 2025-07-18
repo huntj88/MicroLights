@@ -49,6 +49,7 @@ void showLocked() {
 }
 
 void showShutdown() {
+	showingTransientStatus = 1;
 	showColor(20, 20, 20);
 }
 

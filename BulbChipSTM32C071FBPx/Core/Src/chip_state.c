@@ -291,7 +291,6 @@ void autoOffTimerInterrupt() {
 				ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
 				shutdownFake();
 				stopLedTimers();
-				// TODO: make sure outputs are low. Timer can be turned off before led pins set low from mode
 			}
 		}
 	}
