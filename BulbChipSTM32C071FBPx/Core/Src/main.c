@@ -78,7 +78,7 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-static void echo_serial_port_usb(uint8_t itf, uint8_t buf[], uint32_t count) {
+static void writeToSerial(uint8_t itf, uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i += 64) {
 		if (i > count - 64) {
 			tud_cdc_n_write(itf, buf + i, 64);
@@ -154,7 +154,7 @@ static void stopLedTimers() {
 static void BQ25180_Init(void) {
 	chargerIC.readRegister = readRegister;
 	chargerIC.writeRegister = writeRegister;
-	chargerIC.writeToUsbSerial = echo_serial_port_usb;
+	chargerIC.writeToUsbSerial = writeToSerial;
 	chargerIC.devAddress = (0x6A << 1);
 }
 
@@ -225,7 +225,7 @@ int main(void)
 
   BQ25180_Init();
   configureChipState(&chargerIC,
-		  echo_serial_port_usb,
+		  writeToSerial,
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
 		  writeBulbLed,

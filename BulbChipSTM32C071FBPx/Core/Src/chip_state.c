@@ -18,9 +18,8 @@ static volatile BulbMode currentMode;
 static volatile uint8_t clickStarted = 0;
 static volatile uint8_t readChargerNow = 0;
 
-// TODO:  make auto off cli configurable
-static uint16_t minutesUntilAutoOff = 90;
-static uint16_t minutesUntilLockAfterAutoOff = 10;
+static uint16_t minutesUntilAutoOff;
+static uint16_t minutesUntilLockAfterAutoOff;
 volatile static uint32_t ticksSinceLastUserActivity = 0;
 
 static BQ25180 *chargerIC;
@@ -45,7 +44,7 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
 		parseJson(flashReadBuffer, 1024, &input);
 
-		if (input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
+		if (input.parsedType == 1 && input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
 			// successfully read from flash
 			*mode = input.mode;
 		} else {
@@ -59,9 +58,19 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 static void readSettings(ChipSettings *settings) {
 	CliInput input;
 	char flashReadBuffer[1024];
+
+	// set some defaults
+	settings->modeCount = 0;
+	settings->minutesUntilAutoOff = 90;
+	settings->minutesUntilLockAfterAutoOff = 10;
+
 	readSettingsFromFlash(flashReadBuffer, 1024);
 	parseJson(flashReadBuffer, 1024, &input);
-	*settings = input.settings;
+
+	// TODO: defined parsed type constants
+	if (input.parsedType == 2) {
+		*settings = input.settings;
+	}
 }
 
 // TODO: create fake off mode
@@ -94,6 +103,8 @@ void configureChipState(
 	ChipSettings settings;
 	readSettings(&settings);
 	modeCount = settings.modeCount;
+	minutesUntilAutoOff = settings.minutesUntilAutoOff;
+	minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 }
 
 void setClickStarted() {
@@ -171,7 +182,7 @@ static void handleButtonInput() {
 					BulbMode newMode;
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
-				} else if (buttonState == 2 || buttonState == 4) {
+				} else if (buttonState == 2) {
 					shutdownFake();
 				} else if (buttonState == 3) {
 					lock();
@@ -196,9 +207,6 @@ static void showChargingState(uint8_t state) {
 		showDoneCharging();
 	}
 }
-
-
-
 
 static void chargerTask(uint16_t tickCount) {
 	static uint8_t chargingState = 0;
@@ -273,6 +281,8 @@ void modeTimerInterrupt() {
 	modeInterruptCount++;
 }
 
+// Auto off timer running at 0.1 hz
+// 12 megahertz / 65535 / 1831 = 0.1 hz
 void autoOffTimerInterrupt() {
 	if (getChargingState(chargerIC) == NOT_CONNECTED) {
 		ticksSinceLastUserActivity++;

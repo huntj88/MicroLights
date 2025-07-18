@@ -31,6 +31,8 @@ typedef struct BulbMode {
 
 typedef struct ChipSettings {
 	uint8_t modeCount;
+	uint8_t minutesUntilAutoOff;
+	uint8_t minutesUntilLockAfterAutoOff;
 } ChipSettings;
 
 typedef struct CliInput {
