@@ -80,11 +80,12 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN 0 */
 static void writeToSerial(uint8_t itf, uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i += 64) {
-		if (i > count - 64) {
+		if (i < count - 64) {
 			tud_cdc_n_write(itf, buf + i, 64);
 		} else {
 			tud_cdc_n_write(itf, buf + i, count - i);
 		}
+		tud_task();
 	}
 	tud_cdc_n_write_flush(itf);
 	tud_task();
@@ -221,6 +222,9 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 
+  // TODO: tusb_teardown() in the next release of tinyusb, enable/disable usb based on charging status
+  // https://github.com/hathach/tinyusb/pull/2904
+
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
@@ -234,7 +238,6 @@ int main(void)
 		  stopLedTimers
   );
 
-  startLedTimers();
   HAL_TIM_Base_Start_IT(&htim3); // auto off timer
 
   /* USER CODE END 2 */

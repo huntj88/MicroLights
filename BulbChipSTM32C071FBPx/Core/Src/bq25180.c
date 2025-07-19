@@ -132,6 +132,44 @@ void printBinary(BQ25180 *chargerIC, uint8_t num) {
 	chargerIC->writeToUsbSerial(0, buffer, sizeof(buffer));
 }
 
+void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
+	BQ25180Registers registerValues = readAllRegisters(chargerIC);
+	bq25180regsToJson(registerValues, jsonOutput);
+}
+
+void bq25180regsToJson(const BQ25180Registers r, char *jsonOutput) {
+    if (!jsonOutput) {
+    	return;
+    }
+    sprintf(jsonOutput,
+        "{\"stat0\":%d,\"stat1\":%d,\"flag0\":%d,\"vbat_ctrl\":%d,"
+        "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
+        "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
+        "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
+        r.stat0, r.stat1, r.flag0, r.vbat_ctrl,
+        r.ichg_ctrl, r.chargectrl0, r.chargectrl1,
+        r.ic_ctrl, r.tmr_ilim, r.ship_rst,
+        r.sys_reg, r.ts_control, r.mask_id);
+}
+
+BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
+	BQ25180Registers registerValues;
+	registerValues.stat0 = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
+	registerValues.stat1 = chargerIC->readRegister(chargerIC, BQ25180_STAT1);
+	registerValues.flag0 = chargerIC->readRegister(chargerIC, BQ25180_FLAG0);
+	registerValues.vbat_ctrl = chargerIC->readRegister(chargerIC, BQ25180_VBAT_CTRL);
+	registerValues.ichg_ctrl = chargerIC->readRegister(chargerIC, BQ25180_ICHG_CTRL);
+	registerValues.chargectrl0 = chargerIC->readRegister(chargerIC, BQ25180_CHARGECTRL0);
+	registerValues.chargectrl1 = chargerIC->readRegister(chargerIC, BQ25180_CHARGECTRL1);
+	registerValues.ic_ctrl = chargerIC->readRegister(chargerIC, BQ25180_IC_CTRL);
+	registerValues.tmr_ilim = chargerIC->readRegister(chargerIC, BQ25180_TMR_ILIM);
+	registerValues.ship_rst = chargerIC->readRegister(chargerIC, BQ25180_SHIP_RST);
+	registerValues.sys_reg = chargerIC->readRegister(chargerIC, BQ25180_SYS_REG);
+	registerValues.ts_control = chargerIC->readRegister(chargerIC, BQ25180_TS_CONTROL);
+	registerValues.mask_id = chargerIC->readRegister(chargerIC, BQ25180_MASK_ID);
+	return registerValues;
+}
+
 void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
 	uint8_t receive_buffer[1] = { 0 };
 

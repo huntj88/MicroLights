@@ -61,9 +61,27 @@ typedef struct BQ25180 {
 	uint16_t devAddress;
 } BQ25180;
 
+typedef struct BQ25180Registers {
+	uint8_t stat0;
+	uint8_t stat1;
+	uint8_t flag0;
+	uint8_t vbat_ctrl;
+	uint8_t ichg_ctrl;
+	uint8_t chargectrl0;
+	uint8_t chargectrl1;
+	uint8_t ic_ctrl;
+	uint8_t tmr_ilim;
+	uint8_t ship_rst;
+	uint8_t sys_reg;
+	uint8_t ts_control;
+	uint8_t mask_id;
+} BQ25180Registers;
+
 void configureChargerIC(BQ25180 *chargerIC);
 void charger_task(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
+BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
+void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOuput);
 void enableShipMode(BQ25180 *chargerIC);
 void hardwareReset(BQ25180 *chargerIC);
 uint8_t getChargingState(BQ25180 *chargerIC);

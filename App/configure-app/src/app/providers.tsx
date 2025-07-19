@@ -12,6 +12,7 @@ import {
 } from "@fluentui/react-components";
 import { useServerInsertedHTML } from "next/navigation";
 import { ThemeProvider, useThemeContext } from "./ThemeProvider";
+import SerialProvider from "./SerialProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [renderer] = React.useState(() => createDOMRenderer());
@@ -29,7 +30,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <ThemeProvider>
       <RendererProvider renderer={renderer}>
         <SSRProvider>
-          <WrappedFluentProvider>{children}</WrappedFluentProvider>
+          <WrappedFluentProvider>
+            <SerialProvider>{children}</SerialProvider>
+          </WrappedFluentProvider>
         </SSRProvider>
       </RendererProvider>
     </ThemeProvider>

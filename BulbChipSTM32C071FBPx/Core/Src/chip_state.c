@@ -96,7 +96,7 @@ void configureChipState(
 	startLedTimers = _startLedTimers;
 	stopLedTimers = _stopLedTimers;
 
-	uint8_t state = getChargingState(chargerIC);
+	enum ChargeState state = getChargingState(chargerIC);
 
 	if (state == notConnected) {
 		BulbMode mode;
@@ -217,7 +217,11 @@ static void chargerTask(uint16_t tickCount) {
 	uint8_t previousState = chargingState;
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
-		printAllRegisters(chargerIC);
+
+		char registerJson[256];
+		readAllRegistersJson(chargerIC, registerJson);
+		writeUsbSerial(0, registerJson, strlen(registerJson));
+//		printAllRegisters(chargerIC);
 		chargingState = getChargingState(chargerIC);
 	}
 
