@@ -56,21 +56,24 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 	}
 }
 
-static void readSettings(ChipSettings *settings) {
+static void readSettingsWithBuffer(ChipSettings *settings, char *buffer) {
 	CliInput input;
-	char flashReadBuffer[1024];
-
 	// set some defaults
 	settings->modeCount = 0;
 	settings->minutesUntilAutoOff = 90;
 	settings->minutesUntilLockAfterAutoOff = 10;
 
-	readSettingsFromFlash(flashReadBuffer, 1024);
-	parseJson(flashReadBuffer, 1024, &input);
+	readSettingsFromFlash(buffer, 1024);
+	parseJson(buffer, 1024, &input);
 
-	if (input.parsedType == parseSettings) {
+	if (input.parsedType == parseWriteSettings) {
 		*settings = input.settings;
 	}
+}
+
+static void readSettings(ChipSettings *settings) {
+	char flashReadBuffer[1024];
+	readSettingsWithBuffer(settings, flashReadBuffer);
 }
 
 static void shutdownFake() {
@@ -324,13 +327,22 @@ void handleJson(uint8_t buf[], uint32_t count) {
 			currentMode = mode;
 			showSuccess();
 		}
-	} else if (input.parsedType == parseSettings) {
+	} else if (input.parsedType == parseWriteSettings) {
 		ChipSettings settings = input.settings;
 		writeSettingsToFlash(buf, input.jsonLength);
 		modeCount = settings.modeCount;
 		minutesUntilAutoOff = settings.minutesUntilAutoOff;
 		minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 
+		showSuccess();
+	} else if (input.parsedType == parseReadSettings) {
+		char flashReadBuffer[1024];
+		ChipSettings settings;
+		readSettingsWithBuffer(&settings, flashReadBuffer);
+		uint16_t len = strlen(flashReadBuffer);
+		flashReadBuffer[len] = '\n';
+		flashReadBuffer[len + 1] = '\0';
+		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
 		showSuccess();
 	} else if (input.parsedType == parseDfu) {
 		enterDFU();

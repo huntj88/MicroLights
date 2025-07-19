@@ -125,11 +125,13 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 }
 
 {
-  "command": "setSettings",
+  "command": "writeSettings",
   "modeCount": 3,
   "minutesUntilAutoOff": 90,
   "minutesUntilLockAfterAutoOff": 10
 }
+
+{"command":"readSettings"}
 
 {"command":"dfu"}
 */
@@ -182,14 +184,16 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			if (didParseMode && didParseIndex) {
 				input->parsedType = parseMode;
 			}
-		} else if (strncmp(command, "setSettings", 11) == 0) {
+		} else if (strncmp(command, "writeSettings", 13) == 0) {
 			ChipSettings settings;
 			if (parseSettingsJson(&lwjson, &settings)) {
 				input->settings = settings;
-				input->parsedType = parseSettings;
+				input->parsedType = parseWriteSettings;
 			}
 		} else if (strncmp(command, "dfu", 3) == 0) {
 			input->parsedType = parseDfu;
+		} else if (strncmp(command, "readSettings", 12) == 0) {
+			input->parsedType = parseReadSettings;
 		}
 	}
 	lwjson_free(&lwjson);
