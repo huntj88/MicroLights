@@ -6,12 +6,13 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "stm32c0xx_hal.h"
 #include "rgb.h"
 
 static uint16_t tickCount = 0;
 static uint16_t tickOfStatusUpdate = 0;
-static uint8_t showingTransientStatus = 0;
+static bool showingTransientStatus = false;
 
 // expect red, green, blue to be in range of 0 to 255
 static void showColor(uint8_t red, uint8_t green, uint8_t blue) {
@@ -30,13 +31,13 @@ void rgb_task() {
 
 	// show status color for 3 ticks
 	if (showingTransientStatus && tickOfStatusUpdate + 75 == tickCount) {
-		showingTransientStatus = 0;
+		showingTransientStatus = false;
 		showNoColor();
 	}
 }
 
 void showSuccess() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showColor(10, 10, 10);
 }
 
@@ -49,7 +50,7 @@ void showLocked() {
 }
 
 void showShutdown() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showColor(20, 20, 20);
 }
 
@@ -58,21 +59,21 @@ void showNoColor() {
 }
 
 void showNotCharging() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showFailure();
 }
 
 void showConstantCurrentCharging() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showColor(20, 0, 0);
 }
 
 void showConstantVoltageCharging() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showColor(10, 10, 0);
 }
 
 void showDoneCharging() {
-	showingTransientStatus = 1;
+	showingTransientStatus = true;
 	showColor(0, 10, 0);
 }

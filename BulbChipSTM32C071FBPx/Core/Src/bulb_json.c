@@ -5,6 +5,7 @@
  *      Author: jameshunt
  */
 #include <stdint.h>
+#include <stdbool.h>
 #include "bulb_json.h"
 #include "lwjson/lwjson.h"
 
@@ -18,7 +19,7 @@ static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	return -1;
 }
 
-static uint8_t parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
+static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	const lwjson_token_t *t;
 
 	uint8_t parsedProperties = 0;
@@ -41,13 +42,13 @@ static uint8_t parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	return parsedProperties == 3;
 }
 
-static uint8_t parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
+static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
 	const lwjson_token_t *t;
 
-	uint8_t didParseName = 0;
-	uint8_t didParseTotalTicks = 0;
-	uint8_t didParseOutput = 0;
-	uint8_t didParseTick = 0;
+	bool didParseName = false;
+	bool didParseTotalTicks = false;
+	bool didParseOutput = false;
+	bool didParseTick = false;
 
 	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "name")) != NULL) {
 		char *nameRaw = t->u.str.token_value;
@@ -55,12 +56,12 @@ static uint8_t parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, B
 			mode->name[i] = nameRaw[i];
 		}
 		mode->name[t->u.str.token_value_len] = '\0';
-		didParseName = 1;
+		didParseName = true;
 	}
 
 	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "totalTicks")) != NULL) {
 		mode->totalTicks = t->u.num_int;
-		didParseTotalTicks = 1;
+		didParseTotalTicks = true;
 	}
 
 	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "changeAt")) != NULL) {
@@ -80,12 +81,12 @@ static uint8_t parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, B
 					} else {
 						output = low;
 					}
-					didParseOutput = 1;
+					didParseOutput = true;
 				}
 
 				if ((tObject = lwjson_find_ex(lwjson, tkn, "tick")) != NULL) {
 					tick = tObject->u.num_int;
-					didParseTick = 1;
+					didParseTick = true;
 				}
 
 				ChangeAt change = { tick, output };
@@ -96,7 +97,7 @@ static uint8_t parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, B
 		mode->numChanges = changeIndex;
 	}
 
-	uint8_t hasMinRequiredProperties = didParseName && didParseTotalTicks && didParseOutput && didParseTick;
+	bool hasMinRequiredProperties = didParseName && didParseTotalTicks && didParseOutput && didParseTick;
 
 	return hasMinRequiredProperties && mode->totalTicks > 0;
 }
@@ -164,8 +165,8 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 		}
 
 		if (strncmp(command, "setMode", 7) == 0) {
-			uint8_t didParseMode = 0;
-			uint8_t didParseIndex = 0;
+			bool didParseMode = false;
+			bool didParseIndex = false;
 			BulbMode mode;
 
 			if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
@@ -175,7 +176,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
 				input->mode.modeIndex = t->u.num_int;
-				didParseIndex = 1;
+				didParseIndex = true;
 			}
 
 			if (didParseMode && didParseIndex) {

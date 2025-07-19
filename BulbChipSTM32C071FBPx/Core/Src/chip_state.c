@@ -6,6 +6,7 @@
  */
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "chip_state.h"
 #include "storage.h"
 #include "rgb.h"
@@ -15,8 +16,8 @@ static const uint8_t fakeOffModeIndex = 255;
 
 static volatile uint8_t modeCount;
 static volatile BulbMode currentMode;
-static volatile uint8_t clickStarted = 0;
-static volatile uint8_t readChargerNow = 0;
+static volatile bool clickStarted = false;
+static volatile bool readChargerNow = false;
 
 static uint16_t minutesUntilAutoOff;
 static uint16_t minutesUntilLockAfterAutoOff;
@@ -113,11 +114,11 @@ void configureChipState(
 }
 
 void setClickStarted() {
-	clickStarted = 1;
+	clickStarted = true;
 }
 
 static void setClickEnded() {
-	clickStarted = 0;
+	clickStarted = false;
 	ticksSinceLastUserActivity = 0;
 	char *blah = "clicked\n";
 	writeUsbSerial(0, blah, strlen(blah));
@@ -128,7 +129,7 @@ static uint8_t hasClickStarted() {
 }
 
 static void lock() {
-	uint8_t state = getChargingState(chargerIC);
+	enum ChargeState state = getChargingState(chargerIC);
 	if (state == notConnected) {
 		enableShipMode(chargerIC);
 	} else {
@@ -144,17 +145,12 @@ enum ButtonResult {
 };
 
 static void handleButtonInput() {
-	// Button states
-	// 0: confirming click
-	// 1: clicked
-	// 2: shutdown
-	// 3: lock and shutdown, or hardware reset if plugged into usb
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
 
 	if (hasClickStarted()) {
 		uint8_t state = readButtonPin();
-		uint8_t buttonCurrentlyDown = state == 0;
+		bool buttonCurrentlyDown = state == 0;
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
@@ -201,7 +197,7 @@ static void handleButtonInput() {
 	}
 }
 
-static void showChargingState(uint8_t state) {
+static void showChargingState(enum ChargeState state) {
 	if (state == notConnected) {
 
 	} else if (state == notCharging) {
@@ -216,7 +212,7 @@ static void showChargingState(uint8_t state) {
 }
 
 static void chargerTask(uint16_t tickCount) {
-	static uint8_t chargingState = 0;
+	static enum ChargeState chargingState = notConnected;
 
 	uint8_t previousState = chargingState;
 	if (tickCount % 1024 == 0) {
@@ -231,10 +227,10 @@ static void chargerTask(uint16_t tickCount) {
 
 	// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 	if (readChargerNow) {
-		readChargerNow = 0;
-		uint8_t state = getChargingState(chargerIC);
+		readChargerNow = false;
+		enum ChargeState state = getChargingState(chargerIC);
 
-		uint8_t wasUnplugged = previousState != notConnected && state == notConnected;
+		bool wasUnplugged = previousState != notConnected && state == notConnected;
 		if (tickCount != 0 && wasUnplugged && currentMode.modeIndex == fakeOffModeIndex) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock();
@@ -295,13 +291,13 @@ void autoOffTimerInterrupt() {
 		ticksSinceLastUserActivity++;
 
 		uint16_t ticksUntilAutoOff = minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
-		uint8_t enterLock = ticksSinceLastUserActivity > ticksUntilAutoOff;
+		bool autoOffTimerDone = ticksSinceLastUserActivity > ticksUntilAutoOff;
 		if (currentMode.modeIndex == fakeOffModeIndex) {
 			uint16_t ticksUntilLockAfterAutoOff = minutesUntilLockAfterAutoOff * 60 / 10;
-			enterLock = ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
+			autoOffTimerDone = ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
 		}
 
-		if (enterLock) {
+		if (autoOffTimerDone) {
 			if (currentMode.modeIndex == fakeOffModeIndex) {
 				lock();
 			} else {
