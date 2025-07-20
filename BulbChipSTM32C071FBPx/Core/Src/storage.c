@@ -24,7 +24,6 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
 static void readBytes(uint32_t page, char *buffer, uint32_t length) {
 	uint32_t address = getHexAddressOfPage(page);
 	memcpy(buffer, (void*) address, length);
-	buffer[length] = '\0'; // Null-terminate the string
 }
 
 static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {

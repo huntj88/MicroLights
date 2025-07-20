@@ -16,7 +16,8 @@ enum Output {
 
 enum ParseResult {
 	parseError,
-	parseMode,
+	parseWriteMode,
+	parseReadMode,
 	parseWriteSettings,
 	parseReadSettings,
 	parseDfu

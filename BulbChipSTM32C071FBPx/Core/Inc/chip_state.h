@@ -21,7 +21,6 @@ void configureChipState(
 		void (*writeBulbLedPin)(uint8_t state),
 		void (*startLedTimers)(),
 		void (*stopLedTimers)()
-
 );
 
 void handleJson(uint8_t buf[], uint32_t count);

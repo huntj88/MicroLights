@@ -166,7 +166,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			command[t->u.str.token_value_len] = '\0';
 		}
 
-		if (strncmp(command, "setMode", 7) == 0) {
+		if (strncmp(command, "writeMode", 9) == 0) {
 			bool didParseMode = false;
 			bool didParseIndex = false;
 			BulbMode mode;
@@ -182,7 +182,13 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			}
 
 			if (didParseMode && didParseIndex) {
-				input->parsedType = parseMode;
+				input->parsedType = parseWriteMode;
+			}
+		} else if (strncmp(command, "readMode", 8) == 0) {
+			BulbMode mode;
+			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
+				input->mode.modeIndex = t->u.num_int;
+				input->parsedType = parseReadMode;
 			}
 		} else if (strncmp(command, "writeSettings", 13) == 0) {
 			ChipSettings settings;
@@ -190,10 +196,10 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 				input->settings = settings;
 				input->parsedType = parseWriteSettings;
 			}
-		} else if (strncmp(command, "dfu", 3) == 0) {
-			input->parsedType = parseDfu;
 		} else if (strncmp(command, "readSettings", 12) == 0) {
 			input->parsedType = parseReadSettings;
+		} else if (strncmp(command, "dfu", 3) == 0) {
+			input->parsedType = parseDfu;
 		}
 	}
 	lwjson_free(&lwjson);

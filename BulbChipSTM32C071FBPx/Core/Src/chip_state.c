@@ -31,28 +31,33 @@ static void (*writeBulbLedPin)(uint8_t state);
 static void (*startLedTimers)();
 static void (*stopLedTimers)();
 
-static const char *fakeOffMode = "{\"command\":\"setMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
-static const char *defaultMode = "{\"command\":\"setMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
+static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+
+static void readBulbModeWithBuffer(uint8_t modeIndex, BulbMode *mode, char *buffer) {
+	CliInput input;
+	readBulbModeFromFlash(modeIndex, buffer, 1024);
+	parseJson(buffer, 1024, &input);
+
+	if (input.parsedType == parseWriteMode) {
+		// successfully read from flash
+		*mode = input.mode;
+	} else {
+		// fallback to default
+		parseJson(defaultMode, 1024, &input);
+		*mode = input.mode;
+	}
+}
 
 static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
-	startLedTimers();
-	CliInput input;
 	if (modeIndex == fakeOffModeIndex) {
+		CliInput input;
 		parseJson(fakeOffMode, 1024, &input);
 		*mode = input.mode;
 	} else {
+		startLedTimers();
 		char flashReadBuffer[1024];
-		readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-		parseJson(flashReadBuffer, 1024, &input);
-
-		if (input.parsedType == parseMode && input.mode.numChanges > 0 && input.mode.totalTicks > 0) {
-			// successfully read from flash
-			*mode = input.mode;
-		} else {
-			// fallback to default
-			parseJson(defaultMode, 1024, &input);
-			*mode = input.mode;
-		}
+		readBulbModeWithBuffer(modeIndex, mode, flashReadBuffer);
 	}
 }
 
@@ -67,7 +72,9 @@ static void readSettingsWithBuffer(ChipSettings *settings, char *buffer) {
 	parseJson(buffer, 1024, &input);
 
 	if (input.parsedType == parseWriteSettings) {
-		*settings = input.settings;
+		settings->modeCount = input.settings.modeCount;
+		settings->minutesUntilAutoOff = input.settings.minutesUntilAutoOff;
+		settings->minutesUntilLockAfterAutoOff = input.settings.minutesUntilLockAfterAutoOff;
 	}
 }
 
@@ -80,6 +87,12 @@ static void shutdownFake() {
 	BulbMode mode;
 	readBulbMode(fakeOffModeIndex, &mode);
 	currentMode = mode;
+
+	if (getChargingState(chargerIC) == notConnected) {
+		stopLedTimers();
+	} else {
+		startLedTimers();
+	}
 }
 
 void configureChipState(
@@ -147,6 +160,7 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
+// TODO: make clock for button click that turns on when click interrupt fired to keep checking until its over
 static void handleButtonInput() {
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
@@ -243,6 +257,10 @@ static void chargerTask(uint16_t tickCount) {
 			lock();
 		}
 
+		if (previousState == notConnected && state != notConnected) {
+			startLedTimers(); // show charging status led
+		}
+
 		if (chargingState != state) {
 			showChargingState(state);
 			chargingState = state;
@@ -310,7 +328,6 @@ void autoOffTimerInterrupt() {
 			} else {
 				ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
 				shutdownFake();
-				stopLedTimers();
 			}
 		}
 	}
@@ -320,13 +337,20 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	CliInput input;
 	parseJson(buf, count, &input);
 
-	if (input.parsedType == parseMode) {
+	if (input.parsedType == parseWriteMode) {
 		BulbMode mode = input.mode;
-		if (mode.numChanges > 0 && mode.totalTicks > 0) {
-			writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
-			currentMode = mode;
-			showSuccess();
-		}
+		writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
+		currentMode = mode;
+		showSuccess();
+	} else if (input.parsedType == parseReadMode) {
+		char flashReadBuffer[1024];
+		BulbMode mode;
+		readBulbModeWithBuffer(input.mode.modeIndex, &mode, flashReadBuffer);
+		uint16_t len = strlen(flashReadBuffer);
+		flashReadBuffer[len] = '\n';
+		flashReadBuffer[len + 1] = '\0';
+		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
+		showSuccess();
 	} else if (input.parsedType == parseWriteSettings) {
 		ChipSettings settings = input.settings;
 		writeSettingsToFlash(buf, input.jsonLength);
