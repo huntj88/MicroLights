@@ -72,9 +72,7 @@ static void readSettingsWithBuffer(ChipSettings *settings, char *buffer) {
 	parseJson(buffer, 1024, &input);
 
 	if (input.parsedType == parseWriteSettings) {
-		settings->modeCount = input.settings.modeCount;
-		settings->minutesUntilAutoOff = input.settings.minutesUntilAutoOff;
-		settings->minutesUntilLockAfterAutoOff = input.settings.minutesUntilLockAfterAutoOff;
+		*settings = input.settings;
 	}
 }
 

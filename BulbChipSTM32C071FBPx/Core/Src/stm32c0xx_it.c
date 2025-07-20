@@ -87,6 +87,8 @@ void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
   HardFault_Handler_TinyUSB();
+
+  // TODO: set dfu boot flag and reset? last resort for being able to flash new firmware
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
   {
