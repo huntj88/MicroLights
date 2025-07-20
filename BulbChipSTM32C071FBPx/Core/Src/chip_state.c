@@ -192,12 +192,13 @@ static void handleButtonInput() {
 			buttonDownCounter -= 500; // Large decrement to allow any hold time to "discharge" quickly.
 			if (buttonDownCounter < -1000) {
 				buttonDownCounter = 0;
-				if (buttonState == ignore) {
+				switch (buttonState) {
+				case ignore:
 					if (currentMode.modeIndex == fakeOffModeIndex && getChargingState(chargerIC) == notConnected) {
 						stopLedTimers();
 					}
-				} else if (buttonState == clicked) {
-					// Button clicked and released.
+					break;
+				case clicked:
 					showSuccess();
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
 					if (newModeIndex >= modeCount) {
@@ -207,10 +208,13 @@ static void handleButtonInput() {
 					BulbMode newMode;
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
-				} else if (buttonState == shutdown) {
+					break;
+				case shutdown:
 					shutdownFake();
-				} else if (buttonState == lockOrHardwareReset) {
+					break;
+				case lockOrHardwareReset:
 					lock();
+					break;
 				}
 				setClickEnded();
 				buttonState = ignore;
@@ -262,13 +266,14 @@ static void chargerTask(uint16_t tickCount) {
 		readChargerNow = false;
 		enum ChargeState state = getChargingState(chargerIC);
 
-		bool wasUnplugged = previousState != notConnected && state == notConnected;
-		if (tickCount != 0 && wasUnplugged && currentMode.modeIndex == fakeOffModeIndex) {
+		bool wasDisconnected = previousState != notConnected && state == notConnected;
+		if (tickCount != 0 && wasDisconnected && currentMode.modeIndex == fakeOffModeIndex) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock();
 		}
 
-		if (previousState == notConnected && state != notConnected) {
+		bool wasConnected = previousState == notConnected && state != notConnected;
+		if (wasConnected) {
 			startLedTimers(); // show charging status led
 		}
 
