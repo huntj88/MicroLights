@@ -78,13 +78,12 @@ static void MX_TIM3_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 static void writeToSerial(uint8_t itf, uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i += 64) {
-		if (i < count - 64) {
-			tud_cdc_n_write(itf, buf + i, 64);
-		} else {
-			tud_cdc_n_write(itf, buf + i, count - i);
-		}
+		uint32_t countMax64 = MIN(count - i, 64);
+		tud_cdc_n_write(itf, buf + i, countMax64);
 		tud_task();
 	}
 	tud_cdc_n_write_flush(itf);
@@ -221,9 +220,6 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
-
-  // TODO: tusb_teardown() in the next release of tinyusb, enable/disable usb based on charging status
-  // https://github.com/hathach/tinyusb/pull/2904
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 

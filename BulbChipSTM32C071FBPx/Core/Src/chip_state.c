@@ -174,12 +174,12 @@ static void handleButtonInput() {
 
 		if (buttonCurrentlyDown) {
 			buttonDownCounter += 1;
-			if (buttonDownCounter > 2 && buttonState == 0) {
+			if (buttonDownCounter > 2 && buttonState == ignore) {
 				buttonState = clicked;
-			} else if (buttonDownCounter > 400 && buttonState == 1) {
+			} else if (buttonDownCounter > 400 && buttonState == clicked) {
 				buttonState = shutdown;
 				showShutdown();
-			} else if (buttonDownCounter > 800 && buttonState == 2) {
+			} else if (buttonDownCounter > 800 && buttonState == shutdown) {
 				buttonState = lockOrHardwareReset;
 				showLocked();
 			}
@@ -220,16 +220,22 @@ static void handleButtonInput() {
 }
 
 static void showChargingState(enum ChargeState state) {
-	if (state == notConnected) {
-
-	} else if (state == notCharging) {
+	switch (state) {
+	case notConnected:
+		// do nothing
+		break;
+	case notCharging:
 		showNotCharging();
-	} else if (state == constantCurrent) {
+		break;
+	case constantCurrent:
 		showConstantCurrentCharging();
-	} else if (state == constantVoltage) {
+		break;
+	case constantVoltage:
 		showConstantVoltageCharging();
-	} else if (state == done) {
+		break;
+	case done:
 		showDoneCharging();
+		break;
 	}
 }
 
@@ -342,12 +348,19 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	CliInput input;
 	parseJson(buf, count, &input);
 
-	if (input.parsedType == parseWriteMode) {
+	switch (input.parsedType) {
+	case parseError: {
+		char error[] = "{\"error\":\"unable to parse json\"}\n";
+		writeUsbSerial(0, error, strlen(error));
+		break;
+	}
+	case parseWriteMode: {
 		BulbMode mode = input.mode;
 		writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
 		currentMode = mode;
-		showSuccess();
-	} else if (input.parsedType == parseReadMode) {
+		break;
+	}
+	case parseReadMode: {
 		char flashReadBuffer[1024];
 		BulbMode mode;
 		readBulbModeWithBuffer(input.mode.modeIndex, &mode, flashReadBuffer);
@@ -355,16 +368,17 @@ void handleJson(uint8_t buf[], uint32_t count) {
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';
 		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
-		showSuccess();
-	} else if (input.parsedType == parseWriteSettings) {
+		break;
+	}
+	case parseWriteSettings: {
 		ChipSettings settings = input.settings;
 		writeSettingsToFlash(buf, input.jsonLength);
 		modeCount = settings.modeCount;
 		minutesUntilAutoOff = settings.minutesUntilAutoOff;
 		minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
-
-		showSuccess();
-	} else if (input.parsedType == parseReadSettings) {
+		break;
+	}
+	case parseReadSettings: {
 		char flashReadBuffer[1024];
 		ChipSettings settings;
 		readSettingsWithBuffer(&settings, flashReadBuffer);
@@ -372,8 +386,14 @@ void handleJson(uint8_t buf[], uint32_t count) {
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';
 		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
-		showSuccess();
-	} else if (input.parsedType == parseDfu) {
+		break;
+	}
+	case parseDfu: {
 		enterDFU();
+		break;
+	}}
+
+	if (input.parsedType != parseError) {
+		showSuccess();
 	}
 }
