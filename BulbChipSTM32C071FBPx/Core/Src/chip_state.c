@@ -131,6 +131,7 @@ void configureChipState(
 
 void setClickStarted() {
 	clickStarted = true;
+	startLedTimers();
 }
 
 static void setClickEnded() {
@@ -160,7 +161,9 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-// TODO: make clock for button click that turns on when click interrupt fired to keep checking until its over
+// Start the timers if they are not already started until the click is over at least to capture the button press properly
+// See setClickStarted();
+// After, the timers may be stopped depending on click result
 static void handleButtonInput() {
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
@@ -190,7 +193,9 @@ static void handleButtonInput() {
 			if (buttonDownCounter < -1000) {
 				buttonDownCounter = 0;
 				if (buttonState == ignore) {
-					// ignore, probably pulse from chargerIC?
+					if (currentMode.modeIndex == fakeOffModeIndex && getChargingState(chargerIC) == notConnected) {
+						stopLedTimers();
+					}
 				} else if (buttonState == clicked) {
 					// Button clicked and released.
 					showSuccess();
