@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "MicroLightDevBoard")(type "KiCad")(uri "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty")(options "")(descr ""))
+)
