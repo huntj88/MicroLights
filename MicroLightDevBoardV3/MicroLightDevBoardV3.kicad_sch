@@ -5493,7 +5493,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 173.6852 101.6 0)
 			(effects
 				(font
@@ -5753,7 +5753,7 @@
 				)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "MicroLightDevBoard:TS-1089S-02526"
 			(at 113.03 167.64 0)
 			(effects
 				(font
@@ -6509,7 +6509,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 192.7352 106.68 0)
 			(effects
 				(font
@@ -7341,7 +7341,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Capacitor_SMD:C_0805_2012Metric"
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
 			(at 131.7752 101.6 0)
 			(effects
 				(font
