@@ -65,14 +65,14 @@ void Error_Handler(void);
 #define green_GPIO_Port GPIOA
 #define blue_Pin GPIO_PIN_2
 #define blue_GPIO_Port GPIOA
+#define bulbLed_Pin GPIO_PIN_5
+#define bulbLed_GPIO_Port GPIOA
 #define chargerIT_Pin GPIO_PIN_6
 #define chargerIT_GPIO_Port GPIOA
 #define chargerIT_EXTI_IRQn EXTI4_15_IRQn
 #define button_Pin GPIO_PIN_7
 #define button_GPIO_Port GPIOA
 #define button_EXTI_IRQn EXTI4_15_IRQn
-#define bulbLed_Pin GPIO_PIN_8
-#define bulbLed_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
