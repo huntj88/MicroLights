@@ -6477,7 +6477,7 @@
 				)
 			)
 		)
-		(property "Value" "40"
+		(property "Value" "51"
 			(at 33.02 173.99 90)
 			(effects
 				(font
@@ -6679,7 +6679,7 @@
 				)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "100 nf"
 			(at 97.79 16.51 90)
 			(effects
 				(font
@@ -7012,7 +7012,7 @@
 				)
 			)
 		)
-		(property "Value" "C"
+		(property "Value" "4.7 uf"
 			(at 97.79 29.718 90)
 			(effects
 				(font
@@ -7040,6 +7040,15 @@
 		)
 		(property "Description" "Unpolarized capacitor"
 			(at 97.79 26.67 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Field5" ""
+			(at 97.79 26.67 90)
 			(effects
 				(font
 					(size 1.27 1.27)
