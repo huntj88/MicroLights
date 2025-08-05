@@ -4962,28 +4962,6 @@
 			)
 		)
 	)
-	(global_label "bulbLed"
-		(shape input)
-		(at 46.99 175.26 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "4b44b17a-efb8-4630-8c14-4862084fa059")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 36.6269 175.26 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "button"
 		(shape input)
 		(at 114.3 55.88 0)
@@ -5046,6 +5024,28 @@
 					(size 1.27 1.27)
 				)
 				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "bulbLed"
+		(shape input)
+		(at 36.83 177.8 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "5f8a20ce-45ac-4872-8e33-363cb4faaf5f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 26.4669 177.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
 				(hide yes)
 			)
 		)
@@ -6462,7 +6462,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 33.02 177.8 270)
+		(at 43.18 175.26 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6470,7 +6470,7 @@
 		(dnp no)
 		(uuid "242dcc99-5f35-4436-93a9-e79c85ee4ac7")
 		(property "Reference" "R1"
-			(at 33.02 171.45 90)
+			(at 43.18 168.91 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6478,7 +6478,7 @@
 			)
 		)
 		(property "Value" "51"
-			(at 33.02 173.99 90)
+			(at 43.18 171.45 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6486,7 +6486,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 33.02 176.022 90)
+			(at 43.18 173.482 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6495,7 +6495,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 33.02 177.8 0)
+			(at 43.18 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6504,7 +6504,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 33.02 177.8 0)
+			(at 43.18 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8307,7 +8307,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 29.21 177.8 270)
+		(at 39.37 175.26 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8316,7 +8316,7 @@
 		(fields_autoplaced yes)
 		(uuid "a74e2d86-f98b-440c-96db-88c27bdb6856")
 		(property "Reference" "#PWR02"
-			(at 22.86 177.8 0)
+			(at 33.02 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8325,7 +8325,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 25.4 177.7999 90)
+			(at 35.56 175.2599 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8334,7 +8334,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 29.21 177.8 0)
+			(at 39.37 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8343,7 +8343,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 29.21 177.8 0)
+			(at 39.37 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8352,7 +8352,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 29.21 177.8 0)
+			(at 39.37 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
