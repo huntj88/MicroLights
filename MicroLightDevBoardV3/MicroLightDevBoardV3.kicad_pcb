@@ -6533,6 +6533,32 @@
 			)
 		)
 	)
+	(gr_poly
+		(pts
+			(xy 35.78 20) (xy 37.93 20.03) (xy 37.91 20.39) (xy 37.81 20.8) (xy 37.93 21.37) (xy 37.83 21.53)
+			(xy 35.78 21.55)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill yes)
+		(layer "B.Mask")
+		(uuid "1d3ec6a4-b069-42ad-9947-4a3d97467013")
+	)
+	(gr_poly
+		(pts
+			(xy 33.69 22.18) (xy 34.75 22.18) (xy 35.01 21.96) (xy 35.02 20.02) (xy 33.36 20.02) (xy 33.341735 20.394443)
+			(xy 33.681573 21.034138)
+		)
+		(stroke
+			(width 0.1)
+			(type solid)
+		)
+		(fill yes)
+		(layer "B.Mask")
+		(uuid "f51cec69-a339-49e8-9e3c-b7d9925dac28")
+	)
 	(gr_line
 		(start 41.49 19.33)
 		(end 31.88 19.33)
