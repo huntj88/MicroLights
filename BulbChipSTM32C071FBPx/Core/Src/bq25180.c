@@ -43,10 +43,10 @@ void configureRegister_ICHG_CTRL(BQ25180 *chargerIC) {
 
 void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
 	// 4.3v, (3.5v) + (80 * 10mV), 80 = 0b1010000
-	 chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01010000);
+//	 chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01010000);
 
 	// 4.4v, (3.5v) + (90 * 10mV), 90 = 0b1011010
-//	chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01011010);
+	chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01011010);
 }
 
 void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
