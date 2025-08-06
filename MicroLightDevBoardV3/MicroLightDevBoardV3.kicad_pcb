@@ -1588,7 +1588,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "f97d7778-ffbd-4924-918c-aef49730e82f")
+			(uuid "388a31f8-16e6-47e4-a8d2-78d87bbc155d")
 		)
 		(fp_line
 			(start -3.25 1.9)
@@ -1598,7 +1598,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "2b3e8f22-d60c-4683-8d9e-b395d9b18cdf")
+			(uuid "0fd33baa-43da-480f-a815-d7b08adbe45a")
 		)
 		(fp_line
 			(start 3.25 -1.9)
@@ -1608,7 +1608,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "3c58f823-be75-4253-80ee-d0d7722401c0")
+			(uuid "95532114-961f-4124-a74e-d30a519a990e")
 		)
 		(fp_line
 			(start 3.25 1.9)
@@ -1618,7 +1618,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "560b48d6-199e-47d8-afbd-26d8897ab4e4")
+			(uuid "d6f338fd-d395-442c-9289-4a09c1bb7e4e")
 		)
 		(fp_line
 			(start -3 -1.65)
@@ -1628,7 +1628,7 @@
 				(type solid)
 			)
 			(layer "F.CrtYd")
-			(uuid "6e54a533-cef9-478b-9977-60d45f0359f6")
+			(uuid "bb23fc84-8f3a-4a65-a7e0-8d0e554dcc33")
 		)
 		(fp_line
 			(start -3 1.65)
@@ -1638,7 +1638,7 @@
 				(type solid)
 			)
 			(layer "F.CrtYd")
-			(uuid "88c20850-e717-4419-91d9-bd9bf9cca680")
+			(uuid "6dfeb56b-d373-473a-840d-2cb74d2acae1")
 		)
 		(fp_line
 			(start 3 -1.65)
@@ -1648,7 +1648,7 @@
 				(type solid)
 			)
 			(layer "F.CrtYd")
-			(uuid "1045e9ad-f97b-4c97-aec8-bbb44c89fc6d")
+			(uuid "968d6f5d-90bc-42a0-b06d-a2d000e83201")
 		)
 		(fp_line
 			(start 3 1.65)
@@ -1658,7 +1658,7 @@
 				(type solid)
 			)
 			(layer "F.CrtYd")
-			(uuid "6c8ffa62-e833-416e-8ac7-a03a6a40c0ad")
+			(uuid "b4f48061-4dd7-4f32-a422-964f6b4c3c9b")
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 3.1475 0)
@@ -1688,7 +1688,7 @@
 			(net 2 "GND")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "fc5a9b02-fd36-4700-b9b2-96bb9c64ca7f")
+			(uuid "9e1d7f8c-ff4a-4142-8913-1f96589192f8")
 		)
 		(pad "2" smd rect
 			(at -2.15 1.075)
@@ -1706,10 +1706,10 @@
 			(net 19 "TS_MR_CHRG")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "ea9c2248-04d4-4028-9040-4a8f16c80400")
+			(uuid "18669954-bc9d-4e6a-adf1-db4e0bbb15af")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/3D Models/TS-1089S-02526 v2.step"
+		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/TS-1089S-02526 v2.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3573,6 +3573,7 @@
 		)
 		(embedded_fonts no)
 		(model "${KICAD9_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/QFN-28_4x4mm_P0.5mm.step"
+			(hide yes)
 			(offset
 				(xyz 0 0 0)
 			)
@@ -3581,6 +3582,17 @@
 			)
 			(rotate
 				(xyz 0 0 0)
+			)
+		)
+		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/STM32G071G8U6TR.stp"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -90 -0 -0)
 			)
 		)
 	)
