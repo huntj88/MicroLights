@@ -114,6 +114,49 @@ static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
 			&hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
+static int8_t readRegisterAc(uint8_t reg) {
+	int8_t receive_buffer[1] = { 0 };
+
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
+			0x99, &reg, 1, 1000);
+
+	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
+			0x99, &receive_buffer, 1, 1000);
+
+	int8_t num = receive_buffer[0];
+
+	char buffer[9] = { 0 };
+	buffer[8] = '\n';
+	char *bufferPtr = &buffer;
+
+
+	// print register bits
+//	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
+//	sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
+
+	// print value as decimal number
+	sprintf(bufferPtr + 0, "%d", num);
+
+	writeToSerial(0, buffer, sizeof(buffer));
+
+	return receive_buffer[0];
+}
+
+static void writeRegisterAc(uint8_t reg, uint8_t value) {
+	uint8_t writeBuffer[2] = { 0 };
+	writeBuffer[0] = reg;
+	writeBuffer[1] = value;
+
+	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(
+				&hi2c1, 0x99, &writeBuffer, sizeof(writeBuffer), 1000);
+}
+
 static uint8_t readButtonPin() {
 	GPIO_PinState state = HAL_GPIO_ReadPin(button_GPIO_Port, button_Pin);
 	if (state == GPIO_PIN_RESET) {
@@ -241,12 +284,40 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+
+  writeRegisterAc(0x08, 0b00010000);
+  writeRegisterAc(0x07, 0b00000001);
+
+  readRegisterAc(0x05);
+  readRegisterAc(0x07);
+  readRegisterAc(0x08);
+
+  uint8_t temp;
+
   while (1) {
 	  tud_task();
 	  cdc_task();
 	  rgb_task();
 
 	  stateTask();
+
+	  if (temp == 0) {
+		  // TODO: create lib similar to charger
+
+		  writeToSerial(0, "x", 1);
+//		  readRegisterAc(0x0D); // LSB
+		  readRegisterAc(0x0E); // MSB
+
+		  writeToSerial(0, "y", 1);
+//		  readRegisterAc(0x0F); // LSB
+		  readRegisterAc(0x10); // MSB
+
+		  writeToSerial(0, "z", 1);
+//		  readRegisterAc(0x11); // LSB
+		  readRegisterAc(0x12); // MSB
+	  }
+
+	  temp++;
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
