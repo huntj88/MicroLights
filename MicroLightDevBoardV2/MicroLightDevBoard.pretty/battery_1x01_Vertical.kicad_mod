@@ -1,0 +1,76 @@
+(footprint "battery_1x01_Vertical"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Through hole straight socket strip, 1x01, 1.27mm pitch, single row (from Kicad 4.0.7), script generated")
+	(tags "Through hole socket strip THT 1x01 1.27mm single row")
+	(property "Reference" "J4"
+		(at 0 -2.135 0)
+		(layer "F.SilkS")
+		(uuid "1c0992cd-ec70-45e8-b8ad-71788f0e64a3")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "Conn_01x01_Socket"
+		(at 0 2.135 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "a6ffa78c-afc2-498b-906b-25caadfaca8d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" "~"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "58ebfb2e-6378-466e-a88b-49142aace1a7")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "Generic connector, single row, 01x01, script generated"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "bf0a94e1-6435-412b-b6f9-a032e5c65afd")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_text user "${REFERENCE}"
+		(at 0 0 0)
+		(layer "F.Fab")
+		(uuid "38558f5b-bf2c-4934-80d1-36a2a1d63e1f")
+		(effects
+			(font
+				(size 0.76 0.76)
+				(thickness 0.11)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at 0 0)
+		(size 0.8 0.8)
+		(drill 0.35)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "8823c183-b20f-4c67-be06-e89cf190f572")
+	)
+	(embedded_fonts no)
+)
