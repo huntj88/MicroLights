@@ -2602,6 +2602,284 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "MicroLightDevBoard:MC3479"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "MC3479"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "Package_LGA:LGA-12_2x2mm_P0.5mm"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.mouser.com/datasheet/2/821/20200827164636363-1900743.pdf"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "3-axis accelerometer"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "MC3479_1_1"
+				(rectangle
+					(start -10.16 -1.27)
+					(end 10.16 -26.67)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin power_in line
+					(at -12.7 -10.16 0)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -12.7 -12.7 0)
+					(length 2.54)
+					(name "VPP"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at -12.7 -19.05 0)
+					(length 2.54)
+					(name "VDD"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "9"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 12.7 -3.81 180)
+					(length 2.54)
+					(name "SCK_SCL"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at 12.7 -6.35 180)
+					(length 2.54)
+					(name "CSN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 12.7 -8.89 180)
+					(length 2.54)
+					(name "DOUT_A6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin bidirectional line
+					(at 12.7 -11.43 180)
+					(length 2.54)
+					(name "DIN_SDA"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 12.7 -13.97 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 12.7 -16.51 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 12.7 -19.05 180)
+					(length 2.54)
+					(name ""
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 12.7 -21.59 180)
+					(length 2.54)
+					(name "INTN2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "11"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 12.7 -24.13 180)
+					(length 2.54)
+					(name "INTN1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "12"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "MicroLightDevBoard:S-85S1AB33-I6T1U"
 			(pin_names
 				(offset 0.254)
@@ -4336,7 +4614,7 @@
 	)
 	(rectangle
 		(start 113.03 78.74)
-		(end 251.46 146.05)
+		(end 207.01 146.05)
 		(stroke
 			(width 0)
 			(type default)
@@ -4406,6 +4684,12 @@
 		(uuid "8f8edf35-ba8a-43bd-9416-230166a4e593")
 	)
 	(junction
+		(at 222.25 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "03a883e8-b9d0-4007-8c1d-0a52189a650d")
+	)
+	(junction
 		(at 232.41 66.04)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4466,6 +4750,12 @@
 		(uuid "b3575a73-fab8-4328-aa1a-265f2867ab3f")
 	)
 	(junction
+		(at 222.25 118.11)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b95f2c19-ab5c-475e-a3d8-eb228ab50a2b")
+	)
+	(junction
 		(at 41.91 40.64)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4483,9 +4773,23 @@
 		(color 0 0 0 0)
 		(uuid "eac61e25-e51a-43df-bda3-3268c13deabf")
 	)
+	(junction
+		(at 229.87 109.22)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "f1799ee8-2e17-4202-bda1-9edec87d370d")
+	)
+	(no_connect
+		(at 255.27 120.65)
+		(uuid "341d4c68-cbee-4595-ad09-1c187d53f232")
+	)
 	(no_connect
 		(at 41.91 55.88)
 		(uuid "5727e8a2-796c-4feb-b5a8-84cdf89b1c18")
+	)
+	(no_connect
+		(at 255.27 123.19)
+		(uuid "76d52dd3-5c4a-4751-83b7-4857896ffc70")
 	)
 	(no_connect
 		(at 19.05 63.5)
@@ -4514,6 +4818,16 @@
 			(type default)
 		)
 		(uuid "0374df05-5ecc-4e7e-bb38-799e7a6dfa58")
+	)
+	(wire
+		(pts
+			(xy 220.98 118.11) (xy 222.25 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "08eb0143-cecb-4d9b-8742-0415dab4c06e")
 	)
 	(wire
 		(pts
@@ -4564,6 +4878,26 @@
 			(type default)
 		)
 		(uuid "28df0d13-aea3-44b1-9987-6d01f7c2c1ec")
+	)
+	(wire
+		(pts
+			(xy 222.25 109.22) (xy 229.87 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "305bdbd5-d289-43cc-ab21-9a468e9460a5")
+	)
+	(wire
+		(pts
+			(xy 220.98 109.22) (xy 222.25 109.22)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "39535031-8aed-4c22-9a7b-8f396012ce73")
 	)
 	(wire
 		(pts
@@ -4624,6 +4958,16 @@
 			(type default)
 		)
 		(uuid "71762263-c20c-45a6-8c49-aa70e98adebb")
+	)
+	(wire
+		(pts
+			(xy 222.25 116.84) (xy 222.25 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "7545d607-48ff-4522-9c86-3660c26e08cb")
 	)
 	(wire
 		(pts
@@ -4747,6 +5091,16 @@
 	)
 	(wire
 		(pts
+			(xy 229.87 109.22) (xy 229.87 111.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ac02c5fb-60d8-41d6-8ab2-a938a8c35feb")
+	)
+	(wire
+		(pts
 			(xy 104.14 21.59) (xy 104.14 26.67)
 		)
 		(stroke
@@ -4824,6 +5178,16 @@
 			(type default)
 		)
 		(uuid "ea722a64-54fb-486d-af3a-c8e3c6b852db")
+	)
+	(wire
+		(pts
+			(xy 222.25 118.11) (xy 229.87 118.11)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ed9a3ba5-a98b-4580-803e-abaadf12c9ec")
 	)
 	(wire
 		(pts
@@ -4911,7 +5275,7 @@
 	)
 	(global_label "BAT_CHRG"
 		(shape input)
-		(at 236.22 91.44 180)
+		(at 172.72 125.73 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4921,7 +5285,7 @@
 		)
 		(uuid "19899bae-e779-423f-9e28-c429caa4b66b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 223.8005 91.44 0)
+			(at 160.3005 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4933,7 +5297,7 @@
 	)
 	(global_label "SYS_CHRG"
 		(shape input)
-		(at 236.22 96.52 180)
+		(at 172.72 130.81 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4943,7 +5307,7 @@
 		)
 		(uuid "19fabc64-7260-43cb-8f73-097a0f811b4f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 223.6191 96.52 0)
+			(at 160.1191 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4971,6 +5335,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "I2C_SCL"
+		(shape input)
+		(at 255.27 102.87 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "247fb44f-c952-4b8a-aaa6-f0b5ffdfd9c6")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 265.8147 102.87 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -5301,6 +5687,28 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "I2C_SDA"
+		(shape input)
+		(at 255.27 110.49 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8b16d87a-9eb2-4df7-a3e0-ba0bae0fb10e")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 265.8752 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
 				(hide yes)
 			)
 		)
@@ -6808,7 +7216,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 236.22 91.44 270)
+		(at 172.72 125.73 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6817,7 +7225,7 @@
 		(fields_autoplaced yes)
 		(uuid "250434e1-6a65-4cba-9c13-549de7f56eab")
 		(property "Reference" "#FLG02"
-			(at 238.125 91.44 0)
+			(at 174.625 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6826,7 +7234,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 240.03 91.4399 90)
+			(at 176.53 125.7299 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6835,7 +7243,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 236.22 91.44 0)
+			(at 172.72 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6844,7 +7252,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 236.22 91.44 0)
+			(at 172.72 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6853,7 +7261,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 236.22 91.44 0)
+			(at 172.72 125.73 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7269,6 +7677,73 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "R7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 255.27 105.41 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "4c5798b0-0234-4e79-bde6-a65e913f89ef")
+		(property "Reference" "#PWR028"
+			(at 251.46 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 259.08 105.4099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 255.27 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 255.27 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 255.27 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "33f70c3a-1e55-4dc6-9675-d9f766e82b48")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR028")
 					(unit 1)
 				)
 			)
@@ -7829,7 +8304,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 236.22 96.52 270)
+		(at 172.72 130.81 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7838,7 +8313,7 @@
 		(fields_autoplaced yes)
 		(uuid "5d7f040c-864e-416d-abf2-20cf2eae711c")
 		(property "Reference" "#FLG03"
-			(at 238.125 96.52 0)
+			(at 174.625 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7847,7 +8322,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 240.03 96.5199 90)
+			(at 176.53 130.8099 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7856,7 +8331,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 236.22 96.52 0)
+			(at 172.72 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7865,7 +8340,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 236.22 96.52 0)
+			(at 172.72 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7874,7 +8349,7 @@
 			)
 		)
 		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 236.22 96.52 0)
+			(at 172.72 130.81 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8230,6 +8705,73 @@
 		)
 	)
 	(symbol
+		(lib_id "power:+3.3V")
+		(at 220.98 118.11 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "82e5852a-164a-487f-9fd2-7702d72d4660")
+		(property "Reference" "#PWR025"
+			(at 224.79 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 217.17 118.1099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 220.98 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 220.98 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 220.98 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a1064a8a-9418-4a7a-b6ce-26dc016111cc")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR025")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 107.95 172.72 270)
 		(unit 1)
@@ -8360,6 +8902,72 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "C3")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 255.27 107.95 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "88f6062d-1991-4000-a3a9-895c990f70cd")
+		(property "Reference" "#PWR027"
+			(at 261.62 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 259.08 107.9501 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 255.27 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 255.27 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 255.27 107.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e32da000-1231-4b7e-ad8c-d69d7d0ff949")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR027")
 					(unit 1)
 				)
 			)
@@ -8785,6 +9393,104 @@
 		)
 	)
 	(symbol
+		(lib_id "MicroLightDevBoard:MC3479")
+		(at 242.57 99.06 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b52765f2-0dfa-4f55-9443-bde88129eb24")
+		(property "Reference" "U7"
+			(at 238.76 95.25 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "MC3479"
+			(at 238.76 97.79 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_LGA:LGA-12_2x2mm_P0.5mm"
+			(at 242.57 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.mouser.com/datasheet/2/821/20200827164636363-1900743.pdf"
+			(at 242.57 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "3-axis accelerometer"
+			(at 242.57 99.06 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "8"
+			(uuid "8696ca8f-0ece-4749-9387-5de37bcb420b")
+		)
+		(pin "4"
+			(uuid "aa1eb7f6-995f-4365-826f-85b4b8241e76")
+		)
+		(pin "5"
+			(uuid "47b6631c-1991-440f-8a90-8c6a6abe271c")
+		)
+		(pin "7"
+			(uuid "50605d63-3ae3-4f59-8f72-ee6eb4ce0988")
+		)
+		(pin "6"
+			(uuid "0e031edb-1f16-4711-b072-6f8b38450b15")
+		)
+		(pin "1"
+			(uuid "fb14284c-79ee-479a-a649-3768f983d433")
+		)
+		(pin "12"
+			(uuid "853a97ac-726e-431e-a816-3db5dc7496c6")
+		)
+		(pin "10"
+			(uuid "c0a6c586-2fbe-41a1-926f-9ab79b962b2b")
+		)
+		(pin "11"
+			(uuid "ef20f89c-10b5-4c9c-b3ba-0c79a219e5a8")
+		)
+		(pin "3"
+			(uuid "64f7437c-0693-43eb-9f64-7c1571c4e16d")
+		)
+		(pin "9"
+			(uuid "00ea6063-e373-4bf4-b913-f994a7bfaf4c")
+		)
+		(pin "2"
+			(uuid "e0b55397-52d4-4dac-8a7f-9d067a07cac7")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "U7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 232.41 62.23 0)
 		(unit 1)
@@ -8849,6 +9555,72 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "C7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 220.98 109.22 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "b87e23eb-0981-447e-935a-322ca00500b2")
+		(property "Reference" "#PWR026"
+			(at 214.63 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 217.17 109.2199 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 220.98 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 220.98 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 220.98 109.22 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "d1d8c1dc-1416-4c55-a2af-32280bd9cf13")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR026")
 					(unit 1)
 				)
 			)
@@ -9641,6 +10413,76 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "R6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 222.25 113.03 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "fd400f9e-5fa9-46aa-a7dc-b21c31473071")
+		(property "Reference" "C8"
+			(at 226.06 111.7599 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "100nF"
+			(at 226.06 114.2999 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0402_1005Metric"
+			(at 223.2152 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 222.25 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 222.25 113.03 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "9899ee97-6c99-4c63-8d6e-bbaa86235204")
+		)
+		(pin "1"
+			(uuid "ecced86e-5064-49aa-bc2b-ab812fb6bc90")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "C8")
 					(unit 1)
 				)
 			)
