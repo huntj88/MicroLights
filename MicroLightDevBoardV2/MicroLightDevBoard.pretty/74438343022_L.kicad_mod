@@ -123,13 +123,13 @@
 	(embedded_fonts no)
 	(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/74438343022.stp"
 		(offset
-			(xyz 0 0 0)
+			(xyz 0 0 1)
 		)
 		(scale
 			(xyz 1 1 1)
 		)
 		(rotate
-			(xyz 0 0 0)
+			(xyz -180 -0 -0)
 		)
 	)
 )

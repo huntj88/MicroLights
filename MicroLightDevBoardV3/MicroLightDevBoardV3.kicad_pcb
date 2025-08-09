@@ -2890,7 +2890,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "664b5239-1b8e-4159-80d4-7472481ea591")
+			(uuid "2dfd10a6-f967-48a3-bd65-e9c24e822b04")
 		)
 		(fp_line
 			(start -0.14965 1.2319)
@@ -2900,7 +2900,7 @@
 				(type solid)
 			)
 			(layer "F.SilkS")
-			(uuid "bb629b57-d8c3-4e22-b0de-a13cf622573f")
+			(uuid "ed60887f-5c5b-451d-a0f4-971766a27f7d")
 		)
 		(fp_rect
 			(start -1.27 -1.02)
@@ -2911,7 +2911,7 @@
 			)
 			(fill no)
 			(layer "F.CrtYd")
-			(uuid "3d6b389d-dbe1-4fbc-92ae-2675cf1547eb")
+			(uuid "08771ad2-9a62-46d5-9b81-709708b82899")
 		)
 		(fp_circle
 			(center 0 0)
@@ -2922,7 +2922,7 @@
 			)
 			(fill no)
 			(layer "F.Fab")
-			(uuid "0a65bce5-8d06-4834-a21e-7a05f7cdea31")
+			(uuid "bcdb91eb-261a-46e1-a187-a47a36144b93")
 		)
 		(fp_text user "${REFERENCE}"
 			(at -0.290001 -1.149999 0)
@@ -2958,13 +2958,13 @@
 		(embedded_fonts no)
 		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/74438343022.stp"
 			(offset
-				(xyz 0 0 0)
+				(xyz 0 0 1)
 			)
 			(scale
 				(xyz 1 1 1)
 			)
 			(rotate
-				(xyz 0 0 0)
+				(xyz -180 -0 -0)
 			)
 		)
 	)
@@ -3406,7 +3406,7 @@
 				(justify mirror)
 			)
 		)
-		(property "Value" "BQ25180"
+		(property "Value" "YBG0008-IPC_A"
 			(at 0 0 180)
 			(unlocked yes)
 			(layer "B.Fab")
@@ -3472,7 +3472,7 @@
 				(type solid)
 			)
 			(layer "B.SilkS")
-			(uuid "2002c62a-e29b-40d3-96af-3bef2ded5d03")
+			(uuid "023386f7-421f-42c5-bc85-1048c96164ef")
 		)
 		(fp_line
 			(start -0.529999 1.08125)
@@ -3482,7 +3482,7 @@
 				(type solid)
 			)
 			(layer "B.SilkS")
-			(uuid "4268f938-6be5-4b63-9ec2-b6d85ce429e1")
+			(uuid "405fb609-6a25-4448-968e-2bd719ab52bf")
 		)
 		(fp_circle
 			(center -0.879 0.599999)
@@ -3493,7 +3493,7 @@
 			)
 			(fill no)
 			(layer "B.SilkS")
-			(uuid "e40054dc-b2b4-4e57-b4ab-6bb314ce6b2a")
+			(uuid "11cbe878-624a-4c5b-8306-f25ac950ebea")
 		)
 		(fp_line
 			(start -0.529999 -0.800001)
@@ -3503,7 +3503,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "5bb2de8d-9410-464d-9c2f-6e31e5729617")
+			(uuid "5ec82f94-f974-4f89-badf-379e0f6eb304")
 		)
 		(fp_line
 			(start -0.529999 -0.800001)
@@ -3513,7 +3513,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "0151d9df-c798-419d-b917-0fb0e03d55c8")
+			(uuid "fad2c221-5b1d-4b94-820b-338b3b04a3a3")
 		)
 		(fp_line
 			(start -0.529999 0.800001)
@@ -3523,7 +3523,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "8a0e89be-94d6-428c-b776-0650c3a9b186")
+			(uuid "42d1dab4-d78d-4868-9842-303c0062b46a")
 		)
 		(fp_line
 			(start 0.529999 -0.800001)
@@ -3533,7 +3533,20 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "c7a22de6-f0c9-4e6d-8455-28b13fae7a08")
+			(uuid "7c45dc62-5f3d-4050-92a5-4f7e75abe9cd")
+		)
+		(fp_text user "Designator210"
+			(at -0.8636 2.5654 180)
+			(unlocked yes)
+			(layer "B.SilkS")
+			(uuid "b672277d-17b2-4f8c-ab0c-22579cec85fc")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 180)
@@ -3621,6 +3634,17 @@
 			(uuid "80c736f5-d42e-44b5-8cb2-3839e4c6010c")
 		)
 		(embedded_fonts no)
+		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/BQ25180YBGR--3DModel-STEP-269445.STEP"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz -90 -0 -0)
+			)
+		)
 	)
 	(footprint "Package_DFN_QFN:QFN-28_4x4mm_P0.5mm"
 		(locked yes)
@@ -7314,155 +7338,155 @@
 		(sheetfile "MicroLightDevBoardV3.kicad_sch")
 		(attr smd)
 		(fp_line
-			(start -0.642173 -0.9271)
-			(end 0.642169 -0.9271)
+			(start -0.642171 -0.9271)
+			(end 0.642171 -0.9271)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.SilkS")
-			(uuid "62ff36f9-cfef-430f-a45d-fd1dd08d4458")
+			(uuid "d90fc5c8-92d0-47da-ab80-d95d6e2b0a65")
 		)
 		(fp_line
-			(start 0.642173 0.9271)
-			(end -0.642169 0.9271)
+			(start 0.642171 0.9271)
+			(end -0.642171 0.9271)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.SilkS")
-			(uuid "61051025-ed34-49e9-bdfc-25a71ab97862")
+			(uuid "b7df5b65-0e4f-4ad4-9af9-a93b439231ba")
 		)
 		(fp_circle
-			(center -1.770001 0.5)
-			(end -1.668401 0.500001)
+			(center -1.77 0.5)
+			(end -1.6684 0.5)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(fill no)
 			(layer "B.SilkS")
-			(uuid "6ec0ee3c-30db-4aee-8bc0-a32e62f5aaba")
+			(uuid "4ec4d372-909d-4abd-a1a2-94f670f5d784")
 		)
 		(fp_line
-			(start 1.079501 -1.0541)
-			(end -1.079501 -1.054098)
+			(start 1.0795 -1.0541)
+			(end -1.0795 -1.0541)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "f3ca7e82-c7f0-4865-b274-30f02c6941de")
+			(uuid "75ce33b6-2c31-4b2e-b328-74e0cf4f5dc2")
 		)
 		(fp_line
-			(start -1.079501 -1.054098)
-			(end -1.079501 -0.855601)
+			(start -1.0795 -1.0541)
+			(end -1.0795 -0.8556)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "bf2cbd45-d4ff-4c00-8642-36c9345271a6")
+			(uuid "f2ad5216-0503-4ede-b307-e16d1978a3d3")
 		)
 		(fp_line
-			(start 1.0795 -0.8556)
-			(end 1.079501 -1.0541)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "32ea2ea7-7116-4cda-9bfb-974ca9ee463e")
-		)
-		(fp_line
-			(start -1.473202 -0.855599)
-			(end -1.079501 -0.855601)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "49b8bb93-e48a-4f71-8fd2-1febffc794fb")
-		)
-		(fp_line
-			(start -1.473202 -0.855599)
-			(end -1.473201 0.855598)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "514a25cd-f5f3-42f3-b6cf-6e344de5962c")
-		)
-		(fp_line
-			(start 1.473201 -0.855598)
+			(start 1.4732 -0.8556)
 			(end 1.0795 -0.8556)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "d8fd6499-01eb-4d4e-a6c9-a04d575bac3c")
+			(uuid "c97e153c-90d3-4256-a2d6-55524d2b5662")
 		)
 		(fp_line
-			(start -1.473201 0.855598)
+			(start 1.0795 -0.8556)
+			(end 1.0795 -1.0541)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "53be825c-a9fe-459a-ab27-c808f1946ab4")
+		)
+		(fp_line
+			(start -1.4732 -0.8556)
+			(end -1.0795 -0.8556)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "5eeb7b72-7dd5-4bcd-b176-32a1780ea61c")
+		)
+		(fp_line
+			(start -1.4732 -0.8556)
+			(end -1.4732 0.8556)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "a60d34b0-8ab2-44d5-9432-40b901520da5")
+		)
+		(fp_line
+			(start 1.4732 0.8556)
+			(end 1.4732 -0.8556)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "26ebc3de-f987-4e4f-a87b-3ed7fc218613")
+		)
+		(fp_line
+			(start 1.4732 0.8556)
+			(end 1.0795 0.8556)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "48f09de6-4e8e-4630-9012-49f36be78790")
+		)
+		(fp_line
+			(start -1.0795 0.8556)
+			(end -1.0795 1.0541)
+			(stroke
+				(width 0.1524)
+				(type solid)
+			)
+			(layer "B.CrtYd")
+			(uuid "5db5fda9-2dd4-4f41-815c-b4aa57de4a3a")
+		)
+		(fp_line
+			(start -1.4732 0.8556)
 			(end -1.0795 0.8556)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "b5876cc8-fc8f-4971-82ed-902fd8d41a0a")
+			(uuid "f02c6bd7-9c4c-427f-9aa9-ce3a91e14bf8")
 		)
 		(fp_line
-			(start 1.473202 0.855599)
-			(end 1.473201 -0.855598)
+			(start 1.0795 1.0541)
+			(end 1.0795 0.8556)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "1ae6018c-96d9-4a28-8c58-c1a6c802db9c")
+			(uuid "e87bb02a-9593-452d-a2c9-a66924b48979")
 		)
 		(fp_line
-			(start 1.473202 0.855599)
-			(end 1.079501 0.855601)
+			(start -1.0795 1.0541)
+			(end 1.0795 1.0541)
 			(stroke
 				(width 0.1524)
 				(type solid)
 			)
 			(layer "B.CrtYd")
-			(uuid "99f9d456-4ebf-4233-a47b-46acfc3c2d74")
-		)
-		(fp_line
-			(start -1.0795 0.8556)
-			(end -1.079501 1.0541)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "a2389ce5-da18-4d82-a105-ecfa9943a3b1")
-		)
-		(fp_line
-			(start 1.079501 1.054098)
-			(end 1.079501 0.855601)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "7b89a231-0abb-4cd5-befe-296f42279459")
-		)
-		(fp_line
-			(start -1.079501 1.0541)
-			(end 1.079501 1.054098)
-			(stroke
-				(width 0.1524)
-				(type solid)
-			)
-			(layer "B.CrtYd")
-			(uuid "6f77d34a-222a-4ac7-9399-dbcd24d5b09c")
+			(uuid "7785b58a-340d-4f3f-beef-00736e7eb354")
 		)
 		(fp_line
 			(start 0.8255 -0.8001)
@@ -7472,7 +7496,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "79e84243-3897-48db-9a26-f8290d71628b")
+			(uuid "662851e7-cfa8-4edd-afbc-11340420554d")
 		)
 		(fp_line
 			(start -0.8255 -0.8001)
@@ -7482,7 +7506,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "740ff56d-47f8-44c9-a918-af6eb1628f6f")
+			(uuid "cd23c64e-fe60-4a84-859a-46effe6371f3")
 		)
 		(fp_line
 			(start 0.8255 0.8001)
@@ -7492,7 +7516,7 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "1a00a355-c91c-435c-be86-c10938c5f764")
+			(uuid "fa81b51c-1b21-49fb-a343-deb407f888ce")
 		)
 		(fp_line
 			(start -0.8255 0.8001)
@@ -7502,21 +7526,21 @@
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "bf4a0a34-36fd-43d7-832b-78ef40d3bc71")
+			(uuid "94cbd6ec-189e-4670-9e49-f2c6888b984d")
 		)
 		(fp_arc
 			(start -0.3048 0.8001)
 			(mid 0 0.4953)
-			(end 0.3048 0.800101)
+			(end 0.3048 0.8001)
 			(stroke
 				(width 0.0254)
 				(type solid)
 			)
 			(layer "B.Fab")
-			(uuid "0b3e628c-ae17-4055-9caf-61a1fa3f5e35")
+			(uuid "a489c861-531f-46f7-a6d3-8685ae6d2a3c")
 		)
 		(fp_circle
-			(center -0.711201 0.499999)
+			(center -0.7112 0.5)
 			(end -0.635 0.5)
 			(stroke
 				(width 0.0254)
@@ -7524,7 +7548,7 @@
 			)
 			(fill no)
 			(layer "B.Fab")
-			(uuid "c3de1b64-6c80-49b3-8904-2ac12005d244")
+			(uuid "0dc16054-53b1-4dbc-b100-95f9058259f3")
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 270)
@@ -7594,6 +7618,17 @@
 			(uuid "c1343de2-7d8c-47ce-ac73-c39047f40aa1")
 		)
 		(embedded_fonts no)
+		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/SNT-6A-A-PKG_PG006-A-P-SD-2_1_ABL.step"
+			(offset
+				(xyz 0 0 0)
+			)
+			(scale
+				(xyz 1 1 1)
+			)
+			(rotate
+				(xyz 0 0 0)
+			)
+		)
 	)
 	(gr_line
 		(start 55.475 31.1)
