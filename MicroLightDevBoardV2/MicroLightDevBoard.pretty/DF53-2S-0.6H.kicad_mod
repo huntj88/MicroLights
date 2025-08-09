@@ -155,17 +155,6 @@
 		(layer "F.SilkS")
 		(uuid "6363be38-e86b-4015-813a-94b4b954c6ca")
 	)
-	(fp_rect
-		(start -1.5 -1.2)
-		(end 1.5 1.1)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(fill no)
-		(layer "Dwgs.User")
-		(uuid "cbacfe43-a400-4ecd-8cc6-63167eccfd64")
-	)
 	(fp_text user "${REFERENCE}"
 		(at 0 3.6 0)
 		(unlocked yes)
