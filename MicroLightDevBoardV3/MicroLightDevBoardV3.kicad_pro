@@ -469,7 +469,9 @@
     "pinned_footprint_libs": [
       "MicroLightDevBoard"
     ],
-    "pinned_symbol_libs": []
+    "pinned_symbol_libs": [
+      "MicroLightDevBoard"
+    ]
   },
   "meta": {
     "filename": "MicroLightDevBoardV3.kicad_pro",

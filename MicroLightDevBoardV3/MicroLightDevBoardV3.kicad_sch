@@ -2099,6 +2099,153 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "MicroLightDevBoard:DF53-2S-0.6H"
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at 4.064 -3.556 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "DF53-2S-0.6H"
+				(at -5.842 5.334 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" "MicroLightDevBoard:DF53-2S-0.6H"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "https://www.hirose.com/en/product/document?clcode=CL0668-1007-0-00&productname=DF53-10S-0.6H&series=DF53&documenttype=Catalog&lang=en&documentid=en_DF53_CAT"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "DF53-2S-0.6H_0_1"
+				(rectangle
+					(start -3.81 3.81)
+					(end 6.35 -11.43)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(circle
+					(center -1.27 1.27)
+					(radius 1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+			)
+			(symbol "DF53-2S-0.6H_1_1"
+				(pin input line
+					(at -6.35 -2.54 0)
+					(length 2.54)
+					(name "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin input line
+					(at -6.35 -5.08 0)
+					(length 2.54)
+					(name "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 3.81 6.35 270)
+					(length 2.54)
+					(name "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin no_connect line
+					(at 3.81 -13.97 90)
+					(length 2.54)
+					(name "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "MicroLightDevBoard:LED_RGBK"
 			(pin_names
 				(offset 0)
@@ -4861,16 +5008,6 @@
 	)
 	(wire
 		(pts
-			(xy 35.56 177.8) (xy 46.99 177.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "245d41ac-18e4-4fb6-8345-fb1c33043b6d")
-	)
-	(wire
-		(pts
 			(xy 118.11 172.72) (xy 132.08 172.72)
 		)
 		(stroke
@@ -4918,6 +5055,16 @@
 			(type default)
 		)
 		(uuid "4d393160-1472-481f-b308-70a9895f86ff")
+	)
+	(wire
+		(pts
+			(xy 27.94 177.8) (xy 46.99 177.8)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5322e2c0-1127-491d-acdd-380d64d567b9")
 	)
 	(wire
 		(pts
@@ -5151,6 +5298,16 @@
 	)
 	(wire
 		(pts
+			(xy 27.94 175.26) (xy 39.37 175.26)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "daeffded-44e0-4852-8468-9f11c159a387")
+	)
+	(wire
+		(pts
 			(xy 130.81 101.6) (xy 133.35 101.6)
 		)
 		(stroke
@@ -5361,6 +5518,28 @@
 			)
 		)
 	)
+	(global_label "BAT_CHRG"
+		(shape input)
+		(at 154.94 158.75 180)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right)
+		)
+		(uuid "2dc26988-14b1-4cc8-92a4-f9c573c3cdca")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 142.5205 158.75 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "I2C_SCL"
 		(shape input)
 		(at 60.96 76.2 0)
@@ -5495,7 +5674,7 @@
 	)
 	(global_label "BAT_CHRG"
 		(shape input)
-		(at 87.63 191.77 180)
+		(at 203.2 158.75 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5505,7 +5684,7 @@
 		)
 		(uuid "4f8acb37-d3af-4c7f-9a60-846fdfe2535b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 75.2105 191.77 0)
+			(at 190.7805 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5979,7 +6158,7 @@
 	)
 	(global_label "bulbLed"
 		(shape input)
-		(at 46.99 175.26 180)
+		(at 27.94 175.26 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -5989,7 +6168,7 @@
 		)
 		(uuid "e7d17310-8dd3-4d19-8a91-963d9eab7e05")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 36.6269 175.26 0)
+			(at 17.5769 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6177,7 +6356,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x01_Socket")
-		(at 92.71 191.77 0)
+		(at 208.28 158.75 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6186,7 +6365,7 @@
 		(fields_autoplaced yes)
 		(uuid "05504aa4-bdad-4022-bd81-eeab1ebe51f8")
 		(property "Reference" "J4"
-			(at 93.98 190.4999 0)
+			(at 209.55 157.4799 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6195,7 +6374,7 @@
 			)
 		)
 		(property "Value" "Conn_01x01_Socket"
-			(at 93.98 193.0399 0)
+			(at 209.55 160.0199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6204,7 +6383,7 @@
 			)
 		)
 		(property "Footprint" "MicroLightDevBoard:battery_1x01_Vertical"
-			(at 92.71 191.77 0)
+			(at 208.28 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6213,7 +6392,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 92.71 191.77 0)
+			(at 208.28 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6222,7 +6401,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated"
-			(at 92.71 191.77 0)
+			(at 208.28 158.75 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6796,7 +6975,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x01_Socket")
-		(at 92.71 182.88 0)
+		(at 208.28 149.86 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6805,7 +6984,7 @@
 		(fields_autoplaced yes)
 		(uuid "156a215e-e887-40d1-ab7d-b57a8eb993db")
 		(property "Reference" "J5"
-			(at 93.98 181.6099 0)
+			(at 209.55 148.5899 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6814,7 +6993,7 @@
 			)
 		)
 		(property "Value" "Conn_01x01_Socket"
-			(at 93.98 184.1499 0)
+			(at 209.55 151.1299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6823,7 +7002,7 @@
 			)
 		)
 		(property "Footprint" "MicroLightDevBoard:battery_1x01_Vertical"
-			(at 92.71 182.88 0)
+			(at 208.28 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6832,7 +7011,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 92.71 182.88 0)
+			(at 208.28 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6841,7 +7020,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated"
-			(at 92.71 182.88 0)
+			(at 208.28 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7149,7 +7328,7 @@
 	)
 	(symbol
 		(lib_id "Device:R")
-		(at 31.75 177.8 270)
+		(at 43.18 175.26 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7157,7 +7336,7 @@
 		(dnp no)
 		(uuid "242dcc99-5f35-4436-93a9-e79c85ee4ac7")
 		(property "Reference" "R1"
-			(at 31.75 171.45 90)
+			(at 43.18 168.91 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7165,7 +7344,7 @@
 			)
 		)
 		(property "Value" "51"
-			(at 31.75 173.99 90)
+			(at 43.18 171.45 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7173,7 +7352,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
-			(at 31.75 176.022 90)
+			(at 43.18 173.482 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7182,7 +7361,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 31.75 177.8 0)
+			(at 43.18 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7191,7 +7370,7 @@
 			)
 		)
 		(property "Description" "Resistor"
-			(at 31.75 177.8 0)
+			(at 43.18 175.26 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8438,7 +8617,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 87.63 182.88 270)
+		(at 203.2 149.86 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8447,7 +8626,7 @@
 		(fields_autoplaced yes)
 		(uuid "62a889dc-2feb-4296-af7a-3d35030d6f7d")
 		(property "Reference" "#PWR024"
-			(at 81.28 182.88 0)
+			(at 196.85 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8456,7 +8635,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 83.82 182.8799 90)
+			(at 199.39 149.8599 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8465,7 +8644,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 87.63 182.88 0)
+			(at 203.2 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8474,7 +8653,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 87.63 182.88 0)
+			(at 203.2 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8483,7 +8662,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 87.63 182.88 0)
+			(at 203.2 149.86 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8498,6 +8677,73 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "#PWR024")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 154.94 161.29 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "6415061f-c3e7-4497-8270-64298c9e708e")
+		(property "Reference" "#PWR029"
+			(at 148.59 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 151.13 161.2899 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 154.94 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 154.94 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 154.94 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "86a4d22d-1116-40a8-ad4e-ff9a7e4aacce")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR029")
 					(unit 1)
 				)
 			)
@@ -9387,6 +9633,82 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "#PWR013")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "MicroLightDevBoard:DF53-2S-0.6H")
+		(at 161.29 156.21 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "abdff7e8-03ab-40ef-8d96-d4461841e50e")
+		(property "Reference" "U5"
+			(at 168.91 158.7499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "DF53-2S-0.6H"
+			(at 168.91 161.2899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "MicroLightDevBoard:DF53-2S-0.6H"
+			(at 161.29 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "https://www.hirose.com/en/product/document?clcode=CL0668-1007-0-00&productname=DF53-10S-0.6H&series=DF53&documenttype=Catalog&lang=en&documentid=en_DF53_CAT"
+			(at 161.29 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 161.29 156.21 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "a19297d6-a9ad-4703-8361-17d9d990e9d0")
+		)
+		(pin "3"
+			(uuid "a5e8fbac-0109-4f53-ac48-c22706c04f32")
+		)
+		(pin "1"
+			(uuid "120dd7b4-bc31-4887-84cc-669bfed85b90")
+		)
+		(pin "2"
+			(uuid "9308f8ab-ca46-4f64-8cdc-67ff70e738ae")
+		)
+		(instances
+			(project ""
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "U5")
 					(unit 1)
 				)
 			)
