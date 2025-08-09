@@ -193,18 +193,18 @@
 		(uuid "21aa8929-d632-42e0-a6d9-870bd46e0b50")
 	)
 	(pad "3" smd rect
-		(at -1.27 0.6)
-		(size 0.65 1.1)
-		(layers "F.Cu" "F.Mask" "F.Paste")
-		(thermal_bridge_angle 45)
-		(uuid "94cb7b95-df03-4a7f-968d-074e18aa7b77")
-	)
-	(pad "3" smd rect
-		(at 1.28 0.6)
-		(size 0.65 1.1)
+		(at 1.2525 0.6)
+		(size 0.595 1.1)
 		(layers "F.Cu" "F.Mask" "F.Paste")
 		(thermal_bridge_angle 45)
 		(uuid "7bd306a2-b44e-4d93-86c7-ada4b3b5586c")
+	)
+	(pad "4" smd rect
+		(at -1.2475 0.6)
+		(size 0.605 1.1)
+		(layers "F.Cu" "F.Mask" "F.Paste")
+		(thermal_bridge_angle 45)
+		(uuid "94cb7b95-df03-4a7f-968d-074e18aa7b77")
 	)
 	(embedded_fonts no)
 	(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/DF53-2S-0.6H.STEP"
