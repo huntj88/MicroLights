@@ -22,14 +22,14 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
         <div className="space-y-3">
           {showFingerOptions && (
             <div>
               <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Fingers</div>
               <div className="flex gap-2 mb-2">
                 <button
-                  className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                  className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
                   onClick={() => selectAll(mode.id)}
                 >
                   All
@@ -67,6 +67,8 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
             </div>
           )}
 
+          {showFingerOptions && <div className="h-px bg-slate-700/40 my-3" />}
+
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</div>
             <div className="flex items-center gap-2">
@@ -94,7 +96,7 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
               </button>
               {mode.waveformId && (
                 <button
-                  className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"
+                  className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
                   onClick={() => removeWaveform(mode.waveformId!)}
                   title="Delete selected waveform"
                 >
@@ -110,17 +112,23 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-3 justify-self-start md:pl-2">
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Color</div>
-            <HexColorPicker color={mode.color} onChange={hex => setColor(mode.id, hex)} />
+            <div>
+              <HexColorPicker
+                color={mode.color}
+                onChange={hex => setColor(mode.id, hex)}
+                style={{ width: 120, height: 120 }}
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <div className="flex justify-end mt-4">
         <button
-          className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"
+          className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
           onClick={() => remove(mode.id)}
         >
           Remove
