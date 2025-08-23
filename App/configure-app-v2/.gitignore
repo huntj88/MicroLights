@@ -1,0 +1,15 @@
+# Dependencies
+node_modules
+
+# Production build
+/dist
+/build
+
+# Testing
+/coverage
+
+# Misc
+.DS_Store
+.env
+.env.*
+.husky/_
