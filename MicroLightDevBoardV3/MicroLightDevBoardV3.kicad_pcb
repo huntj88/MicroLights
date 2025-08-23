@@ -773,7 +773,7 @@
 			(net 2 "GND")
 			(pinfunction "1")
 			(pintype "passive")
-			(uuid "7d4add32-de0e-425d-bbe7-defe058f99e6")
+			(uuid "ca8e8e4c-6ec7-42f3-b36a-69f27e4f5d0d")
 		)
 		(pad "2" smd rect
 			(at -2.15 1.075)
@@ -791,7 +791,7 @@
 			(net 19 "TS_MR_CHRG")
 			(pinfunction "2")
 			(pintype "passive")
-			(uuid "473e5b2f-2f0a-47d3-bd4d-37ffbda19c98")
+			(uuid "959a1acc-9954-4f64-a38f-cf2a20bfb440")
 		)
 		(embedded_fonts no)
 		(model "/home/jameshunt/Projects/MicroLights/MicroLightDevBoardV2/MicroLightDevBoard.pretty/TS-1089S-02526 v2.step"
@@ -3534,19 +3534,6 @@
 			)
 			(layer "B.Fab")
 			(uuid "7c45dc62-5f3d-4050-92a5-4f7e75abe9cd")
-		)
-		(fp_text user "Designator210"
-			(at -0.8636 2.5654 180)
-			(unlocked yes)
-			(layer "B.SilkS")
-			(uuid "b672277d-17b2-4f8c-ab0c-22579cec85fc")
-			(effects
-				(font
-					(size 1 1)
-					(thickness 0.15)
-				)
-				(justify mirror)
-			)
 		)
 		(fp_text user "${REFERENCE}"
 			(at 0 0 180)
