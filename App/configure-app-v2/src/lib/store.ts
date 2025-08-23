@@ -7,7 +7,6 @@ import type { Waveform } from './waveform';
 
 export type Mode = {
   id: string;
-  name: string;
   enabled: boolean;
   color: string; // hex
   waveformId?: string;
@@ -17,6 +16,16 @@ export type Mode = {
 
 export type WaveformDoc = { id: string } & Waveform;
 
+// A saved Set snapshot of modes and finger ownership
+export type ModeSnapshot = Pick<Mode, 'enabled' | 'color' | 'waveformId'>;
+export type SetDoc = {
+  id: string;
+  name: string;
+  modes: ModeSnapshot[];
+  // maps each finger to the index of the owning mode in `modes` (or null)
+  fingerOwnerIndex: Record<Finger, number | null>;
+};
+
 export type AppState = {
   modes: Mode[];
   fingerOwner: Record<Finger, string | null>; // modeId or null
@@ -24,12 +33,12 @@ export type AppState = {
   deviceInfo?: { name?: string } | null;
 
   waveforms: WaveformDoc[];
+  sets: SetDoc[];
 
   // actions
   addMode: (partial?: Partial<Mode>) => string;
   duplicateMode: (modeId: string) => string;
   removeMode: (modeId: string) => void;
-  renameMode: (modeId: string, name: string) => void;
   toggleMode: (modeId: string, enabled?: boolean) => void;
   reorderModes: (from: number, to: number) => void;
 
@@ -47,6 +56,12 @@ export type AppState = {
   updateWaveform: (id: string, wf: Partial<Waveform>) => void;
   removeWaveform: (id: string) => void;
 
+  // set library actions
+  saveCurrentSet: (name: string) => string; // returns set id
+  loadSet: (id: string) => void;
+  renameSet: (id: string, name: string) => void;
+  removeSet: (id: string) => void;
+
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   send: () => Promise<void>;
@@ -57,7 +72,6 @@ const createEmptyOwner = (): Record<Finger, string | null> =>
 
 const createMode = (partial?: Partial<Mode>): Mode => ({
   id: nanoid(6),
-  name: 'Mode',
   enabled: true,
   color: '#60a5fa',
   fingers: new Set(),
@@ -68,7 +82,7 @@ const createMode = (partial?: Partial<Mode>): Mode => ({
 export const useAppStore = create<AppState>()(
   persist(
     (set, get) => ({
-      modes: [createMode({ name: 'Mode 1' })],
+      modes: [createMode()],
       fingerOwner: createEmptyOwner(),
       connected: false,
       deviceInfo: null,
@@ -85,8 +99,10 @@ export const useAppStore = create<AppState>()(
         },
       ],
 
+      sets: [],
+
       addMode: partial => {
-        const mode = createMode({ name: `Mode ${get().modes.length + 1}`, ...partial });
+        const mode = createMode({ ...partial });
         set(s => ({ modes: [...s.modes, mode] }));
         return mode.id;
       },
@@ -94,7 +110,6 @@ export const useAppStore = create<AppState>()(
         const src = get().modes.find(m => m.id === modeId);
         if (!src) return '';
         const copy = createMode({
-          name: `${src.name} Copy`,
           enabled: src.enabled,
           color: src.color,
           waveformId: src.waveformId,
@@ -111,9 +126,6 @@ export const useAppStore = create<AppState>()(
           ) as Record<Finger, string | null>,
         }));
       },
-      renameMode: (modeId, name) => set(s => ({
-        modes: s.modes.map(m => (m.id === modeId ? { ...m, name } : m)),
-      })),
       toggleMode: (modeId, enabled) => set(s => ({
         modes: s.modes.map(m => (m.id === modeId ? { ...m, enabled: enabled ?? !m.enabled } : m)),
       })),
@@ -172,6 +184,46 @@ export const useAppStore = create<AppState>()(
         modes: s.modes.map(m => (m.waveformId === id ? { ...m, waveformId: undefined } : m)),
       })),
 
+      // Set library
+      saveCurrentSet: (name: string) => {
+        const s = get();
+        const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
+          enabled: m.enabled,
+          color: m.color,
+          waveformId: m.waveformId,
+        }));
+        const indexById = new Map<string, number>();
+        s.modes.forEach((m, i) => indexById.set(m.id, i));
+        const fingerOwnerIndex = Object.fromEntries(
+          ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
+        ) as Record<Finger, number | null>;
+        const id = nanoid(6);
+        const doc: SetDoc = { id, name: name.trim() || `Set ${s.sets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
+        set(st => ({ sets: [...st.sets, doc] }));
+        return id;
+      },
+      loadSet: (id: string) => set(s => {
+        const doc = s.sets.find(x => x.id === id);
+        if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };
+        const newModes = doc.modes.map(ms => createMode({
+          enabled: ms.enabled,
+          color: ms.color,
+          waveformId: ms.waveformId,
+        }));
+        const newFingerOwner: Record<Finger, string | null> = createEmptyOwner();
+        for (const f of ALL_FINGERS) {
+          const idx = doc.fingerOwnerIndex[f];
+          newFingerOwner[f] = idx == null ? null : newModes[idx]?.id ?? null;
+        }
+        return { modes: newModes, fingerOwner: newFingerOwner };
+      }),
+      renameSet: (id: string, name: string) => set(s => ({
+        sets: s.sets.map(d => (d.id === id ? { ...d, name } : d)),
+      })),
+      removeSet: (id: string) => set(s => ({
+        sets: s.sets.filter(d => d.id !== id),
+      })),
+
       connect: async () => {
         // Mock client
         set({ connected: true, deviceInfo: { name: 'Mock Device' } });
@@ -183,7 +235,6 @@ export const useAppStore = create<AppState>()(
         const s = get();
         const payload = s.modes.map(m => ({
           id: m.id,
-          name: m.name,
           enabled: m.enabled,
           color: m.color,
           waveformId: m.waveformId,
