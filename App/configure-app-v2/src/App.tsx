@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AppShell } from './components/AppShell';
 import CreateSet from './pages/CreateSet';
+import CreateWave from './pages/CreateWave';
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -20,7 +21,7 @@ export function App() {
           <Route index element={<Navigate to="/create/set" replace />} />
           <Route path="create">
             <Route path="set" element={<CreateSet />} />
-            <Route path="wave" element={<Placeholder title="Create / Wave" />} />
+            <Route path="wave" element={<CreateWave />} />
           </Route>
           <Route path="browse" element={<Placeholder title="Browse" />} />
           <Route path="program" element={<Placeholder title="Program" />} />
