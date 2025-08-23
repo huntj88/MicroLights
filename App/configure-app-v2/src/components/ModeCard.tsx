@@ -4,7 +4,7 @@ import { HexColorPicker } from 'react-colorful';
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
 import { useAppStore, type Mode } from '@/lib/store';
 
-export function ModeCard({ mode }: { mode: Mode }) {
+export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showFingerOptions?: boolean }) {
   const owner = useAppStore(s => s.fingerOwner);
   const setColor = useAppStore(s => s.setColor);
   const selectAll = useAppStore(s => s.selectAll);
@@ -21,46 +21,48 @@ export function ModeCard({ mode }: { mode: Mode }) {
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-3">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Fingers</div>
-            <div className="flex gap-2 mb-2">
-              <button
-                className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-                onClick={() => selectAll(mode.id)}
-              >
-                All
-              </button>
-            </div>
-            {/* Two-column hand layout */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-slate-400 mb-1">Left</div>
-                <div className="flex flex-col gap-2">
-                  {FINGERS_BY_HAND.L.map(f => (
-                    <FingerChip
-                      key={f}
-                      finger={f}
-                      owned={owner[f] === mode.id}
-                      onToggle={() => (owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f))}
-                    />
-                  ))}
+          {showFingerOptions && (
+            <div>
+              <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Fingers</div>
+              <div className="flex gap-2 mb-2">
+                <button
+                  className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                  onClick={() => selectAll(mode.id)}
+                >
+                  All
+                </button>
+              </div>
+              {/* Two-column hand layout */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-slate-400 mb-1">Left</div>
+                  <div className="flex flex-col gap-2">
+                    {FINGERS_BY_HAND.L.map(f => (
+                      <FingerChip
+                        key={f}
+                        finger={f}
+                        owned={owner[f] === mode.id}
+                        onToggle={() => (owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f))}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-slate-400 mb-1">Right</div>
+                  <div className="flex flex-col gap-2">
+                    {FINGERS_BY_HAND.R.map(f => (
+                      <FingerChip
+                        key={f}
+                        finger={f}
+                        owned={owner[f] === mode.id}
+                        onToggle={() => (owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f))}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <div className="text-xs text-slate-400 mb-1">Right</div>
-                <div className="flex flex-col gap-2">
-                  {FINGERS_BY_HAND.R.map(f => (
-                    <FingerChip
-                      key={f}
-                      finger={f}
-                      owned={owner[f] === mode.id}
-                      onToggle={() => (owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f))}
-                    />
-                  ))}
-                </div>
-              </div>
             </div>
-          </div>
+          )}
 
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</div>

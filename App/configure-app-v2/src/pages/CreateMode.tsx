@@ -114,14 +114,6 @@ export default function CreateMode() {
           >
             Send
           </button>
-          <button
-            type="button"
-            disabled={!canAdd}
-            onClick={() => addMode()}
-            className={`px-3 py-1.5 rounded ${canAdd ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-700/40 text-slate-400 cursor-not-allowed'}`}
-          >
-            Add Mode
-          </button>
         </div>
       </div>
 
@@ -139,10 +131,27 @@ export default function CreateMode() {
         <div className="text-xs text-slate-400">Tip: Save the current configuration as a Mode, or load an existing Mode to edit and save changes.</div>
       </div>
 
+      <div className="flex items-center gap-2">
+        <div className="text-xs text-slate-400">
+          Tip: {modes.length > 1
+            ? 'Finger-specific options are shown below for each Mode Card.'
+            : 'Add another Mode Card to reveal finger-specific options.'}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {modes.map(m => (
-          <ModeCard key={m.id} mode={m} />
+          <ModeCard key={m.id} mode={m} showFingerOptions={modes.length > 1} />
         ))}
+        <button
+          type="button"
+          disabled={!canAdd}
+          onClick={() => addMode()}
+          className={`rounded-xl border border-slate-700/50 bg-bg-card p-4 flex items-center justify-center text-sm ${canAdd ? 'hover:bg-slate-700/40 text-white' : 'opacity-50 cursor-not-allowed text-slate-400'}`}
+          title={canAdd ? 'Add a new Mode' : 'Maximum number of Modes reached'}
+        >
+          + Add Mode Card
+        </button>
       </div>
     </div>
   );
