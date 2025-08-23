@@ -57,7 +57,9 @@ export type AppState = {
   removeWaveform: (id: string) => void;
 
   // set library actions
+  newSetDraft: () => void; // reset current working set
   saveCurrentSet: (name: string) => string; // returns set id
+  updateSet: (id: string, name?: string) => void; // overwrite existing set with current state
   loadSet: (id: string) => void;
   renameSet: (id: string, name: string) => void;
   removeSet: (id: string) => void;
@@ -185,6 +187,10 @@ export const useAppStore = create<AppState>()(
       })),
 
       // Set library
+      newSetDraft: () => set(() => ({
+        modes: [createMode()],
+        fingerOwner: createEmptyOwner(),
+      })),
       saveCurrentSet: (name: string) => {
         const s = get();
         const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
@@ -202,6 +208,30 @@ export const useAppStore = create<AppState>()(
         set(st => ({ sets: [...st.sets, doc] }));
         return id;
       },
+      updateSet: (id: string, name?: string) => set(s => {
+        const idx = s.sets.findIndex(x => x.id === id);
+        if (idx === -1) return { sets: s.sets };
+        const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
+          enabled: m.enabled,
+          color: m.color,
+          waveformId: m.waveformId,
+        }));
+        const indexById = new Map<string, number>();
+        s.modes.forEach((m, i) => indexById.set(m.id, i));
+        const fingerOwnerIndex = Object.fromEntries(
+          ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
+        ) as Record<Finger, number | null>;
+        const existing = s.sets[idx];
+        const updated: SetDoc = {
+          ...existing,
+          name: name != null ? name : existing.name,
+          modes: modesSnap,
+          fingerOwnerIndex,
+        };
+        const next = [...s.sets];
+        next[idx] = updated;
+        return { sets: next };
+      }),
       loadSet: (id: string) => set(s => {
         const doc = s.sets.find(x => x.id === id);
         if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };

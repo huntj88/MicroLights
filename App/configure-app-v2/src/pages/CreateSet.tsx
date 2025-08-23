@@ -13,15 +13,19 @@ export default function CreateSet() {
   const connect = useAppStore(s => s.connect);
   const disconnect = useAppStore(s => s.disconnect);
   const send = useAppStore(s => s.send);
+
+  // new store actions for set workflow
+  const newSetDraft = useAppStore(s => s.newSetDraft);
   const saveCurrentSet = useAppStore(s => s.saveCurrentSet);
+  const updateSet = useAppStore(s => s.updateSet);
   const loadSet = useAppStore(s => s.loadSet);
-  const renameSet = useAppStore(s => s.renameSet);
   const removeSet = useAppStore(s => s.removeSet);
 
-  const [setName, setSetName] = useState('');
   const [selectedSetId, setSelectedSetId] = useState<string>('');
+  const [draftName, setDraftName] = useState<string>('');
 
   const canAdd = useMemo(() => modes.length < 10, [modes.length]);
+  const selectedSet = useMemo(() => sets.find(s => s.id === selectedSetId), [sets, selectedSetId]);
 
   return (
     <div className="space-y-6">
@@ -29,70 +33,67 @@ export default function CreateSet() {
         <h1 className="text-2xl font-semibold">Create / Set</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 mr-4">
-            <input
-              value={setName}
-              onChange={e => setSetName(e.target.value)}
-              placeholder="Set name"
-              className="w-40 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => {
-                const id = saveCurrentSet(setName);
-                setSelectedSetId(id);
-                toast.success('Set saved');
-              }}
-              className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
-            >
-              Save Set
-            </button>
+            {/* Name input moved below header to align with Waveform page */}
             <select
               value={selectedSetId}
-              onChange={e => setSelectedSetId(e.target.value)}
+              onChange={e => {
+                const id = e.target.value;
+                setSelectedSetId(id);
+                if (!id) return;
+                loadSet(id);
+                setDraftName(sets.find(s => s.id === id)?.name ?? '');
+                toast.success('Set loaded');
+              }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
-              <option value="">(Select Set)</option>
+              <option value="">(Unsaved Draft)</option>
               {sets.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
             <button
               type="button"
-              disabled={!selectedSetId}
               onClick={() => {
-                if (!selectedSetId) return;
-                loadSet(selectedSetId);
-                toast.success('Set loaded');
+                newSetDraft();
+                setSelectedSetId('');
+                setDraftName('New Set');
               }}
-              className={`px-3 py-1.5 rounded ${selectedSetId ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-700/40 text-slate-400 cursor-not-allowed'}`}
+              className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
             >
-              Load
+              New Draft
             </button>
+            {selectedSet && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (!selectedSetId) return;
+                  if (confirm('Delete this set?')) {
+                    removeSet(selectedSetId);
+                    setSelectedSetId('');
+                    newSetDraft();
+                    setDraftName('');
+                  }
+                }}
+                className="px-3 py-1.5 rounded bg-red-600 hover:bg-red-500 text-white"
+              >
+                Delete
+              </button>
+            )}
             <button
               type="button"
-              disabled={!selectedSetId}
               onClick={() => {
-                if (!selectedSetId) return;
-                const name = prompt('Rename set to:', sets.find(s => s.id === selectedSetId)?.name || '')?.trim();
-                if (name) renameSet(selectedSetId, name);
-              }}
-              className={`px-3 py-1.5 rounded ${selectedSetId ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-slate-700/40 text-slate-400 cursor-not-allowed'}`}
-            >
-              Rename
-            </button>
-            <button
-              type="button"
-              disabled={!selectedSetId}
-              onClick={() => {
-                if (!selectedSetId) return;
-                if (confirm('Delete this set?')) {
-                  removeSet(selectedSetId);
-                  setSelectedSetId('');
+                if (selectedSet) {
+                  updateSet(selectedSet.id, draftName.trim() || selectedSet.name);
+                  toast.success('Set saved');
+                } else {
+                  const id = saveCurrentSet(draftName);
+                  setSelectedSetId(id);
+                  toast.success('Added to Library');
                 }
               }}
-              className={`px-3 py-1.5 rounded ${selectedSetId ? 'bg-red-600 hover:bg-red-500 text-white' : 'bg-slate-700/40 text-slate-400 cursor-not-allowed'}`}
+              className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
             >
-              Delete
+              {selectedSet ? 'Save' : 'Add to Library'}
             </button>
           </div>
 
@@ -122,6 +123,20 @@ export default function CreateSet() {
             Add Mode
           </button>
         </div>
+      </div>
+
+      {/* Name row aligned like Waveform page */}
+      <div className="flex items-center gap-2">
+        <label className="text-sm">Name</label>
+        <input
+          value={draftName}
+          onChange={e => setDraftName(e.target.value)}
+          className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+        />
+      </div>
+
+      <div className="flex items-center gap-2">
+        <div className="text-xs text-slate-400">Tip: Save the current configuration as a Set, or load an existing Set to edit and save changes.</div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
