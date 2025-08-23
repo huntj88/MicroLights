@@ -18,6 +18,13 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const addWaveform = useAppStore(s => s.addWaveform);
   const removeWaveform = useAppStore(s => s.removeWaveform);
 
+  // accelerometer actions
+  const setAccelEnabled = useAppStore(s => s.setAccelEnabled);
+  const addAccelTrigger = useAppStore(s => s.addAccelTrigger);
+  const removeAccelTrigger = useAppStore(s => s.removeAccelTrigger);
+  const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
+  const setAccelTriggerWaveform = useAppStore(s => s.setAccelTriggerWaveform);
+
   const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
 
   return (
@@ -107,6 +114,70 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
             {selectedWaveform && (
               <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
                 <WaveformPreview wf={selectedWaveform} />
+              </div>
+            )}
+          </div>
+
+          {/* Accelerometer section */}
+          <div className="mt-3">
+            <div className="flex items-center justify-between">
+              <div className="text-xs uppercase tracking-wide text-slate-400">Accelerometer</div>
+              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  className="accent-fg-ring"
+                  checked={!!mode.accel?.enabled}
+                  onChange={e => setAccelEnabled(mode.id, e.target.checked)}
+                />
+                Enable
+              </label>
+            </div>
+
+            {mode.accel?.enabled && (
+              <div className="mt-2 space-y-2">
+                {(mode.accel?.triggers ?? []).map((t, i) => (
+                  <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                    <div className="text-xs text-slate-400">Threshold</div>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.1}
+                      value={t.threshold}
+                      onChange={e => setAccelTriggerThreshold(mode.id, i, Number(e.target.value))}
+                      className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+                    />
+                    <button
+                      className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
+                      onClick={() => removeAccelTrigger(mode.id, i)}
+                    >
+                      Remove
+                    </button>
+
+                    <div className="text-xs text-slate-400">Waveform</div>
+                    <select
+                      value={t.waveformId ?? ''}
+                      onChange={e => setAccelTriggerWaveform(mode.id, i, e.target.value || undefined)}
+                      className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+                    >
+                      <option value="">None</option>
+                      {waveforms.map(w => (
+                        <option key={w.id} value={w.id}>
+                          {w.name}
+                        </option>
+                      ))}
+                    </select>
+                    <div />
+                  </div>
+                ))}
+
+                {(mode.accel?.triggers?.length ?? 0) < 2 && (
+                  <button
+                    className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
+                    onClick={() => addAccelTrigger(mode.id)}
+                  >
+                    + Add Trigger
+                  </button>
+                )}
               </div>
             )}
           </div>

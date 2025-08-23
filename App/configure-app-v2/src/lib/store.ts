@@ -12,12 +12,19 @@ export type Mode = {
   waveformId?: string;
   fingers: Set<Finger>;
   ui: { collapsed: boolean };
+  accel?: {
+    enabled: boolean;
+    triggers: Array<{
+      threshold: number;
+      waveformId?: string;
+    }>;
+  };
 };
 
 export type WaveformDoc = { id: string } & Waveform;
 
 // A saved Set snapshot of modes and finger ownership
-export type ModeSnapshot = Pick<Mode, 'enabled' | 'color' | 'waveformId'>;
+export type ModeSnapshot = Pick<Mode, 'enabled' | 'color' | 'waveformId' | 'accel'>;
 export type SetDoc = {
   id: string;
   name: string;
@@ -50,6 +57,13 @@ export type AppState = {
   setWaveform: (modeId: string, waveformId?: string) => void;
   setColor: (modeId: string, hex: string) => void;
 
+  // accelerometer actions
+  setAccelEnabled: (modeId: string, enabled: boolean) => void;
+  addAccelTrigger: (modeId: string) => void; // max 2
+  removeAccelTrigger: (modeId: string, index: number) => void;
+  setAccelTriggerThreshold: (modeId: string, index: number, threshold: number) => void;
+  setAccelTriggerWaveform: (modeId: string, index: number, waveformId?: string) => void;
+
   collapseMode: (modeId: string, collapsed: boolean) => void;
 
   addWaveform: (wf: Waveform) => string;
@@ -78,6 +92,7 @@ const createMode = (partial?: Partial<Mode>): Mode => ({
   color: '#60a5fa',
   fingers: new Set(),
   ui: { collapsed: false },
+  accel: { enabled: false, triggers: [] },
   ...partial,
 });
 
@@ -115,6 +130,7 @@ export const useAppStore = create<AppState>()(
           enabled: src.enabled,
           color: src.color,
           waveformId: src.waveformId,
+          accel: src.accel ? { enabled: src.accel.enabled, triggers: src.accel.triggers.map(t => ({ ...t })) } : { enabled: false, triggers: [] },
         });
         // Fingers are not copied by default to avoid conflicts
         set(s => ({ modes: [...s.modes, copy] }));
@@ -169,6 +185,43 @@ export const useAppStore = create<AppState>()(
         modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
       })),
 
+      // accelerometer
+      setAccelEnabled: (modeId, enabled) => set(s => ({
+        modes: s.modes.map(m => (m.id === modeId ? { ...m, accel: { ...(m.accel ?? { enabled: false, triggers: [] }), enabled } } : m)),
+      })),
+      addAccelTrigger: (modeId) => set(s => ({
+        modes: s.modes.map(m => {
+          if (m.id !== modeId) return m;
+          const acc = m.accel ?? { enabled: false, triggers: [] };
+          if (acc.triggers.length >= 2) return m;
+          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: 1, waveformId: undefined }] } };
+        })
+      })),
+      removeAccelTrigger: (modeId, index) => set(s => ({
+        modes: s.modes.map(m => {
+          if (m.id !== modeId) return m;
+          const acc = m.accel ?? { enabled: false, triggers: [] };
+          const next = acc.triggers.filter((_, i) => i !== index);
+          return { ...m, accel: { ...acc, triggers: next } };
+        })
+      })),
+      setAccelTriggerThreshold: (modeId, index, threshold) => set(s => ({
+        modes: s.modes.map(m => {
+          if (m.id !== modeId) return m;
+          const acc = m.accel ?? { enabled: false, triggers: [] };
+          const next = acc.triggers.map((t, i) => (i === index ? { ...t, threshold } : t));
+          return { ...m, accel: { ...acc, triggers: next } };
+        })
+      })),
+      setAccelTriggerWaveform: (modeId, index, waveformId) => set(s => ({
+        modes: s.modes.map(m => {
+          if (m.id !== modeId) return m;
+          const acc = m.accel ?? { enabled: false, triggers: [] };
+          const next = acc.triggers.map((t, i) => (i === index ? { ...t, waveformId } : t));
+          return { ...m, accel: { ...acc, triggers: next } };
+        })
+      })),
+
       collapseMode: (modeId, collapsed) => set(s => ({
         modes: s.modes.map(m => (m.id === modeId ? { ...m, ui: { ...m.ui, collapsed } } : m)),
       })),
@@ -183,7 +236,13 @@ export const useAppStore = create<AppState>()(
       })),
       removeWaveform: id => set(s => ({
         waveforms: s.waveforms.filter(x => x.id !== id),
-        modes: s.modes.map(m => (m.waveformId === id ? { ...m, waveformId: undefined } : m)),
+        modes: s.modes.map(m => {
+          const cleared = m.waveformId === id ? { ...m, waveformId: undefined } : m;
+          const acc = cleared.accel;
+          if (!acc) return cleared;
+          const nextTriggers = acc.triggers.map(t => (t.waveformId === id ? { ...t, waveformId: undefined } : t));
+          return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
+        }),
       })),
 
       // Set library
@@ -197,6 +256,7 @@ export const useAppStore = create<AppState>()(
           enabled: m.enabled,
           color: m.color,
           waveformId: m.waveformId,
+          accel: m.accel ? { enabled: m.accel.enabled, triggers: m.accel.triggers.map(t => ({ ...t })) } : { enabled: false, triggers: [] },
         }));
         const indexById = new Map<string, number>();
         s.modes.forEach((m, i) => indexById.set(m.id, i));
@@ -215,6 +275,7 @@ export const useAppStore = create<AppState>()(
           enabled: m.enabled,
           color: m.color,
           waveformId: m.waveformId,
+          accel: m.accel ? { enabled: m.accel.enabled, triggers: m.accel.triggers.map(t => ({ ...t })) } : { enabled: false, triggers: [] },
         }));
         const indexById = new Map<string, number>();
         s.modes.forEach((m, i) => indexById.set(m.id, i));
@@ -239,6 +300,7 @@ export const useAppStore = create<AppState>()(
           enabled: ms.enabled,
           color: ms.color,
           waveformId: ms.waveformId,
+          accel: ms.accel ? { enabled: ms.accel.enabled, triggers: ms.accel.triggers.map(t => ({ ...t })) } : { enabled: false, triggers: [] },
         }));
         const newFingerOwner: Record<Finger, string | null> = createEmptyOwner();
         for (const f of ALL_FINGERS) {
@@ -270,6 +332,14 @@ export const useAppStore = create<AppState>()(
           waveformId: m.waveformId,
           waveform: m.waveformId ? s.waveforms.find(w => w.id === m.waveformId) ?? null : null,
           fingers: ALL_FINGERS.filter(f => s.fingerOwner[f] === m.id),
+          accel: m.accel ? {
+            enabled: m.accel.enabled,
+            triggers: m.accel.triggers.map(t => ({
+              threshold: t.threshold,
+              waveformId: t.waveformId,
+              waveform: t.waveformId ? s.waveforms.find(w => w.id === t.waveformId) ?? null : null,
+            })),
+          } : { enabled: false, triggers: [] },
         }));
         console.log('SEND', payload);
       },
