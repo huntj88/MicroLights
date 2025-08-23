@@ -194,6 +194,17 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     onPointerUp(e as unknown as React.PointerEvent<SVGSVGElement>);
   }
 
+  function removeMarker(index: number) {
+    if (index === 0) {
+      toast.error('The first marker at tick 0 cannot be deleted');
+      return;
+    }
+    const next = value.changeAt.filter((_, i) => i !== index);
+    pushHistory(value);
+    onChange({ ...value, changeAt: next });
+    suppressNextClickRef.current = true;
+  }
+
   return (
     <div className="space-y-2" onKeyDown={onKeyDown} tabIndex={0}>
       {(() => {
@@ -239,6 +250,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
                   onPointerDown={(e) => onPointerDown(e, i)}
                   onPointerMove={onMarkerPointerMove}
                   onPointerUp={onMarkerPointerUp}
+                  onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); removeMarker(i); }}
                   style={{ cursor: 'grab' }}
                 >
                   <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
@@ -254,7 +266,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
 
       {/* hint */}
       <div className="text-xs text-slate-400">
-        Tip: Click the timeline to add a marker at that tick (above the center line = high, below = low). Drag markers to move. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
+        Tip: Click the timeline to add a marker (above center = high, below = low). Drag to move. Double-click a marker to delete. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
