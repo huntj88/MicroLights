@@ -3,6 +3,7 @@ import { HexColorPicker } from 'react-colorful';
 
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
 import { useAppStore, type Mode } from '@/lib/store';
+import { toSegments, type Waveform } from '@/lib/waveform';
 
 export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showFingerOptions?: boolean }) {
   const owner = useAppStore(s => s.fingerOwner);
@@ -16,6 +17,8 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const setWaveform = useAppStore(s => s.setWaveform);
   const addWaveform = useAppStore(s => s.addWaveform);
   const removeWaveform = useAppStore(s => s.removeWaveform);
+
+  const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
@@ -99,6 +102,11 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                 </button>
               )}
             </div>
+            {selectedWaveform && (
+              <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
+                <WaveformPreview wf={selectedWaveform} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -135,5 +143,39 @@ function FingerChip({ finger, owned, onToggle }: { finger: Finger; owned: boolea
       <span className="opacity-70 mr-1">{hand === 'L' ? 'L' : 'R'}</span>
       {name}
     </button>
+  );
+}
+
+function WaveformPreview({ wf }: { wf: Waveform }) {
+  const segs = toSegments(wf);
+  const height = 40;
+  const pad = 0; // no left padding so the preview aligns flush
+  const totalWidth = pad + wf.totalTicks; // no right pad to maximize width
+  const yFor = (out: 'high' | 'low') => (out === 'high' ? 8 : height - 8);
+  return (
+    <svg
+      className="w-full h-16"
+      viewBox={`0 0 ${totalWidth} ${height}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="Waveform preview"
+    >
+      {/* center dashed line */}
+      <line x1={pad} y1={height / 2} x2={totalWidth} y2={height / 2} stroke="#334155" strokeDasharray="4 4" />
+
+      {/* step lines: horizontal thick, vertical thin */}
+      <g stroke="#22c55e" fill="none" strokeLinecap="butt">
+        {/* horizontals */}
+        {segs.map((s, i) => (
+          <line key={`h-${i}`} x1={pad + s.from} y1={yFor(s.output)} x2={pad + s.to} y2={yFor(s.output)} strokeWidth={2} />
+        ))}
+        {/* verticals */}
+        {segs.slice(0, -1).map((s, i) => {
+          const next = segs[i + 1];
+          const x = pad + s.to;
+          return <line key={`v-${i}`} x1={x} y1={yFor(s.output)} x2={x} y2={yFor(next.output)} strokeWidth={1} />;
+        })}
+      </g>
+    </svg>
   );
 }
