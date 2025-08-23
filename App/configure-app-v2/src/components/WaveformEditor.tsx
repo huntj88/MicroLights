@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { zWaveform, type Waveform, type WavePoint, toSegments, toggle, type WaveOutput } from '@/lib/waveform';
@@ -14,6 +14,14 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // history for undo/redo
+  const [past, setPast] = useState<Waveform[]>([]);
+  const [future, setFuture] = useState<Waveform[]>([]);
+
+  useEffect(() => {
+    setFuture([]);
+  }, [value.name, value.totalTicks, value.changeAt]);
+
   const segs = useMemo(() => toSegments(value), [value]);
 
   function pxPerTick(width: number) {
@@ -24,6 +32,11 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     return output === 'high' ? 24 : height - 24;
   }
 
+  function pushHistory(prev: Waveform) {
+    setPast(p => [...p, prev]);
+    setFuture([]);
+  }
+
   function commit(points: WavePoint[]) {
     const next: Waveform = { ...value, changeAt: points };
     const res = zWaveform.safeParse(next);
@@ -31,6 +44,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
       toast.error(res.error.issues[0]?.message ?? 'Invalid waveform');
       return;
     }
+    pushHistory(value);
     onChange(res.data);
   }
 
@@ -79,12 +93,83 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     commit(value.changeAt);
   }
 
+  function currentOutputAtTick(tick: number): WaveOutput {
+    let state: WaveOutput = value.changeAt[0].output;
+    for (const p of value.changeAt) {
+      if (p.tick <= tick) state = p.output as WaveOutput;
+      else break;
+    }
+    return state;
+  }
+
+  function onSvgClick(e: React.MouseEvent<SVGSVGElement>) {
+    if (!svgRef.current) return;
+    if (dragIndex != null) return; // ignore if currently dragging
+    const bounds = svgRef.current.getBoundingClientRect();
+    const width = bounds.width;
+    const x = Math.min(Math.max(e.clientX - bounds.left, 12), width - 12);
+    const per = pxPerTick(width);
+    const tick = Math.max(0, Math.min(value.totalTicks - 1, Math.round((x - 12) / per)));
+
+    const base = currentOutputAtTick(tick);
+    const p: WavePoint = { tick, output: toggle(base) };
+
+    // insert sorted; replace if duplicate tick exists
+    const next: WavePoint[] = [];
+    let inserted = false;
+    for (let i = 0; i < value.changeAt.length; i++) {
+      const c = value.changeAt[i];
+      if (!inserted && tick <= c.tick) {
+        if (tick === c.tick) {
+          next.push(p);
+          inserted = true;
+          // skip existing at same tick
+          continue;
+        } else {
+          next.push(p);
+          inserted = true;
+        }
+      }
+      next.push(c);
+    }
+    if (!inserted) next.push(p);
+
+    commit(next);
+  }
+
+  function undo() {
+    if (past.length === 0) return;
+    const prev = past[past.length - 1];
+    setPast(p => p.slice(0, -1));
+    setFuture(f => [value, ...f]);
+    onChange(prev);
+  }
+  function redo() {
+    if (future.length === 0) return;
+    const next = future[0];
+    setFuture(f => f.slice(1));
+    setPast(p => [...p, value]);
+    onChange(next);
+  }
+
+  function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+      if (e.shiftKey) redo();
+      else undo();
+      e.preventDefault();
+    } else if (e.ctrlKey && e.key.toLowerCase() === 'y') {
+      redo();
+      e.preventDefault();
+    }
+  }
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" onKeyDown={onKeyDown} tabIndex={0}>
       <svg
         ref={svgRef}
         width="100%"
         height={height}
+        onClick={onSvgClick}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         className="bg-slate-900/60 rounded border border-slate-700/50"
@@ -123,15 +208,21 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
         })}
       </svg>
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={addMarker}>
           Add Marker to end
         </button>
         <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={removeMarker}>
           Remove Marker from end
         </button>
+        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={undo} disabled={past.length === 0}>
+          Undo
+        </button>
+        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={redo} disabled={future.length === 0}>
+          Redo
+        </button>
         <button
-          className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
+          className="ml-auto px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
           onClick={() => toast.success('Waveform saved')}
         >
           Save Wave Form

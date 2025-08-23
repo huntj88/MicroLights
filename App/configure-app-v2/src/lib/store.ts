@@ -187,6 +187,7 @@ export const useAppStore = create<AppState>()(
           enabled: m.enabled,
           color: m.color,
           waveformId: m.waveformId,
+          waveform: m.waveformId ? s.waveforms.find(w => w.id === m.waveformId) ?? null : null,
           fingers: ALL_FINGERS.filter(f => s.fingerOwner[f] === m.id),
         }));
         console.log('SEND', payload);
