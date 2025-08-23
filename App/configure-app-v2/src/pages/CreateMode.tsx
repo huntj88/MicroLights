@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { ModeCard } from '@/components/ModeCard';
 import { useAppStore } from '@/lib/store';
 
-import { ModeCard } from '../components/ModeCard';
 
-export default function CreateSet() {
+export default function CreateMode() {
   const modes = useAppStore(s => s.modes);
   const connected = useAppStore(s => s.connected);
   const sets = useAppStore(s => s.sets);
@@ -14,7 +14,7 @@ export default function CreateSet() {
   const disconnect = useAppStore(s => s.disconnect);
   const send = useAppStore(s => s.send);
 
-  // new store actions for set workflow
+  // new store actions for mode library workflow (previously set)
   const newSetDraft = useAppStore(s => s.newSetDraft);
   const saveCurrentSet = useAppStore(s => s.saveCurrentSet);
   const updateSet = useAppStore(s => s.updateSet);
@@ -30,7 +30,7 @@ export default function CreateSet() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Create / Set</h1>
+        <h1 className="text-2xl font-semibold">Create / Mode</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 mr-4">
             {/* Name input moved below header to align with Waveform page */}
@@ -42,7 +42,7 @@ export default function CreateSet() {
                 if (!id) return;
                 loadSet(id);
                 setDraftName(sets.find(s => s.id === id)?.name ?? '');
-                toast.success('Set loaded');
+                toast.success('Mode loaded');
               }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
@@ -56,7 +56,7 @@ export default function CreateSet() {
               onClick={() => {
                 newSetDraft();
                 setSelectedSetId('');
-                setDraftName('New Set');
+                setDraftName('New Mode');
               }}
               className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
             >
@@ -67,7 +67,7 @@ export default function CreateSet() {
                 type="button"
                 onClick={() => {
                   if (!selectedSetId) return;
-                  if (confirm('Delete this set?')) {
+                  if (confirm('Delete this mode?')) {
                     removeSet(selectedSetId);
                     setSelectedSetId('');
                     newSetDraft();
@@ -84,7 +84,7 @@ export default function CreateSet() {
               onClick={() => {
                 if (selectedSet) {
                   updateSet(selectedSet.id, draftName.trim() || selectedSet.name);
-                  toast.success('Set saved');
+                  toast.success('Mode saved');
                 } else {
                   const id = saveCurrentSet(draftName);
                   setSelectedSetId(id);
@@ -136,7 +136,7 @@ export default function CreateSet() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="text-xs text-slate-400">Tip: Save the current configuration as a Set, or load an existing Set to edit and save changes.</div>
+        <div className="text-xs text-slate-400">Tip: Save the current configuration as a Mode, or load an existing Mode to edit and save changes.</div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AppShell } from './components/AppShell';
-import CreateSet from './pages/CreateSet';
+import CreateMode from './pages/CreateMode';
 import CreateWave from './pages/CreateWave';
 
 function Placeholder({ title }: { title: string }) {
@@ -18,9 +18,9 @@ export function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<AppShell />}>
-          <Route index element={<Navigate to="/create/set" replace />} />
+          <Route index element={<Navigate to="/create/mode" replace />} />
           <Route path="create">
-            <Route path="set" element={<CreateSet />} />
+            <Route path="mode" element={<CreateMode />} />
             <Route path="wave" element={<CreateWave />} />
           </Route>
           <Route path="browse" element={<Placeholder title="Browse" />} />
@@ -28,7 +28,7 @@ export function App() {
           <Route path="theme" element={<Placeholder title="Theme" />} />
           <Route path="docs" element={<Placeholder title="Docs" />} />
           <Route path="examples" element={<Placeholder title="Examples" />} />
-          <Route path="*" element={<Navigate to="/create/set" replace />} />
+          <Route path="*" element={<Navigate to="/create/mode" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>

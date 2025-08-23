@@ -11,7 +11,7 @@ export function AppShell() {
           </div>
           <nav className="space-y-1 text-fg-muted">
             <Section title="Create">
-              <SidebarLink to="/create/set">Set</SidebarLink>
+              <SidebarLink to="/create/mode">Mode</SidebarLink>
               <SidebarLink to="/create/wave">Wave</SidebarLink>
             </Section>
             <Section title="Browse">
