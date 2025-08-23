@@ -65,31 +65,14 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     suppressNextClickRef.current = false;
   }
 
-  function normalizeTicks(points: WavePoint[], totalTicks: number): WavePoint[] {
-    if (points.length === 0) return points;
-    const out = points.map(p => ({ ...p }));
-    // enforce first at 0
-    out[0].tick = 0;
-    // ensure strictly increasing forward
-    for (let i = 1; i < out.length; i++) {
-      if (out[i].tick <= out[i - 1].tick) out[i].tick = out[i - 1].tick + 1;
-    }
-    // if last exceeds max, shift left as needed while keeping order
-    const maxTick = totalTicks - 1;
-    const overflow = out[out.length - 1].tick - maxTick;
-    if (overflow > 0) {
-      for (let i = 1; i < out.length; i++) {
-        out[i].tick = Math.max(i, out[i].tick - overflow);
-      }
-    }
-    // final pass to guarantee increasing and clamp into range
-    for (let i = 1; i < out.length; i++) {
-      if (out[i].tick <= out[i - 1].tick) out[i].tick = out[i - 1].tick + 1;
-    }
-    for (let i = 0; i < out.length; i++) {
-      out[i].tick = Math.max(0, Math.min(maxTick, out[i].tick));
-    }
-    return out;
+  // helper to clamp a tick for the dragged index between its neighbors
+  function clampTickForIndex(points: WavePoint[], idx: number, tick: number, totalTicks: number): number {
+    if (idx === 0) return 0; // first marker must stay at 0
+    const prevTick = points[idx - 1]?.tick ?? 0;
+    const nextTick = points[idx + 1]?.tick ?? totalTicks; // if last, allow up to totalTicks - 1
+    const min = prevTick + 1;
+    const max = (idx === points.length - 1 ? totalTicks - 1 : nextTick - 1);
+    return Math.max(min, Math.min(max, tick));
   }
 
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
@@ -102,14 +85,13 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     const per = pxPerTick(width);
     let tick = Math.round((x - 12) / per);
 
-    // lock the first marker at tick 0 to satisfy schema
-    if (dragIndex === 0) tick = 0;
-
     const y = e.clientY - bounds.top;
     const output: WaveOutput = y < height / 2 ? 'high' : 'low';
 
-    let next: WavePoint[] = value.changeAt.map((p, i) => (i === dragIndex ? { tick, output } : p));
-    next = normalizeTicks(next, value.totalTicks);
+    // clamp the dragged point between neighbors so others do not move
+    tick = clampTickForIndex(value.changeAt, dragIndex, tick, value.totalTicks);
+
+    const next: WavePoint[] = value.changeAt.map((p, i) => (i === dragIndex ? { tick, output } : p));
 
     // update local preview only; commit on pointer up
     setDragPreview(next);
@@ -175,7 +157,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
       else next.push(p);
     }
 
-    commit(normalizeTicks(next, value.totalTicks));
+    commit(next);
   }
 
   function undo() {
