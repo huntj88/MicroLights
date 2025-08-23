@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { ALL_FINGERS, type Finger, type Hand } from './fingers';
+import type { Waveform } from './waveform';
 
 export type Mode = {
   id: string;
@@ -14,11 +15,15 @@ export type Mode = {
   ui: { collapsed: boolean };
 };
 
+export type WaveformDoc = { id: string } & Waveform;
+
 export type AppState = {
   modes: Mode[];
   fingerOwner: Record<Finger, string | null>; // modeId or null
   connected: boolean;
   deviceInfo?: { name?: string } | null;
+
+  waveforms: WaveformDoc[];
 
   // actions
   addMode: (partial?: Partial<Mode>) => string;
@@ -37,6 +42,10 @@ export type AppState = {
   setColor: (modeId: string, hex: string) => void;
 
   collapseMode: (modeId: string, collapsed: boolean) => void;
+
+  addWaveform: (wf: Waveform) => string;
+  updateWaveform: (id: string, wf: Partial<Waveform>) => void;
+  removeWaveform: (id: string) => void;
 
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
@@ -63,6 +72,18 @@ export const useAppStore = create<AppState>()(
       fingerOwner: createEmptyOwner(),
       connected: false,
       deviceInfo: null,
+
+      waveforms: [
+        {
+          id: nanoid(6),
+          name: 'Pulse',
+          totalTicks: 20,
+          changeAt: [
+            { tick: 0, output: 'high' },
+            { tick: 10, output: 'low' },
+          ],
+        },
+      ],
 
       addMode: partial => {
         const mode = createMode({ name: `Mode ${get().modes.length + 1}`, ...partial });
@@ -136,6 +157,19 @@ export const useAppStore = create<AppState>()(
 
       collapseMode: (modeId, collapsed) => set(s => ({
         modes: s.modes.map(m => (m.id === modeId ? { ...m, ui: { ...m.ui, collapsed } } : m)),
+      })),
+
+      addWaveform: wf => {
+        const id = nanoid(6);
+        set(s => ({ waveforms: [...s.waveforms, { id, ...wf }] }));
+        return id;
+      },
+      updateWaveform: (id, wf) => set(s => ({
+        waveforms: s.waveforms.map(x => (x.id === id ? { ...x, ...wf } : x)),
+      })),
+      removeWaveform: id => set(s => ({
+        waveforms: s.waveforms.filter(x => x.id !== id),
+        modes: s.modes.map(m => (m.waveformId === id ? { ...m, waveformId: undefined } : m)),
       })),
 
       connect: async () => {

@@ -15,6 +15,11 @@ export function ModeCard({ mode }: { mode: Mode }) {
   const unassign = useAppStore(s => s.unassignFinger);
   const remove = useAppStore(s => s.removeMode);
 
+  const waveforms = useAppStore(s => s.waveforms);
+  const setWaveform = useAppStore(s => s.setWaveform);
+  const addWaveform = useAppStore(s => s.addWaveform);
+  const removeWaveform = useAppStore(s => s.removeWaveform);
+
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -71,19 +76,39 @@ export function ModeCard({ mode }: { mode: Mode }) {
 
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</div>
-            <select
-              value={mode.waveformId ?? ''}
-              onChange={e => {
-                const id = e.target.value || undefined;
-                useAppStore.getState().setWaveform(mode.id, id);
-              }}
-              className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-            >
-              <option value="">None</option>
-              <option value="pulse">Pulse</option>
-              <option value="wave">Wave</option>
-              <option value="sparkle">Sparkle</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <select
+                value={mode.waveformId ?? ''}
+                onChange={e => setWaveform(mode.id, e.target.value || undefined)}
+                className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm flex-1"
+              >
+                <option value="">None</option>
+                {waveforms.map(w => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                onClick={() => {
+                  const id = addWaveform({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                  setWaveform(mode.id, id);
+                }}
+                title="Create new waveform"
+              >
+                +
+              </button>
+              {mode.waveformId && (
+                <button
+                  className="px-2 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs"
+                  onClick={() => removeWaveform(mode.waveformId!)}
+                  title="Delete selected waveform"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
