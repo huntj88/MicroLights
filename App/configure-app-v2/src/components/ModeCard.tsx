@@ -177,7 +177,7 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
 
         <div className="space-y-3 justify-self-start md:pl-2">
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Color</div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
             <div>
               <HexColorPicker
                 color={mode.color}
