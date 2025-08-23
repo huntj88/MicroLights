@@ -8,6 +8,8 @@ import './styles.css';
 const root = document.getElementById('root')!;
 createRoot(root).render(
   <StrictMode>
-    <App />
+    <div className="min-h-screen">
+      <App />
+    </div>
   </StrictMode>
 );
