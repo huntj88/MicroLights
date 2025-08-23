@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { zWaveform, type Waveform, type WavePoint, toSegments, toggle, type WaveOutput } from '@/lib/waveform';
+import { zWaveform, type Waveform, type WavePoint, toSegments, type WaveOutput } from '@/lib/waveform';
 
 type Props = {
   value: Waveform;
@@ -49,18 +49,6 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     }
     pushHistory(value);
     onChange(res.data);
-  }
-
-  function addMarker() {
-    const last = value.changeAt[value.changeAt.length - 1];
-    const nextTick = Math.min(value.totalTicks - 1, last.tick + Math.max(1, Math.floor(value.totalTicks / 6)));
-    const p: WavePoint = { tick: nextTick, output: toggle(last.output) };
-    commit([...value.changeAt, p]);
-  }
-
-  function removeMarker() {
-    if (value.changeAt.length <= 1) return;
-    commit(value.changeAt.slice(0, -1));
   }
 
   function onPointerDown(e: React.PointerEvent<SVGGElement>, idx: number) {
@@ -282,24 +270,17 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
         );
       })()}
 
+      {/* hint */}
+      <div className="text-xs text-slate-400">
+        Tip: Click the timeline to add a marker at that tick (above the center line = high, below = low). Drag markers to move. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
+      </div>
+
       <div className="flex flex-wrap gap-2 items-center">
-        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={addMarker}>
-          Add Marker to end
-        </button>
-        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={removeMarker}>
-          Remove Marker from end
-        </button>
         <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={undo} disabled={past.length === 0}>
           Undo
         </button>
         <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={redo} disabled={future.length === 0}>
           Redo
-        </button>
-        <button
-          className="ml-auto px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
-          onClick={() => toast.success('Waveform saved')}
-        >
-          Save Wave Form
         </button>
       </div>
 
