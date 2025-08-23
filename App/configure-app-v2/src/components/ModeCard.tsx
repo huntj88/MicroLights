@@ -19,7 +19,6 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const removeWaveform = useAppStore(s => s.removeWaveform);
 
   // accelerometer actions
-  const setAccelEnabled = useAppStore(s => s.setAccelEnabled);
   const addAccelTrigger = useAppStore(s => s.addAccelTrigger);
   const removeAccelTrigger = useAppStore(s => s.removeAccelTrigger);
   const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
@@ -122,18 +121,9 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
           <div className="mt-3">
             <div className="flex items-center justify-between">
               <div className="text-xs uppercase tracking-wide text-slate-400">Accelerometer</div>
-              <label className="inline-flex items-center gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  className="accent-fg-ring"
-                  checked={!!mode.accel?.enabled}
-                  onChange={e => setAccelEnabled(mode.id, e.target.checked)}
-                />
-                Enable
-              </label>
             </div>
 
-            {mode.accel?.enabled && (
+            {(mode.accel?.triggers?.length ?? 0) > 0 && (
               <div className="mt-2 space-y-2">
                 {(mode.accel?.triggers ?? []).map((t, i) => (
                   <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
@@ -169,15 +159,17 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                     <div />
                   </div>
                 ))}
+              </div>
+            )}
 
-                {(mode.accel?.triggers?.length ?? 0) < 2 && (
-                  <button
-                    className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
-                    onClick={() => addAccelTrigger(mode.id)}
-                  >
-                    + Add Trigger
-                  </button>
-                )}
+            {(mode.accel?.triggers?.length ?? 0) < 2 && (
+              <div className="mt-2">
+                <button
+                  className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
+                  onClick={() => addAccelTrigger(mode.id)}
+                >
+                  + Add Trigger
+                </button>
               </div>
             )}
           </div>
