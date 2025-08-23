@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { zWaveform, type Waveform, type WavePoint, toSegments, toggle, type WaveOutput } from '@/lib/waveform';
@@ -14,6 +14,11 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
+  // keep latest draft while dragging (state to trigger re-render)
+  const [dragPreview, setDragPreview] = useState<WavePoint[] | null>(null);
+  // suppress stray click after a drag
+  const suppressNextClickRef = useRef<boolean>(false);
+
   // history for undo/redo
   const [past, setPast] = useState<Waveform[]>([]);
   const [future, setFuture] = useState<Waveform[]>([]);
@@ -21,8 +26,6 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   useEffect(() => {
     setFuture([]);
   }, [value.name, value.totalTicks, value.changeAt]);
-
-  const segs = useMemo(() => toSegments(value), [value]);
 
   function pxPerTick(width: number) {
     return Math.max(1, (width - 24) / value.totalTicks);
@@ -60,61 +63,101 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     commit(value.changeAt.slice(0, -1));
   }
 
-  function onPointerDown(idx: number) {
+  function onPointerDown(e: React.PointerEvent<SVGGElement>, idx: number) {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      // Capture on the marker element so we reliably get move/up
+      e.currentTarget.setPointerCapture?.(e.pointerId);
+    } catch {
+      // no-op
+    }
     setDragIndex(idx);
+    setDragPreview(value.changeAt);
+    suppressNextClickRef.current = false;
+  }
+
+  function normalizeTicks(points: WavePoint[], totalTicks: number): WavePoint[] {
+    if (points.length === 0) return points;
+    const out = points.map(p => ({ ...p }));
+    // enforce first at 0
+    out[0].tick = 0;
+    // ensure strictly increasing forward
+    for (let i = 1; i < out.length; i++) {
+      if (out[i].tick <= out[i - 1].tick) out[i].tick = out[i - 1].tick + 1;
+    }
+    // if last exceeds max, shift left as needed while keeping order
+    const maxTick = totalTicks - 1;
+    const overflow = out[out.length - 1].tick - maxTick;
+    if (overflow > 0) {
+      for (let i = 1; i < out.length; i++) {
+        out[i].tick = Math.max(i, out[i].tick - overflow);
+      }
+    }
+    // final pass to guarantee increasing and clamp into range
+    for (let i = 1; i < out.length; i++) {
+      if (out[i].tick <= out[i - 1].tick) out[i].tick = out[i - 1].tick + 1;
+    }
+    for (let i = 0; i < out.length; i++) {
+      out[i].tick = Math.max(0, Math.min(maxTick, out[i].tick));
+    }
+    return out;
   }
 
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
     if (dragIndex == null || !svgRef.current) return;
+    e.preventDefault();
+    suppressNextClickRef.current = true; // mark that a drag occurred
     const bounds = svgRef.current.getBoundingClientRect();
     const width = bounds.width;
     const x = Math.min(Math.max(e.clientX - bounds.left, 12), width - 12);
     const per = pxPerTick(width);
-    const tick = Math.round((x - 12) / per);
+    let tick = Math.round((x - 12) / per);
+
+    // lock the first marker at tick 0 to satisfy schema
+    if (dragIndex === 0) tick = 0;
 
     const y = e.clientY - bounds.top;
     const output: WaveOutput = y < height / 2 ? 'high' : 'low';
 
-    const next: WavePoint[] = value.changeAt.map((p, i) => (i === dragIndex ? { tick, output } : p));
-    // keep strictly increasing ticks
-    for (let i = 1; i < next.length; i++) {
-      if (next[i].tick <= next[i - 1].tick) next[i].tick = next[i - 1].tick + 1;
-    }
-    // clamp to range
-    for (let i = 0; i < next.length; i++) {
-      next[i].tick = Math.max(0, Math.min(value.totalTicks - 1, next[i].tick));
-    }
-    onChange({ ...value, changeAt: next });
+    let next: WavePoint[] = value.changeAt.map((p, i) => (i === dragIndex ? { tick, output } : p));
+    next = normalizeTicks(next, value.totalTicks);
+
+    // update local preview only; commit on pointer up
+    setDragPreview(next);
   }
 
-  function onPointerUp() {
+  function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+    e.stopPropagation();
     if (dragIndex == null) return;
+    const points = dragPreview ?? value.changeAt;
+    setDragPreview(null);
     setDragIndex(null);
-    commit(value.changeAt);
-  }
-
-  function currentOutputAtTick(tick: number): WaveOutput {
-    let state: WaveOutput = value.changeAt[0].output;
-    for (const p of value.changeAt) {
-      if (p.tick <= tick) state = p.output as WaveOutput;
-      else break;
-    }
-    return state;
+    suppressNextClickRef.current = true;
+    commit(points);
   }
 
   function onSvgClick(e: React.MouseEvent<SVGSVGElement>) {
     if (!svgRef.current) return;
     if (dragIndex != null) return; // ignore if currently dragging
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
+    // ignore clicks originating from children (e.g., markers)
+    if (e.target !== e.currentTarget) return;
     const bounds = svgRef.current.getBoundingClientRect();
     const width = bounds.width;
     const x = Math.min(Math.max(e.clientX - bounds.left, 12), width - 12);
+    const y = e.clientY - bounds.top;
     const per = pxPerTick(width);
     const tick = Math.max(0, Math.min(value.totalTicks - 1, Math.round((x - 12) / per)));
 
-    const base = currentOutputAtTick(tick);
-    const p: WavePoint = { tick, output: toggle(base) };
+    // set output from click position (no toggle)
+    const output: WaveOutput = y < height / 2 ? 'high' : 'low';
+    const p: WavePoint = { tick, output };
 
-    // insert sorted; replace if duplicate tick exists
+    // insert sorted; replace if duplicate tick exists (previous or next)
     const next: WavePoint[] = [];
     let inserted = false;
     for (let i = 0; i < value.changeAt.length; i++) {
@@ -126,15 +169,25 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
           // skip existing at same tick
           continue;
         } else {
-          next.push(p);
+          // check if equals the previous we just pushed
+          const last = next[next.length - 1];
+          if (last && last.tick === tick) {
+            next[next.length - 1] = p; // replace previous duplicate
+          } else {
+            next.push(p);
+          }
           inserted = true;
         }
       }
       next.push(c);
     }
-    if (!inserted) next.push(p);
+    if (!inserted) {
+      // handle potential duplicate with last
+      if (next.length > 0 && next[next.length - 1].tick === tick) next[next.length - 1] = p;
+      else next.push(p);
+    }
 
-    commit(next);
+    commit(normalizeTicks(next, value.totalTicks));
   }
 
   function undo() {
@@ -163,50 +216,71 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     }
   }
 
+  function onMarkerPointerMove(e: React.PointerEvent<SVGGElement>) {
+    // delegate to svg-level handler to keep logic centralized
+    onPointerMove(e as unknown as React.PointerEvent<SVGSVGElement>);
+  }
+  function onMarkerPointerUp(e: React.PointerEvent<SVGGElement>) {
+    onPointerUp(e as unknown as React.PointerEvent<SVGSVGElement>);
+  }
+
   return (
     <div className="space-y-2" onKeyDown={onKeyDown} tabIndex={0}>
-      <svg
-        ref={svgRef}
-        width="100%"
-        height={height}
-        onClick={onSvgClick}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        className="bg-slate-900/60 rounded border border-slate-700/50"
-      >
-        {/* grid */}
-        <g>
-          <line x1={12} y1={height / 2} x2="100%" y2={height / 2} stroke="#334155" strokeDasharray="4 4" />
-        </g>
-
-        {/* waveform */}
-        <polyline
-          fill="none"
-          stroke="#22c55e"
-          strokeWidth="2"
-          points={segs
-            .flatMap(s => [
-              [12 + s.from * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
-              [12 + s.to * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
-            ])
-            .map(p => p.join(','))
-            .join(' ')}
-        />
-
-        {/* markers */}
-        {value.changeAt.map((p, i) => {
-          const x = 12 + p.tick * pxPerTick(svgRef.current?.clientWidth ?? 600);
-          const y = yFor(p.output);
-          return (
-            <g key={i} onPointerDown={() => onPointerDown(i)} style={{ cursor: 'grab' }}>
-              <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
-              <text x={x} y={y + 4} fontSize="12" textAnchor="middle" fill="#e2e8f0">
-                {i}
-              </text>
+      {(() => {
+        const view: Waveform = dragPreview ? { ...value, changeAt: dragPreview } : value;
+        const segs = toSegments(view);
+        return (
+          <svg
+            ref={svgRef}
+            width="100%"
+            height={height}
+            onClick={onSvgClick}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            className="bg-slate-900/60 rounded border border-slate-700/50"
+            style={{ touchAction: 'none' }}
+          >
+            {/* grid */}
+            <g>
+              <line x1={12} y1={height / 2} x2="100%" y2={height / 2} stroke="#334155" strokeDasharray="4 4" />
             </g>
-          );
-        })}
-      </svg>
+
+            {/* waveform */}
+            <polyline
+              fill="none"
+              stroke="#22c55e"
+              strokeWidth="2"
+              points={segs
+                .flatMap(s => [
+                  [12 + s.from * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
+                  [12 + s.to * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
+                ])
+                .map(p => p.join(','))
+                .join(' ')}
+            />
+
+            {/* markers */}
+            {view.changeAt.map((p, i) => {
+              const x = 12 + p.tick * pxPerTick(svgRef.current?.clientWidth ?? 600);
+              const y = yFor(p.output);
+              return (
+                <g
+                  key={i}
+                  onPointerDown={(e) => onPointerDown(e, i)}
+                  onPointerMove={onMarkerPointerMove}
+                  onPointerUp={onMarkerPointerUp}
+                  style={{ cursor: 'grab' }}
+                >
+                  <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
+                  <text x={x} y={y + 4} fontSize="12" textAnchor="middle" fill="#e2e8f0">
+                    {i}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+        );
+      })()}
 
       <div className="flex flex-wrap gap-2 items-center">
         <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={addMarker}>
