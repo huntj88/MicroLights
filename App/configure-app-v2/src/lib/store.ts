@@ -5,6 +5,9 @@ import { persist } from 'zustand/middleware';
 import { ALL_FINGERS, type Finger, type Hand } from './fingers';
 import type { Waveform } from './waveform';
 
+// Allowed accelerometer threshold values
+const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
+
 export type Mode = {
   id: string;
   enabled: boolean;
@@ -194,7 +197,12 @@ export const useAppStore = create<AppState>()(
           if (m.id !== modeId) return m;
           const acc = m.accel ?? { enabled: false, triggers: [] };
           if (acc.triggers.length >= 2) return m;
-          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: 1, waveformId: undefined }] } };
+          const prev = acc.triggers[acc.triggers.length - 1];
+          const nextAllowed = prev
+            ? ALLOWED_THRESHOLDS.find(v => v > prev.threshold)
+            : ALLOWED_THRESHOLDS[0];
+          if (nextAllowed == null) return m; // no valid higher threshold available
+          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: nextAllowed, waveformId: undefined }] } };
         })
       })),
       removeAccelTrigger: (modeId, index) => set(s => ({
@@ -209,8 +217,25 @@ export const useAppStore = create<AppState>()(
         modes: s.modes.map(m => {
           if (m.id !== modeId) return m;
           const acc = m.accel ?? { enabled: false, triggers: [] };
-          const next = acc.triggers.map((t, i) => (i === index ? { ...t, threshold } : t));
-          return { ...m, accel: { ...acc, triggers: next } };
+          const prev = index > 0 ? acc.triggers[index - 1]?.threshold : undefined;
+          const allowedAfterPrev = prev == null ? [...ALLOWED_THRESHOLDS] : ALLOWED_THRESHOLDS.filter(v => v > prev);
+          if (allowedAfterPrev.length === 0) return m; // nothing valid, keep as is
+          const candidate = Number(threshold);
+          const arr = allowedAfterPrev as ReadonlyArray<number>;
+          const chosen = arr.includes(candidate) ? candidate : arr[0];
+
+          // set current and then cascade forward to keep strictly increasing using allowed list
+          const next = acc.triggers.map((curr, i) => (i === index ? { ...curr, threshold: chosen } : { ...curr }));
+          for (let j = index + 1; j < next.length; j++) {
+            const prevT = next[j - 1].threshold;
+            const nextAllowed = ALLOWED_THRESHOLDS.find(v => v > prevT);
+            if (nextAllowed == null) {
+              next.splice(j); // trim trailing invalid triggers
+              break;
+            }
+            if (next[j].threshold <= prevT) next[j].threshold = nextAllowed;
+          }
+           return { ...m, accel: { ...acc, triggers: next } };
         })
       })),
       setAccelTriggerWaveform: (modeId, index, waveformId) => set(s => ({

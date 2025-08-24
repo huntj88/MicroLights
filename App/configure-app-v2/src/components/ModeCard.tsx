@@ -125,40 +125,55 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
 
             {(mode.accel?.triggers?.length ?? 0) > 0 && (
               <div className="mt-2 space-y-2">
-                {(mode.accel?.triggers ?? []).map((t, i) => (
-                  <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-                    <div className="text-xs text-slate-400">Threshold</div>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.1}
-                      value={t.threshold}
-                      onChange={e => setAccelTriggerThreshold(mode.id, i, Number(e.target.value))}
-                      className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-                    />
-                    <button
-                      className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
-                      onClick={() => removeAccelTrigger(mode.id, i)}
-                    >
-                      Remove
-                    </button>
+                {(mode.accel?.triggers ?? []).map((t, i) => {
+                  const accelWf = t.waveformId ? waveforms.find(w => w.id === t.waveformId) ?? null : null;
+                  const ALLOWED = [2, 4, 8, 12, 16];
+                  const prevThresh = i > 0 ? mode.accel?.triggers?.[i - 1]?.threshold : undefined;
+                  const allowedAfterPrev = prevThresh == null ? ALLOWED : ALLOWED.filter(v => v > prevThresh);
+                  return (
+                    <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
+                      <div className="text-xs text-slate-400">Threshold</div>
+                      <select
+                        value={t.threshold}
+                        onChange={e => setAccelTriggerThreshold(mode.id, i, Number(e.target.value))}
+                        className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+                      >
+                        {allowedAfterPrev.map(v => (
+                          <option key={v} value={v}>{v}</option>
+                        ))}
+                      </select>
+                      <button
+                        className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
+                        onClick={() => removeAccelTrigger(mode.id, i)}
+                      >
+                        Remove
+                      </button>
 
-                    <div className="text-xs text-slate-400">Waveform</div>
-                    <select
-                      value={t.waveformId ?? ''}
-                      onChange={e => setAccelTriggerWaveform(mode.id, i, e.target.value || undefined)}
-                      className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-                    >
-                      <option value="">None</option>
-                      {waveforms.map(w => (
-                        <option key={w.id} value={w.id}>
-                          {w.name}
-                        </option>
-                      ))}
-                    </select>
-                    <div />
-                  </div>
-                ))}
+                      <div className="text-xs text-slate-400">Waveform</div>
+                      <select
+                        value={t.waveformId ?? ''}
+                        onChange={e => setAccelTriggerWaveform(mode.id, i, e.target.value || undefined)}
+                        className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+                      >
+                        <option value="">None</option>
+                        {waveforms.map(w => (
+                          <option key={w.id} value={w.id}>
+                            {w.name}
+                          </option>
+                        ))}
+                      </select>
+                      <div />
+
+                      {accelWf && (
+                        <div className="col-span-3">
+                          <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
+                            <WaveformPreview wf={accelWf} />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
