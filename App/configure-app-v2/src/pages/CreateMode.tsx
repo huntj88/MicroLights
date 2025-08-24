@@ -8,24 +8,24 @@ import { useAppStore } from '@/lib/store';
 export default function CreateMode() {
   const modes = useAppStore(s => s.modes);
   const connected = useAppStore(s => s.connected);
-  const sets = useAppStore(s => s.sets);
+  const modeSets = useAppStore(s => s.modeSets);
   const addMode = useAppStore(s => s.addMode);
   const connect = useAppStore(s => s.connect);
   const disconnect = useAppStore(s => s.disconnect);
   const send = useAppStore(s => s.send);
 
-  // new store actions for mode library workflow (previously set)
-  const newSetDraft = useAppStore(s => s.newSetDraft);
-  const saveCurrentSet = useAppStore(s => s.saveCurrentSet);
-  const updateSet = useAppStore(s => s.updateSet);
-  const loadSet = useAppStore(s => s.loadSet);
-  const removeSet = useAppStore(s => s.removeSet);
+  // store actions for mode set library workflow
+  const newModeSetDraft = useAppStore(s => s.newModeSetDraft);
+  const saveCurrentModeSet = useAppStore(s => s.saveCurrentModeSet);
+  const updateModeSet = useAppStore(s => s.updateModeSet);
+  const loadModeSet = useAppStore(s => s.loadModeSet);
+  const removeModeSet = useAppStore(s => s.removeModeSet);
 
   const [selectedSetId, setSelectedSetId] = useState<string>('');
   const [draftName, setDraftName] = useState<string>('');
 
   const canAdd = useMemo(() => modes.length < 10, [modes.length]);
-  const selectedSet = useMemo(() => sets.find(s => s.id === selectedSetId), [sets, selectedSetId]);
+  const selectedSet = useMemo(() => modeSets.find(s => s.id === selectedSetId), [modeSets, selectedSetId]);
 
   return (
     <div className="space-y-6">
@@ -40,21 +40,21 @@ export default function CreateMode() {
                 const id = e.target.value;
                 setSelectedSetId(id);
                 if (!id) return;
-                loadSet(id);
-                setDraftName(sets.find(s => s.id === id)?.name ?? '');
+                loadModeSet(id);
+                setDraftName(modeSets.find(s => s.id === id)?.name ?? '');
                 toast.success('Mode loaded');
               }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
               <option value="">(Unsaved Draft)</option>
-              {sets.map(s => (
+              {modeSets.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
             <button
               type="button"
               onClick={() => {
-                newSetDraft();
+                newModeSetDraft();
                 setSelectedSetId('');
                 setDraftName('New Mode');
               }}
@@ -68,9 +68,9 @@ export default function CreateMode() {
                 onClick={() => {
                   if (!selectedSetId) return;
                   if (confirm('Delete this mode?')) {
-                    removeSet(selectedSetId);
+                    removeModeSet(selectedSetId);
                     setSelectedSetId('');
-                    newSetDraft();
+                    newModeSetDraft();
                     setDraftName('');
                   }
                 }}
@@ -83,10 +83,10 @@ export default function CreateMode() {
               type="button"
               onClick={() => {
                 if (selectedSet) {
-                  updateSet(selectedSet.id, draftName.trim() || selectedSet.name);
+                  updateModeSet(selectedSet.id, draftName.trim() || selectedSet.name);
                   toast.success('Mode saved');
                 } else {
-                  const id = saveCurrentSet(draftName);
+                  const id = saveCurrentModeSet(draftName);
                   setSelectedSetId(id);
                   toast.success('Added to Library');
                 }

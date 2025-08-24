@@ -10,13 +10,13 @@ const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
 
 export type Mode = {
   id: string;
-  enabled: boolean;
+  enabled: boolean; // TODO: remove, should not used
   color: string; // hex
   waveformId?: string;
   fingers: Set<Finger>;
   ui: { collapsed: boolean };
   accel?: {
-    enabled: boolean;
+    enabled: boolean; // TODO: remove, should not be used
     triggers: Array<{
       threshold: number;
       waveformId?: string;
@@ -26,9 +26,9 @@ export type Mode = {
 
 export type WaveformDoc = { id: string } & Waveform;
 
-// A saved Set snapshot of modes and finger ownership
+// A saved ModeSet snapshot of modes and finger ownership
 export type ModeSnapshot = Pick<Mode, 'enabled' | 'color' | 'waveformId' | 'accel'>;
-export type SetDoc = {
+export type ModeSet = {
   id: string;
   name: string;
   modes: ModeSnapshot[];
@@ -43,7 +43,7 @@ export type AppState = {
   deviceInfo?: { name?: string } | null;
 
   waveforms: WaveformDoc[];
-  sets: SetDoc[];
+  modeSets: ModeSet[];
 
   // UI settings
   theme: 'system' | 'light' | 'dark';
@@ -79,13 +79,13 @@ export type AppState = {
   updateWaveform: (id: string, wf: Partial<Waveform>) => void;
   removeWaveform: (id: string) => void;
 
-  // set library actions
-  newSetDraft: () => void; // reset current working set
-  saveCurrentSet: (name: string) => string; // returns set id
-  updateSet: (id: string, name?: string) => void; // overwrite existing set with current state
-  loadSet: (id: string) => void;
-  renameSet: (id: string, name: string) => void;
-  removeSet: (id: string) => void;
+  // mode set library actions
+  newModeSetDraft: () => void; // reset current working set
+  saveCurrentModeSet: (name: string) => string; // returns set id
+  updateModeSet: (id: string, name?: string) => void; // overwrite existing set with current state
+  loadModeSet: (id: string) => void;
+  renameModeSet: (id: string, name: string) => void;
+  removeModeSet: (id: string) => void;
 
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
@@ -128,7 +128,7 @@ export const useAppStore = create<AppState>()(
         },
       ],
 
-      sets: [],
+      modeSets: [],
 
       addMode: partial => {
         const mode = createMode({ ...partial });
@@ -282,12 +282,12 @@ export const useAppStore = create<AppState>()(
         }),
       })),
 
-      // Set library
-      newSetDraft: () => set(() => ({
+      // ModeSet library
+      newModeSetDraft: () => set(() => ({
         modes: [createMode()],
         fingerOwner: createEmptyOwner(),
       })),
-      saveCurrentSet: (name: string) => {
+      saveCurrentModeSet: (name: string) => {
         const s = get();
         const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
           enabled: m.enabled,
@@ -301,13 +301,13 @@ export const useAppStore = create<AppState>()(
           ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
         ) as Record<Finger, number | null>;
         const id = nanoid(6);
-        const doc: SetDoc = { id, name: name.trim() || `Set ${s.sets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
-        set(st => ({ sets: [...st.sets, doc] }));
+        const doc: ModeSet = { id, name: name.trim() || `Set ${s.modeSets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
+        set(st => ({ modeSets: [...st.modeSets, doc] }));
         return id;
       },
-      updateSet: (id: string, name?: string) => set(s => {
-        const idx = s.sets.findIndex(x => x.id === id);
-        if (idx === -1) return { sets: s.sets };
+      updateModeSet: (id: string, name?: string) => set(s => {
+        const idx = s.modeSets.findIndex(x => x.id === id);
+        if (idx === -1) return { modeSets: s.modeSets };
         const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
           enabled: m.enabled,
           color: m.color,
@@ -319,19 +319,19 @@ export const useAppStore = create<AppState>()(
         const fingerOwnerIndex = Object.fromEntries(
           ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
         ) as Record<Finger, number | null>;
-        const existing = s.sets[idx];
-        const updated: SetDoc = {
+        const existing = s.modeSets[idx];
+        const updated: ModeSet = {
           ...existing,
           name: name != null ? name : existing.name,
           modes: modesSnap,
           fingerOwnerIndex,
         };
-        const next = [...s.sets];
+        const next = [...s.modeSets];
         next[idx] = updated;
-        return { sets: next };
+        return { modeSets: next };
       }),
-      loadSet: (id: string) => set(s => {
-        const doc = s.sets.find(x => x.id === id);
+      loadModeSet: (id: string) => set(s => {
+        const doc = s.modeSets.find(x => x.id === id);
         if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };
         const newModes = doc.modes.map(ms => createMode({
           enabled: ms.enabled,
@@ -346,11 +346,11 @@ export const useAppStore = create<AppState>()(
         }
         return { modes: newModes, fingerOwner: newFingerOwner };
       }),
-      renameSet: (id: string, name: string) => set(s => ({
-        sets: s.sets.map(d => (d.id === id ? { ...d, name } : d)),
+      renameModeSet: (id: string, name: string) => set(s => ({
+        modeSets: s.modeSets.map(d => (d.id === id ? { ...d, name } : d)),
       })),
-      removeSet: (id: string) => set(s => ({
-        sets: s.sets.filter(d => d.id !== id),
+      removeModeSet: (id: string) => set(s => ({
+        modeSets: s.modeSets.filter(d => d.id !== id),
       })),
 
       connect: async () => {

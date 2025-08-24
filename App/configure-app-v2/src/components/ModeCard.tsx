@@ -3,15 +3,15 @@ import { HexColorPicker } from 'react-colorful';
 
 import { WaveformMini } from '@/components/WaveformMini';
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
-import { useAppStore, type Mode } from '@/lib/store';
+import { useAppStore, type ModeCard as ModeModel } from '@/lib/store';
 
-export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showFingerOptions?: boolean }) {
+export function ModeCard({ mode, showFingerOptions = true }: { mode: ModeModel; showFingerOptions?: boolean }) {
   const owner = useAppStore(s => s.fingerOwner);
   const setColor = useAppStore(s => s.setColor);
   const selectAll = useAppStore(s => s.selectAll);
   const assign = useAppStore(s => s.assignFinger);
   const unassign = useAppStore(s => s.unassignFinger);
-  const remove = useAppStore(s => s.removeMode);
+  const remove = useAppStore(s => s.removeModeCard);
 
   const waveforms = useAppStore(s => s.waveforms);
   const setWaveform = useAppStore(s => s.setWaveform);
