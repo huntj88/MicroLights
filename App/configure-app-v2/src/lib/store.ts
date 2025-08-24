@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import { ALL_FINGERS, type Finger, type Hand } from './fingers';
+import { ALL_FINGERS, type Finger } from './fingers';
 import type { Waveform } from './waveform';
 
 // Allowed accelerometer threshold values
@@ -12,8 +12,6 @@ export type Mode = {
   id: string;
   color: string; // hex
   waveformId?: string;
-  fingers: Set<Finger>;
-  ui: { collapsed: boolean };
   accel?: {
     triggers: Array<{
       threshold: number;
@@ -38,7 +36,6 @@ export type AppState = {
   modes: Mode[];
   fingerOwner: Record<Finger, string | null>; // modeId or null
   connected: boolean;
-  deviceInfo?: { name?: string } | null;
 
   waveforms: WaveformDoc[];
   modeSets: ModeSet[];
@@ -48,9 +45,7 @@ export type AppState = {
 
   // actions
   addMode: (partial?: Partial<Mode>) => string;
-  duplicateMode: (modeId: string) => string;
   removeMode: (modeId: string) => void;
-  reorderModes: (from: number, to: number) => void;
 
   // theme actions
   setThemePreference: (pref: 'system' | 'light' | 'dark') => void;
@@ -58,7 +53,6 @@ export type AppState = {
   assignFinger: (modeId: string, finger: Finger) => void;
   unassignFinger: (modeId: string, finger: Finger) => void;
   selectAll: (modeId: string) => void;
-  selectHand: (modeId: string, hand: Hand) => void;
 
   setWaveform: (modeId: string, waveformId?: string) => void;
   setColor: (modeId: string, hex: string) => void;
@@ -69,8 +63,6 @@ export type AppState = {
   setAccelTriggerThreshold: (modeId: string, index: number, threshold: number) => void;
   setAccelTriggerWaveform: (modeId: string, index: number, waveformId?: string) => void;
 
-  collapseMode: (modeId: string, collapsed: boolean) => void;
-
   addWaveform: (wf: Waveform) => string;
   updateWaveform: (id: string, wf: Partial<Waveform>) => void;
   removeWaveform: (id: string) => void;
@@ -80,7 +72,6 @@ export type AppState = {
   saveCurrentModeSet: (name: string) => string; // returns set id
   updateModeSet: (id: string, name?: string) => void; // overwrite existing set with current state
   loadModeSet: (id: string) => void;
-  renameModeSet: (id: string, name: string) => void;
   removeModeSet: (id: string) => void;
 
   connect: () => Promise<void>;
@@ -94,8 +85,6 @@ const createEmptyOwner = (): Record<Finger, string | null> =>
 const createMode = (partial?: Partial<Mode>): Mode => ({
   id: nanoid(6),
   color: '#60a5fa',
-  fingers: new Set(),
-  ui: { collapsed: false },
   accel: { triggers: [] },
   ...partial,
 });
@@ -106,7 +95,6 @@ export const useAppStore = create<AppState>()(
       modes: [createMode()],
       fingerOwner: createEmptyOwner(),
       connected: false,
-      deviceInfo: null,
 
       // default to system theme; AppShell computes actual dark/light
       theme: 'system',
@@ -130,18 +118,6 @@ export const useAppStore = create<AppState>()(
         set(s => ({ modes: [...s.modes, mode] }));
         return mode.id;
       },
-      duplicateMode: modeId => {
-        const src = get().modes.find(m => m.id === modeId);
-        if (!src) return '';
-        const copy = createMode({
-          color: src.color,
-          waveformId: src.waveformId,
-          accel: src.accel ? { triggers: src.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
-        });
-        // Fingers are not copied by default to avoid conflicts
-        set(s => ({ modes: [...s.modes, copy] }));
-        return copy.id;
-      },
       removeMode: modeId => {
         set(s => ({
           modes: s.modes.filter(m => m.id !== modeId),
@@ -150,12 +126,6 @@ export const useAppStore = create<AppState>()(
           ) as Record<Finger, string | null>,
         }));
       },
-      reorderModes: (from, to) => set(s => {
-        const arr = [...s.modes];
-        const [item] = arr.splice(from, 1);
-        arr.splice(to, 0, item);
-        return { modes: arr };
-      }),
 
       // theme
       setThemePreference: (pref) => set(() => ({ theme: pref })),
@@ -176,11 +146,6 @@ export const useAppStore = create<AppState>()(
       selectAll: modeId => set(s => {
         const next = { ...s.fingerOwner };
         for (const f of ALL_FINGERS) next[f] = modeId;
-        return { fingerOwner: next };
-      }),
-      selectHand: (modeId, hand) => set(s => {
-        const next = { ...s.fingerOwner };
-        for (const f of ALL_FINGERS) if (f.startsWith(hand)) next[f] = modeId;
         return { fingerOwner: next };
       }),
 
@@ -245,10 +210,6 @@ export const useAppStore = create<AppState>()(
           const next = acc.triggers.map((t, i) => (i === index ? { ...t, waveformId } : t));
           return { ...m, accel: { ...acc, triggers: next } };
         })
-      })),
-
-      collapseMode: (modeId, collapsed) => set(s => ({
-        modes: s.modes.map(m => (m.id === modeId ? { ...m, ui: { ...m.ui, collapsed } } : m)),
       })),
 
       addWaveform: wf => {
@@ -331,19 +292,15 @@ export const useAppStore = create<AppState>()(
         }
         return { modes: newModes, fingerOwner: newFingerOwner };
       }),
-      renameModeSet: (id: string, name: string) => set(s => ({
-        modeSets: s.modeSets.map(d => (d.id === id ? { ...d, name } : d)),
-      })),
       removeModeSet: (id: string) => set(s => ({
         modeSets: s.modeSets.filter(d => d.id !== id),
       })),
 
       connect: async () => {
-        // Mock client
-        set({ connected: true, deviceInfo: { name: 'Mock Device' } });
+        set({ connected: true });
       },
       disconnect: async () => {
-        set({ connected: false, deviceInfo: null });
+        set({ connected: false });
       },
       send: async () => {
         const s = get();
