@@ -132,14 +132,15 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                   const allowedAfterPrev = prevThresh == null ? ALLOWED : ALLOWED.filter(v => v > prevThresh);
                   return (
                     <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-                      <div className="text-xs text-slate-400">Threshold</div>
+                      <div className="text-xs text-slate-400">Threshold (× g)</div>
                       <select
                         value={t.threshold}
                         onChange={e => setAccelTriggerThreshold(mode.id, i, Number(e.target.value))}
                         className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+                        aria-label="Acceleration threshold in multiples of g"
                       >
                         {allowedAfterPrev.map(v => (
-                          <option key={v} value={v}>{v}</option>
+                          <option key={v} value={v}>{`${v} g`}</option>
                         ))}
                       </select>
                       <button
