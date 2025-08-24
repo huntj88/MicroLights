@@ -3,15 +3,15 @@ import { HexColorPicker } from 'react-colorful';
 
 import { WaveformMini } from '@/components/WaveformMini';
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
-import { useAppStore, type ModeCard as ModeModel } from '@/lib/store';
+import { useAppStore, type Mode } from '@/lib/store';
 
-export function ModeCard({ mode, showFingerOptions = true }: { mode: ModeModel; showFingerOptions?: boolean }) {
+export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showFingerOptions?: boolean }) {
   const owner = useAppStore(s => s.fingerOwner);
   const setColor = useAppStore(s => s.setColor);
   const selectAll = useAppStore(s => s.selectAll);
   const assign = useAppStore(s => s.assignFinger);
   const unassign = useAppStore(s => s.unassignFinger);
-  const remove = useAppStore(s => s.removeModeCard);
+  const remove = useAppStore(s => s.removeMode);
 
   const waveforms = useAppStore(s => s.waveforms);
   const setWaveform = useAppStore(s => s.setWaveform);
@@ -25,6 +25,10 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: ModeModel; 
   const setAccelTriggerWaveform = useAppStore(s => s.setAccelTriggerWaveform);
 
   const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
+
+  // Type-safe triggers list
+  type Trigger = NonNullable<Mode['accel']>['triggers'][number];
+  const triggers: Trigger[] = mode.accel?.triggers ?? [];
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
@@ -123,12 +127,12 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: ModeModel; 
               <div className="text-xs uppercase tracking-wide text-slate-400">Accelerometer</div>
             </div>
 
-            {(mode.accel?.triggers?.length ?? 0) > 0 && (
+            {triggers.length > 0 && (
               <div className="mt-2 space-y-2">
-                {(mode.accel?.triggers ?? []).map((t, i) => {
+                {triggers.map((t, i) => {
                   const accelWf = t.waveformId ? waveforms.find(w => w.id === t.waveformId) ?? null : null;
                   const ALLOWED = [2, 4, 8, 12, 16];
-                  const prevThresh = i > 0 ? mode.accel?.triggers?.[i - 1]?.threshold : undefined;
+                  const prevThresh = i > 0 ? triggers[i - 1]?.threshold : undefined;
                   const allowedAfterPrev = prevThresh == null ? ALLOWED : ALLOWED.filter(v => v > prevThresh);
                   return (
                     <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
@@ -178,7 +182,7 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: ModeModel; 
               </div>
             )}
 
-            {(mode.accel?.triggers?.length ?? 0) < 2 && (
+            {triggers.length < 2 && (
               <div className="mt-2">
                 <button
                   className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
