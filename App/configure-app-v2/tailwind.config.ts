@@ -7,13 +7,13 @@ export default {
     extend: {
       colors: {
         bg: {
-          DEFAULT: '#0f172a',
-          card: '#111827',
+          DEFAULT: 'rgb(var(--bg) / <alpha-value>)',
+          card: 'rgb(var(--bg-card) / <alpha-value>)',
         },
         fg: {
-          DEFAULT: '#e2e8f0',
-          muted: '#94a3b8',
-          ring: '#60a5fa',
+          DEFAULT: 'rgb(var(--fg) / <alpha-value>)',
+          muted: 'rgb(var(--fg-muted) / <alpha-value>)',
+          ring: 'rgb(var(--fg-ring) / <alpha-value>)',
         },
       },
       borderRadius: {

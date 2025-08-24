@@ -45,12 +45,18 @@ export type AppState = {
   waveforms: WaveformDoc[];
   sets: SetDoc[];
 
+  // UI settings
+  theme: 'system' | 'light' | 'dark';
+
   // actions
   addMode: (partial?: Partial<Mode>) => string;
   duplicateMode: (modeId: string) => string;
   removeMode: (modeId: string) => void;
   toggleMode: (modeId: string, enabled?: boolean) => void;
   reorderModes: (from: number, to: number) => void;
+
+  // theme actions
+  setThemePreference: (pref: 'system' | 'light' | 'dark') => void;
 
   assignFinger: (modeId: string, finger: Finger) => void;
   unassignFinger: (modeId: string, finger: Finger) => void;
@@ -107,6 +113,9 @@ export const useAppStore = create<AppState>()(
       connected: false,
       deviceInfo: null,
 
+      // default to system theme; AppShell computes actual dark/light
+      theme: 'system',
+
       waveforms: [
         {
           id: nanoid(6),
@@ -156,6 +165,9 @@ export const useAppStore = create<AppState>()(
         arr.splice(to, 0, item);
         return { modes: arr };
       }),
+
+      // theme
+      setThemePreference: (pref) => set(() => ({ theme: pref })),
 
       assignFinger: (modeId, finger) => set(s => {
         const nextOwner = { ...s.fingerOwner };

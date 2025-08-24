@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import CreateMode from './pages/CreateMode';
 import CreateWave from './pages/CreateWave';
+import Settings from './pages/Settings';
 
 function Placeholder({ title }: { title: string }) {
   return (
@@ -25,7 +26,7 @@ export function App() {
           </Route>
           <Route path="browse" element={<Placeholder title="Browse" />} />
           <Route path="program" element={<Placeholder title="Program" />} />
-          <Route path="theme" element={<Placeholder title="Theme" />} />
+          <Route path="settings" element={<Settings />} />
           <Route path="docs" element={<Placeholder title="Docs" />} />
           <Route path="examples" element={<Placeholder title="Examples" />} />
           <Route path="*" element={<Navigate to="/create/mode" replace />} />

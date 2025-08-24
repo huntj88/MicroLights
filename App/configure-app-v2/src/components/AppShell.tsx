@@ -1,7 +1,24 @@
+import { useEffect } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
+import { useAppStore } from '@/lib/store';
+
 export function AppShell() {
+  const pref = useAppStore(s => s.theme);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const apply = () => {
+      const wantsDark = pref === 'dark' || (pref === 'system' && mq.matches);
+      document.documentElement.classList.toggle('dark', wantsDark);
+    };
+    apply();
+    const onChange = () => apply();
+    mq.addEventListener?.('change', onChange);
+    return () => mq.removeEventListener?.('change', onChange);
+  }, [pref]);
+
   return (
     <div className="min-h-screen bg-bg text-fg">
       <div className="flex">
@@ -21,7 +38,7 @@ export function AppShell() {
               <SidebarLink to="/program">Program</SidebarLink>
             </Section>
             <Section title="Extra">
-              <SidebarLink to="/theme">Theme</SidebarLink>
+              <SidebarLink to="/settings">Settings</SidebarLink>
               <SidebarLink to="/docs">Documentation</SidebarLink>
               <SidebarLink to="/examples">Examples</SidebarLink>
             </Section>
