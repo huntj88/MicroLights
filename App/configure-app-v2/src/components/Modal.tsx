@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type ModalProps = {
   open: boolean;
@@ -10,6 +11,7 @@ type ModalProps = {
 };
 
 export function Modal({ open, title, onClose, children, footer, size = 'md' }: ModalProps) {
+  const { t } = useTranslation();
   if (!open) return null;
   const maxW = size === 'sm' ? 'max-w-md' : size === 'lg' ? 'max-w-4xl' : 'max-w-2xl';
   return (
@@ -22,10 +24,10 @@ export function Modal({ open, title, onClose, children, footer, size = 'md' }: M
           <div className="font-semibold">{title}</div>
           <button
             className="px-2 py-1 rounded hover:bg-slate-700/40 text-slate-300"
-            aria-label="Close"
+            aria-label={t('close')}
             onClick={onClose}
           >
-            ✕
+            ×
           </button>
         </div>
         <div className="p-4">{children}</div>

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { ModeCard } from '@/components/ModeCard';
 import { useAppStore } from '@/lib/store';
 
 export default function CreateMode() {
+  const { t } = useTranslation();
   const modes = useAppStore(s => s.modes);
   const connected = useAppStore(s => s.connected);
   const modeSets = useAppStore(s => s.modeSets);
@@ -45,7 +47,7 @@ export default function CreateMode() {
         // avoid toast spam on initial load
       } else {
         // no modeset yet; make sure draft has a sensible default name
-        setDraftName('New Mode');
+  setDraftName(t('newMode'));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,7 +56,7 @@ export default function CreateMode() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Create / Mode</h1>
+  <h1 className="text-2xl font-semibold">{t('createModeTitle')}</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 mr-4">
             {/* Name input moved below header to align with Waveform page */}
@@ -71,7 +73,7 @@ export default function CreateMode() {
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
               <option value="" disabled={!!selectedSetId}>
-                (Unsaved Draft)
+                {t('unsavedDraft')}
               </option>
               {modeSets.map(s => (
                 <option key={s.id} value={s.id}>
@@ -88,14 +90,14 @@ export default function CreateMode() {
               }}
               className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
             >
-              New Draft
+              {t('newDraft')}
             </button>
             {selectedSet && (
               <button
                 type="button"
                 onClick={() => {
                   if (!selectedSetId) return;
-                  if (confirm('Delete this mode?')) {
+                  if (confirm(t('confirmDeleteMode'))) {
                     removeModeSet(selectedSetId);
                     setSelectedSetId('');
                     newModeSetDraft();
@@ -104,24 +106,24 @@ export default function CreateMode() {
                 }}
                 className="px-3 py-1.5 rounded bg-red-600 hover:bg-red-500 text-white"
               >
-                Delete
+                {t('delete')}
               </button>
             )}
             <button
               type="button"
               onClick={() => {
                 if (selectedSet) {
-                  updateModeSet(selectedSet.id, draftName.trim() || selectedSet.name);
-                  toast.success('Mode saved');
+          updateModeSet(selectedSet.id, draftName.trim() || selectedSet.name);
+          toast.success(t('modeSaved'));
                 } else {
                   const id = saveCurrentModeSet(draftName);
                   setSelectedSetId(id);
-                  toast.success('Added to Library');
+          toast.success(t('addedToLibrary'));
                 }
               }}
               className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
             >
-              {selectedSet ? 'Save' : 'Add to Library'}
+        {selectedSet ? t('save') : t('addToLibrary')}
             </button>
           </div>
 
@@ -130,24 +132,24 @@ export default function CreateMode() {
             onClick={() => (connected ? disconnect() : connect())}
             className={`px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white`}
           >
-            {connected ? 'Disconnect' : 'Connect'}
+            {connected ? t('disconnect') : t('connect')}
           </button>
           <button
             type="button"
             onClick={async () => {
               await send();
-              toast.success('Program sent');
+              toast.success(t('programSent'));
             }}
             className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
           >
-            Send
+            {t('send')}
           </button>
         </div>
       </div>
 
       {/* Name row aligned like Waveform page */}
       <div className="flex items-center gap-2">
-        <label className="text-sm">Name</label>
+  <label className="text-sm">{t('name')}</label>
         <input
           value={draftName}
           onChange={e => setDraftName(e.target.value)}
@@ -156,18 +158,12 @@ export default function CreateMode() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="text-xs text-slate-400">
-          Tip: Save the current configuration as a Mode, or load an existing Mode to edit and save
-          changes.
-        </div>
+  <div className="text-xs text-slate-400">{t('tip')} {t('tipModeSave')}</div>
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="text-xs text-slate-400">
-          Tip:{' '}
-          {modes.length > 1
-            ? 'Finger-specific options are shown below for each Mode Card.'
-            : 'Add another Mode Card to reveal finger-specific options.'}
+        <div className="text-xs text-slate-400">{t('tip')}{' '}
+          {modes.length > 1 ? t('modeCardTipPlural') : t('modeCardTipSingle')}
         </div>
       </div>
 
@@ -180,9 +176,9 @@ export default function CreateMode() {
           disabled={!canAdd}
           onClick={() => addMode()}
           className={`rounded-xl border border-slate-700/50 bg-bg-card p-4 flex items-center justify-center text-sm ${canAdd ? 'hover:bg-slate-700/40 text-white' : 'opacity-50 cursor-not-allowed text-slate-400'}`}
-          title={canAdd ? 'Add a new Mode' : 'Maximum number of Modes reached'}
+          title={canAdd ? t('addNewMode') : t('maxModesReached')}
         >
-          + Add Mode Card
+          {t('addModeCard')}
         </button>
       </div>
     </div>

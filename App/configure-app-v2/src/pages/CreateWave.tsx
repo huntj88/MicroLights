@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
 import { WaveformEditor } from '@/components/WaveformEditor';
@@ -17,6 +18,7 @@ const initial: Waveform = {
 };
 
 export default function CreateWave() {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const waveforms = useAppStore(s => s.waveforms);
   const addWaveform = useAppStore(s => s.addWaveform);
@@ -39,7 +41,7 @@ export default function CreateWave() {
 
   function newDraft() {
     setSelectedId('');
-    setDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+  setDraft({ name: t('newWave'), totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
   }
 
   // If a ?select=ID param is present, select and load that waveform
@@ -58,7 +60,7 @@ export default function CreateWave() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <h1 className="text-2xl font-semibold">Create / Wave</h1>
+  <h1 className="text-2xl font-semibold">{t('createWaveTitle')}</h1>
         <div className="ml-auto flex items-center gap-2">
           <select
             value={selectedId}
@@ -74,7 +76,7 @@ export default function CreateWave() {
             }}
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           >
-            <option value="">(Unsaved Draft)</option>
+            <option value="">{t('unsavedDraft')}</option>
             {waveforms.map(w => (
               <option key={w.id} value={w.id}>
                 {w.name}
@@ -85,7 +87,7 @@ export default function CreateWave() {
             className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
             onClick={newDraft}
           >
-            New Draft
+            {t('newDraft')}
           </button>
           {selected && (
             <button
@@ -95,26 +97,26 @@ export default function CreateWave() {
                 newDraft();
               }}
             >
-              Delete
+              {t('delete')}
             </button>
           )}
           <button
             className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
             onClick={saveToLibrary}
           >
-            {selected ? 'Save' : 'Add to Library'}
+            {selected ? t('save') : t('addToLibrary')}
           </button>
         </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <label className="text-sm">Name</label>
+  <label className="text-sm">{t('name')}</label>
         <input
           value={draft.name}
           onChange={e => setDraft({ ...draft, name: e.target.value })}
           className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
         />
-        <label className="text-sm ml-4">Total Ticks</label>
+  <label className="text-sm ml-4">{t('totalTicks')}</label>
         <input
           type="number"
           min={2}

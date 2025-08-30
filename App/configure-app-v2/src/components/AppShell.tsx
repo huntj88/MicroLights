@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { Toaster } from 'sonner';
 
 import { useAppStore } from '@/lib/store';
 
 export function AppShell() {
+  const { t } = useTranslation();
   const pref = useAppStore(s => s.theme);
 
   useEffect(() => {
@@ -24,23 +26,23 @@ export function AppShell() {
       <div className="flex">
         <aside className="w-64 bg-bg-card border-r border-slate-700/50 min-h-screen p-4">
           <div className="font-semibold text-lg mb-4">
-            <Link to="/">BulbChips</Link>
+            <Link to="/">{t('appName')}</Link>
           </div>
           <nav className="space-y-1 text-fg-muted">
-            <Section title="Create">
-              <SidebarLink to="/create/mode">Mode</SidebarLink>
-              <SidebarLink to="/create/wave">Wave</SidebarLink>
+            <Section title={t('create')}>
+              <SidebarLink to="/create/mode">{t('mode')}</SidebarLink>
+              <SidebarLink to="/create/wave">{t('wave')}</SidebarLink>
             </Section>
-            <Section title="Browse">
-              <SidebarLink to="/browse">Browse</SidebarLink>
+            <Section title={t('browse')}>
+              <SidebarLink to="/browse">{t('browse')}</SidebarLink>
             </Section>
-            <Section title="Program">
-              <SidebarLink to="/program">Program</SidebarLink>
+            <Section title={t('program')}>
+              <SidebarLink to="/program">{t('program')}</SidebarLink>
             </Section>
-            <Section title="Extra">
-              <SidebarLink to="/settings">Settings</SidebarLink>
-              <SidebarLink to="/docs">Documentation</SidebarLink>
-              <SidebarLink to="/examples">Examples</SidebarLink>
+            <Section title={t('extra')}>
+              <SidebarLink to="/settings">{t('settings')}</SidebarLink>
+              <SidebarLink to="/docs">{t('docs')}</SidebarLink>
+              <SidebarLink to="/examples">{t('examples')}</SidebarLink>
             </Section>
           </nav>
         </aside>
