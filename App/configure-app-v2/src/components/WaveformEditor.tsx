@@ -1,7 +1,13 @@
 import { useRef, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { zWaveform, type Waveform, type WavePoint, toSegments, type WaveOutput } from '@/lib/waveform';
+import {
+  zWaveform,
+  type Waveform,
+  type WavePoint,
+  toSegments,
+  type WaveOutput,
+} from '@/lib/waveform';
 
 type Props = {
   value: Waveform;
@@ -66,12 +72,17 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   // helper to clamp a tick for the dragged index between its neighbors
-  function clampTickForIndex(points: WavePoint[], idx: number, tick: number, totalTicks: number): number {
+  function clampTickForIndex(
+    points: WavePoint[],
+    idx: number,
+    tick: number,
+    totalTicks: number,
+  ): number {
     if (idx === 0) return 0; // first marker must stay at 0
     const prevTick = points[idx - 1]?.tick ?? 0;
     const nextTick = points[idx + 1]?.tick ?? totalTicks; // if last, allow up to totalTicks - 1
     const min = prevTick + 1;
-    const max = (idx === points.length - 1 ? totalTicks - 1 : nextTick - 1);
+    const max = idx === points.length - 1 ? totalTicks - 1 : nextTick - 1;
     return Math.max(min, Math.min(max, tick));
   }
 
@@ -91,7 +102,9 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     // clamp the dragged point between neighbors so others do not move
     tick = clampTickForIndex(value.changeAt, dragIndex, tick, value.totalTicks);
 
-    const next: WavePoint[] = value.changeAt.map((p, i) => (i === dragIndex ? { tick, output } : p));
+    const next: WavePoint[] = value.changeAt.map((p, i) =>
+      i === dragIndex ? { tick, output } : p,
+    );
 
     // update local preview only; commit on pointer up
     setDragPreview(next);
@@ -223,7 +236,14 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
           >
             {/* grid */}
             <g>
-              <line x1={12} y1={height / 2} x2="100%" y2={height / 2} stroke="#334155" strokeDasharray="4 4" />
+              <line
+                x1={12}
+                y1={height / 2}
+                x2="100%"
+                y2={height / 2}
+                stroke="#334155"
+                strokeDasharray="4 4"
+              />
             </g>
 
             {/* waveform */}
@@ -247,10 +267,14 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
               return (
                 <g
                   key={i}
-                  onPointerDown={(e) => onPointerDown(e, i)}
+                  onPointerDown={e => onPointerDown(e, i)}
                   onPointerMove={onMarkerPointerMove}
                   onPointerUp={onMarkerPointerUp}
-                  onDoubleClick={(e) => { e.stopPropagation(); e.preventDefault(); removeMarker(i); }}
+                  onDoubleClick={e => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    removeMarker(i);
+                  }}
                   style={{ cursor: 'grab' }}
                 >
                   <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
@@ -266,14 +290,23 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
 
       {/* hint */}
       <div className="text-xs text-slate-400">
-        Tip: Click the timeline to add a marker (above center = high, below = low). Drag to move. Double-click a marker to delete. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
+        Tip: Click the timeline to add a marker (above center = high, below = low). Drag to move.
+        Double-click a marker to delete. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
       </div>
 
       <div className="flex flex-wrap gap-2 items-center">
-        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={undo} disabled={past.length === 0}>
+        <button
+          className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
+          onClick={undo}
+          disabled={past.length === 0}
+        >
           Undo
         </button>
-        <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={redo} disabled={future.length === 0}>
+        <button
+          className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
+          onClick={redo}
+          disabled={future.length === 0}
+        >
           Redo
         </button>
       </div>

@@ -16,7 +16,7 @@ export type Mode = {
   accel?: {
     triggers: Array<{
       threshold: number;
-  color?: string; // hex; defaults to mode color if missing (migrated data)
+      color?: string; // hex; defaults to mode color if missing (migrated data)
       waveformId?: string;
     }>;
   };
@@ -126,8 +126,8 @@ export const useAppStore = create<AppState>()(
         },
       ],
 
-  modeSets: [],
-  lastSelectedModeSetId: null,
+      modeSets: [],
+      lastSelectedModeSetId: null,
 
       addMode: partial => {
         const mode = createMode({ ...partial });
@@ -138,130 +138,157 @@ export const useAppStore = create<AppState>()(
         set(s => ({
           modes: s.modes.filter(m => m.id !== modeId),
           fingerOwner: Object.fromEntries(
-            Object.entries(s.fingerOwner).map(([f, owner]) => [f, owner === modeId ? null : owner])
+            Object.entries(s.fingerOwner).map(([f, owner]) => [f, owner === modeId ? null : owner]),
           ) as Record<Finger, string | null>,
         }));
       },
 
       // theme
-      setThemePreference: (pref) => set(() => ({ theme: pref })),
+      setThemePreference: pref => set(() => ({ theme: pref })),
 
-      assignFinger: (modeId, finger) => set(s => {
-        const nextOwner = { ...s.fingerOwner };
-        // Unassign from previous owner if any
-        if (nextOwner[finger] && nextOwner[finger] !== modeId) {
-          nextOwner[finger] = null;
-        }
-        nextOwner[finger] = modeId;
-        return { fingerOwner: nextOwner };
-      }),
-      unassignFinger: (modeId, finger) => set(s => {
-        if (s.fingerOwner[finger] !== modeId) return { fingerOwner: s.fingerOwner };
-        return { fingerOwner: { ...s.fingerOwner, [finger]: null } };
-      }),
-      selectAll: modeId => set(s => {
-        const next = { ...s.fingerOwner };
-        for (const f of ALL_FINGERS) next[f] = modeId;
-        return { fingerOwner: next };
-      }),
+      assignFinger: (modeId, finger) =>
+        set(s => {
+          const nextOwner = { ...s.fingerOwner };
+          // Unassign from previous owner if any
+          if (nextOwner[finger] && nextOwner[finger] !== modeId) {
+            nextOwner[finger] = null;
+          }
+          nextOwner[finger] = modeId;
+          return { fingerOwner: nextOwner };
+        }),
+      unassignFinger: (modeId, finger) =>
+        set(s => {
+          if (s.fingerOwner[finger] !== modeId) return { fingerOwner: s.fingerOwner };
+          return { fingerOwner: { ...s.fingerOwner, [finger]: null } };
+        }),
+      selectAll: modeId =>
+        set(s => {
+          const next = { ...s.fingerOwner };
+          for (const f of ALL_FINGERS) next[f] = modeId;
+          return { fingerOwner: next };
+        }),
 
-      setWaveform: (modeId, waveformId) => set(s => ({
-        modes: s.modes.map(m => (m.id === modeId ? { ...m, waveformId } : m)),
-      })),
-      setColor: (modeId, hex) => set(s => ({
-        modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
-      })),
+      setWaveform: (modeId, waveformId) =>
+        set(s => ({
+          modes: s.modes.map(m => (m.id === modeId ? { ...m, waveformId } : m)),
+        })),
+      setColor: (modeId, hex) =>
+        set(s => ({
+          modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
+        })),
       // case light enablement is inferred: color === '#000000' means disabled
 
       // accelerometer
-      addAccelTrigger: (modeId) => set(s => ({
-        modes: s.modes.map(m => {
-          if (m.id !== modeId) return m;
-          const acc = m.accel ?? { triggers: [] };
-          if (acc.triggers.length >= 2) return m;
-          const prev = acc.triggers[acc.triggers.length - 1];
-          const nextAllowed = prev
-            ? ALLOWED_THRESHOLDS.find(v => v > prev.threshold)
-            : ALLOWED_THRESHOLDS[0];
-          if (nextAllowed == null) return m; // no valid higher threshold available
-          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: nextAllowed, color: m.color, waveformId: undefined }] } };
-        })
-      })),
-      removeAccelTrigger: (modeId, index) => set(s => ({
-        modes: s.modes.map(m => {
-          if (m.id !== modeId) return m;
-          const acc = m.accel ?? { triggers: [] };
-          const next = acc.triggers.filter((_, i) => i !== index);
-          return { ...m, accel: { ...acc, triggers: next } };
-        })
-      })),
-      setAccelTriggerThreshold: (modeId, index, threshold) => set(s => ({
-        modes: s.modes.map(m => {
-          if (m.id !== modeId) return m;
-          const acc = m.accel ?? { triggers: [] };
-          const prev = index > 0 ? acc.triggers[index - 1]?.threshold : undefined;
-          const allowedAfterPrev = prev == null ? [...ALLOWED_THRESHOLDS] : ALLOWED_THRESHOLDS.filter(v => v > prev);
-          if (allowedAfterPrev.length === 0) return m; // nothing valid, keep as is
-          const candidate = Number(threshold);
-          const arr = allowedAfterPrev as ReadonlyArray<number>;
-          const chosen = arr.includes(candidate) ? candidate : arr[0];
+      addAccelTrigger: modeId =>
+        set(s => ({
+          modes: s.modes.map(m => {
+            if (m.id !== modeId) return m;
+            const acc = m.accel ?? { triggers: [] };
+            if (acc.triggers.length >= 2) return m;
+            const prev = acc.triggers[acc.triggers.length - 1];
+            const nextAllowed = prev
+              ? ALLOWED_THRESHOLDS.find(v => v > prev.threshold)
+              : ALLOWED_THRESHOLDS[0];
+            if (nextAllowed == null) return m; // no valid higher threshold available
+            return {
+              ...m,
+              accel: {
+                ...acc,
+                triggers: [
+                  ...acc.triggers,
+                  { threshold: nextAllowed, color: m.color, waveformId: undefined },
+                ],
+              },
+            };
+          }),
+        })),
+      removeAccelTrigger: (modeId, index) =>
+        set(s => ({
+          modes: s.modes.map(m => {
+            if (m.id !== modeId) return m;
+            const acc = m.accel ?? { triggers: [] };
+            const next = acc.triggers.filter((_, i) => i !== index);
+            return { ...m, accel: { ...acc, triggers: next } };
+          }),
+        })),
+      setAccelTriggerThreshold: (modeId, index, threshold) =>
+        set(s => ({
+          modes: s.modes.map(m => {
+            if (m.id !== modeId) return m;
+            const acc = m.accel ?? { triggers: [] };
+            const prev = index > 0 ? acc.triggers[index - 1]?.threshold : undefined;
+            const allowedAfterPrev =
+              prev == null ? [...ALLOWED_THRESHOLDS] : ALLOWED_THRESHOLDS.filter(v => v > prev);
+            if (allowedAfterPrev.length === 0) return m; // nothing valid, keep as is
+            const candidate = Number(threshold);
+            const arr = allowedAfterPrev as ReadonlyArray<number>;
+            const chosen = arr.includes(candidate) ? candidate : arr[0];
 
-          // set current and then cascade forward to keep strictly increasing using allowed list
-          const next = acc.triggers.map((curr, i) => (i === index ? { ...curr, threshold: chosen } : { ...curr }));
-          for (let j = index + 1; j < next.length; j++) {
-            const prevT = next[j - 1].threshold;
-            const nextAllowed = ALLOWED_THRESHOLDS.find(v => v > prevT);
-            if (nextAllowed == null) {
-              next.splice(j); // trim trailing invalid triggers
-              break;
+            // set current and then cascade forward to keep strictly increasing using allowed list
+            const next = acc.triggers.map((curr, i) =>
+              i === index ? { ...curr, threshold: chosen } : { ...curr },
+            );
+            for (let j = index + 1; j < next.length; j++) {
+              const prevT = next[j - 1].threshold;
+              const nextAllowed = ALLOWED_THRESHOLDS.find(v => v > prevT);
+              if (nextAllowed == null) {
+                next.splice(j); // trim trailing invalid triggers
+                break;
+              }
+              if (next[j].threshold <= prevT) next[j].threshold = nextAllowed;
             }
-            if (next[j].threshold <= prevT) next[j].threshold = nextAllowed;
-          }
-           return { ...m, accel: { ...acc, triggers: next } };
-        })
-      })),
-      setAccelTriggerWaveform: (modeId, index, waveformId) => set(s => ({
-        modes: s.modes.map(m => {
-          if (m.id !== modeId) return m;
-          const acc = m.accel ?? { triggers: [] };
-          const next = acc.triggers.map((t, i) => (i === index ? { ...t, waveformId } : t));
-          return { ...m, accel: { ...acc, triggers: next } };
-        })
-      })),
-      setAccelTriggerColor: (modeId, index, color) => set(s => ({
-        modes: s.modes.map(m => {
-          if (m.id !== modeId) return m;
-          const acc = m.accel ?? { triggers: [] };
-          const next = acc.triggers.map((t, i) => (i === index ? { ...t, color } : t));
-          return { ...m, accel: { ...acc, triggers: next } };
-        })
-      })),
+            return { ...m, accel: { ...acc, triggers: next } };
+          }),
+        })),
+      setAccelTriggerWaveform: (modeId, index, waveformId) =>
+        set(s => ({
+          modes: s.modes.map(m => {
+            if (m.id !== modeId) return m;
+            const acc = m.accel ?? { triggers: [] };
+            const next = acc.triggers.map((t, i) => (i === index ? { ...t, waveformId } : t));
+            return { ...m, accel: { ...acc, triggers: next } };
+          }),
+        })),
+      setAccelTriggerColor: (modeId, index, color) =>
+        set(s => ({
+          modes: s.modes.map(m => {
+            if (m.id !== modeId) return m;
+            const acc = m.accel ?? { triggers: [] };
+            const next = acc.triggers.map((t, i) => (i === index ? { ...t, color } : t));
+            return { ...m, accel: { ...acc, triggers: next } };
+          }),
+        })),
 
       addWaveform: wf => {
         const id = nanoid(6);
         set(s => ({ waveforms: [...s.waveforms, { id, ...wf }] }));
         return id;
       },
-      updateWaveform: (id, wf) => set(s => ({
-        waveforms: s.waveforms.map(x => (x.id === id ? { ...x, ...wf } : x)),
-      })),
-      removeWaveform: id => set(s => ({
-        waveforms: s.waveforms.filter(x => x.id !== id),
-        modes: s.modes.map(m => {
-          const cleared = m.waveformId === id ? { ...m, waveformId: undefined } : m;
-          const acc = cleared.accel;
-          if (!acc) return cleared;
-          const nextTriggers = acc.triggers.map(t => (t.waveformId === id ? { ...t, waveformId: undefined } : t));
-          return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
-        }),
-      })),
+      updateWaveform: (id, wf) =>
+        set(s => ({
+          waveforms: s.waveforms.map(x => (x.id === id ? { ...x, ...wf } : x)),
+        })),
+      removeWaveform: id =>
+        set(s => ({
+          waveforms: s.waveforms.filter(x => x.id !== id),
+          modes: s.modes.map(m => {
+            const cleared = m.waveformId === id ? { ...m, waveformId: undefined } : m;
+            const acc = cleared.accel;
+            if (!acc) return cleared;
+            const nextTriggers = acc.triggers.map(t =>
+              t.waveformId === id ? { ...t, waveformId: undefined } : t,
+            );
+            return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
+          }),
+        })),
 
       // ModeSet library
-      newModeSetDraft: () => set(() => ({
-        modes: [createMode()],
-        fingerOwner: createEmptyOwner(),
-        lastSelectedModeSetId: null,
-      })),
+      newModeSetDraft: () =>
+        set(() => ({
+          modes: [createMode()],
+          fingerOwner: createEmptyOwner(),
+          lastSelectedModeSetId: null,
+        })),
       saveCurrentModeSet: (name: string) => {
         const s = get();
         const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
@@ -272,10 +299,18 @@ export const useAppStore = create<AppState>()(
         const indexById = new Map<string, number>();
         s.modes.forEach((m, i) => indexById.set(m.id, i));
         const fingerOwnerIndex = Object.fromEntries(
-          ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
+          ALL_FINGERS.map(f => [
+            f,
+            s.fingerOwner[f] ? (indexById.get(s.fingerOwner[f] as string) ?? null) : null,
+          ]),
         ) as Record<Finger, number | null>;
         const id = nanoid(6);
-        const doc: ModeSet = { id, name: name.trim() || `Set ${s.modeSets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
+        const doc: ModeSet = {
+          id,
+          name: name.trim() || `Set ${s.modeSets.length + 1}`,
+          modes: modesSnap,
+          fingerOwnerIndex,
+        };
         set(st => ({
           modeSets: [...st.modeSets, doc],
           modes: st.modes.map(m => ({ ...m, modeSetId: id })),
@@ -283,57 +318,70 @@ export const useAppStore = create<AppState>()(
         }));
         return id;
       },
-      updateModeSet: (id: string, name?: string) => set(s => {
-        const idx = s.modeSets.findIndex(x => x.id === id);
-        if (idx === -1) return { modeSets: s.modeSets };
-        const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
-          color: m.color,
-          waveformId: m.waveformId,
-          accel: m.accel ? { triggers: m.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
-        }));
-        const indexById = new Map<string, number>();
-        s.modes.forEach((m, i) => indexById.set(m.id, i));
-        const fingerOwnerIndex = Object.fromEntries(
-          ALL_FINGERS.map(f => [f, s.fingerOwner[f] ? indexById.get(s.fingerOwner[f] as string) ?? null : null])
-        ) as Record<Finger, number | null>;
-        const existing = s.modeSets[idx];
-        const updated: ModeSet = {
-          ...existing,
-          name: name != null ? name : existing.name,
-          modes: modesSnap,
-          fingerOwnerIndex,
-        };
-        const next = [...s.modeSets];
-        next[idx] = updated;
-        return { modeSets: next, lastSelectedModeSetId: id };
-      }),
-      loadModeSet: (id: string) => set(s => {
-        const doc = s.modeSets.find(x => x.id === id);
-        if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };
-        const newModes = doc.modes.map(ms => createMode({
-          modeSetId: id,
-          color: ms.color,
-          waveformId: ms.waveformId,
-          accel: ms.accel ? { triggers: ms.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
-        }));
-        const newFingerOwner: Record<Finger, string | null> = createEmptyOwner();
-        for (const f of ALL_FINGERS) {
-          const idx = doc.fingerOwnerIndex[f];
-          newFingerOwner[f] = idx == null ? null : newModes[idx]?.id ?? null;
-        }
-        return { modes: newModes, fingerOwner: newFingerOwner, lastSelectedModeSetId: id };
-      }),
-      removeModeSet: (id: string) => set(s => {
-        const nextSets = s.modeSets.filter(d => d.id !== id);
-        const nextSelected = s.lastSelectedModeSetId === id
-          ? (nextSets.length > 0 ? nextSets[nextSets.length - 1]!.id : null)
-          : s.lastSelectedModeSetId;
-        return {
-          modeSets: nextSets,
-          modes: s.modes.map(m => (m.modeSetId === id ? { ...m, modeSetId: null } : m)),
-          lastSelectedModeSetId: nextSelected,
-        };
-      }),
+      updateModeSet: (id: string, name?: string) =>
+        set(s => {
+          const idx = s.modeSets.findIndex(x => x.id === id);
+          if (idx === -1) return { modeSets: s.modeSets };
+          const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
+            color: m.color,
+            waveformId: m.waveformId,
+            accel: m.accel ? { triggers: m.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
+          }));
+          const indexById = new Map<string, number>();
+          s.modes.forEach((m, i) => indexById.set(m.id, i));
+          const fingerOwnerIndex = Object.fromEntries(
+            ALL_FINGERS.map(f => [
+              f,
+              s.fingerOwner[f] ? (indexById.get(s.fingerOwner[f] as string) ?? null) : null,
+            ]),
+          ) as Record<Finger, number | null>;
+          const existing = s.modeSets[idx];
+          const updated: ModeSet = {
+            ...existing,
+            name: name != null ? name : existing.name,
+            modes: modesSnap,
+            fingerOwnerIndex,
+          };
+          const next = [...s.modeSets];
+          next[idx] = updated;
+          return { modeSets: next, lastSelectedModeSetId: id };
+        }),
+      loadModeSet: (id: string) =>
+        set(s => {
+          const doc = s.modeSets.find(x => x.id === id);
+          if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };
+          const newModes = doc.modes.map(ms =>
+            createMode({
+              modeSetId: id,
+              color: ms.color,
+              waveformId: ms.waveformId,
+              accel: ms.accel
+                ? { triggers: ms.accel.triggers.map(t => ({ ...t })) }
+                : { triggers: [] },
+            }),
+          );
+          const newFingerOwner: Record<Finger, string | null> = createEmptyOwner();
+          for (const f of ALL_FINGERS) {
+            const idx = doc.fingerOwnerIndex[f];
+            newFingerOwner[f] = idx == null ? null : (newModes[idx]?.id ?? null);
+          }
+          return { modes: newModes, fingerOwner: newFingerOwner, lastSelectedModeSetId: id };
+        }),
+      removeModeSet: (id: string) =>
+        set(s => {
+          const nextSets = s.modeSets.filter(d => d.id !== id);
+          const nextSelected =
+            s.lastSelectedModeSetId === id
+              ? nextSets.length > 0
+                ? nextSets[nextSets.length - 1]!.id
+                : null
+              : s.lastSelectedModeSetId;
+          return {
+            modeSets: nextSets,
+            modes: s.modes.map(m => (m.modeSetId === id ? { ...m, modeSetId: null } : m)),
+            lastSelectedModeSetId: nextSelected,
+          };
+        }),
 
       connect: async () => {
         set({ connected: true });
@@ -342,7 +390,7 @@ export const useAppStore = create<AppState>()(
         set({ connected: false });
       },
 
-      exportModeAsJSON: (modeId) => {
+      exportModeAsJSON: modeId => {
         const s = get();
         const m = s.modes.find(x => x.id === modeId);
         if (!m) return JSON.stringify(null);
@@ -355,7 +403,8 @@ export const useAppStore = create<AppState>()(
           return wf;
         };
 
-        const modeSetName = (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? 'Draft';
+        const modeSetName =
+          (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? 'Draft';
 
         const triggers = m.accel?.triggers ?? [];
         const payload: ExportedMode = {
@@ -363,7 +412,11 @@ export const useAppStore = create<AppState>()(
           color: m.color,
           waveform: inline(m.waveformId),
           accel: {
-            triggers: triggers.map(t => ({ threshold: t.threshold, color: t.color ?? m.color, waveform: inline(t.waveformId) })),
+            triggers: triggers.map(t => ({
+              threshold: t.threshold,
+              color: t.color ?? m.color,
+              waveform: inline(t.waveformId),
+            })),
           },
         };
 
@@ -376,20 +429,24 @@ export const useAppStore = create<AppState>()(
           id: m.id,
           color: m.color,
           waveformId: m.waveformId,
-          waveform: m.waveformId ? s.waveforms.find(w => w.id === m.waveformId) ?? null : null,
+          waveform: m.waveformId ? (s.waveforms.find(w => w.id === m.waveformId) ?? null) : null,
           fingers: ALL_FINGERS.filter(f => s.fingerOwner[f] === m.id),
-          accel: m.accel ? {
-            triggers: m.accel.triggers.map(t => ({
-              threshold: t.threshold,
-              color: t.color ?? m.color,
-              waveformId: t.waveformId,
-              waveform: t.waveformId ? s.waveforms.find(w => w.id === t.waveformId) ?? null : null,
-            })),
-          } : { triggers: [] },
+          accel: m.accel
+            ? {
+                triggers: m.accel.triggers.map(t => ({
+                  threshold: t.threshold,
+                  color: t.color ?? m.color,
+                  waveformId: t.waveformId,
+                  waveform: t.waveformId
+                    ? (s.waveforms.find(w => w.id === t.waveformId) ?? null)
+                    : null,
+                })),
+              }
+            : { triggers: [] },
         }));
         console.log('SEND', payload);
       },
     }),
-    { name: 'bulbchips-store' }
-  )
+    { name: 'bulbchips-store' },
+  ),
 );

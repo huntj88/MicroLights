@@ -3,6 +3,7 @@
 A lightweight SPA built with Vite + React + TypeScript. Includes ESLint, Prettier, Husky + lint-staged, and Vitest + React Testing Library.
 
 ## Tech Stack
+
 - Vite (React + TypeScript)
 - TypeScript (strict)
 - ESLint (typescript-eslint, react, react-hooks, import, config-prettier)
@@ -11,10 +12,12 @@ A lightweight SPA built with Vite + React + TypeScript. Includes ESLint, Prettie
 - Vitest + React Testing Library + jsdom
 
 ## Prerequisites
+
 - Node.js 18 or newer
 - npm (or pnpm/yarn — scripts use npm examples)
 
 ## Getting Started
+
 1. Install dependencies
    - npm install
 2. Start the dev server
@@ -25,6 +28,7 @@ A lightweight SPA built with Vite + React + TypeScript. Includes ESLint, Prettie
    - npm run preview
 
 ## Scripts
+
 - dev: starts Vite dev server
 - build: builds the app for production
 - preview: preview the production build
@@ -39,6 +43,7 @@ A lightweight SPA built with Vite + React + TypeScript. Includes ESLint, Prettie
 - prepare: initializes Husky
 
 ## Path Aliases
+
 Use `@/` for imports from `src/`. Configure in `tsconfig.json` and `vite.config.ts`.
 
 ```ts
@@ -46,6 +51,7 @@ import { MyComponent } from '@/components/MyComponent';
 ```
 
 ## Project Structure
+
 - src/
   - main.tsx — app bootstrap
   - App.tsx — root component
@@ -59,6 +65,7 @@ import { MyComponent } from '@/components/MyComponent';
 - .husky/ — Git hooks (created by Husky)
 
 ## Pre-commit hooks
+
 Husky runs `lint-staged` to lint/format staged files.
 
 If hooks aren't created yet, run:
@@ -74,6 +81,7 @@ npx lint-staged
 ```
 
 ## Notes
+
 - React 18, Vite 5, TypeScript 5.
 - ESLint 9 + `eslint-config-prettier` to avoid conflicts.
 - Tests run in a jsdom environment with `@testing-library/jest-dom`.

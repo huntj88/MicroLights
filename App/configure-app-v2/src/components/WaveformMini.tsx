@@ -45,10 +45,24 @@ export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: numbe
       className="rounded"
     >
       {/* center dashed line */}
-      <line x1={leftPad} y1={height / 2} x2={width - rightPad} y2={height / 2} stroke="#334155" strokeDasharray="4 4" />
+      <line
+        x1={leftPad}
+        y1={height / 2}
+        x2={width - rightPad}
+        y2={height / 2}
+        stroke="#334155"
+        strokeDasharray="4 4"
+      />
 
       {/* waveform polyline (uniform stroke) */}
-      <polyline fill="none" stroke="#22c55e" strokeWidth={2} strokeLinecap="butt" strokeLinejoin="miter" points={points} />
+      <polyline
+        fill="none"
+        stroke="#22c55e"
+        strokeWidth={2}
+        strokeLinecap="butt"
+        strokeLinejoin="miter"
+        points={points}
+      />
     </svg>
   );
 }

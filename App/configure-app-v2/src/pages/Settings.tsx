@@ -14,19 +14,39 @@ export default function Settings() {
           <div className="text-sm text-fg-muted">Theme</div>
           <div className="flex gap-3">
             <label className="flex items-center gap-2 text-sm">
-              <input type="radio" name="theme" value="system" checked={pref === 'system'} onChange={() => setPref('system')} />
+              <input
+                type="radio"
+                name="theme"
+                value="system"
+                checked={pref === 'system'}
+                onChange={() => setPref('system')}
+              />
               System
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input type="radio" name="theme" value="light" checked={pref === 'light'} onChange={() => setPref('light')} />
+              <input
+                type="radio"
+                name="theme"
+                value="light"
+                checked={pref === 'light'}
+                onChange={() => setPref('light')}
+              />
               Light
             </label>
             <label className="flex items-center gap-2 text-sm">
-              <input type="radio" name="theme" value="dark" checked={pref === 'dark'} onChange={() => setPref('dark')} />
+              <input
+                type="radio"
+                name="theme"
+                value="dark"
+                checked={pref === 'dark'}
+                onChange={() => setPref('dark')}
+              />
               Dark
             </label>
           </div>
-          <div className="col-span-2 text-xs text-slate-400">When set to System, the app follows your OS setting (prefers-color-scheme).</div>
+          <div className="col-span-2 text-xs text-slate-400">
+            When set to System, the app follows your OS setting (prefers-color-scheme).
+          </div>
         </div>
       </section>
     </div>

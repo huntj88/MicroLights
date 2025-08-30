@@ -60,16 +60,17 @@ export default function CreateWave() {
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold">Create / Wave</h1>
         <div className="ml-auto flex items-center gap-2">
-      <select
+          <select
             value={selectedId}
             onChange={e => {
               const id = e.target.value as string;
               setSelectedId(id);
               const item = waveforms.find(w => w.id === id);
-              if (item) setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
-        // reflect selection in URL for deep link / navigation from other pages
-        if (id) setSearchParams({ select: id });
-        else setSearchParams({});
+              if (item)
+                setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+              // reflect selection in URL for deep link / navigation from other pages
+              if (id) setSearchParams({ select: id });
+              else setSearchParams({});
             }}
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           >
@@ -80,7 +81,10 @@ export default function CreateWave() {
               </option>
             ))}
           </select>
-          <button className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white" onClick={newDraft}>
+          <button
+            className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
+            onClick={newDraft}
+          >
             New Draft
           </button>
           {selected && (
@@ -94,7 +98,10 @@ export default function CreateWave() {
               Delete
             </button>
           )}
-          <button className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900" onClick={saveToLibrary}>
+          <button
+            className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
+            onClick={saveToLibrary}
+          >
             {selected ? 'Save' : 'Add to Library'}
           </button>
         </div>

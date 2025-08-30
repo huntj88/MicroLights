@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { ModeCard } from '@/components/ModeCard';
 import { useAppStore } from '@/lib/store';
 
-
 export default function CreateMode() {
   const modes = useAppStore(s => s.modes);
   const connected = useAppStore(s => s.connected);
@@ -26,7 +25,10 @@ export default function CreateMode() {
   const [draftName, setDraftName] = useState<string>('');
 
   const canAdd = useMemo(() => modes.length < 10, [modes.length]);
-  const selectedSet = useMemo(() => modeSets.find(s => s.id === selectedSetId), [modeSets, selectedSetId]);
+  const selectedSet = useMemo(
+    () => modeSets.find(s => s.id === selectedSetId),
+    [modeSets, selectedSetId],
+  );
 
   // On first mount or when library changes, auto-load the most recent selection
   useEffect(() => {
@@ -46,7 +48,7 @@ export default function CreateMode() {
         setDraftName('New Mode');
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modeSets.length]);
 
   return (
@@ -68,9 +70,13 @@ export default function CreateMode() {
               }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
-              <option value="" disabled={!!selectedSetId}>(Unsaved Draft)</option>
+              <option value="" disabled={!!selectedSetId}>
+                (Unsaved Draft)
+              </option>
               {modeSets.map(s => (
-                <option key={s.id} value={s.id}>{s.name}</option>
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
               ))}
             </select>
             <button
@@ -150,12 +156,16 @@ export default function CreateMode() {
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="text-xs text-slate-400">Tip: Save the current configuration as a Mode, or load an existing Mode to edit and save changes.</div>
+        <div className="text-xs text-slate-400">
+          Tip: Save the current configuration as a Mode, or load an existing Mode to edit and save
+          changes.
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
         <div className="text-xs text-slate-400">
-          Tip: {modes.length > 1
+          Tip:{' '}
+          {modes.length > 1
             ? 'Finger-specific options are shown below for each Mode Card.'
             : 'Add another Mode Card to reveal finger-specific options.'}
         </div>

@@ -11,5 +11,5 @@ createRoot(root).render(
     <div className="min-h-screen">
       <App />
     </div>
-  </StrictMode>
+  </StrictMode>,
 );

@@ -21,7 +21,10 @@ export const zWaveform = z
   })
   .superRefine((wf, ctx) => {
     if (wf.changeAt.length === 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'changeAt must have at least one point' });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'changeAt must have at least one point',
+      });
       return;
     }
     // must start at 0
