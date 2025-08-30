@@ -11,8 +11,6 @@ export function WaveformPicker({
   waveforms,
   onCreate,
   onEdit,
-  showPreview = true,
-  previewHeight = 64,
   selectClassName = 'bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm',
 }: {
   value?: string;
@@ -20,7 +18,6 @@ export function WaveformPicker({
   waveforms: WaveformDoc[];
   onCreate: () => void;
   onEdit: (id: string) => void;
-  showPreview?: boolean;
   previewHeight?: number;
   selectClassName?: string;
 }) {
@@ -52,15 +49,6 @@ export function WaveformPicker({
             );
           })}
         </select>
-        {!selected && (
-          <button
-            className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-            onClick={onCreate}
-            title={t('newWaveform')}
-          >
-            +
-          </button>
-        )}
         {selected && !selected.readonly && (
           <button
             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
@@ -78,10 +66,19 @@ export function WaveformPicker({
             🔒
           </span>
         )}
+        {(
+          <button
+            className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+            onClick={onCreate}
+            title={t('newWaveform')}
+          >
+            +
+          </button>
+        )}
       </div>
-      {showPreview && selected && (
+      {selected && (
         <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
-          <WaveformMini wf={selected} height={previewHeight} />
+          <WaveformMini wf={selected} height={64} />
         </div>
       )}
     </div>

@@ -110,8 +110,6 @@ export function ModeCard({
                 setWfModalTarget({ kind: 'mode' });
                 setWfModalOpen(true);
               }}
-              showPreview
-              previewHeight={64}
             />
           </div>
 

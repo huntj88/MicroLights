@@ -83,7 +83,6 @@ export function AccelTriggerRow({
             waveforms={waveforms}
             onCreate={onCreateWaveform}
             onEdit={onEditWaveform}
-            showPreview={false}
           />
         </div>
 

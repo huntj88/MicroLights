@@ -40,7 +40,7 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     return Math.max(1, (width - 24) / value.totalTicks);
   }
 
-  function yFor(output: 'high' | 'low') {
+  function yFor(output: WaveOutput) {
     return output === 'high' ? 24 : height - 24;
   }
 

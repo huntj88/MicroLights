@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { toSegments, type Waveform } from '@/lib/waveform';
+import { toSegments, type Waveform, type WaveOutput } from '@/lib/waveform';
 
 // Read-only renderer that matches the WaveformEditor look (grid + 2px green polyline)
 export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: number }) {
@@ -25,7 +25,7 @@ export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: numbe
   const leftPad = 12;
   const rightPad = 12;
   const per = Math.max(1, (width - leftPad - rightPad) / wf.totalTicks);
-  const yFor = (out: 'high' | 'low') => (out === 'high' ? 24 : height - 24);
+  const yFor = (out: WaveOutput) => (out === 'high' ? 24 : height - 24);
 
   const points = segs
     .flatMap(s => [
