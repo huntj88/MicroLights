@@ -97,7 +97,7 @@ const createEmptyOwner = (): Record<Finger, string | null> =>
 const createMode = (partial?: Partial<Mode>): Mode => ({
   id: nanoid(6),
   modeSetId: null,
-  color: '#60a5fa',
+  color: '#000000',
   accel: { triggers: [] },
   ...partial,
 });
@@ -168,6 +168,7 @@ export const useAppStore = create<AppState>()(
       setColor: (modeId, hex) => set(s => ({
         modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
       })),
+      // case light enablement is inferred: color === '#000000' means disabled
 
       // accelerometer
       addAccelTrigger: (modeId) => set(s => ({

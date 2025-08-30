@@ -34,7 +34,7 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <div className="space-y-3">
           {showFingerOptions && (
             <div>
@@ -126,13 +126,23 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
           {/* Case light color */}
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
-            <div>
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                aria-label="Enable case light"
+                title="Enable case light"
+                checked={mode.color !== '#000000'}
+                onChange={e => setColor(mode.id, e.target.checked ? '#3584e4' : '#000000')}
+                className="accent-fg-ring"
+              />
               <input
                 type="color"
                 value={mode.color}
                 onChange={e => setColor(mode.id, e.target.value)}
-                className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded"
+                disabled={mode.color === '#000000'}
+                className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
                 aria-label="Case light color"
+                title={mode.color === '#000000' ? 'Enable case light to choose color' : 'Case light color'}
               />
             </div>
           </div>
@@ -183,14 +193,25 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                           </option>
                         ))}
                       </select>
-                      <input
-                        type="color"
-                        value={t.color ?? mode.color}
-                        onChange={e => setAccelTriggerColor(mode.id, i, e.target.value)}
-                        className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded justify-self-end"
-                        aria-label="Trigger color"
-                        title="Trigger color"
-                      />
+                      <div className="flex items-center gap-2 justify-self-end ml-3 sm:ml-4">
+                        <input
+                          type="checkbox"
+                          aria-label="Enable trigger color"
+                          title="Enable trigger color"
+                          checked={(t.color ?? mode.color) !== '#000000'}
+                          onChange={e => setAccelTriggerColor(mode.id, i, e.target.checked ? '#3584e4' : '#000000')}
+                          className="accent-fg-ring"
+                        />
+                        <input
+                          type="color"
+                          value={t.color ?? mode.color}
+                          onChange={e => setAccelTriggerColor(mode.id, i, e.target.value)}
+                          disabled={(t.color ?? mode.color) === '#000000'}
+                          className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
+                          aria-label="Trigger color"
+                          title={(t.color ?? mode.color) === '#000000' ? 'Enable trigger color to choose color' : 'Trigger color'}
+                        />
+                      </div>
 
                       {accelWf && (
                         <div className="col-span-3">
