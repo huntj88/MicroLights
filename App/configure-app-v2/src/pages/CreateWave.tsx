@@ -13,6 +13,8 @@ export default function CreateWave() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const waveforms = useAppStore(s => s.waveforms);
+  const lastSelectedWaveformId = useAppStore(s => s.lastSelectedWaveformId);
+  const setLastSelectedWaveformId = useAppStore(s => s.setLastSelectedWaveformId);
   const addWaveform = useAppStore(s => s.addWaveform);
   const updateWaveform = useAppStore(s => s.updateWaveform);
   const removeWaveform = useAppStore(s => s.removeWaveform);
@@ -26,15 +28,18 @@ export default function CreateWave() {
   function saveToLibrary() {
     if (selected) {
       updateWaveform(selected.id, draft);
+      setLastSelectedWaveformId(selected.id);
     } else {
       const id = addWaveform(draft);
       setSelectedId(id);
+      setLastSelectedWaveformId(id);
     }
   }
 
   function newDraft() {
     setSelectedId('');
     setDraft(DEFAULT_NEW_WAVEFORM);
+    setLastSelectedWaveformId(null);
   }
 
   // If a ?select=ID param is present, select and load that waveform
@@ -45,10 +50,22 @@ export default function CreateWave() {
     if (item) {
       setSelectedId(item.id);
       setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+      setLastSelectedWaveformId(item.id);
       // keep the param so reload preserves selection; or we could clear it:
       // setSearchParams(prev => { prev.delete('select'); return prev; }, { replace: true });
     }
-  }, [searchParams, waveforms]);
+  }, [searchParams, waveforms, setLastSelectedWaveformId]);
+
+  // Default to the most recently opened waveform from store if no URL param drives selection
+  useEffect(() => {
+    if (searchParams.get('select')) return;
+    if (selectedId) return;
+    if (!lastSelectedWaveformId) return;
+    const item = waveforms.find(w => w.id === lastSelectedWaveformId);
+    if (!item) return;
+    setSelectedId(item.id);
+    setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+  }, [searchParams, selectedId, lastSelectedWaveformId, waveforms]);
 
   return (
     <div className="space-y-6">
@@ -60,6 +77,7 @@ export default function CreateWave() {
             onChange={e => {
               const id = e.target.value as string;
               setSelectedId(id);
+              setLastSelectedWaveformId(id || null);
               const item = waveforms.find(w => w.id === id);
               if (item) {
                 setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
@@ -102,11 +120,7 @@ export default function CreateWave() {
             onClick={saveToLibrary}
             disabled={selectedReadonly}
           >
-            {selectedReadonly
-              ? t('saveAs', { defaultValue: 'Save as new' })
-              : selected
-                ? t('save')
-                : t('addToLibrary')}
+            {selectedReadonly ? t('duplicate') : selected ? t('save') : t('addToLibrary')}
           </button>
         </div>
       </div>

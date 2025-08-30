@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import { ModeCard } from '@/components/ModeCard';
-import { useAppStore } from '@/lib/store';
 import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
+import { useAppStore } from '@/lib/store';
 
 export default function CreateMode() {
   const { t } = useTranslation();

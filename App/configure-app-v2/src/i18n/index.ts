@@ -47,7 +47,7 @@ const resources = {
       editWaveform: 'Edit Waveform',
       newWaveform: 'New Waveform',
       readonly: 'Read-only',
-      saveAs: 'Save as new',
+      duplicate: 'Duplicate',
       thresholdXg: 'Threshold (× g)',
       enableCaseLight: 'Enable case light',
       caseLightColorAria: 'Case light color',

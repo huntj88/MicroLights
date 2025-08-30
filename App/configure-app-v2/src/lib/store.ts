@@ -64,7 +64,10 @@ export type AppState = {
   // tracks the last applied defaults signature to know when to resync
   defaultWaveformsSignature: string;
 
+  // last opened ModeSet id for editor default
   lastSelectedModeSetId: string | null;
+  // last opened Waveform id for editor default
+  lastSelectedWaveformId: string | null;
 
   // UI settings
   theme: 'system' | 'light' | 'dark';
@@ -93,6 +96,7 @@ export type AppState = {
   addWaveform: (wf: Waveform) => string;
   updateWaveform: (id: string, wf: Partial<Waveform>) => void;
   removeWaveform: (id: string) => void;
+  setLastSelectedWaveformId: (id: string | null) => void;
 
   // mode set library actions
   newModeSetDraft: () => void; // reset current working set
@@ -133,6 +137,7 @@ export const useAppStore = create<AppState>()(
 
       modeSets: [],
       lastSelectedModeSetId: null,
+      lastSelectedWaveformId: null,
 
       addMode: partial => {
         const mode = createMode({ ...partial });
@@ -290,8 +295,12 @@ export const useAppStore = create<AppState>()(
               );
               return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
             }),
+            lastSelectedWaveformId:
+              s.lastSelectedWaveformId === id ? null : s.lastSelectedWaveformId,
           };
         }),
+
+      setLastSelectedWaveformId: id => set(() => ({ lastSelectedWaveformId: id })),
 
       // ModeSet library
       newModeSetDraft: () =>
@@ -515,6 +524,9 @@ export const useAppStore = create<AppState>()(
           target.waveforms = nextWaveforms;
           target.modes = nextModes;
           target.defaultWaveformsSignature = currentSig;
+          // Clear last selected waveform if it was removed
+          const last = s.lastSelectedWaveformId ?? null;
+          target.lastSelectedWaveformId = last && removedIds.includes(last) ? null : last;
         } catch (e) {
           console.error('Failed to sync default waveforms:', e);
         }
