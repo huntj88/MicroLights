@@ -66,7 +66,7 @@ export function WaveformPicker({
             🔒
           </span>
         )}
-        {(
+        {
           <button
             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
             onClick={onCreate}
@@ -74,7 +74,7 @@ export function WaveformPicker({
           >
             +
           </button>
-        )}
+        }
       </div>
       {selected && (
         <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">

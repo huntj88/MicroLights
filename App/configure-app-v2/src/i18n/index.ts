@@ -100,7 +100,6 @@ const resources = {
       programSent: 'Program sent',
       invalidWaveform: 'Invalid waveform',
       cannotDeleteFirstMarker: 'The first marker at tick 0 cannot be deleted',
-      draft: 'Draft',
       pulse: 'Pulse',
       fingerLabel: {
         'L-thumb': 'L thumb',
