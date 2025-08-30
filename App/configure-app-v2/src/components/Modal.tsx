@@ -25,9 +25,10 @@ export function Modal({ open, title, onClose, children, footer, size = 'md' }: M
           <button
             className="px-2 py-1 rounded hover:bg-slate-700/40 text-slate-300"
             aria-label={t('close')}
+            title={t('close')}
             onClick={onClose}
           >
-            ×
+            ✕
           </button>
         </div>
         <div className="p-4">{children}</div>

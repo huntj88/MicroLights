@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { Modal } from '@/components/Modal';
 import { WaveformEditor } from '@/components/WaveformEditor';
 import type { Waveform } from '@/lib/waveform';
@@ -23,6 +25,7 @@ export function WaveformEditorModal({
   onDraftChange: (wf: Waveform) => void;
   canSave: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Modal
       open={open}
@@ -35,33 +38,33 @@ export function WaveformEditorModal({
             className="px-3 py-1.5 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-sm"
             onClick={onClose}
           >
-            Cancel
+            {t('cancel')}
           </button>
           <button
             className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm"
             onClick={() => onAction('edit-fullscreen')}
           >
-            Edit Fullscreen
+            {t('editFullscreen')}
           </button>
           <button
             className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900 text-sm disabled:opacity-50"
             disabled={!canSave}
             onClick={() => onAction(editId ? 'save' : 'save-and-use')}
           >
-            {editId ? 'Save' : 'Save and Use'}
+            {editId ? t('save') : t('saveAndUse')}
           </button>
         </>
       }
     >
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm">Name</label>
+          <label className="text-sm">{t('name')}</label>
           <input
             value={draft.name}
             onChange={e => onDraftChange({ ...draft, name: e.target.value })}
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
-          <label className="text-sm ml-4">Total Ticks</label>
+          <label className="text-sm ml-4">{t('totalTicks')}</label>
           <input
             type="number"
             min={2}

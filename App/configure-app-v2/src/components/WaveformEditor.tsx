@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import {
@@ -17,6 +18,7 @@ type Props = {
 
 // Simple square-wave timeline editor with draggable markers
 export function WaveformEditor({ value, onChange, height = 160 }: Props) {
+  const { t } = useTranslation();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -50,7 +52,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     const next: Waveform = { ...value, changeAt: points };
     const res = zWaveform.safeParse(next);
     if (!res.success) {
-      toast.error(res.error.issues[0]?.message ?? 'Invalid waveform');
+      toast.error(res.error.issues[0]?.message ?? t('invalidWaveform'));
       return;
     }
     pushHistory(value);
@@ -209,7 +211,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
 
   function removeMarker(index: number) {
     if (index === 0) {
-      toast.error('The first marker at tick 0 cannot be deleted');
+      toast.error(t('cannotDeleteFirstMarker'));
       return;
     }
     const next = value.changeAt.filter((_, i) => i !== index);
@@ -289,10 +291,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
       })()}
 
       {/* hint */}
-      <div className="text-xs text-slate-400">
-        Tip: Click the timeline to add a marker (above center = high, below = low). Drag to move.
-        Double-click a marker to delete. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.
-      </div>
+      <div className="text-xs text-slate-400">{t('tipWaveformEditor')}</div>
 
       <div className="flex flex-wrap gap-2 items-center">
         <button
@@ -300,19 +299,19 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
           onClick={undo}
           disabled={past.length === 0}
         >
-          Undo
+          {t('undo')}
         </button>
         <button
           className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
           onClick={redo}
           disabled={future.length === 0}
         >
-          Redo
+          {t('redo')}
         </button>
       </div>
 
       <div>
-        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Json Config</div>
+        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('jsonConfig')}</div>
         <textarea
           className="w-full h-48 bg-slate-950/80 rounded border border-slate-700/50 p-2 font-mono text-sm"
           value={JSON.stringify(value, null, 2)}

@@ -54,8 +54,6 @@ const resources = {
       enableTriggerColor: 'Enable trigger color',
       triggerColor: 'Trigger color',
       enableTriggerColorToChoose: 'Enable trigger color to choose color',
-      l: 'L',
-      r: 'R',
       tipWaveformEditor:
         'Tip: Click the timeline to add a marker (above center = high, below = low). Drag to move. Double-click a marker to delete. Use Ctrl+Z / Ctrl+Shift+Z to undo/redo.',
       undo: 'Undo',
@@ -90,7 +88,6 @@ const resources = {
       cannotDeleteFirstMarker: 'The first marker at tick 0 cannot be deleted',
       draft: 'Draft',
       pulse: 'Pulse',
-      newMode: 'New Mode',
       newWave: 'New Wave',
       fingerLabel: {
         'L-thumb': 'L thumb',
