@@ -1,7 +1,9 @@
 import { useTranslation } from 'react-i18next';
 
+import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
+import { DISABLED_COLOR } from '@/lib/constants';
 import type { Waveform } from '@/lib/waveform';
 
 type Trigger = {
@@ -26,7 +28,7 @@ export function AccelTriggerRow({
   onEditWaveform,
   onToggleColor,
   onColorChange,
-  disabledColor = '#000000',
+  disabledColor = DISABLED_COLOR,
   previewBelow = true,
 }: {
   trigger: Trigger;
@@ -52,7 +54,7 @@ export function AccelTriggerRow({
     : null;
 
   const effectiveColor = trigger.color ?? defaultColor;
-  const enabled = effectiveColor !== disabledColor;
+  // color enabled state is derived in ColorTogglePicker
 
   return (
     <div>
@@ -87,25 +89,12 @@ export function AccelTriggerRow({
           />
         </div>
 
-        <div className="flex items-center gap-2 justify-self-end ml-3 sm:ml-4">
-          <input
-            type="checkbox"
-            aria-label={t('enableTriggerColor')}
-            title={t('enableTriggerColor')}
-            checked={enabled}
-            onChange={e => onToggleColor(e.target.checked)}
-            className="accent-fg-ring"
-          />
-          <input
-            type="color"
-            value={effectiveColor}
-            onChange={e => onColorChange(e.target.value)}
-            disabled={!enabled}
-            className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
-            aria-label={t('triggerColor')}
-            title={enabled ? t('triggerColor') : t('enableTriggerColorToChoose')}
-          />
-        </div>
+        <CaseLightColorTogglePicker
+          color={effectiveColor}
+          onToggle={onToggleColor}
+          onChange={onColorChange}
+          className="justify-self-end ml-3 sm:ml-4"
+        />
       </div>
 
       {previewBelow && selected && (

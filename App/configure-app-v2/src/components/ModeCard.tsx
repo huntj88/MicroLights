@@ -3,9 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { AccelTriggerRow } from '@/components/AccelTriggerRow';
+import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { FingerSelector } from '@/components/FingerSelector';
 import { WaveformEditorModal } from '@/components/WaveformEditorModal';
 import { WaveformPicker } from '@/components/WaveformPicker';
+import { DISABLED_COLOR } from '@/lib/constants';
 import { useAppStore, type Mode } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
@@ -116,25 +118,11 @@ export function ModeCard({
           {/* Case light color */}
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('caseLightColor')}</div>
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                aria-label={t('enableCaseLight')}
-                title={t('enableCaseLight')}
-                checked={mode.color !== '#000000'}
-                onChange={e => setColor(mode.id, e.target.checked ? '#3584e4' : '#000000')}
-                className="accent-fg-ring"
-              />
-              <input
-                type="color"
-                value={mode.color}
-                onChange={e => setColor(mode.id, e.target.value)}
-                disabled={mode.color === '#000000'}
-                className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
-                aria-label={t('caseLightColorAria')}
-                title={mode.color === '#000000' ? t('enableCaseLightToChoose') : t('caseLightColor')}
-              />
-            </div>
+            <CaseLightColorTogglePicker
+              color={mode.color}
+              onToggle={enabled => setColor(mode.id, enabled ? '#3584e4' : DISABLED_COLOR)}
+              onChange={hex => setColor(mode.id, hex)}
+            />
           </div>
 
           {/* Accelerometer section */}
@@ -170,7 +158,7 @@ export function ModeCard({
                       setWfModalOpen(true);
                     }}
                     onToggleColor={enabled =>
-                      setAccelTriggerColor(mode.id, i, enabled ? '#3584e4' : '#000000')
+                      setAccelTriggerColor(mode.id, i, enabled ? '#3584e4' : DISABLED_COLOR)
                     }
                     onColorChange={hex => setAccelTriggerColor(mode.id, i, hex)}
                   />

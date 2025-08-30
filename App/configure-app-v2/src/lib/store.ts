@@ -2,6 +2,7 @@ import { nanoid } from 'nanoid/non-secure';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { DISABLED_COLOR } from './constants';
 import { ALL_FINGERS, type Finger } from './fingers';
 import type { Waveform } from './waveform';
 
@@ -99,7 +100,7 @@ const createEmptyOwner = (): Record<Finger, string | null> =>
 const createMode = (partial?: Partial<Mode>): Mode => ({
   id: nanoid(6),
   modeSetId: null,
-  color: '#000000',
+  color: DISABLED_COLOR,
   accel: { triggers: [] },
   ...partial,
 });
@@ -176,7 +177,7 @@ export const useAppStore = create<AppState>()(
         set(s => ({
           modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
         })),
-      // case light enablement is inferred: color === '#000000' means disabled
+  // case light enablement is inferred: color === DISABLED_COLOR means disabled
 
       // accelerometer
       addAccelTrigger: modeId =>
