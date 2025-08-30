@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AccelTriggerRow } from '@/components/AccelTriggerRow';
 import { FingerSelector } from '@/components/FingerSelector';
 import { WaveformEditorModal } from '@/components/WaveformEditorModal';
-import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import { useAppStore, type Mode } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
@@ -147,97 +147,36 @@ export function ModeCard({
 
             {triggers.length > 0 && (
               <div className="mt-2 space-y-2">
-                {triggers.map((t, i) => {
-                  const accelWf = t.waveformId
-                    ? (waveforms.find(w => w.id === t.waveformId) ?? null)
-                    : null;
-                  const ALLOWED = [2, 4, 8, 12, 16];
-                  const prevThresh = i > 0 ? triggers[i - 1]?.threshold : undefined;
-                  const allowedAfterPrev =
-                    prevThresh == null ? ALLOWED : ALLOWED.filter(v => v > prevThresh);
-                  return (
-                    <div key={i} className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-                      <div className="text-xs text-slate-400">Threshold (× g)</div>
-                      <select
-                        value={t.threshold}
-                        onChange={e => setAccelTriggerThreshold(mode.id, i, Number(e.target.value))}
-                        className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-                        aria-label="Acceleration threshold in multiples of g"
-                      >
-                        {allowedAfterPrev.map(v => (
-                          <option key={v} value={v}>{`${v} g`}</option>
-                        ))}
-                      </select>
-                      <button
-                        className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
-                        onClick={() => removeAccelTrigger(mode.id, i)}
-                      >
-                        Remove
-                      </button>
-
-                      <div className="text-xs text-slate-400">Waveform</div>
-                      <div className="flex items-center gap-2">
-                        <WaveformPicker
-                          value={t.waveformId}
-                          onChange={id => setAccelTriggerWaveform(mode.id, i, id)}
-                          waveforms={waveforms}
-                          onCreate={() => {
-                            setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
-                            setWfEditId(null);
-                            setWfModalTarget({ kind: 'accel', index: i });
-                            setWfModalOpen(true);
-                          }}
-                          onEdit={id => {
-                            const wf = waveforms.find(w => w.id === id);
-                            if (!wf) return;
-                            setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
-                            setWfEditId(wf.id);
-                            setWfModalTarget({ kind: 'accel', index: i });
-                            setWfModalOpen(true);
-                          }}
-                          showPreview={false}
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 justify-self-end ml-3 sm:ml-4">
-                        <input
-                          type="checkbox"
-                          aria-label="Enable trigger color"
-                          title="Enable trigger color"
-                          checked={(t.color ?? mode.color) !== '#000000'}
-                          onChange={e =>
-                            setAccelTriggerColor(
-                              mode.id,
-                              i,
-                              e.target.checked ? '#3584e4' : '#000000',
-                            )
-                          }
-                          className="accent-fg-ring"
-                        />
-                        <input
-                          type="color"
-                          value={t.color ?? mode.color}
-                          onChange={e => setAccelTriggerColor(mode.id, i, e.target.value)}
-                          disabled={(t.color ?? mode.color) === '#000000'}
-                          className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
-                          aria-label="Trigger color"
-                          title={
-                            (t.color ?? mode.color) === '#000000'
-                              ? 'Enable trigger color to choose color'
-                              : 'Trigger color'
-                          }
-                        />
-                      </div>
-
-                      {accelWf && (
-                        <div className="col-span-3">
-                          <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
-                            <WaveformMini wf={accelWf} height={56} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {triggers.map((t, i) => (
+                  <AccelTriggerRow
+                    key={i}
+                    trigger={t}
+                    prevThreshold={i > 0 ? triggers[i - 1]?.threshold : undefined}
+                    waveforms={waveforms}
+                    defaultColor={mode.color}
+                    onChangeThreshold={v => setAccelTriggerThreshold(mode.id, i, v)}
+                    onRemove={() => removeAccelTrigger(mode.id, i)}
+                    onChangeWaveform={id => setAccelTriggerWaveform(mode.id, i, id)}
+                    onCreateWaveform={() => {
+                      setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                      setWfEditId(null);
+                      setWfModalTarget({ kind: 'accel', index: i });
+                      setWfModalOpen(true);
+                    }}
+                    onEditWaveform={id => {
+                      const wf = waveforms.find(w => w.id === id);
+                      if (!wf) return;
+                      setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
+                      setWfEditId(wf.id);
+                      setWfModalTarget({ kind: 'accel', index: i });
+                      setWfModalOpen(true);
+                    }}
+                    onToggleColor={enabled =>
+                      setAccelTriggerColor(mode.id, i, enabled ? '#3584e4' : '#000000')
+                    }
+                    onColorChange={hex => setAccelTriggerColor(mode.id, i, hex)}
+                  />
+                ))}
               </div>
             )}
 
