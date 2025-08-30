@@ -24,6 +24,9 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
   const setAccelTriggerWaveform = useAppStore(s => s.setAccelTriggerWaveform);
 
+  // New: export helper
+  const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
+
   const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
 
   // Type-safe triggers list
@@ -207,6 +210,22 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Export JSON */}
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Export (JSON)</div>
+          <button
+            className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
+            onClick={() => navigator.clipboard.writeText(exportModeAsJSON(mode.id))}
+          >
+            Copy
+          </button>
+        </div>
+        <pre className="rounded border border-slate-700/50 bg-slate-900/60 p-2 text-xs overflow-x-auto">
+{exportModeAsJSON(mode.id)}
+        </pre>
       </div>
 
       <div className="flex justify-end mt-4">

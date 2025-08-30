@@ -10,6 +10,7 @@ const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
 
 export type Mode = {
   id: string;
+  modeSetId?: string | null;
   color: string; // hex
   waveformId?: string;
   accel?: {
@@ -21,6 +22,14 @@ export type Mode = {
 };
 
 export type WaveformDoc = { id: string } & Waveform;
+
+// JSON export shape without UI state or ids
+export type ExportedMode = {
+  name: string;
+  color: string;
+  waveform?: Waveform;
+  accel: { triggers: Array<{ threshold: number; waveform?: Waveform }> };
+};
 
 // A saved ModeSet snapshot of modes and finger ownership
 export type ModeSnapshot = Pick<Mode, 'color' | 'waveformId' | 'accel'>;
@@ -77,6 +86,7 @@ export type AppState = {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   send: () => Promise<void>;
+  exportModeAsJSON: (modeId: string) => string;
 };
 
 const createEmptyOwner = (): Record<Finger, string | null> =>
@@ -84,6 +94,7 @@ const createEmptyOwner = (): Record<Finger, string | null> =>
 
 const createMode = (partial?: Partial<Mode>): Mode => ({
   id: nanoid(6),
+  modeSetId: null,
   color: '#60a5fa',
   accel: { triggers: [] },
   ...partial,
@@ -250,7 +261,7 @@ export const useAppStore = create<AppState>()(
         ) as Record<Finger, number | null>;
         const id = nanoid(6);
         const doc: ModeSet = { id, name: name.trim() || `Set ${s.modeSets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
-        set(st => ({ modeSets: [...st.modeSets, doc] }));
+        set(st => ({ modeSets: [...st.modeSets, doc], modes: st.modes.map(m => ({ ...m, modeSetId: id })) }));
         return id;
       },
       updateModeSet: (id: string, name?: string) => set(s => {
@@ -281,6 +292,7 @@ export const useAppStore = create<AppState>()(
         const doc = s.modeSets.find(x => x.id === id);
         if (!doc) return { modes: s.modes, fingerOwner: s.fingerOwner };
         const newModes = doc.modes.map(ms => createMode({
+          modeSetId: id,
           color: ms.color,
           waveformId: ms.waveformId,
           accel: ms.accel ? { triggers: ms.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
@@ -292,9 +304,10 @@ export const useAppStore = create<AppState>()(
         }
         return { modes: newModes, fingerOwner: newFingerOwner };
       }),
-      removeModeSet: (id: string) => set(s => ({
-        modeSets: s.modeSets.filter(d => d.id !== id),
-      })),
+      removeModeSet: (id: string) => set(s => {
+        const nextSets = s.modeSets.filter(d => d.id !== id);
+        return { modeSets: nextSets, modes: s.modes.map(m => (m.modeSetId === id ? { ...m, modeSetId: null } : m)) };
+      }),
 
       connect: async () => {
         set({ connected: true });
@@ -302,6 +315,35 @@ export const useAppStore = create<AppState>()(
       disconnect: async () => {
         set({ connected: false });
       },
+
+      exportModeAsJSON: (modeId) => {
+        const s = get();
+        const m = s.modes.find(x => x.id === modeId);
+        if (!m) return JSON.stringify(null);
+
+        const inline = (id?: string) => {
+          if (!id) return undefined;
+          const doc = s.waveforms.find(w => w.id === id);
+          if (!doc) return undefined;
+          const { id: _omit, ...wf } = doc; // strip id
+          return wf;
+        };
+
+        const modeSetName = (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? 'Draft';
+
+        const triggers = m.accel?.triggers ?? [];
+        const payload: ExportedMode = {
+          name: modeSetName,
+          color: m.color,
+          waveform: inline(m.waveformId),
+          accel: {
+            triggers: triggers.map(t => ({ threshold: t.threshold, waveform: inline(t.waveformId) })),
+          },
+        };
+
+        return JSON.stringify(payload, null, 2);
+      },
+
       send: async () => {
         const s = get();
         const payload = s.modes.map(m => ({
