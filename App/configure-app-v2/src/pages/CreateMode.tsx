@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 
 import { ModeCard } from '@/components/ModeCard';
 import { useAppStore } from '@/lib/store';
+import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
 
 export default function CreateMode() {
   const { t } = useTranslation();
@@ -47,7 +48,7 @@ export default function CreateMode() {
         // avoid toast spam on initial load
       } else {
         // no modeset yet; make sure draft has a sensible default name
-        setDraftName(t('newMode'));
+        setDraftName(DEFAULT_NEW_WAVEFORM.name);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -86,7 +87,7 @@ export default function CreateMode() {
               onClick={() => {
                 newModeSetDraft();
                 setSelectedSetId('');
-                setDraftName('New Mode');
+                setDraftName(DEFAULT_NEW_WAVEFORM.name);
               }}
               className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
             >

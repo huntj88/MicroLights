@@ -3,19 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
 import { WaveformEditor } from '@/components/WaveformEditor';
+import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
 import { useAppStore } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
-const initial: Waveform = {
-  name: 'example',
-  totalTicks: 33,
-  changeAt: [
-    { tick: 0, output: 'high' },
-    { tick: 11, output: 'low' },
-    { tick: 12, output: 'high' },
-    { tick: 22, output: 'low' },
-  ],
-};
+// No selection by default: start with a localized default-new waveform
 
 export default function CreateWave() {
   const { t } = useTranslation();
@@ -26,7 +18,7 @@ export default function CreateWave() {
   const removeWaveform = useAppStore(s => s.removeWaveform);
 
   const [selectedId, setSelectedId] = useState<string | ''>('');
-  const [draft, setDraft] = useState<Waveform>(initial);
+  const [draft, setDraft] = useState<Waveform>(DEFAULT_NEW_WAVEFORM);
 
   const selected = useMemo(() => waveforms.find(w => w.id === selectedId), [waveforms, selectedId]);
   const selectedReadonly = !!selected?.readonly;
@@ -42,7 +34,7 @@ export default function CreateWave() {
 
   function newDraft() {
     setSelectedId('');
-    setDraft({ name: t('newWave'), totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+    setDraft(DEFAULT_NEW_WAVEFORM);
   }
 
   // If a ?select=ID param is present, select and load that waveform
@@ -69,8 +61,12 @@ export default function CreateWave() {
               const id = e.target.value as string;
               setSelectedId(id);
               const item = waveforms.find(w => w.id === id);
-              if (item)
+              if (item) {
                 setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+              } else {
+                // No selection -> show default new waveform
+                setDraft(DEFAULT_NEW_WAVEFORM);
+              }
               // reflect selection in URL for deep link / navigation from other pages
               if (id) setSearchParams({ select: id });
               else setSearchParams({});

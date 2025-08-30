@@ -8,6 +8,7 @@ import { FingerSelector } from '@/components/FingerSelector';
 import { WaveformEditorModal } from '@/components/WaveformEditorModal';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import { DISABLED_COLOR } from '@/lib/constants';
+import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
 import { Trigger, useAppStore, type Mode } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
@@ -45,11 +46,7 @@ export function ModeCard({
 
   // Popup state for creating a new waveform inline
   const [wfModalOpen, setWfModalOpen] = useState(false);
-  const [wfDraft, setWfDraft] = useState<Waveform>({
-    name: 'New Wave',
-    totalTicks: 16,
-    changeAt: [{ tick: 0, output: 'high' }],
-  });
+  const [wfDraft, setWfDraft] = useState<Waveform>(DEFAULT_NEW_WAVEFORM);
   const [wfModalTarget, setWfModalTarget] = useState<
     { kind: 'mode' } | { kind: 'accel'; index: number }
   >({ kind: 'mode' });
@@ -99,11 +96,7 @@ export function ModeCard({
               onChange={id => setWaveform(mode.id, id)}
               waveforms={waveforms}
               onCreate={() => {
-                setWfDraft({
-                  name: 'New Wave',
-                  totalTicks: 16,
-                  changeAt: [{ tick: 0, output: 'high' }],
-                });
+                setWfDraft(DEFAULT_NEW_WAVEFORM);
                 setWfEditId(null);
                 setWfModalTarget({ kind: 'mode' });
                 setWfModalOpen(true);
@@ -144,10 +137,10 @@ export function ModeCard({
 
             {triggers.length > 0 && (
               <div className="mt-2 space-y-2">
-                {triggers.map((t, i) => (
+                {triggers.map((trig, i) => (
                   <AccelTriggerRow
                     key={i}
-                    trigger={t}
+                    trigger={trig}
                     prevThreshold={i > 0 ? triggers[i - 1]?.threshold : undefined}
                     waveforms={waveforms}
                     defaultColor={mode.color}
@@ -155,11 +148,7 @@ export function ModeCard({
                     onRemove={() => removeAccelTrigger(mode.id, i)}
                     onChangeWaveform={id => setAccelTriggerWaveform(mode.id, i, id)}
                     onCreateWaveform={() => {
-                      setWfDraft({
-                        name: 'New Wave',
-                        totalTicks: 16,
-                        changeAt: [{ tick: 0, output: 'high' }],
-                      });
+                      setWfDraft(DEFAULT_NEW_WAVEFORM);
                       setWfEditId(null);
                       setWfModalTarget({ kind: 'accel', index: i });
                       setWfModalOpen(true);

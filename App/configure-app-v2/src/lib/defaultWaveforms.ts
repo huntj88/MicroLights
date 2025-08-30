@@ -1,5 +1,11 @@
 import type { Waveform } from './waveform';
 
+export const DEFAULT_NEW_WAVEFORM: Waveform = {
+  name: 'New Pattern',
+  totalTicks: 16,
+  changeAt: [{ tick: 0, output: 'high' }],
+};
+
 // Five varied default waveforms. totalTicks kept small/consistent for easy previewing.
 // All waveforms satisfy zWaveform constraints: first change at tick 0 and strictly increasing.
 export const DEFAULT_WAVEFORMS: Waveform[] = [

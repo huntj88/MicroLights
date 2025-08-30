@@ -99,7 +99,6 @@ const resources = {
       cannotDeleteFirstMarker: 'The first marker at tick 0 cannot be deleted',
       draft: 'Draft',
       pulse: 'Pulse',
-      newWave: 'New Wave',
       fingerLabel: {
         'L-thumb': 'L thumb',
         'L-index': 'L index',
