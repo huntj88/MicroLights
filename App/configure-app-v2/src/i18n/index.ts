@@ -89,7 +89,6 @@ const resources = {
       invalidWaveform: 'Invalid waveform',
       cannotDeleteFirstMarker: 'The first marker at tick 0 cannot be deleted',
       draft: 'Draft',
-      setN: 'Set {{n}}',
       pulse: 'Pulse',
       newMode: 'New Mode',
       newWave: 'New Wave',
@@ -109,11 +108,6 @@ const resources = {
   },
 } as const;
 
-// Helper to generate Set 1, Set 2, etc
-function tSetN(n: number) {
-  return `Set ${n}`;
-}
-
 const i18n = createInstance();
 
 void i18n
@@ -132,4 +126,3 @@ void i18n
   });
 
 export default i18n;
-export { tSetN };

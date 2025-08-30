@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
-import { DISABLED_COLOR } from '@/lib/constants';
 import type { Waveform } from '@/lib/waveform';
 
 type Trigger = {
@@ -28,7 +27,6 @@ export function AccelTriggerRow({
   onEditWaveform,
   onToggleColor,
   onColorChange,
-  disabledColor = DISABLED_COLOR,
   previewBelow = true,
 }: {
   trigger: Trigger;
