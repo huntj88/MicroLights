@@ -1,11 +1,10 @@
-import { clsx } from 'clsx';
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Modal } from '@/components/Modal';
-import { WaveformEditor } from '@/components/WaveformEditor';
+import { FingerSelector } from '@/components/FingerSelector';
+import { WaveformEditorModal } from '@/components/WaveformEditorModal';
 import { WaveformMini } from '@/components/WaveformMini';
-import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
+import { WaveformPicker } from '@/components/WaveformPicker';
 import { useAppStore, type Mode } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
@@ -37,8 +36,6 @@ export function ModeCard({
   const setAccelTriggerColor = useAppStore(s => s.setAccelTriggerColor);
 
   const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
-
-  const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
 
   // Type-safe triggers list
   type Trigger = NonNullable<Mode['accel']>['triggers'][number];
@@ -79,39 +76,11 @@ export function ModeCard({
                   All
                 </button>
               </div>
-              {/* Two-column hand layout */}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <div className="text-xs text-slate-400 mb-1">Left</div>
-                  <div className="flex flex-col gap-2">
-                    {FINGERS_BY_HAND.L.map(f => (
-                      <FingerChip
-                        key={f}
-                        finger={f}
-                        owned={owner[f] === mode.id}
-                        onToggle={() =>
-                          owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-xs text-slate-400 mb-1">Right</div>
-                  <div className="flex flex-col gap-2">
-                    {FINGERS_BY_HAND.R.map(f => (
-                      <FingerChip
-                        key={f}
-                        finger={f}
-                        owned={owner[f] === mode.id}
-                        onToggle={() =>
-                          owner[f] === mode.id ? unassign(mode.id, f) : assign(mode.id, f)
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+              <FingerSelector
+                modeId={mode.id}
+                owner={owner}
+                onToggle={(f, isOwned) => (isOwned ? unassign(mode.id, f) : assign(mode.id, f))}
+              />
             </div>
           )}
 
@@ -119,69 +88,32 @@ export function ModeCard({
 
           <div>
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</div>
-            <div className="flex items-center gap-2">
-              <select
-                value={mode.waveformId ?? ''}
-                onChange={e => setWaveform(mode.id, e.target.value || undefined)}
-                className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm flex-1"
-              >
-                <option value="">None</option>
-                {waveforms.map(w => (
-                  <option key={w.id} value={w.id}>
-                    {w.name}
-                  </option>
-                ))}
-              </select>
-              {!selectedWaveform && (
-                <button
-                  className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-                  onClick={() => {
-                    setWfDraft({
-                      name: 'New Wave',
-                      totalTicks: 16,
-                      changeAt: [{ tick: 0, output: 'high' }],
-                    });
-                    setWfEditId(null);
-                    setWfModalTarget({ kind: 'mode' });
-                    setWfModalOpen(true);
-                  }}
-                  title="Create new waveform"
-                >
-                  +
-                </button>
-              )}
-              {selectedWaveform && (
-                <button
-                  className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-                  onClick={() => {
-                    // Open inline modal editor with current selection
-                    setWfDraft({
-                      name: selectedWaveform.name,
-                      totalTicks: selectedWaveform.totalTicks,
-                      changeAt: selectedWaveform.changeAt,
-                    });
-                    setWfEditId(selectedWaveform.id);
-                    setWfModalTarget({ kind: 'mode' });
-                    setWfModalOpen(true);
-                  }}
-                  title="Edit selected waveform"
-                >
-                  ✎
-                </button>
-              )}
-            </div>
-            {selectedWaveform && (
-              <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
-                <WaveformMini wf={selectedWaveform} height={64} />
-              </div>
-            )}
+            <WaveformPicker
+              value={mode.waveformId}
+              onChange={id => setWaveform(mode.id, id)}
+              waveforms={waveforms}
+              onCreate={() => {
+                setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                setWfEditId(null);
+                setWfModalTarget({ kind: 'mode' });
+                setWfModalOpen(true);
+              }}
+              onEdit={id => {
+                const wf = waveforms.find(w => w.id === id);
+                if (!wf) return;
+                setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
+                setWfEditId(wf.id);
+                setWfModalTarget({ kind: 'mode' });
+                setWfModalOpen(true);
+              }}
+              showPreview
+              previewHeight={64}
+            />
           </div>
 
           {/* Case light color */}
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
-              Case Light Color
-            </div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
@@ -245,57 +177,26 @@ export function ModeCard({
 
                       <div className="text-xs text-slate-400">Waveform</div>
                       <div className="flex items-center gap-2">
-                        <select
-                          value={t.waveformId ?? ''}
-                          onChange={e =>
-                            setAccelTriggerWaveform(mode.id, i, e.target.value || undefined)
-                          }
-                          className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-                        >
-                          <option value="">None</option>
-                          {waveforms.map(w => (
-                            <option key={w.id} value={w.id}>
-                              {w.name}
-                            </option>
-                          ))}
-                        </select>
-                        {/* Trigger waveform create/edit buttons */}
-                        {!accelWf && (
-                          <button
-                            className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-                            onClick={() => {
-                              setWfDraft({
-                                name: 'New Wave',
-                                totalTicks: 16,
-                                changeAt: [{ tick: 0, output: 'high' }],
-                              });
-                              setWfEditId(null);
-                              setWfModalTarget({ kind: 'accel', index: i });
-                              setWfModalOpen(true);
-                            }}
-                            title="Create new waveform"
-                          >
-                            +
-                          </button>
-                        )}
-                        {accelWf && (
-                          <button
-                            className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
-                            onClick={() => {
-                              setWfDraft({
-                                name: accelWf.name,
-                                totalTicks: accelWf.totalTicks,
-                                changeAt: accelWf.changeAt,
-                              });
-                              setWfEditId(accelWf.id);
-                              setWfModalTarget({ kind: 'accel', index: i });
-                              setWfModalOpen(true);
-                            }}
-                            title="Edit selected waveform"
-                          >
-                            ✎
-                          </button>
-                        )}
+                        <WaveformPicker
+                          value={t.waveformId}
+                          onChange={id => setAccelTriggerWaveform(mode.id, i, id)}
+                          waveforms={waveforms}
+                          onCreate={() => {
+                            setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                            setWfEditId(null);
+                            setWfModalTarget({ kind: 'accel', index: i });
+                            setWfModalOpen(true);
+                          }}
+                          onEdit={id => {
+                            const wf = waveforms.find(w => w.id === id);
+                            if (!wf) return;
+                            setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
+                            setWfEditId(wf.id);
+                            setWfModalTarget({ kind: 'accel', index: i });
+                            setWfModalOpen(true);
+                          }}
+                          showPreview={false}
+                        />
                       </div>
                       <div className="flex items-center gap-2 justify-self-end ml-3 sm:ml-4">
                         <input
@@ -371,92 +272,44 @@ export function ModeCard({
       </div>
 
       {/* New Waveform Modal */}
-      <Modal
+      <WaveformEditorModal
         open={wfModalOpen}
+        title={wfEditId ? 'Edit Waveform' : 'New Waveform'}
+        draft={wfDraft}
+        editId={wfEditId}
         onClose={() => {
           setWfModalOpen(false);
           setWfEditId(null);
         }}
-        title={wfEditId ? 'Edit Waveform' : 'New Waveform'}
-        size="lg"
-        footer={
-          <>
-            <button
-              className="px-3 py-1.5 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-sm"
-              onClick={() => {
-                setWfModalOpen(false);
-                setWfEditId(null);
-              }}
-            >
-              Cancel
-            </button>
-            <button
-              className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm"
-              onClick={() => {
-                // Save (update or add) then navigate to full editor
-                let id = wfEditId;
-                if (id) {
-                  updateWaveform(id, wfDraft);
-                } else {
-                  id = addWaveform(wfDraft);
-                  if (wfModalTarget.kind === 'mode') {
-                    setWaveform(mode.id, id);
-                  } else {
-                    setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
-                  }
-                }
-                setWfModalOpen(false);
-                if (id) navigate(`/create/wave?select=${id}`);
-              }}
-            >
-              Edit Fullscreen
-            </button>
-            <button
-              className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900 text-sm disabled:opacity-50"
-              disabled={!canSaveDraft}
-              onClick={() => {
-                if (wfEditId) {
-                  updateWaveform(wfEditId, wfDraft);
-                } else {
-                  const id = addWaveform(wfDraft);
-                  if (wfModalTarget.kind === 'mode') {
-                    setWaveform(mode.id, id);
-                  } else {
-                    setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
-                  }
-                }
-                setWfModalOpen(false);
-                setWfEditId(null);
-              }}
-            >
-              {wfEditId ? 'Save' : 'Save and Use'}
-            </button>
-          </>
-        }
-      >
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <label className="text-sm">Name</label>
-            <input
-              value={wfDraft.name}
-              onChange={e => setWfDraft({ ...wfDraft, name: e.target.value })}
-              className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-            />
-            <label className="text-sm ml-4">Total Ticks</label>
-            <input
-              type="number"
-              min={2}
-              value={wfDraft.totalTicks}
-              onChange={e =>
-                setWfDraft({ ...wfDraft, totalTicks: Math.max(2, Number(e.target.value)) })
-              }
-              className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-            />
-          </div>
-          {/* Inline editor */}
-          <WaveformEditor value={wfDraft} onChange={setWfDraft} height={140} />
-        </div>
-      </Modal>
+        onDraftChange={setWfDraft}
+        canSave={canSaveDraft}
+        onAction={action => {
+          if (action === 'edit-fullscreen') {
+            let id = wfEditId;
+            if (id) {
+              updateWaveform(id, wfDraft);
+            } else {
+              id = addWaveform(wfDraft);
+              if (wfModalTarget.kind === 'mode') setWaveform(mode.id, id);
+              else setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
+            }
+            setWfModalOpen(false);
+            if (id) navigate(`/create/wave?select=${id}`);
+            return;
+          }
+          if (action === 'save' || action === 'save-and-use') {
+            if (wfEditId) {
+              updateWaveform(wfEditId, wfDraft);
+            } else {
+              const id = addWaveform(wfDraft);
+              if (wfModalTarget.kind === 'mode') setWaveform(mode.id, id);
+              else setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
+            }
+            setWfModalOpen(false);
+            setWfEditId(null);
+          }
+        }}
+      />
 
       <div className="flex justify-end mt-4">
         <button
@@ -467,29 +320,5 @@ export function ModeCard({
         </button>
       </div>
     </div>
-  );
-}
-
-function FingerChip({
-  finger,
-  owned,
-  onToggle,
-}: {
-  finger: Finger;
-  owned: boolean;
-  onToggle: () => void;
-}) {
-  const [hand, name] = finger.split('-') as [Hand, string];
-  return (
-    <button
-      className={clsx(
-        'px-2 py-1 rounded text-xs border border-slate-700/50',
-        owned ? 'bg-fg-ring/80 text-slate-900' : 'bg-slate-800 text-slate-200 hover:bg-slate-700',
-      )}
-      onClick={onToggle}
-    >
-      <span className="opacity-70 mr-1">{hand === 'L' ? 'L' : 'R'}</span>
-      {name}
-    </button>
   );
 }

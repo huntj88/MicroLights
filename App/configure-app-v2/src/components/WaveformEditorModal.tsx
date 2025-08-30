@@ -1,0 +1,77 @@
+import { Modal } from '@/components/Modal';
+import { WaveformEditor } from '@/components/WaveformEditor';
+import type { Waveform } from '@/lib/waveform';
+
+export type WaveformEditorAction = 'edit-fullscreen' | 'save' | 'save-and-use';
+
+export function WaveformEditorModal({
+  open,
+  title,
+  draft,
+  editId,
+  onClose,
+  onAction,
+  onDraftChange,
+  canSave,
+}: {
+  open: boolean;
+  title: string;
+  draft: Waveform;
+  editId?: string | null;
+  onClose: () => void;
+  onAction: (action: WaveformEditorAction) => void;
+  onDraftChange: (wf: Waveform) => void;
+  canSave: boolean;
+}) {
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={title}
+      size="lg"
+      footer={
+        <>
+          <button
+            className="px-3 py-1.5 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-sm"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
+          <button
+            className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm"
+            onClick={() => onAction('edit-fullscreen')}
+          >
+            Edit Fullscreen
+          </button>
+          <button
+            className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900 text-sm disabled:opacity-50"
+            disabled={!canSave}
+            onClick={() => onAction(editId ? 'save' : 'save-and-use')}
+          >
+            {editId ? 'Save' : 'Save and Use'}
+          </button>
+        </>
+      }
+    >
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <label className="text-sm">Name</label>
+          <input
+            value={draft.name}
+            onChange={e => onDraftChange({ ...draft, name: e.target.value })}
+            className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+          />
+          <label className="text-sm ml-4">Total Ticks</label>
+          <input
+            type="number"
+            min={2}
+            value={draft.totalTicks}
+            onChange={e => onDraftChange({ ...draft, totalTicks: Math.max(2, Number(e.target.value)) })}
+            className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+          />
+        </div>
+        <WaveformEditor value={draft} onChange={onDraftChange} height={140} />
+      </div>
+    </Modal>
+  );
+}
