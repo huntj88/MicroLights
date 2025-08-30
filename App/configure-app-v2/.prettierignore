@@ -6,3 +6,7 @@ build
 .husky
 .next
 .storybook
+
+# Do not format Chatmodes definitions
+.github/chatmodes
+**/*.chatmode.md
