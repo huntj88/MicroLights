@@ -16,6 +16,7 @@ export type Mode = {
   accel?: {
     triggers: Array<{
       threshold: number;
+  color?: string; // hex; defaults to mode color if missing (migrated data)
       waveformId?: string;
     }>;
   };
@@ -28,7 +29,7 @@ export type ExportedMode = {
   name: string;
   color: string;
   waveform?: Waveform;
-  accel: { triggers: Array<{ threshold: number; waveform?: Waveform }> };
+  accel: { triggers: Array<{ threshold: number; color: string; waveform?: Waveform }> };
 };
 
 // A saved ModeSet snapshot of modes and finger ownership
@@ -71,6 +72,7 @@ export type AppState = {
   removeAccelTrigger: (modeId: string, index: number) => void;
   setAccelTriggerThreshold: (modeId: string, index: number, threshold: number) => void;
   setAccelTriggerWaveform: (modeId: string, index: number, waveformId?: string) => void;
+  setAccelTriggerColor: (modeId: string, index: number, color: string) => void;
 
   addWaveform: (wf: Waveform) => string;
   updateWaveform: (id: string, wf: Partial<Waveform>) => void;
@@ -178,7 +180,7 @@ export const useAppStore = create<AppState>()(
             ? ALLOWED_THRESHOLDS.find(v => v > prev.threshold)
             : ALLOWED_THRESHOLDS[0];
           if (nextAllowed == null) return m; // no valid higher threshold available
-          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: nextAllowed, waveformId: undefined }] } };
+          return { ...m, accel: { ...acc, triggers: [...acc.triggers, { threshold: nextAllowed, color: m.color, waveformId: undefined }] } };
         })
       })),
       removeAccelTrigger: (modeId, index) => set(s => ({
@@ -219,6 +221,14 @@ export const useAppStore = create<AppState>()(
           if (m.id !== modeId) return m;
           const acc = m.accel ?? { triggers: [] };
           const next = acc.triggers.map((t, i) => (i === index ? { ...t, waveformId } : t));
+          return { ...m, accel: { ...acc, triggers: next } };
+        })
+      })),
+      setAccelTriggerColor: (modeId, index, color) => set(s => ({
+        modes: s.modes.map(m => {
+          if (m.id !== modeId) return m;
+          const acc = m.accel ?? { triggers: [] };
+          const next = acc.triggers.map((t, i) => (i === index ? { ...t, color } : t));
           return { ...m, accel: { ...acc, triggers: next } };
         })
       })),
@@ -337,7 +347,7 @@ export const useAppStore = create<AppState>()(
           color: m.color,
           waveform: inline(m.waveformId),
           accel: {
-            triggers: triggers.map(t => ({ threshold: t.threshold, waveform: inline(t.waveformId) })),
+            triggers: triggers.map(t => ({ threshold: t.threshold, color: t.color ?? m.color, waveform: inline(t.waveformId) })),
           },
         };
 
@@ -355,6 +365,7 @@ export const useAppStore = create<AppState>()(
           accel: m.accel ? {
             triggers: m.accel.triggers.map(t => ({
               threshold: t.threshold,
+              color: t.color ?? m.color,
               waveformId: t.waveformId,
               waveform: t.waveformId ? s.waveforms.find(w => w.id === t.waveformId) ?? null : null,
             })),

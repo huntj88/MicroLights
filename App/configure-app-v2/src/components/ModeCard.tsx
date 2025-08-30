@@ -1,5 +1,4 @@
 import { clsx } from 'clsx';
-import { HexColorPicker } from 'react-colorful';
 
 import { WaveformMini } from '@/components/WaveformMini';
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
@@ -23,8 +22,8 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const removeAccelTrigger = useAppStore(s => s.removeAccelTrigger);
   const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
   const setAccelTriggerWaveform = useAppStore(s => s.setAccelTriggerWaveform);
+  const setAccelTriggerColor = useAppStore(s => s.setAccelTriggerColor);
 
-  // New: export helper
   const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
 
   const selectedWaveform = waveforms.find(w => w.id === mode.waveformId) ?? null;
@@ -124,6 +123,20 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
             )}
           </div>
 
+          {/* Case light color */}
+          <div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
+            <div>
+              <input
+                type="color"
+                value={mode.color}
+                onChange={e => setColor(mode.id, e.target.value)}
+                className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded"
+                aria-label="Case light color"
+              />
+            </div>
+          </div>
+
           {/* Accelerometer section */}
           <div className="mt-3">
             <div className="flex items-center justify-between">
@@ -170,7 +183,14 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                           </option>
                         ))}
                       </select>
-                      <div />
+                      <input
+                        type="color"
+                        value={t.color ?? mode.color}
+                        onChange={e => setAccelTriggerColor(mode.id, i, e.target.value)}
+                        className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded justify-self-end"
+                        aria-label="Trigger color"
+                        title="Trigger color"
+                      />
 
                       {accelWf && (
                         <div className="col-span-3">
@@ -195,19 +215,6 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
                 </button>
               </div>
             )}
-          </div>
-        </div>
-
-        <div className="space-y-3 justify-self-start md:pl-2">
-          <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
-            <div>
-              <HexColorPicker
-                color={mode.color}
-                onChange={hex => setColor(mode.id, hex)}
-                style={{ width: 120, height: 120 }}
-              />
-            </div>
           </div>
         </div>
       </div>
