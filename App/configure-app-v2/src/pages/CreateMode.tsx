@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 import { ModeCard } from '@/components/ModeCard';
@@ -20,12 +20,34 @@ export default function CreateMode() {
   const updateModeSet = useAppStore(s => s.updateModeSet);
   const loadModeSet = useAppStore(s => s.loadModeSet);
   const removeModeSet = useAppStore(s => s.removeModeSet);
+  const lastSelectedModeSetId = useAppStore(s => s.lastSelectedModeSetId);
 
   const [selectedSetId, setSelectedSetId] = useState<string>('');
   const [draftName, setDraftName] = useState<string>('');
 
   const canAdd = useMemo(() => modes.length < 10, [modes.length]);
   const selectedSet = useMemo(() => modeSets.find(s => s.id === selectedSetId), [modeSets, selectedSetId]);
+
+  // On first mount or when library changes, auto-load the most recent selection
+  useEffect(() => {
+    // If local selection is already set, keep it in sync if it exists; otherwise choose from store
+    const fromStore = lastSelectedModeSetId ?? '';
+    if (!selectedSetId) {
+      const candidate = fromStore || (modeSets.length > 0 ? modeSets[modeSets.length - 1]!.id : '');
+      if (candidate) {
+        setSelectedSetId(candidate);
+        // Load only if current modes aren't already tied to this set
+        loadModeSet(candidate);
+        const name = modeSets.find(s => s.id === candidate)?.name ?? '';
+        setDraftName(name);
+        // avoid toast spam on initial load
+      } else {
+        // no modeset yet; make sure draft has a sensible default name
+        setDraftName('New Mode');
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modeSets.length]);
 
   return (
     <div className="space-y-6">
@@ -46,7 +68,7 @@ export default function CreateMode() {
               }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
-              <option value="">(Unsaved Draft)</option>
+              <option value="" disabled={!!selectedSetId}>(Unsaved Draft)</option>
               {modeSets.map(s => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}

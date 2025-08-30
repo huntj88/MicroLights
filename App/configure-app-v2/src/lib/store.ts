@@ -50,6 +50,8 @@ export type AppState = {
   waveforms: WaveformDoc[];
   modeSets: ModeSet[];
 
+  lastSelectedModeSetId: string | null;
+
   // UI settings
   theme: 'system' | 'light' | 'dark';
 
@@ -124,7 +126,8 @@ export const useAppStore = create<AppState>()(
         },
       ],
 
-      modeSets: [],
+  modeSets: [],
+  lastSelectedModeSetId: null,
 
       addMode: partial => {
         const mode = createMode({ ...partial });
@@ -257,6 +260,7 @@ export const useAppStore = create<AppState>()(
       newModeSetDraft: () => set(() => ({
         modes: [createMode()],
         fingerOwner: createEmptyOwner(),
+        lastSelectedModeSetId: null,
       })),
       saveCurrentModeSet: (name: string) => {
         const s = get();
@@ -272,7 +276,11 @@ export const useAppStore = create<AppState>()(
         ) as Record<Finger, number | null>;
         const id = nanoid(6);
         const doc: ModeSet = { id, name: name.trim() || `Set ${s.modeSets.length + 1}`, modes: modesSnap, fingerOwnerIndex };
-        set(st => ({ modeSets: [...st.modeSets, doc], modes: st.modes.map(m => ({ ...m, modeSetId: id })) }));
+        set(st => ({
+          modeSets: [...st.modeSets, doc],
+          modes: st.modes.map(m => ({ ...m, modeSetId: id })),
+          lastSelectedModeSetId: id,
+        }));
         return id;
       },
       updateModeSet: (id: string, name?: string) => set(s => {
@@ -297,7 +305,7 @@ export const useAppStore = create<AppState>()(
         };
         const next = [...s.modeSets];
         next[idx] = updated;
-        return { modeSets: next };
+        return { modeSets: next, lastSelectedModeSetId: id };
       }),
       loadModeSet: (id: string) => set(s => {
         const doc = s.modeSets.find(x => x.id === id);
@@ -313,11 +321,18 @@ export const useAppStore = create<AppState>()(
           const idx = doc.fingerOwnerIndex[f];
           newFingerOwner[f] = idx == null ? null : newModes[idx]?.id ?? null;
         }
-        return { modes: newModes, fingerOwner: newFingerOwner };
+        return { modes: newModes, fingerOwner: newFingerOwner, lastSelectedModeSetId: id };
       }),
       removeModeSet: (id: string) => set(s => {
         const nextSets = s.modeSets.filter(d => d.id !== id);
-        return { modeSets: nextSets, modes: s.modes.map(m => (m.modeSetId === id ? { ...m, modeSetId: null } : m)) };
+        const nextSelected = s.lastSelectedModeSetId === id
+          ? (nextSets.length > 0 ? nextSets[nextSets.length - 1]!.id : null)
+          : s.lastSelectedModeSetId;
+        return {
+          modeSets: nextSets,
+          modes: s.modes.map(m => (m.modeSetId === id ? { ...m, modeSetId: null } : m)),
+          lastSelectedModeSetId: nextSelected,
+        };
       }),
 
       connect: async () => {
