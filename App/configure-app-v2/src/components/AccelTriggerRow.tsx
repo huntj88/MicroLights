@@ -11,6 +11,7 @@ type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
 
 export function AccelTriggerRow({
   trigger,
+  index,
   prevThreshold,
   waveforms,
   defaultColor,
@@ -21,9 +22,9 @@ export function AccelTriggerRow({
   onEditWaveform,
   onToggleColor,
   onColorChange,
-  previewBelow = true,
 }: {
   trigger: Trigger;
+  index: number;
   prevThreshold?: number;
   waveforms: WaveformDoc[];
   defaultColor: string;
@@ -34,8 +35,6 @@ export function AccelTriggerRow({
   onEditWaveform: (id: string) => void;
   onToggleColor: (enabled: boolean) => void;
   onColorChange: (hex: string) => void;
-  disabledColor?: string;
-  previewBelow?: boolean;
 }) {
   const { t } = useTranslation();
   const allowedAfterPrev =
@@ -48,12 +47,15 @@ export function AccelTriggerRow({
     : null;
 
   const effectiveColor = trigger.color ?? defaultColor;
-  // color enabled state is derived in ColorTogglePicker
 
   return (
-    <div>
+    <div className="rounded-lg border border-slate-700/50 bg-slate-900/40 p-3 pl-4 relative">
+      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg bg-fg-ring/40" />
+      <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-400">
+        {t('triggerWithIndex', { index: index + 1 })}
+      </div>
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-        <div className="text-xs text-slate-400">{t('thresholdXg')}</div>
+        <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('thresholdXg')}</div>
         <select
           value={trigger.threshold}
           onChange={e => onChangeThreshold(Number(e.target.value))}
@@ -61,7 +63,9 @@ export function AccelTriggerRow({
           aria-label={t('accelerationThresholdAria')}
         >
           {allowedAfterPrev.map(v => (
-            <option key={v} value={v}>{`${v} g`}</option>
+            <option key={v} value={v}>
+              {t('accelGValue', { value: v })}
+            </option>
           ))}
         </select>
         <button
@@ -71,7 +75,7 @@ export function AccelTriggerRow({
           {t('remove')}
         </button>
 
-        <div className="text-xs text-slate-400">{t('waveform')}</div>
+        <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('waveform')}</div>
         <div className="flex items-center gap-2">
           <WaveformPicker
             value={trigger.waveformId}
@@ -91,7 +95,7 @@ export function AccelTriggerRow({
         />
       </div>
 
-      {previewBelow && selected && (
+      {selected && (
         <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
           <WaveformMini wf={selected} height={56} />
         </div>

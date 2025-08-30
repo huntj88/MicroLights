@@ -28,4 +28,4 @@ UI changes should consider the theme, and update components to match the overall
 
 After making code changes run `npm run lint`
 
-Ensure strings that are present in the UI are localized using the i18next library.
+Ensure strings that are present in the UI are localized using the i18next library. There should be no string manipulation to create user facing strings. They should use i18next's string parameters.

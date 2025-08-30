@@ -136,10 +136,11 @@ export function ModeCard({
             </div>
 
             {triggers.length > 0 && (
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 space-y-3">
                 {triggers.map((trig, i) => (
                   <AccelTriggerRow
                     key={i}
+                    index={i}
                     trigger={trig}
                     prevThreshold={i > 0 ? triggers[i - 1]?.threshold : undefined}
                     waveforms={waveforms}
