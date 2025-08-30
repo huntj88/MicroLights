@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import type { Waveform } from '@/lib/waveform';
@@ -41,6 +43,7 @@ export function AccelTriggerRow({
   disabledColor?: string;
   previewBelow?: boolean;
 }) {
+  const { t } = useTranslation();
   const allowedAfterPrev =
     prevThreshold == null ? [...ALLOWED] : (ALLOWED.filter(v => v > prevThreshold) as number[]);
 
@@ -54,12 +57,12 @@ export function AccelTriggerRow({
   return (
     <div>
       <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-        <div className="text-xs text-slate-400">Threshold (× g)</div>
+        <div className="text-xs text-slate-400">{t('thresholdXg')}</div>
         <select
           value={trigger.threshold}
           onChange={e => onChangeThreshold(Number(e.target.value))}
           className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
-          aria-label="Acceleration threshold in multiples of g"
+          aria-label={t('accelerationThresholdAria')}
         >
           {allowedAfterPrev.map(v => (
             <option key={v} value={v}>{`${v} g`}</option>
@@ -69,10 +72,10 @@ export function AccelTriggerRow({
           className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
           onClick={onRemove}
         >
-          Remove
+          {t('remove')}
         </button>
 
-        <div className="text-xs text-slate-400">Waveform</div>
+        <div className="text-xs text-slate-400">{t('waveform')}</div>
         <div className="flex items-center gap-2">
           <WaveformPicker
             value={trigger.waveformId}
@@ -87,8 +90,8 @@ export function AccelTriggerRow({
         <div className="flex items-center gap-2 justify-self-end ml-3 sm:ml-4">
           <input
             type="checkbox"
-            aria-label="Enable trigger color"
-            title="Enable trigger color"
+            aria-label={t('enableTriggerColor')}
+            title={t('enableTriggerColor')}
             checked={enabled}
             onChange={e => onToggleColor(e.target.checked)}
             className="accent-fg-ring"
@@ -99,8 +102,8 @@ export function AccelTriggerRow({
             onChange={e => onColorChange(e.target.value)}
             disabled={!enabled}
             className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
-            aria-label="Trigger color"
-            title={enabled ? 'Trigger color' : 'Enable trigger color to choose color'}
+            aria-label={t('triggerColor')}
+            title={enabled ? t('triggerColor') : t('enableTriggerColorToChoose')}
           />
         </div>
       </div>

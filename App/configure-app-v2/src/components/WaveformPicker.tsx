@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import { WaveformMini } from '@/components/WaveformMini';
 import type { Waveform } from '@/lib/waveform';
 
@@ -22,6 +24,7 @@ export function WaveformPicker({
   previewHeight?: number;
   selectClassName?: string;
 }) {
+  const { t } = useTranslation();
   const selected = value ? waveforms.find(w => w.id === value) ?? null : null;
 
   return (
@@ -32,7 +35,7 @@ export function WaveformPicker({
           onChange={e => onChange(e.target.value || undefined)}
           className={selectClassName}
         >
-          <option value="">None</option>
+          <option value="">{t('none')}</option>
           {waveforms.map(w => (
             <option key={w.id} value={w.id}>
               {w.name}
@@ -43,7 +46,7 @@ export function WaveformPicker({
           <button
             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
             onClick={onCreate}
-            title="Create new waveform"
+            title={t('newWaveform')}
           >
             +
           </button>
@@ -52,7 +55,7 @@ export function WaveformPicker({
           <button
             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
             onClick={() => onEdit(selected.id)}
-            title="Edit selected waveform"
+            title={t('editWaveform')}
           >
             ✎
           </button>

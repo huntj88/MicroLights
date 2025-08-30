@@ -1,4 +1,5 @@
 import { clsx } from 'clsx';
+import { useTranslation } from 'react-i18next';
 
 import type { Finger, Hand } from '@/lib/fingers';
 
@@ -11,6 +12,7 @@ export function FingerChip({
   owned: boolean;
   onToggle: () => void;
 }) {
+  const { t } = useTranslation();
   const [hand, name] = finger.split('-') as [Hand, string];
   return (
     <button
@@ -20,7 +22,7 @@ export function FingerChip({
       )}
       onClick={onToggle}
     >
-      <span className="opacity-70 mr-1">{hand === 'L' ? 'L' : 'R'}</span>
+      <span className="opacity-70 mr-1">{hand === 'L' ? t('l') : t('r')}</span>
       {name}
     </button>
   );

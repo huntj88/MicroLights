@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { AccelTriggerRow } from '@/components/AccelTriggerRow';
@@ -16,6 +17,7 @@ export function ModeCard({
   showFingerOptions?: boolean;
 }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const owner = useAppStore(s => s.fingerOwner);
   const setColor = useAppStore(s => s.setColor);
   const selectAll = useAppStore(s => s.selectAll);
@@ -67,13 +69,13 @@ export function ModeCard({
         <div className="space-y-3">
           {showFingerOptions && (
             <div>
-              <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Fingers</div>
+        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('fingers')}</div>
               <div className="flex gap-2 mb-2">
                 <button
                   className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
-                  onClick={() => selectAll(mode.id)}
+          onClick={() => selectAll(mode.id)}
                 >
-                  All
+          {t('selectAll', { defaultValue: 'All' })}
                 </button>
               </div>
               <FingerSelector
@@ -87,7 +89,7 @@ export function ModeCard({
           {showFingerOptions && <div className="h-px bg-slate-700/40 my-3" />}
 
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Waveform</div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('waveform')}</div>
             <WaveformPicker
               value={mode.waveformId}
               onChange={id => setWaveform(mode.id, id)}
@@ -113,12 +115,12 @@ export function ModeCard({
 
           {/* Case light color */}
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">Case Light Color</div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('caseLightColor')}</div>
             <div className="flex items-center gap-3">
               <input
                 type="checkbox"
-                aria-label="Enable case light"
-                title="Enable case light"
+                aria-label={t('enableCaseLight')}
+                title={t('enableCaseLight')}
                 checked={mode.color !== '#000000'}
                 onChange={e => setColor(mode.id, e.target.checked ? '#3584e4' : '#000000')}
                 className="accent-fg-ring"
@@ -129,12 +131,8 @@ export function ModeCard({
                 onChange={e => setColor(mode.id, e.target.value)}
                 disabled={mode.color === '#000000'}
                 className="h-8 w-12 p-0 bg-transparent border border-slate-700/50 rounded disabled:opacity-50"
-                aria-label="Case light color"
-                title={
-                  mode.color === '#000000'
-                    ? 'Enable case light to choose color'
-                    : 'Case light color'
-                }
+                aria-label={t('caseLightColorAria')}
+                title={mode.color === '#000000' ? t('enableCaseLightToChoose') : t('caseLightColor')}
               />
             </div>
           </div>
@@ -142,7 +140,7 @@ export function ModeCard({
           {/* Accelerometer section */}
           <div className="mt-3">
             <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-wide text-slate-400">Accelerometer</div>
+              <div className="text-xs uppercase tracking-wide text-slate-400">{t('accelerometer')}</div>
             </div>
 
             {triggers.length > 0 && (
@@ -186,7 +184,7 @@ export function ModeCard({
                   className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
                   onClick={() => addAccelTrigger(mode.id)}
                 >
-                  + Add Trigger
+                  {t('addTrigger')}
                 </button>
               </div>
             )}
@@ -197,12 +195,12 @@ export function ModeCard({
       {/* Export JSON */}
       <div className="mt-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="text-xs uppercase tracking-wide text-slate-400">Export (JSON)</div>
+          <div className="text-xs uppercase tracking-wide text-slate-400">{t('exportJSON')}</div>
           <button
             className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
             onClick={() => navigator.clipboard.writeText(exportModeAsJSON(mode.id))}
           >
-            Copy
+            {t('copy')}
           </button>
         </div>
         <pre className="rounded border border-slate-700/50 bg-slate-900/60 p-2 text-xs overflow-x-auto">
@@ -213,7 +211,7 @@ export function ModeCard({
       {/* New Waveform Modal */}
       <WaveformEditorModal
         open={wfModalOpen}
-        title={wfEditId ? 'Edit Waveform' : 'New Waveform'}
+  title={wfEditId ? t('editWaveform') : t('newWaveform')}
         draft={wfDraft}
         editId={wfEditId}
         onClose={() => {
