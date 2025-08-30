@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { WaveformEditor } from '@/components/WaveformEditor';
 import { useAppStore } from '@/lib/store';
@@ -16,6 +17,7 @@ const initial: Waveform = {
 };
 
 export default function CreateWave() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const waveforms = useAppStore(s => s.waveforms);
   const addWaveform = useAppStore(s => s.addWaveform);
   const updateWaveform = useAppStore(s => s.updateWaveform);
@@ -40,18 +42,34 @@ export default function CreateWave() {
     setDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
   }
 
+  // If a ?select=ID param is present, select and load that waveform
+  useEffect(() => {
+    const id = searchParams.get('select');
+    if (!id) return;
+    const item = waveforms.find(w => w.id === id);
+    if (item) {
+      setSelectedId(item.id);
+      setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+      // keep the param so reload preserves selection; or we could clear it:
+      // setSearchParams(prev => { prev.delete('select'); return prev; }, { replace: true });
+    }
+  }, [searchParams, waveforms]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <h1 className="text-2xl font-semibold">Create / Wave</h1>
         <div className="ml-auto flex items-center gap-2">
-          <select
+      <select
             value={selectedId}
             onChange={e => {
               const id = e.target.value as string;
               setSelectedId(id);
               const item = waveforms.find(w => w.id === id);
               if (item) setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
+        // reflect selection in URL for deep link / navigation from other pages
+        if (id) setSearchParams({ select: id });
+        else setSearchParams({});
             }}
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           >

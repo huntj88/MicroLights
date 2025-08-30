@@ -1,10 +1,16 @@
 import { clsx } from 'clsx';
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
+import { Modal } from '@/components/Modal';
+import { WaveformEditor } from '@/components/WaveformEditor';
 import { WaveformMini } from '@/components/WaveformMini';
 import { FINGERS_BY_HAND, type Finger, type Hand } from '@/lib/fingers';
 import { useAppStore, type Mode } from '@/lib/store';
+import type { Waveform } from '@/lib/waveform';
 
 export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showFingerOptions?: boolean }) {
+  const navigate = useNavigate();
   const owner = useAppStore(s => s.fingerOwner);
   const setColor = useAppStore(s => s.setColor);
   const selectAll = useAppStore(s => s.selectAll);
@@ -15,7 +21,6 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   const waveforms = useAppStore(s => s.waveforms);
   const setWaveform = useAppStore(s => s.setWaveform);
   const addWaveform = useAppStore(s => s.addWaveform);
-  const removeWaveform = useAppStore(s => s.removeWaveform);
 
   // accelerometer actions
   const addAccelTrigger = useAppStore(s => s.addAccelTrigger);
@@ -31,6 +36,11 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
   // Type-safe triggers list
   type Trigger = NonNullable<Mode['accel']>['triggers'][number];
   const triggers: Trigger[] = mode.accel?.triggers ?? [];
+
+  // Popup state for creating a new waveform inline
+  const [wfModalOpen, setWfModalOpen] = useState(false);
+  const [wfDraft, setWfDraft] = useState<Waveform>({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+  const canSaveDraft = useMemo(() => wfDraft.name.trim().length > 0 && wfDraft.totalTicks >= 2 && wfDraft.changeAt.length > 0 && wfDraft.changeAt[0]?.tick === 0, [wfDraft]);
 
   return (
     <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
@@ -99,8 +109,8 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
               <button
                 className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
                 onClick={() => {
-                  const id = addWaveform({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
-                  setWaveform(mode.id, id);
+                  setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                  setWfModalOpen(true);
                 }}
                 title="Create new waveform"
               >
@@ -109,10 +119,19 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
               {mode.waveformId && (
                 <button
                   className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
-                  onClick={() => removeWaveform(mode.waveformId!)}
-                  title="Delete selected waveform"
+                  onClick={() => setWaveform(mode.id, undefined)}
+                  title="Remove waveform from this mode"
                 >
                   Remove
+                </button>
+              )}
+              {mode.waveformId && (
+                <button
+                  className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
+                  onClick={() => navigate(`/create/wave?select=${mode.waveformId}`)}
+                  title="Edit selected waveform"
+                >
+                  Edit
                 </button>
               )}
             </div>
@@ -255,6 +274,68 @@ export function ModeCard({ mode, showFingerOptions = true }: { mode: Mode; showF
 {exportModeAsJSON(mode.id)}
         </pre>
       </div>
+
+      {/* New Waveform Modal */}
+      <Modal
+        open={wfModalOpen}
+        onClose={() => setWfModalOpen(false)}
+        title="New Waveform"
+        size="lg"
+        footer={
+          <>
+            <button
+              className="px-3 py-1.5 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-sm"
+              onClick={() => setWfModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white text-sm"
+              onClick={() => {
+                // Save draft first so it exists in library, select it, then navigate to full editor
+                const id = addWaveform(wfDraft);
+                setWaveform(mode.id, id);
+                setWfModalOpen(false);
+                navigate(`/create/wave?select=${id}`);
+              }}
+            >
+              Edit Fullscreen
+            </button>
+            <button
+              className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900 text-sm disabled:opacity-50"
+              disabled={!canSaveDraft}
+              onClick={() => {
+                const id = addWaveform(wfDraft);
+                setWaveform(mode.id, id);
+                setWfModalOpen(false);
+              }}
+            >
+              Save and Use
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <label className="text-sm">Name</label>
+            <input
+              value={wfDraft.name}
+              onChange={e => setWfDraft({ ...wfDraft, name: e.target.value })}
+              className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+            />
+            <label className="text-sm ml-4">Total Ticks</label>
+            <input
+              type="number"
+              min={2}
+              value={wfDraft.totalTicks}
+              onChange={e => setWfDraft({ ...wfDraft, totalTicks: Math.max(2, Number(e.target.value)) })}
+              className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
+            />
+          </div>
+          {/* Inline editor */}
+          <WaveformEditor value={wfDraft} onChange={setWfDraft} height={140} />
+        </div>
+      </Modal>
 
       <div className="flex justify-end mt-4">
         <button
