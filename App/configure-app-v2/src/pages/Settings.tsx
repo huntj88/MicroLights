@@ -47,9 +47,7 @@ export default function Settings() {
               {t('dark')}
             </label>
           </div>
-          <div className="col-span-2 text-xs text-slate-400">
-            {t('systemThemeHint')}
-          </div>
+          <div className="col-span-2 text-xs text-slate-400">{t('systemThemeHint')}</div>
         </div>
       </section>
     </div>

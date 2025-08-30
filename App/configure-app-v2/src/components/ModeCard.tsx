@@ -71,13 +71,15 @@ export function ModeCard({
         <div className="space-y-3">
           {showFingerOptions && (
             <div>
-        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('fingers')}</div>
+              <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+                {t('fingers')}
+              </div>
               <div className="flex gap-2 mb-2">
                 <button
                   className="px-2 py-1 rounded border border-slate-600/60 bg-transparent hover:bg-slate-800 text-slate-200 text-xs"
-          onClick={() => selectAll(mode.id)}
+                  onClick={() => selectAll(mode.id)}
                 >
-          {t('selectAll', { defaultValue: 'All' })}
+                  {t('selectAll', { defaultValue: 'All' })}
                 </button>
               </div>
               <FingerSelector
@@ -91,13 +93,19 @@ export function ModeCard({
           {showFingerOptions && <div className="h-px bg-slate-700/40 my-3" />}
 
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('waveform')}</div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+              {t('waveform')}
+            </div>
             <WaveformPicker
               value={mode.waveformId}
               onChange={id => setWaveform(mode.id, id)}
               waveforms={waveforms}
               onCreate={() => {
-                setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                setWfDraft({
+                  name: 'New Wave',
+                  totalTicks: 16,
+                  changeAt: [{ tick: 0, output: 'high' }],
+                });
                 setWfEditId(null);
                 setWfModalTarget({ kind: 'mode' });
                 setWfModalOpen(true);
@@ -117,7 +125,9 @@ export function ModeCard({
 
           {/* Case light color */}
           <div>
-            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('caseLightColor')}</div>
+            <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+              {t('caseLightColor')}
+            </div>
             <CaseLightColorTogglePicker
               color={mode.color}
               onToggle={enabled => setColor(mode.id, enabled ? '#3584e4' : DISABLED_COLOR)}
@@ -128,7 +138,9 @@ export function ModeCard({
           {/* Accelerometer section */}
           <div className="mt-3">
             <div className="flex items-center justify-between">
-              <div className="text-xs uppercase tracking-wide text-slate-400">{t('accelerometer')}</div>
+              <div className="text-xs uppercase tracking-wide text-slate-400">
+                {t('accelerometer')}
+              </div>
             </div>
 
             {triggers.length > 0 && (
@@ -144,7 +156,11 @@ export function ModeCard({
                     onRemove={() => removeAccelTrigger(mode.id, i)}
                     onChangeWaveform={id => setAccelTriggerWaveform(mode.id, i, id)}
                     onCreateWaveform={() => {
-                      setWfDraft({ name: 'New Wave', totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+                      setWfDraft({
+                        name: 'New Wave',
+                        totalTicks: 16,
+                        changeAt: [{ tick: 0, output: 'high' }],
+                      });
                       setWfEditId(null);
                       setWfModalTarget({ kind: 'accel', index: i });
                       setWfModalOpen(true);
@@ -152,7 +168,11 @@ export function ModeCard({
                     onEditWaveform={id => {
                       const wf = waveforms.find(w => w.id === id);
                       if (!wf) return;
-                      setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
+                      setWfDraft({
+                        name: wf.name,
+                        totalTicks: wf.totalTicks,
+                        changeAt: wf.changeAt,
+                      });
                       setWfEditId(wf.id);
                       setWfModalTarget({ kind: 'accel', index: i });
                       setWfModalOpen(true);
@@ -199,7 +219,7 @@ export function ModeCard({
       {/* New Waveform Modal */}
       <WaveformEditorModal
         open={wfModalOpen}
-  title={wfEditId ? t('editWaveform') : t('newWaveform')}
+        title={wfEditId ? t('editWaveform') : t('newWaveform')}
         draft={wfDraft}
         editId={wfEditId}
         onClose={() => {

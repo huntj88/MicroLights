@@ -177,7 +177,7 @@ export const useAppStore = create<AppState>()(
         set(s => ({
           modes: s.modes.map(m => (m.id === modeId ? { ...m, color: hex } : m)),
         })),
-  // case light enablement is inferred: color === DISABLED_COLOR means disabled
+      // case light enablement is inferred: color === DISABLED_COLOR means disabled
 
       // accelerometer
       addAccelTrigger: modeId =>

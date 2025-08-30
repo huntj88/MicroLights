@@ -47,7 +47,7 @@ export default function CreateMode() {
         // avoid toast spam on initial load
       } else {
         // no modeset yet; make sure draft has a sensible default name
-  setDraftName(t('newMode'));
+        setDraftName(t('newMode'));
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +56,7 @@ export default function CreateMode() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-  <h1 className="text-2xl font-semibold">{t('createModeTitle')}</h1>
+        <h1 className="text-2xl font-semibold">{t('createModeTitle')}</h1>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 mr-4">
             {/* Name input moved below header to align with Waveform page */}
@@ -113,17 +113,17 @@ export default function CreateMode() {
               type="button"
               onClick={() => {
                 if (selectedSet) {
-          updateModeSet(selectedSet.id, draftName.trim() || selectedSet.name);
-          toast.success(t('modeSaved'));
+                  updateModeSet(selectedSet.id, draftName.trim() || selectedSet.name);
+                  toast.success(t('modeSaved'));
                 } else {
                   const id = saveCurrentModeSet(draftName);
                   setSelectedSetId(id);
-          toast.success(t('addedToLibrary'));
+                  toast.success(t('addedToLibrary'));
                 }
               }}
               className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
             >
-        {selectedSet ? t('save') : t('addToLibrary')}
+              {selectedSet ? t('save') : t('addToLibrary')}
             </button>
           </div>
 
@@ -149,7 +149,7 @@ export default function CreateMode() {
 
       {/* Name row aligned like Waveform page */}
       <div className="flex items-center gap-2">
-  <label className="text-sm">{t('name')}</label>
+        <label className="text-sm">{t('name')}</label>
         <input
           value={draftName}
           onChange={e => setDraftName(e.target.value)}
@@ -158,12 +158,14 @@ export default function CreateMode() {
       </div>
 
       <div className="flex items-center gap-2">
-  <div className="text-xs text-slate-400">{t('tip')} {t('tipModeSave')}</div>
+        <div className="text-xs text-slate-400">
+          {t('tip')} {t('tipModeSave')}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
-        <div className="text-xs text-slate-400">{t('tip')}{' '}
-          {modes.length > 1 ? t('modeCardTipPlural') : t('modeCardTipSingle')}
+        <div className="text-xs text-slate-400">
+          {t('tip')} {modes.length > 1 ? t('modeCardTipPlural') : t('modeCardTipSingle')}
         </div>
       </div>
 

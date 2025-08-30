@@ -66,7 +66,9 @@ export function WaveformEditorModal({
             type="number"
             min={2}
             value={draft.totalTicks}
-            onChange={e => onDraftChange({ ...draft, totalTicks: Math.max(2, Number(e.target.value)) })}
+            onChange={e =>
+              onDraftChange({ ...draft, totalTicks: Math.max(2, Number(e.target.value)) })
+            }
             className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
         </div>

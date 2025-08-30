@@ -41,7 +41,7 @@ export default function CreateWave() {
 
   function newDraft() {
     setSelectedId('');
-  setDraft({ name: t('newWave'), totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
+    setDraft({ name: t('newWave'), totalTicks: 16, changeAt: [{ tick: 0, output: 'high' }] });
   }
 
   // If a ?select=ID param is present, select and load that waveform
@@ -60,7 +60,7 @@ export default function CreateWave() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-  <h1 className="text-2xl font-semibold">{t('createWaveTitle')}</h1>
+        <h1 className="text-2xl font-semibold">{t('createWaveTitle')}</h1>
         <div className="ml-auto flex items-center gap-2">
           <select
             value={selectedId}
@@ -110,13 +110,13 @@ export default function CreateWave() {
       </div>
 
       <div className="flex items-center gap-2">
-  <label className="text-sm">{t('name')}</label>
+        <label className="text-sm">{t('name')}</label>
         <input
           value={draft.name}
           onChange={e => setDraft({ ...draft, name: e.target.value })}
           className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
         />
-  <label className="text-sm ml-4">{t('totalTicks')}</label>
+        <label className="text-sm ml-4">{t('totalTicks')}</label>
         <input
           type="number"
           min={2}

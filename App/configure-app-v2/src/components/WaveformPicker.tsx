@@ -25,7 +25,7 @@ export function WaveformPicker({
   selectClassName?: string;
 }) {
   const { t } = useTranslation();
-  const selected = value ? waveforms.find(w => w.id === value) ?? null : null;
+  const selected = value ? (waveforms.find(w => w.id === value) ?? null) : null;
 
   return (
     <div>

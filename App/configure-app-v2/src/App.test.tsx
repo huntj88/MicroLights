@@ -1,5 +1,3 @@
 import { describe } from 'vitest';
 
-describe('App', () => {
-
-});
+describe('App', () => {});
