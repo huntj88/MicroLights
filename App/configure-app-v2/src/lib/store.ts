@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { DISABLED_COLOR } from './constants';
+import { DEFAULT_WAVEFORMS } from './defaultWaveforms';
 import { ALL_FINGERS, type Finger } from './fingers';
 import type { Waveform } from './waveform';
 
@@ -17,13 +18,13 @@ export type Mode = {
   accel?: {
     triggers: Array<{
       threshold: number;
-      color?: string; // hex; defaults to mode color if missing (migrated data)
+      color?: string; // hex; defaults to mode color if missing
       waveformId?: string;
     }>;
   };
 };
 
-export type WaveformDoc = { id: string } & Waveform;
+export type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
 
 // JSON export shape without UI state or ids
 export type ExportedMode = {
@@ -50,6 +51,9 @@ export type AppState = {
 
   waveforms: WaveformDoc[];
   modeSets: ModeSet[];
+
+  // tracks the last applied defaults signature to know when to resync
+  defaultWaveformsSignature: string;
 
   lastSelectedModeSetId: string | null;
 
@@ -115,17 +119,8 @@ export const useAppStore = create<AppState>()(
       // default to system theme; AppShell computes actual dark/light
       theme: 'system',
 
-      waveforms: [
-        {
-          id: nanoid(6),
-          name: 'Pulse',
-          totalTicks: 20,
-          changeAt: [
-            { tick: 0, output: 'high' },
-            { tick: 10, output: 'low' },
-          ],
-        },
-      ],
+      waveforms: DEFAULT_WAVEFORMS.map(wf => ({ id: nanoid(6), readonly: true, ...wf })),
+      defaultWaveformsSignature: JSON.stringify(DEFAULT_WAVEFORMS),
 
       modeSets: [],
       lastSelectedModeSetId: null,
@@ -266,22 +261,28 @@ export const useAppStore = create<AppState>()(
         return id;
       },
       updateWaveform: (id, wf) =>
-        set(s => ({
-          waveforms: s.waveforms.map(x => (x.id === id ? { ...x, ...wf } : x)),
-        })),
+        set(s => {
+          const target = s.waveforms.find(x => x.id === id);
+          if (!target || target.readonly) return { waveforms: s.waveforms };
+          return { waveforms: s.waveforms.map(x => (x.id === id ? { ...x, ...wf } : x)) };
+        }),
       removeWaveform: id =>
-        set(s => ({
-          waveforms: s.waveforms.filter(x => x.id !== id),
-          modes: s.modes.map(m => {
-            const cleared = m.waveformId === id ? { ...m, waveformId: undefined } : m;
-            const acc = cleared.accel;
-            if (!acc) return cleared;
-            const nextTriggers = acc.triggers.map(t =>
-              t.waveformId === id ? { ...t, waveformId: undefined } : t,
-            );
-            return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
-          }),
-        })),
+        set(s => {
+          const target = s.waveforms.find(x => x.id === id);
+          if (!target || target.readonly) return { waveforms: s.waveforms };
+          return {
+            waveforms: s.waveforms.filter(x => x.id !== id),
+            modes: s.modes.map(m => {
+              const cleared = m.waveformId === id ? { ...m, waveformId: undefined } : m;
+              const acc = cleared.accel;
+              if (!acc) return cleared;
+              const nextTriggers = acc.triggers.map(t =>
+                t.waveformId === id ? { ...t, waveformId: undefined } : t,
+              );
+              return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
+            }),
+          };
+        }),
 
       // ModeSet library
       newModeSetDraft: () =>
@@ -400,7 +401,7 @@ export const useAppStore = create<AppState>()(
           if (!id) return undefined;
           const doc = s.waveforms.find(w => w.id === id);
           if (!doc) return undefined;
-          const { id: _omit, ...wf } = doc; // strip id
+          const { id: _omit, readonly: _omitRO, ...wf } = doc; // strip id, readonly
           return wf;
         };
 
@@ -425,29 +426,90 @@ export const useAppStore = create<AppState>()(
       },
 
       send: async () => {
-        const s = get();
-        const payload = s.modes.map(m => ({
-          id: m.id,
-          color: m.color,
-          waveformId: m.waveformId,
-          waveform: m.waveformId ? (s.waveforms.find(w => w.id === m.waveformId) ?? null) : null,
-          fingers: ALL_FINGERS.filter(f => s.fingerOwner[f] === m.id),
-          accel: m.accel
-            ? {
-                triggers: m.accel.triggers.map(t => ({
-                  threshold: t.threshold,
-                  color: t.color ?? m.color,
-                  waveformId: t.waveformId,
-                  waveform: t.waveformId
-                    ? (s.waveforms.find(w => w.id === t.waveformId) ?? null)
-                    : null,
-                })),
-              }
-            : { triggers: [] },
-        }));
-        console.log('SEND', payload);
+        console.log('SEND');
       },
     }),
-    { name: 'bulbchips-store' },
+    {
+      name: 'bulbchips-store',
+      version: 1,
+      onRehydrateStorage: () => (state, _error) => {
+        // After rehydrate, sync readonly defaults with the current DEFAULT_WAVEFORMS
+        try {
+          const currentSig = JSON.stringify(DEFAULT_WAVEFORMS);
+          const s = (state as unknown as AppState) ?? undefined;
+          if (!s) return;
+          const needsSync = s.defaultWaveformsSignature !== currentSig;
+          if (!needsSync) return;
+
+          const slug = (name: string) =>
+            name
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '');
+
+          const desired = new Map(DEFAULT_WAVEFORMS.map(wf => [slug(wf.name), wf as Waveform]));
+          const existingReadonly = new Map(
+            s.waveforms.filter(w => w.readonly).map(w => [slug(w.name), w as WaveformDoc]),
+          );
+
+          const keepOrUpdated: WaveformDoc[] = [];
+          // Update existing presets to match defaults
+          for (const [key, wf] of desired) {
+            const doc = existingReadonly.get(key);
+            if (doc) {
+              keepOrUpdated.push({
+                id: doc.id,
+                readonly: true,
+                name: wf.name,
+                totalTicks: wf.totalTicks,
+                changeAt: wf.changeAt,
+              });
+            }
+          }
+          // Add new presets
+          for (const [key, wf] of desired) {
+            if (!existingReadonly.has(key)) {
+              keepOrUpdated.push({
+                id: nanoid(6),
+                readonly: true,
+                name: wf.name,
+                totalTicks: wf.totalTicks,
+                changeAt: wf.changeAt,
+              });
+            }
+          }
+          // Determine removed preset ids
+          const desiredKeys = new Set(desired.keys());
+          const removedIds = s.waveforms
+            .filter(w => w.readonly && !desiredKeys.has(slug(w.name)))
+            .map(w => w.id);
+
+          // Build next waveforms: non-readonly unchanged + synced readonly
+          const nonReadonly = s.waveforms.filter(w => !w.readonly);
+          const nextWaveforms = [...nonReadonly, ...keepOrUpdated];
+
+          // Clear references to removed ids in modes and triggers
+          const nextModes = s.modes.map(m => {
+            const cleared = removedIds.includes(m.waveformId ?? '')
+              ? { ...m, waveformId: undefined }
+              : m;
+            const acc = cleared.accel;
+            if (!acc) return cleared;
+            const nextTriggers = acc.triggers.map(t =>
+              removedIds.includes(t.waveformId ?? '') ? { ...t, waveformId: undefined } : t,
+            );
+            return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
+          });
+
+          // Apply
+          const target = state as unknown as AppState;
+          target.waveforms = nextWaveforms;
+          target.modes = nextModes;
+          target.defaultWaveformsSignature = currentSig;
+        } catch (e) {
+          console.error('Failed to sync default waveforms:', e);
+        }
+      },
+    },
   ),
 );

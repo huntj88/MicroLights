@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { WaveformMini } from '@/components/WaveformMini';
 import type { Waveform } from '@/lib/waveform';
 
-export type WaveformDoc = { id: string } & Waveform;
+export type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
 
 export function WaveformPicker({
   value,
@@ -27,6 +27,12 @@ export function WaveformPicker({
   const { t } = useTranslation();
   const selected = value ? (waveforms.find(w => w.id === value) ?? null) : null;
 
+  const slug = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
   return (
     <div>
       <div className="flex items-center gap-2">
@@ -36,11 +42,15 @@ export function WaveformPicker({
           className={selectClassName}
         >
           <option value="">{t('none')}</option>
-          {waveforms.map(w => (
-            <option key={w.id} value={w.id}>
-              {w.name}
-            </option>
-          ))}
+          {waveforms.map(w => {
+            const key = `waveformName.${slug(w.name)}`;
+            const label = t(key, { defaultValue: w.name });
+            return (
+              <option key={w.id} value={w.id}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         {!selected && (
           <button
@@ -51,7 +61,7 @@ export function WaveformPicker({
             +
           </button>
         )}
-        {selected && (
+        {selected && !selected.readonly && (
           <button
             className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs"
             onClick={() => onEdit(selected.id)}
@@ -59,6 +69,14 @@ export function WaveformPicker({
           >
             ✎
           </button>
+        )}
+        {selected && selected.readonly && (
+          <span
+            className="text-xs text-slate-400"
+            title={t('readonly', { defaultValue: 'Read-only' })}
+          >
+            🔒
+          </span>
         )}
       </div>
       {showPreview && selected && (

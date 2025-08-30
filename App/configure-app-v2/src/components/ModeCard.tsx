@@ -114,7 +114,8 @@ export function ModeCard({
                 const wf = waveforms.find(w => w.id === id);
                 if (!wf) return;
                 setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
-                setWfEditId(wf.id);
+                // If readonly, force Save-As (no edit id)
+                setWfEditId(wf.readonly ? null : wf.id);
                 setWfModalTarget({ kind: 'mode' });
                 setWfModalOpen(true);
               }}
@@ -173,7 +174,7 @@ export function ModeCard({
                         totalTicks: wf.totalTicks,
                         changeAt: wf.changeAt,
                       });
-                      setWfEditId(wf.id);
+                      setWfEditId(wf.readonly ? null : wf.id);
                       setWfModalTarget({ kind: 'accel', index: i });
                       setWfModalOpen(true);
                     }}

@@ -11,7 +11,7 @@ type Trigger = {
   waveformId?: string;
 };
 
-type WaveformDoc = { id: string } & Waveform;
+type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
 
 const ALLOWED = [2, 4, 8, 12, 16] as const;
 

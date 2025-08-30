@@ -29,6 +29,7 @@ export default function CreateWave() {
   const [draft, setDraft] = useState<Waveform>(initial);
 
   const selected = useMemo(() => waveforms.find(w => w.id === selectedId), [waveforms, selectedId]);
+  const selectedReadonly = !!selected?.readonly;
 
   function saveToLibrary() {
     if (selected) {
@@ -89,7 +90,7 @@ export default function CreateWave() {
           >
             {t('newDraft')}
           </button>
-          {selected && (
+          {selected && !selectedReadonly && (
             <button
               className="px-3 py-1.5 rounded bg-red-600 hover:bg-red-500 text-white"
               onClick={() => {
@@ -103,8 +104,13 @@ export default function CreateWave() {
           <button
             className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"
             onClick={saveToLibrary}
+            disabled={selectedReadonly}
           >
-            {selected ? t('save') : t('addToLibrary')}
+            {selectedReadonly
+              ? t('saveAs', { defaultValue: 'Save as new' })
+              : selected
+                ? t('save')
+                : t('addToLibrary')}
           </button>
         </div>
       </div>
@@ -126,7 +132,7 @@ export default function CreateWave() {
         />
       </div>
 
-      <WaveformEditor value={draft} onChange={setDraft} />
+      <WaveformEditor value={draft} onChange={setDraft} readOnly={selectedReadonly} />
     </div>
   );
 }

@@ -46,6 +46,8 @@ const resources = {
       maxModesReached: 'Maximum number of Modes reached',
       editWaveform: 'Edit Waveform',
       newWaveform: 'New Waveform',
+      readonly: 'Read-only',
+      saveAs: 'Save as new',
       thresholdXg: 'Threshold (× g)',
       enableCaseLight: 'Enable case light',
       caseLightColorAria: 'Case light color',
@@ -78,6 +80,15 @@ const resources = {
       programTitle: 'Program',
       docsTitle: 'Docs',
       examplesTitle: 'Examples',
+      // waveform names
+      waveformName: {
+        pulse: 'Pulse',
+        'blink-short': 'Blink (short)',
+        'beacon-long-on': 'Beacon (long on)',
+        'double-blink': 'Double Blink',
+        'triple-burst': 'Triple Burst',
+        'quarter-alternating': 'Quarter Alternating',
+      },
       // toasts and confirmations
       confirmDeleteMode: 'Delete this mode?',
       modeLoaded: 'Mode loaded',

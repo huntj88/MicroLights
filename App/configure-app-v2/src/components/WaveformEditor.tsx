@@ -14,10 +14,11 @@ type Props = {
   value: Waveform;
   onChange: (wf: Waveform) => void;
   height?: number;
+  readOnly?: boolean;
 };
 
 // Simple square-wave timeline editor with draggable markers
-export function WaveformEditor({ value, onChange, height = 160 }: Props) {
+export function WaveformEditor({ value, onChange, height = 160, readOnly = false }: Props) {
   const { t } = useTranslation();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -60,6 +61,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function onPointerDown(e: React.PointerEvent<SVGGElement>, idx: number) {
+    if (readOnly) return;
     e.stopPropagation();
     e.preventDefault();
     try {
@@ -89,7 +91,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
-    if (dragIndex == null || !svgRef.current) return;
+    if (readOnly || dragIndex == null || !svgRef.current) return;
     e.preventDefault();
     suppressNextClickRef.current = true; // mark that a drag occurred
     const bounds = svgRef.current.getBoundingClientRect();
@@ -113,6 +115,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function onPointerUp(e: React.PointerEvent<SVGSVGElement>) {
+    if (readOnly) return;
     e.stopPropagation();
     if (dragIndex == null) return;
     const points = dragPreview ?? value.changeAt;
@@ -123,6 +126,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function onSvgClick(e: React.MouseEvent<SVGSVGElement>) {
+    if (readOnly) return;
     if (!svgRef.current) return;
     if (dragIndex != null) return; // ignore if currently dragging
     if (suppressNextClickRef.current) {
@@ -176,6 +180,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function undo() {
+    if (readOnly) return;
     if (past.length === 0) return;
     const prev = past[past.length - 1];
     setPast(p => p.slice(0, -1));
@@ -183,6 +188,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
     onChange(prev);
   }
   function redo() {
+    if (readOnly) return;
     if (future.length === 0) return;
     const next = future[0];
     setFuture(f => f.slice(1));
@@ -191,6 +197,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (readOnly) return;
     if (e.ctrlKey && e.key.toLowerCase() === 'z') {
       if (e.shiftKey) redo();
       else undo();
@@ -210,6 +217,7 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
   }
 
   function removeMarker(index: number) {
+    if (readOnly) return;
     if (index === 0) {
       toast.error(t('cannotDeleteFirstMarker'));
       return;
@@ -277,7 +285,10 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
                     e.preventDefault();
                     removeMarker(i);
                   }}
-                  style={{ cursor: 'grab' }}
+                  style={{
+                    cursor: readOnly ? 'default' : 'grab',
+                    pointerEvents: readOnly ? 'none' : 'auto',
+                  }}
                 >
                   <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
                   <text x={x} y={y + 4} fontSize="12" textAnchor="middle" fill="#e2e8f0">
@@ -297,14 +308,14 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
         <button
           className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
           onClick={undo}
-          disabled={past.length === 0}
+          disabled={readOnly || past.length === 0}
         >
           {t('undo')}
         </button>
         <button
           className="px-3 py-1.5 rounded bg-slate-700 hover:bg-slate-600 text-white"
           onClick={redo}
-          disabled={future.length === 0}
+          disabled={readOnly || future.length === 0}
         >
           {t('redo')}
         </button>
@@ -315,7 +326,9 @@ export function WaveformEditor({ value, onChange, height = 160 }: Props) {
         <textarea
           className="w-full h-48 bg-slate-950/80 rounded border border-slate-700/50 p-2 font-mono text-sm"
           value={JSON.stringify(value, null, 2)}
+          disabled={readOnly}
           onChange={e => {
+            if (readOnly) return;
             try {
               const parsed = JSON.parse(e.target.value);
               const res = zWaveform.safeParse(parsed);
