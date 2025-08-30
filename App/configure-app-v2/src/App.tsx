@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 import { AppShell } from './components/AppShell';
 import CreateMode from './pages/CreateMode';
@@ -16,7 +16,7 @@ function Placeholder({ title }: { title: string }) {
 
 export function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         <Route element={<AppShell />}>
           <Route index element={<Navigate to="/create/mode" replace />} />
@@ -32,6 +32,6 @@ export function App() {
           <Route path="*" element={<Navigate to="/create/mode" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
