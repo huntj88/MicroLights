@@ -8,7 +8,14 @@ import { ALL_FINGERS, type Finger } from './fingers';
 import type { Waveform } from './waveform';
 
 // Allowed accelerometer threshold values
-const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
+export const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
+
+// Shared type for accelerometer triggers
+export type Trigger = {
+  threshold: number;
+  color?: string; // hex; defaults to mode color if missing
+  waveformId?: string;
+};
 
 export type Mode = {
   id: string;
@@ -16,11 +23,7 @@ export type Mode = {
   color: string; // hex
   waveformId?: string;
   accel?: {
-    triggers: Array<{
-      threshold: number;
-      color?: string; // hex; defaults to mode color if missing
-      waveformId?: string;
-    }>;
+    triggers: Array<Trigger>;
   };
 };
 
@@ -31,7 +34,13 @@ export type ExportedMode = {
   name: string;
   color: string;
   waveform?: Waveform;
-  accel: { triggers: Array<{ threshold: number; color: string; waveform?: Waveform }> };
+  accel: {
+    triggers: Array<{
+      threshold: Trigger['threshold'];
+      color: string;
+      waveform?: Waveform;
+    }>;
+  };
 };
 
 // A saved ModeSet snapshot of modes and finger ownership

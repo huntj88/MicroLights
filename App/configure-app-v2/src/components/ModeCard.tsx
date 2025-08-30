@@ -8,7 +8,7 @@ import { FingerSelector } from '@/components/FingerSelector';
 import { WaveformEditorModal } from '@/components/WaveformEditorModal';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import { DISABLED_COLOR } from '@/lib/constants';
-import { useAppStore, type Mode } from '@/lib/store';
+import { Trigger, useAppStore, type Mode } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
 export function ModeCard({
@@ -41,8 +41,6 @@ export function ModeCard({
 
   const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
 
-  // Type-safe triggers list
-  type Trigger = NonNullable<Mode['accel']>['triggers'][number];
   const triggers: Trigger[] = mode.accel?.triggers ?? [];
 
   // Popup state for creating a new waveform inline

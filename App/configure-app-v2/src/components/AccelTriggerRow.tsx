@@ -3,17 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
+import { ALLOWED_THRESHOLDS } from '@/lib/store';
+import type { Trigger } from '@/lib/store';
 import type { Waveform } from '@/lib/waveform';
 
-type Trigger = {
-  threshold: number;
-  color?: string;
-  waveformId?: string;
-};
-
 type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
-
-const ALLOWED = [2, 4, 8, 12, 16] as const;
 
 export function AccelTriggerRow({
   trigger,
@@ -45,7 +39,9 @@ export function AccelTriggerRow({
 }) {
   const { t } = useTranslation();
   const allowedAfterPrev =
-    prevThreshold == null ? [...ALLOWED] : (ALLOWED.filter(v => v > prevThreshold) as number[]);
+    prevThreshold == null
+      ? [...ALLOWED_THRESHOLDS]
+      : (ALLOWED_THRESHOLDS.filter(v => v > prevThreshold) as number[]);
 
   const selected = trigger.waveformId
     ? (waveforms.find(w => w.id === trigger.waveformId) ?? null)
