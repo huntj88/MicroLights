@@ -1,7 +1,7 @@
 import { clsx } from 'clsx';
 import { useTranslation } from 'react-i18next';
 
-import type { Finger, Hand } from '@/lib/fingers';
+import type { Finger } from '@/lib/fingers';
 
 export function FingerChip({
   finger,
@@ -13,7 +13,6 @@ export function FingerChip({
   onToggle: () => void;
 }) {
   const { t } = useTranslation();
-  const [hand, name] = finger.split('-') as [Hand, string];
   return (
     <button
       className={clsx(
@@ -22,8 +21,7 @@ export function FingerChip({
       )}
       onClick={onToggle}
     >
-      <span className="opacity-70 mr-1">{hand === 'L' ? t('l') : t('r')}</span>
-      {name}
+      {t(`fingerLabel.${finger}` as const)}
     </button>
   );
 }
