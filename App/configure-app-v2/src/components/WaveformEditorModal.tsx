@@ -63,7 +63,6 @@ export function WaveformEditorModal({
           <input
             value={draft.name}
             onChange={e => onDraftChange({ ...draft, name: e.target.value })}
-            disabled={editId == null}
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
           <label className="text-sm ml-4">{t('totalTicks')}</label>
@@ -74,7 +73,6 @@ export function WaveformEditorModal({
             onChange={e =>
               onDraftChange({ ...draft, totalTicks: Math.max(2, Number(e.target.value)) })
             }
-            disabled={editId == null}
             className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
         </div>
@@ -82,7 +80,7 @@ export function WaveformEditorModal({
           value={draft}
           onChange={onDraftChange}
           height={140}
-          readOnly={editId == null}
+          readOnly={false}
         />
       </div>
     </Modal>

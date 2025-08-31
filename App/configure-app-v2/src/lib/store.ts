@@ -424,8 +424,7 @@ export const useAppStore = create<AppState>()(
         };
 
         const modeSetName =
-          (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ??
-          DEFAULT_NEW_WAVEFORM.name;
+          (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? "";
 
         const triggers = m.accel?.triggers ?? [];
         const payload: ExportedMode = {
