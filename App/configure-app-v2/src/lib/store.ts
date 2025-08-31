@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 import { DISABLED_COLOR } from './constants';
-import { DEFAULT_NEW_WAVEFORM, DEFAULT_WAVEFORMS } from './defaultWaveforms';
+import { DEFAULT_WAVEFORMS } from './defaultWaveforms';
 import { ALL_FINGERS, type Finger } from './fingers';
 import type { Waveform } from './waveform';
 
@@ -423,8 +423,7 @@ export const useAppStore = create<AppState>()(
           return wf;
         };
 
-        const modeSetName =
-          (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? "";
+        const modeSetName = (m.modeSetId && s.modeSets.find(d => d.id === m.modeSetId)?.name) ?? '';
 
         const triggers = m.accel?.triggers ?? [];
         const payload: ExportedMode = {

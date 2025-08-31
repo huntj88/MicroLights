@@ -51,7 +51,6 @@ export default function CreateMode() {
         setDraftName(DEFAULT_NEW_WAVEFORM.name);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modeSets.length]);
 
   return (

@@ -76,12 +76,7 @@ export function WaveformEditorModal({
             className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
         </div>
-        <WaveformEditor
-          value={draft}
-          onChange={onDraftChange}
-          height={140}
-          readOnly={false}
-        />
+        <WaveformEditor value={draft} onChange={onDraftChange} height={140} readOnly={false} />
       </div>
     </Modal>
   );
