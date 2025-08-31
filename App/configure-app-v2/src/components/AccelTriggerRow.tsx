@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
+import { CloseButton } from '@/components/CloseButton';
 import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import { ALLOWED_THRESHOLDS } from '@/lib/store';
@@ -50,6 +51,8 @@ export function AccelTriggerRow({
 
   return (
     <div className="rounded-lg border border-slate-700/50 bg-slate-900/40 p-3 pl-4 relative">
+      {/* Top-right close button to remove this trigger */}
+      <CloseButton className="absolute top-2 right-2" onClick={onRemove} />
       <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-lg bg-fg-ring/40" />
       <div className="mb-2 text-[11px] uppercase tracking-wide text-slate-400">
         {t('triggerWithIndex', { index: index + 1 })}
@@ -68,12 +71,8 @@ export function AccelTriggerRow({
             </option>
           ))}
         </select>
-        <button
-          className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
-          onClick={onRemove}
-        >
-          {t('remove')}
-        </button>
+        {/* spacer to keep grid alignment since close button is absolutely positioned */}
+        <div />
 
         <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('waveform')}</div>
         <div className="flex items-center gap-2">

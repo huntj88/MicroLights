@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { AccelTriggerRow } from '@/components/AccelTriggerRow';
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
+import { CloseButton } from '@/components/CloseButton';
 import { FingerSelector } from '@/components/FingerSelector';
 import { WaveformEditorModal } from '@/components/WaveformEditorModal';
 import { WaveformPicker } from '@/components/WaveformPicker';
@@ -61,7 +62,9 @@ export function ModeCard({
   );
 
   return (
-    <div className="rounded-xl border border-slate-700/50 bg-bg-card p-4">
+    <div className="relative rounded-xl border border-slate-700/50 bg-bg-card p-4">
+      {/* Top-right remove button */}
+      <CloseButton className="absolute top-2 right-2" onClick={() => remove(mode.id)} />
       <div className="grid grid-cols-1 gap-4">
         <div className="space-y-3">
           {showFingerOptions && (
@@ -242,15 +245,6 @@ export function ModeCard({
           }
         }}
       />
-
-      <div className="flex justify-end mt-4">
-        <button
-          className="px-2 py-1 rounded border border-red-600/40 text-red-400 hover:bg-red-600/10 text-xs"
-          onClick={() => remove(mode.id)}
-        >
-          Remove
-        </button>
-      </div>
     </div>
   );
 }
