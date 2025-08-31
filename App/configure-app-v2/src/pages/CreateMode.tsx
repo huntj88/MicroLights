@@ -68,7 +68,7 @@ export default function CreateMode() {
                 if (!id) return;
                 loadModeSet(id);
                 setDraftName(modeSets.find(s => s.id === id)?.name ?? '');
-                toast.success('Mode loaded');
+                toast.success(t('modeLoaded'));
               }}
               className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
             >
