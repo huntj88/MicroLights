@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Tailwind v4 theme tokens mapped to our CSS variables */
+@theme {
+  --color-bg: rgb(var(--bg));
+  --color-bg-card: rgb(var(--bg-card));
+  --color-fg: rgb(var(--fg));
+  --color-fg-muted: rgb(var(--fg-muted));
+  --color-fg-ring: rgb(var(--fg-ring));
+  --radius-xl: 0.75rem;
+}
+
 /* Theme variables */
 :root {
   /* light theme */

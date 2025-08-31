@@ -21,25 +21,22 @@ export const zWaveform = z
   })
   .superRefine((wf, ctx) => {
     if (wf.changeAt.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'changeAt must have at least one point',
-      });
+      ctx.addIssue({ code: 'custom', message: 'changeAt must have at least one point' });
       return;
     }
     // must start at 0
     if (wf.changeAt[0].tick !== 0) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'first change must be at tick 0' });
+      ctx.addIssue({ code: 'custom', message: 'first change must be at tick 0' });
     }
     // strictly increasing ticks and within totalTicks
     for (let i = 0; i < wf.changeAt.length; i++) {
       const p = wf.changeAt[i];
       if (p.tick < 0 || p.tick >= wf.totalTicks) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `tick ${p.tick} out of range` });
+        ctx.addIssue({ code: 'custom', message: `tick ${p.tick} out of range` });
         break;
       }
       if (i > 0 && p.tick <= wf.changeAt[i - 1].tick) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'ticks must be strictly increasing' });
+        ctx.addIssue({ code: 'custom', message: 'ticks must be strictly increasing' });
         break;
       }
     }
