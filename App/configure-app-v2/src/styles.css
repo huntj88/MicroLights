@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tailwind v4 theme tokens mapped to our CSS variables */
 @theme {
   --color-bg: rgb(var(--bg));
   --color-bg-card: rgb(var(--bg-card));
