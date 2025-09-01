@@ -41,6 +41,7 @@ export function AppShell() {
             </Section>
             <Section title={t('extra')}>
               <SidebarLink to="/settings">{t('settings')}</SidebarLink>
+              <SidebarLink to="/extras/serial-log">{t('serialLog')}</SidebarLink>
               <SidebarLink to="/docs">{t('docs')}</SidebarLink>
               <SidebarLink to="/examples">{t('examples')}</SidebarLink>
             </Section>

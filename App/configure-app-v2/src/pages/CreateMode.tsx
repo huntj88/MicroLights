@@ -14,7 +14,7 @@ export default function CreateMode() {
   const addMode = useAppStore(s => s.addMode);
   const connect = useAppStore(s => s.connect);
   const disconnect = useAppStore(s => s.disconnect);
-  const send = useAppStore(s => s.send);
+  const sendJSON = useAppStore(s => s.sendJSON);
 
   // store actions for mode set library workflow
   const newModeSetDraft = useAppStore(s => s.newModeSetDraft);
@@ -137,7 +137,11 @@ export default function CreateMode() {
           <button
             type="button"
             onClick={async () => {
-              await send();
+              // For now, send the first mode as JSON payload
+              const first = modes[0];
+              if (!first) return;
+              const jsonStr = useAppStore.getState().exportModeAsJSON(first.id);
+              await sendJSON(JSON.parse(jsonStr));
               toast.success(t('programSent'));
             }}
             className="px-3 py-1.5 rounded bg-fg-ring/80 hover:bg-fg-ring text-slate-900"

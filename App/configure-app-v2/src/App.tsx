@@ -4,6 +4,7 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/AppShell';
 import CreateMode from './pages/CreateMode';
 import CreateWave from './pages/CreateWave';
+import SerialLog from './pages/SerialLog';
 import Settings from './pages/Settings';
 
 function Placeholder({ title }: { title: string }) {
@@ -30,6 +31,9 @@ export function App() {
           <Route path="browse" element={<Placeholder title={t('browseTitle')} />} />
           <Route path="program" element={<Placeholder title={t('programTitle')} />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="extras">
+            <Route path="serial-log" element={<SerialLog />} />
+          </Route>
           <Route path="docs" element={<Placeholder title={t('docsTitle')} />} />
           <Route path="examples" element={<Placeholder title={t('examplesTitle')} />} />
           <Route path="*" element={<Navigate to="/create/mode" replace />} />
