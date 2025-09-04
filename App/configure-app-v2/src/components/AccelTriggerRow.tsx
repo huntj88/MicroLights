@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { CloseButton } from '@/components/CloseButton';
-import { WaveformMini } from '@/components/WaveformMini';
 import { WaveformPicker } from '@/components/WaveformPicker';
 import { ALLOWED_THRESHOLDS } from '@/lib/store';
 import type { Trigger } from '@/lib/store';
@@ -43,10 +42,6 @@ export function AccelTriggerRow({
       ? [...ALLOWED_THRESHOLDS]
       : (ALLOWED_THRESHOLDS.filter(v => v > prevThreshold) as number[]);
 
-  const selected = trigger.waveformId
-    ? (waveforms.find(w => w.id === trigger.waveformId) ?? null)
-    : null;
-
   const effectiveColor = trigger.color ?? defaultColor;
 
   return (
@@ -74,8 +69,10 @@ export function AccelTriggerRow({
         {/* spacer to keep grid alignment since close button is absolutely positioned */}
         <div />
 
-        <div className="text-[11px] uppercase tracking-wide text-slate-400">{t('waveform')}</div>
-        <div className="flex items-center gap-2">
+        <div className="text-[11px] uppercase tracking-wide text-slate-400 self-start mt-1.5">
+          {t('waveform')}
+        </div>
+        <div className="flex items-center gap-2 self-start">
           <WaveformPicker
             value={trigger.waveformId}
             onChange={onChangeWaveform}
@@ -89,15 +86,9 @@ export function AccelTriggerRow({
           color={effectiveColor}
           onToggle={onToggleColor}
           onChange={onColorChange}
-          className="justify-self-end ml-3 sm:ml-4"
+          className="justify-self-end ml-3 sm:ml-4 self-start"
         />
       </div>
-
-      {selected && (
-        <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
-          <WaveformMini wf={selected} height={56} />
-        </div>
-      )}
     </div>
   );
 }
