@@ -106,7 +106,7 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
  * Example commands
  *
 {
-  "command": "setMode",
+  "command": "writeMode",
   "index": 1,
   "mode": {
     "name": "blah0",

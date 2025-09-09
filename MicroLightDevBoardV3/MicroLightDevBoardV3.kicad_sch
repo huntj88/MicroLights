@@ -4891,6 +4891,12 @@
 		(uuid "9a2c400a-58f0-4c3e-bf83-aae1f4b580e2")
 	)
 	(junction
+		(at 125.73 172.72)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a7bff802-f919-4b7c-8a37-6704c4ca8414")
+	)
+	(junction
 		(at 172.72 101.6)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4978,6 +4984,16 @@
 	)
 	(wire
 		(pts
+			(xy 125.73 172.72) (xy 132.08 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1017d98f-23e7-446e-bac4-0e1d82dc0710")
+	)
+	(wire
+		(pts
 			(xy 186.69 67.31) (xy 186.69 60.96)
 		)
 		(stroke
@@ -5008,13 +5024,23 @@
 	)
 	(wire
 		(pts
-			(xy 118.11 172.72) (xy 132.08 172.72)
+			(xy 118.11 172.72) (xy 125.73 172.72)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "28df0d13-aea3-44b1-9987-6d01f7c2c1ec")
+	)
+	(wire
+		(pts
+			(xy 125.73 170.18) (xy 125.73 172.72)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2eae93d9-26c2-4732-8481-a2025c8e0404")
 	)
 	(wire
 		(pts
@@ -5055,6 +5081,16 @@
 			(type default)
 		)
 		(uuid "4d393160-1472-481f-b308-70a9895f86ff")
+	)
+	(wire
+		(pts
+			(xy 125.73 162.56) (xy 129.54 162.56)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5173076c-2990-48cd-8429-b23ccc351fb1")
 	)
 	(wire
 		(pts
@@ -7898,6 +7934,82 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R")
+		(at 125.73 166.37 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "44593b32-5931-4a62-9e2a-0e211aca5d35")
+		(property "Reference" "R10"
+			(at 125.73 160.02 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "6.8k"
+			(at 129.032 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_0402_1005Metric"
+			(at 123.952 166.37 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 125.73 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 125.73 166.37 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25744"
+			(at 125.73 166.37 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "ebb46426-2143-4d5b-aa4e-dbc7b35909b7")
+		)
+		(pin "2"
+			(uuid "297d6b2c-4f8f-4ac0-8504-2859b1c3ef0d")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "R10")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+3.3V")
 		(at 255.27 105.41 270)
 		(unit 1)
@@ -10164,7 +10276,7 @@
 				(hide yes)
 			)
 		)
-		(property "LCSC" "C42240018"
+		(property "LCSC" "C42113261"
 			(at 104.14 55.88 0)
 			(effects
 				(font
@@ -10597,6 +10709,73 @@
 			(project "MicroLightDevBoardV3"
 				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
 					(reference "R2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 129.54 162.56 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "e578ca85-eda8-463c-aa30-07e82de728e0")
+		(property "Reference" "#PWR030"
+			(at 125.73 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 133.35 162.5599 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 129.54 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 129.54 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 129.54 162.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "bb52bc6d-049d-4780-8a84-89b8b6bb5564")
+		)
+		(instances
+			(project "MicroLightDevBoardV3"
+				(path "/9009d70b-273c-45fe-8624-596a22a35a49"
+					(reference "#PWR030")
 					(unit 1)
 				)
 			)
