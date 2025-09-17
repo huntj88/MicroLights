@@ -28,7 +28,7 @@
 #include "bq25180.h"
 #include "rgb.h"
 #include "bootloader.h"
-
+#include "mc3479.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,7 +60,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
-
+MC3479 accel;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,14 +114,14 @@ static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
 			&hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
-static int8_t readRegisterAc(uint8_t reg) {
+static int8_t readRegisterAccel(MC3479 *dev, uint8_t reg) {
 	int8_t receive_buffer[1] = { 0 };
 
 	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
-			0x99, &reg, 1, 1000);
+			dev->devAddress, &reg, 1, 1000);
 
 	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
-			0x99, &receive_buffer, 1, 1000);
+			dev->devAddress, &receive_buffer, 1, 1000);
 
 	int8_t num = receive_buffer[0];
 
@@ -148,13 +148,13 @@ static int8_t readRegisterAc(uint8_t reg) {
 	return receive_buffer[0];
 }
 
-static void writeRegisterAc(uint8_t reg, uint8_t value) {
+static void writeRegisterAccel(MC3479 *dev, uint8_t reg, uint8_t value) {
 	uint8_t writeBuffer[2] = { 0 };
 	writeBuffer[0] = reg;
 	writeBuffer[1] = value;
 
 	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(
-				&hi2c1, 0x99, &writeBuffer, sizeof(writeBuffer), 1000);
+				&hi2c1, dev->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
 static uint8_t readButtonPin() {
@@ -205,6 +205,8 @@ static void cdc_task() {
 	static uint8_t jsonBuf[1024];
 	static uint16_t jsonIndex = 0;
 	uint8_t itf;
+
+	tud_task();
 
 	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
 		// connected() check for DTR bit
@@ -277,6 +279,11 @@ int main(void)
 		  stopLedTimers
   );
 
+  // Initialize MC3479 accelerometer abstraction
+  mc3479_init(&accel, readRegisterAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
+  accel.writeToUsbSerial = writeToSerial; // optional logging
+  mc3479_enable(&accel);
+
   HAL_TIM_Base_Start_IT(&htim3); // auto off timer
 
   /* USER CODE END 2 */
@@ -284,40 +291,15 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
-  writeRegisterAc(0x08, 0b00010000);
-  writeRegisterAc(0x07, 0b00000001);
-
-  readRegisterAc(0x05);
-  readRegisterAc(0x07);
-  readRegisterAc(0x08);
-
-  uint8_t temp;
-
   while (1) {
-	  tud_task();
-	  cdc_task();
-	  rgb_task();
+      cdc_task();
+      rgb_task();
 
-	  stateTask();
+      // TODO: move this into state task?
+      // Poll accelerometer driver (caller supplies current tick)
+      mc3479_task(&accel, HAL_GetTick());
 
-	  if (temp == 0) {
-		  // TODO: create lib similar to charger
-
-		  writeToSerial(0, "x", 1);
-//		  readRegisterAc(0x0D); // LSB
-		  readRegisterAc(0x0E); // MSB
-
-		  writeToSerial(0, "y", 1);
-//		  readRegisterAc(0x0F); // LSB
-		  readRegisterAc(0x10); // MSB
-
-		  writeToSerial(0, "z", 1);
-//		  readRegisterAc(0x11); // LSB
-		  readRegisterAc(0x12); // MSB
-	  }
-
-	  temp++;
+      stateTask();
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
