@@ -280,9 +280,9 @@ int main(void)
   );
 
   // Initialize MC3479 accelerometer abstraction
-  mc3479_init(&accel, readRegisterAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
+  mc3479Init(&accel, readRegisterAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
   accel.writeToUsbSerial = writeToSerial; // optional logging
-  mc3479_enable(&accel);
+  mc3479Enable(&accel);
 
   HAL_TIM_Base_Start_IT(&htim3); // auto off timer
 
@@ -297,7 +297,7 @@ int main(void)
 
       // TODO: move this into state task?
       // Poll accelerometer driver (caller supplies current tick)
-      mc3479_task(&accel, HAL_GetTick());
+      mc3479Task(&accel, HAL_GetTick());
 
       stateTask();
 
