@@ -50,13 +50,17 @@ struct MC3479 {
     // Current calculated magnitude in units of g
     float current_magnitude_g;
 
+    // Current calculated jerk magnitude (absolute) in units of g per tick
+    // Caller-provided ticks are used directly (no conversion to seconds).
+    float current_jerk_g_per_tick;
+
     uint8_t enabled;
     unsigned long last_sample_tick; // tick value of last sample
 
-    // Last raw axis readings
-    int16_t last_x;
-    int16_t last_y;
-    int16_t last_z;
+    // Cached last acceleration values in units of g (for jerk calculation)
+    float last_ax_g;
+    float last_ay_g;
+    float last_az_g;
 };
 
 
@@ -77,6 +81,13 @@ float mc3479_get_magnitude(MC3479 *dev);
 
 // Force an immediate sample and magnitude calculation. Returns 0 on success,
 // non-zero if a sample couldn't be taken (e.g. missing read callback).
-int mc3479_sample_now(MC3479 *dev);
+// The caller must provide the current tick value (same units as used by
+// mc3479_task). Jerk is computed as change-in-acceleration divided by
+// delta-ticks, and therefore its units are g per tick (g/tick).
+int mc3479_sample_now(MC3479 *dev, unsigned long now_ticks);
+
+// Return the absolute magnitude of the most recently computed jerk value
+// in units of g per tick. Returns 0 if insufficient samples exist.
+float mc3479_get_jerk_magnitude(MC3479 *dev);
 
 #endif /* INC_MC3479_H_ */

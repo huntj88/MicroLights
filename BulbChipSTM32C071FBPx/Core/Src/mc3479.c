@@ -20,12 +20,13 @@ void mc3479_init(MC3479 *dev, Mc3479ReadRegister *readCb, Mc3479WriteRegister *w
     dev->writeToUsbSerial = NULL;
 
     dev->current_magnitude_g = 0.0f;
+    dev->current_jerk_g_per_tick = 0.0f;
     dev->enabled = 0;
     dev->last_sample_tick = 0;
 
-    dev->last_x = 0;
-    dev->last_y = 0;
-    dev->last_z = 0;
+    dev->last_ax_g = 0.0f;
+    dev->last_ay_g = 0.0f;
+    dev->last_az_g = 0.0f;
 
     // make sure in STANDYBY when configuring
     dev->writeRegister(dev, MC3479_REG_CTRL1, 0x00);
@@ -41,6 +42,10 @@ void mc3479_enable(MC3479 *dev) {
     dev->enabled = 1;
     // reset last sample tick so the task may sample immediately on next mc3479_task call
     dev->last_sample_tick = 0;
+    dev->current_jerk_g_per_tick = 0.0f;
+    dev->last_ax_g = 0.0f;
+    dev->last_ay_g = 0.0f;
+    dev->last_az_g = 0.0f;
 }
 
 void mc3479_disable(MC3479 *dev) {
@@ -53,6 +58,10 @@ void mc3479_disable(MC3479 *dev) {
     // reset the sample time and clear the cached magnitude
     dev->last_sample_tick = 0;
     dev->current_magnitude_g = 0;
+    dev->current_jerk_g_per_tick = 0.0f;
+    dev->last_ax_g = 0.0f;
+    dev->last_ay_g = 0.0f;
+    dev->last_az_g = 0.0f;
 }
 
 static int16_t mc3479_read_axis(MC3479 *dev, uint8_t reg_l, uint8_t reg_h) {
@@ -66,23 +75,45 @@ static int16_t mc3479_read_axis(MC3479 *dev, uint8_t reg_l, uint8_t reg_h) {
     return raw;
 }
 
-int mc3479_sample_now(MC3479 *dev) {
+int mc3479_sample_now(MC3479 *dev, unsigned long now_ticks) {
     if (!dev || !dev->readRegister || !dev->enabled) return -1;
 
     int16_t raw_x = mc3479_read_axis(dev, MC3479_REG_XOUT_L, MC3479_REG_XOUT_H);
     int16_t raw_y = mc3479_read_axis(dev, MC3479_REG_YOUT_L, MC3479_REG_YOUT_H);
     int16_t raw_z = mc3479_read_axis(dev, MC3479_REG_ZOUT_L, MC3479_REG_ZOUT_H);
 
-    dev->last_x = raw_x;
-    dev->last_y = raw_y;
-    dev->last_z = raw_z;
-
     // Convert to g using configured sensitivity
-    float gx = ((float)raw_x) / 2048;
-    float gy = ((float)raw_y) / 2048;
-    float gz = ((float)raw_z) / 2048;
+    float gx = ((float)raw_x) / 2048.0f;
+    float gy = ((float)raw_y) / 2048.0f;
+    float gz = ((float)raw_z) / 2048.0f;
 
+    // Compute magnitude
     dev->current_magnitude_g = sqrtf(gx*gx + gy*gy + gz*gz);
+
+    // Compute jerk (derivative of acceleration). This driver measures and
+    // stores jerk in units of g per tick (caller ticks are used directly).
+    if (dev->last_sample_tick != 0 && now_ticks > dev->last_sample_tick) {
+        float dt_ticks = (float)(now_ticks - dev->last_sample_tick);
+        if (dt_ticks > 0.0f) {
+            float dax = gx - dev->last_ax_g;
+            float day = gy - dev->last_ay_g;
+            float daz = gz - dev->last_az_g;
+
+            float jerk_mag = sqrtf(dax*dax + day*day + daz*daz) / dt_ticks;
+            dev->current_jerk_g_per_tick = jerk_mag;
+        } else {
+            dev->current_jerk_g_per_tick = 0.0f;
+        }
+    } else {
+        // Insufficient history to compute jerk yet
+        dev->current_jerk_g_per_tick = 0.0f;
+    }
+
+    dev->last_ax_g = gx;
+    dev->last_ay_g = gy;
+    dev->last_az_g = gz;
+
+    dev->last_sample_tick = now_ticks;
 
     return 0;
 }
@@ -91,13 +122,14 @@ void mc3479_task(MC3479 *dev, unsigned long now_ticks) {
     if (!dev) return;
     if (!dev->enabled) return;
 
-    if ((now_ticks - dev->last_sample_tick) >= 100) {
+    if ((now_ticks - dev->last_sample_tick) >= 20) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479_sample_now(dev) == 0) {
-            dev->last_sample_tick = now_ticks;
+        if (mc3479_sample_now(dev, now_ticks) == 0) {
+            // sample_now updates last_sample_tick
         } else {
             mc3479_log(dev, "mc3479: sample failed\n");
-            dev->last_sample_tick = now_ticks; // advance anyway to avoid continuous retries
+            // Advance the last_sample_tick anyway to avoid continuous retries
+            dev->last_sample_tick = now_ticks;
         }
     }
 }
@@ -105,4 +137,9 @@ void mc3479_task(MC3479 *dev, unsigned long now_ticks) {
 float mc3479_get_magnitude(MC3479 *dev) {
     if (!dev) return 0.0f;
     return dev->current_magnitude_g;
+}
+
+float mc3479_get_jerk_magnitude(MC3479 *dev) {
+    if (!dev) return 0.0f;
+    return dev->current_jerk_g_per_tick;
 }
