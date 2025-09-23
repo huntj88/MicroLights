@@ -42,66 +42,6 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	return parsedProperties == 3;
 }
 
-static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
-	const lwjson_token_t *t;
-
-	bool didParseName = false;
-	bool didParseTotalTicks = false;
-	bool didParseOutput = false;
-	bool didParseTick = false;
-
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "name")) != NULL) {
-		char *nameRaw = t->u.str.token_value;
-		for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-			mode->name[i] = nameRaw[i];
-		}
-		mode->name[t->u.str.token_value_len] = '\0';
-		didParseName = true;
-	}
-
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "totalTicks")) != NULL) {
-		mode->totalTicks = t->u.num_int;
-		didParseTotalTicks = true;
-	}
-
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "changeAt")) != NULL) {
-		uint8_t changeIndex = 0;
-		for (const lwjson_token_t *tkn = lwjson_get_first_child(t);
-				tkn != NULL; tkn = tkn->next) {
-			if (tkn->type == LWJSON_TYPE_OBJECT) {
-				const lwjson_token_t *tObject;
-				enum Output output;
-				uint16_t tick;
-
-				if ((tObject = lwjson_find_ex(lwjson, tkn, "output"))
-						!= NULL) {
-					if (strncmp(tObject->u.str.token_value, "high", 4)
-							== 0) {
-						output = high;
-					} else {
-						output = low;
-					}
-					didParseOutput = true;
-				}
-
-				if ((tObject = lwjson_find_ex(lwjson, tkn, "tick")) != NULL) {
-					tick = tObject->u.num_int;
-					didParseTick = true;
-				}
-
-				ChangeAt change = { tick, output };
-				mode->changeAt[changeIndex] = change;
-				changeIndex++;
-			}
-		}
-		mode->numChanges = changeIndex;
-	}
-
-	bool hasMinRequiredProperties = didParseName && didParseTotalTicks && didParseOutput && didParseTick;
-
-	return hasMinRequiredProperties && mode->totalTicks > 0;
-}
-
 static bool parseWaveformJson(lwjson_t *lwjson, lwjson_token_t *waveformJsonObject, Waveform *waveform) {
 	const lwjson_token_t *t;
 	bool didParseName = false;
@@ -160,7 +100,7 @@ static bool parseWaveformJson(lwjson_t *lwjson, lwjson_token_t *waveformJsonObje
 	return hasMinRequiredProperties && waveform->totalTicks > 0;
 }
 
-static bool parseModeV2Json(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbModeV2 *mode) {
+static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
 	const lwjson_token_t *t;
 	bool didParseName = false;
 	bool didParseColor = false;
@@ -249,9 +189,10 @@ static bool parseModeV2Json(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bu
  *
 {
   "command": "writeMode",
-  "index": 1,
+  "index": 0,
   "mode": {
     "name": "blah0",
+	"color": "#3584e4",
     "totalTicks": 3,
     "changeAt": [
       {
@@ -267,7 +208,7 @@ static bool parseModeV2Json(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bu
 }
 
 {
-  "command": "writeMode2",
+  "command": "writeMode",
   "index": 1,
   "mode": {
     "name": "New Pattern",
@@ -379,35 +320,18 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			command[t->u.str.token_value_len] = '\0';
 		}
 
-		if (strncmp(command, "writeMode2", 10) == 0) {
-			bool didParseMode = false;
-			bool didParseIndex = false;
-			BulbModeV2 mode2;
-
-			if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
-				didParseMode = parseModeV2Json(&lwjson, (lwjson_token_t *)t, &mode2);
-				input->mode2 = mode2;
-			}
-
-			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
-				input->mode2.modeIndex = t->u.num_int;
-				didParseIndex = true;
-			}
-
-			if (didParseMode && didParseIndex) {
-				input->parsedType = parseWriteMode2;
-			}
-		} else if (strncmp(command, "writeMode", 9) == 0) {
+		if (strncmp(command, "writeMode", 9) == 0) {
 			bool didParseMode = false;
 			bool didParseIndex = false;
 			BulbMode mode;
 
 			if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
-				didParseMode = parseModeJson(&lwjson, t, &mode);
+				didParseMode = parseModeJson(&lwjson, (lwjson_token_t *)t, &mode);
 				input->mode = mode;
 			}
 
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
+				// TODO: validate this works correctly
 				input->mode.modeIndex = t->u.num_int;
 				didParseIndex = true;
 			}

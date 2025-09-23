@@ -20,24 +20,13 @@ enum ParseResult {
 	parseReadMode,
 	parseWriteSettings,
 	parseReadSettings,
-	parseDfu,
-	parseWriteMode2
+	parseDfu
 };
 
 typedef struct ChangeAt {
 	uint16_t tick;
 	enum Output output;
 } ChangeAt;
-
-typedef struct BulbMode {
-	char name[32];
-	uint8_t modeIndex;
-	uint16_t totalTicks;
-	ChangeAt changeAt[64];
-
-	// metadata calculated at runtime
-	uint8_t numChanges; // TODO: rename changeCount?
-} BulbMode;
 
 typedef struct Waveform {
 	char name[32];
@@ -52,14 +41,14 @@ typedef struct AccelTrigger {
 	Waveform waveform;
 } AccelTrigger;
 
-typedef struct BulbModeV2 {
+typedef struct BulbMode {
 	char name[32];
 	char color[16];
 	Waveform waveform;
 	AccelTrigger triggers[8];
 	uint8_t triggerCount;
 	uint8_t modeIndex;
-} BulbModeV2;
+} BulbMode;
 
 typedef struct ChipSettings {
 	uint8_t modeCount;
@@ -69,8 +58,7 @@ typedef struct ChipSettings {
 
 typedef struct CliInput {
 	// only one will be populated, see parsedType
-	BulbMode mode; // TODO: remove
-	BulbModeV2 mode2;
+	BulbMode mode;
 	ChipSettings settings;
 
 	// metadata calculated at runtime

@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <math.h>
 
+
+// TODO: take derivative over a few different time frames and see if any are greater than threshold?
 static const unsigned long kSampleIntervalTicks = 2UL; // TODO: dial this in after 6 byte fast read, see data sheet
 static const float kSensitivityLsbPerG = 2048.0f;
 
@@ -131,7 +133,7 @@ void mc3479Task(MC3479 *dev, unsigned long nowTicks) {
 
     if ((nowTicks - dev->lastSampleTick) >= kSampleIntervalTicks) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, nowTicks) == 0) {
+        if (mc3479SampleNow(dev, nowTicks)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
