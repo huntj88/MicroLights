@@ -75,19 +75,11 @@ void mc3479Disable(MC3479 *dev);
 // magnitude and update `currentMagnitudeG`.
 void mc3479Task(MC3479 *dev, unsigned long nowTicks);
 
-// Get most-recent magnitude in g. This is a snapshot of the last
-// measurement performed by mc3479Task() or mc3479SampleNow().
-float mc3479GetMagnitude(MC3479 *dev);
-
-// Force an immediate sample and magnitude calculation. Returns 0 on success,
-// non-zero if a sample couldn't be taken (e.g. missing read callback).
+// Force an immediate sample and magnitude calculation. Returns true on success,
+// false if a sample couldn't be taken (e.g. missing read callback).
 // The caller must provide the current tick value (same units as used by
 // mc3479Task). Jerk is computed as change-in-acceleration divided by
 // delta-ticks, and therefore its units are g per tick (g/tick).
-int mc3479SampleNow(MC3479 *dev, unsigned long nowTicks);
-
-// Return the absolute magnitude of the most recently computed jerk value
-// in units of g per tick. Returns 0 if insufficient samples exist.
-float mc3479GetJerkMagnitude(MC3479 *dev);
+bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks);
 
 #endif /* INC_MC3479_H_ */

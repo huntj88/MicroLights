@@ -11,11 +11,12 @@
 #include "storage.h"
 #include "rgb.h"
 #include "bulb_json.h"
+#include "mc3479.h"  // include accelerometer abstraction
 
 static const uint8_t fakeOffModeIndex = 255;
 
 static volatile uint8_t modeCount;
-static volatile BulbMode currentMode;
+static volatile BulbModeV2 currentMode;
 static volatile bool clickStarted = false;
 static volatile bool readChargerNow = false;
 
@@ -24,6 +25,7 @@ static uint16_t minutesUntilLockAfterAutoOff;
 volatile static uint32_t ticksSinceLastUserActivity = 0;
 
 static BQ25180 *chargerIC;
+static MC3479 *accel;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
@@ -32,28 +34,29 @@ static void (*startLedTimers)();
 static void (*stopLedTimers)();
 
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
-static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+//static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}";
+static const char *defaultMode2 = "{\"command\":\"writeMode2\",\"index\":0,\"mode\":{\"name\":\"New Pattern\",\"color\":\"#3584e4\",\"waveform\":{\"name\":\"Pulse\",\"totalTicks\":3,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":2,\"output\":\"low\"}]},\"accel\":{\"triggers\":[{\"threshold\":2,\"color\":\"#3584e4\",\"waveform\":{\"name\":\"Pulse\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}},{\"threshold\":4,\"color\":\"#3584e4\",\"waveform\":{\"name\":\"Double Blink\",\"totalTicks\":20,\"changeAt\":[{\"tick\":0,\"output\":\"high\"},{\"tick\":3,\"output\":\"low\"},{\"tick\":6,\"output\":\"high\"},{\"tick\":9,\"output\":\"low\"}]}}]}}}";
 
-static void readBulbModeWithBuffer(uint8_t modeIndex, BulbMode *mode, char *buffer) {
+static void readBulbModeWithBuffer(uint8_t modeIndex, BulbModeV2 *mode, char *buffer) {
 	CliInput input;
 	readBulbModeFromFlash(modeIndex, buffer, 1024);
 	parseJson(buffer, 1024, &input);
 
-	if (input.parsedType == parseWriteMode) {
+	if (input.parsedType == parseWriteMode2) {
 		// successfully read from flash
-		*mode = input.mode;
+		*mode = input.mode2;
 	} else {
 		// fallback to default
-		parseJson(defaultMode, 1024, &input);
-		*mode = input.mode;
+		parseJson(defaultMode2, 1024, &input);
+		*mode = input.mode2;
 	}
 }
 
-static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
+static void readBulbMode(uint8_t modeIndex, BulbModeV2 *mode) {
 	if (modeIndex == fakeOffModeIndex) {
 		CliInput input;
 		parseJson(fakeOffMode, 1024, &input);
-		*mode = input.mode;
+		*mode = input.mode2;
 	} else {
 		startLedTimers();
 		char flashReadBuffer[1024];
@@ -82,7 +85,7 @@ static void readSettings(ChipSettings *settings) {
 }
 
 static void shutdownFake() {
-	BulbMode mode;
+	BulbModeV2 mode;
 	readBulbMode(fakeOffModeIndex, &mode);
 	currentMode = mode;
 
@@ -95,6 +98,7 @@ static void shutdownFake() {
 
 void configureChipState(
 		BQ25180 *_chargerIC,
+		MC3479 *_accel,
 		WriteToUsbSerial *_writeUsbSerial,
 		void (*_enterDFU)(),
 		uint8_t (*_readButtonPin)(),
@@ -103,6 +107,7 @@ void configureChipState(
 		void (*_stopLedTimers)()
 ) {
 	chargerIC = _chargerIC;
+	accel = _accel;
 	writeUsbSerial = _writeUsbSerial;
 	enterDFU = _enterDFU;
 	readButtonPin = _readButtonPin;
@@ -113,7 +118,7 @@ void configureChipState(
 	enum ChargeState state = getChargingState(chargerIC);
 
 	if (state == notConnected) {
-		BulbMode mode;
+		BulbModeV2 mode;
 		readBulbMode(0, &mode);
 		currentMode = mode;
 	} else {
@@ -203,7 +208,7 @@ static void handleButtonInput() {
 						newModeIndex = 0;
 					}
 
-					BulbMode newMode;
+					BulbModeV2 newMode;
 					readBulbMode(newModeIndex, &newMode);
 					currentMode = newMode;
 					break;
@@ -300,21 +305,30 @@ void modeTimerInterrupt() {
 	static uint8_t nextTickInMode = 0;
 	static uint8_t currentChangeIndex = 0;
 
-	if (currentMode.totalTicks <= modeInterruptCount) {
+	Waveform waveform;
+	// TODO: check for configurable trigger threshold
+	if (accel->currentJerkGPerTick > 0.3f) {
+		// TODO: check if accel enabled and waveform at index exists
+		waveform = currentMode.triggers[0].waveform;
+	} else {
+		waveform = currentMode.waveform;
+	}
+
+	if (waveform.totalTicks <= modeInterruptCount) {
 		modeInterruptCount = 0;
 		currentChangeIndex = 0;
 		nextTickInMode = 0;
 	}
 
 	if (modeInterruptCount == nextTickInMode) {
-		if (currentMode.changeAt[currentChangeIndex].output == high) {
+		if (waveform.changeAt[currentChangeIndex].output == high) {
 			writeBulbLedPin(1);
 		} else {
 			writeBulbLedPin(0);
 		}
 
-		if (currentChangeIndex + 1 < currentMode.numChanges) {
-			nextTickInMode = currentMode.changeAt[currentChangeIndex + 1].tick;
+		if (currentChangeIndex + 1 < waveform.numChanges) {
+			nextTickInMode = waveform.changeAt[currentChangeIndex + 1].tick;
 		}
 
 		currentChangeIndex++;
@@ -357,16 +371,17 @@ void handleJson(uint8_t buf[], uint32_t count) {
 		writeUsbSerial(0, error, strlen(error));
 		break;
 	}
-	case parseWriteMode: {
-		BulbMode mode = input.mode;
-		writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
-		currentMode = mode;
+	case parseWriteMode2: {
+		 BulbModeV2 mode = input.mode2;
+		 writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
+		 currentMode = mode;
+		// TODO
 		break;
 	}
 	case parseReadMode: {
 		char flashReadBuffer[1024];
-		BulbMode mode;
-		readBulbModeWithBuffer(input.mode.modeIndex, &mode, flashReadBuffer);
+		BulbModeV2 mode;
+		readBulbModeWithBuffer(input.mode2.modeIndex, &mode, flashReadBuffer);
 		uint16_t len = strlen(flashReadBuffer);
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';

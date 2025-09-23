@@ -123,28 +123,6 @@ static int8_t readRegisterAccel(MC3479 *dev, uint8_t reg) {
 	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
 			dev->devAddress, &receive_buffer, 1, 1000);
 
-	int8_t num = receive_buffer[0];
-
-	char buffer[9] = { 0 };
-	buffer[8] = '\n';
-	char *bufferPtr = &buffer;
-
-
-	// print register bits
-//	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
-//	sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
-
-	// print value as decimal number
-	sprintf(bufferPtr + 0, "%d", num);
-
-	writeToSerial(0, buffer, sizeof(buffer));
-
 	return receive_buffer[0];
 }
 
@@ -271,6 +249,7 @@ int main(void)
   BQ25180_Init();
   configureChipState(
 		  &chargerIC,
+		  &accel,
 		  writeToSerial,
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
@@ -282,7 +261,7 @@ int main(void)
   // Initialize MC3479 accelerometer abstraction
   mc3479Init(&accel, readRegisterAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
   accel.writeToUsbSerial = writeToSerial; // optional logging
-  mc3479Enable(&accel);
+  mc3479Enable(&accel); // TODO: remove, enable/disable based on mode config in chip_state.c
 
   HAL_TIM_Base_Start_IT(&htim3); // auto off timer
 

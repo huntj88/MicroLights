@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-static const unsigned long kSampleIntervalTicks = 20UL;
+static const unsigned long kSampleIntervalTicks = 2UL; // TODO: dial this in after 6 byte fast read, see data sheet
 static const float kSensitivityLsbPerG = 2048.0f;
 
 /* Small helper to safely call the optional USB logging callback */
@@ -81,9 +81,10 @@ static int16_t mc3479ReadAxis(MC3479 *dev, uint8_t reg_l, uint8_t reg_h) {
     return raw;
 }
 
-int mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
-    if (!dev || !dev->readRegister || !dev->enabled) return -1;
+bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
+    if (!dev || !dev->readRegister || !dev->enabled) return false;
 
+    // TODO: convert to 6 byte read, check data sheet
     int16_t raw_x = mc3479ReadAxis(dev, MC3479_REG_XOUT_L, MC3479_REG_XOUT_H);
     int16_t raw_y = mc3479ReadAxis(dev, MC3479_REG_YOUT_L, MC3479_REG_YOUT_H);
     int16_t raw_z = mc3479ReadAxis(dev, MC3479_REG_ZOUT_L, MC3479_REG_ZOUT_H);
@@ -121,7 +122,7 @@ int mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
 
     dev->lastSampleTick = nowTicks;
 
-    return 0;
+    return true;
 }
 
 void mc3479Task(MC3479 *dev, unsigned long nowTicks) {
@@ -138,14 +139,4 @@ void mc3479Task(MC3479 *dev, unsigned long nowTicks) {
             dev->lastSampleTick = nowTicks;
         }
     }
-}
-
-float mc3479GetMagnitude(MC3479 *dev) {
-    if (!dev) return 0.0f;
-    return dev->currentMagnitudeG;
-}
-
-float mc3479GetJerkMagnitude(MC3479 *dev) {
-    if (!dev) return 0.0f;
-    return dev->currentJerkGPerTick;
 }
