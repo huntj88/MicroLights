@@ -114,16 +114,19 @@ static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
 			&hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
-static int8_t readRegisterAccel(MC3479 *dev, uint8_t reg) {
-	int8_t receive_buffer[1] = { 0 };
-
+// Read multiple consecutive registers from MC3479 (for efficient axis reads)
+static bool readRegistersAccel(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len) {
 	HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1,
-			dev->devAddress, &reg, 1, 1000);
+			dev->devAddress, &startReg, 1, 1000);
+
+	if (statusTransmit != HAL_OK) {
+		return false;
+	}
 
 	HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1,
-			dev->devAddress, &receive_buffer, 1, 1000);
+			dev->devAddress, buf, len, 1000);
 
-	return receive_buffer[0];
+	return statusReceive == HAL_OK;
 }
 
 static void writeRegisterAccel(MC3479 *dev, uint8_t reg, uint8_t value) {
@@ -247,6 +250,8 @@ int main(void)
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   BQ25180_Init();
+  mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
+  accel.writeToUsbSerial = writeToSerial; // optional logging
   configureChipState(
 		  &chargerIC,
 		  &accel,
@@ -257,11 +262,6 @@ int main(void)
 		  startLedTimers,
 		  stopLedTimers
   );
-
-  // Initialize MC3479 accelerometer abstraction
-  mc3479Init(&accel, readRegisterAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
-  accel.writeToUsbSerial = writeToSerial; // optional logging
-  mc3479Enable(&accel); // TODO: remove, enable/disable based on mode config in chip_state.c
 
   HAL_TIM_Base_Start_IT(&htim3); // auto off timer
 

@@ -22,7 +22,7 @@
 #define MC3479_REG_CTRL2     0x08
 #define MC3479_REG_RANGE     0x20
 
-// Axis output registers (LSB/ MSB ordering inferred from project use)
+// Axis output registers
 #define MC3479_REG_XOUT_L    0x0D
 #define MC3479_REG_XOUT_H    0x0E
 #define MC3479_REG_YOUT_L    0x0F
@@ -32,24 +32,23 @@
 
 typedef struct MC3479 MC3479; // forward declaration
 
-// Read one 8-bit register. Implementations should return the raw byte as
-// a signed 8-bit value (two's complement behaviour preserved when assembling
-// 16-bit axis values).
-typedef int8_t MC3479ReadRegister(MC3479 *dev, uint8_t reg);
+// Read multiple consecutive registers. Returns true on success.
+typedef bool MC3479ReadRegisters(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len);
+
 // Write a single 8-bit register.
 typedef void MC3479WriteRegister(MC3479 *dev, uint8_t reg, uint8_t value);
 // Optional short logging callback (mirrors pattern in bq25180).
 typedef void MC3479WriteToUsbSerial(uint8_t itf, const char *buf, unsigned long count);
 
 struct MC3479 {
-    MC3479ReadRegister *readRegister;
+    MC3479ReadRegisters *readRegisters;
     MC3479WriteRegister *writeRegister;
     MC3479WriteToUsbSerial *writeToUsbSerial; // optional, may be NULL
 
     uint8_t devAddress;
 
     // Current calculated magnitude in units of g
-    float currentMagnitudeG;
+    float currentMagnitudeG; // TODO: delete?
 
     // Current calculated jerk magnitude (absolute) in units of g per tick
     // Caller-provided ticks are used directly (no conversion to seconds).
@@ -65,7 +64,7 @@ struct MC3479 {
 };
 
 
-void mc3479Init(MC3479 *dev, MC3479ReadRegister *readCb, MC3479WriteRegister *writeCb, uint8_t devAddress);
+void mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress);
 
 void mc3479Enable(MC3479 *dev);
 void mc3479Disable(MC3479 *dev);
@@ -81,5 +80,7 @@ void mc3479Task(MC3479 *dev, unsigned long nowTicks);
 // mc3479Task). Jerk is computed as change-in-acceleration divided by
 // delta-ticks, and therefore its units are g per tick (g/tick).
 bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks);
+
+bool isOverThreshold(MC3479 *dev, float threshold);
 
 #endif /* INC_MC3479_H_ */

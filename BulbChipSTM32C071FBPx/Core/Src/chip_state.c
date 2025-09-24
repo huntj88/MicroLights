@@ -11,7 +11,7 @@
 #include "storage.h"
 #include "rgb.h"
 #include "bulb_json.h"
-#include "mc3479.h"  // include accelerometer abstraction
+#include "mc3479.h"
 
 static const uint8_t fakeOffModeIndex = 255;
 
@@ -60,6 +60,12 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		startLedTimers();
 		char flashReadBuffer[1024];
 		readBulbModeWithBuffer(modeIndex, mode, flashReadBuffer);
+
+		if (mode->triggerCount == 0) {
+			mc3479Disable(accel);
+		} else {
+			mc3479Enable(accel);
+		}
 	}
 }
 
@@ -245,6 +251,7 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
+// TODO: when it starts flashing green/yellow, maybe lower the max voltage a tiny bit and see if it stays green? on unplug, reset to normal voltage
 static void chargerTask(uint16_t tickCount) {
 	static enum ChargeState chargingState = notConnected;
 
@@ -254,7 +261,7 @@ static void chargerTask(uint16_t tickCount) {
 
 		char registerJson[256];
 		readAllRegistersJson(chargerIC, registerJson);
-		writeUsbSerial(0, registerJson, strlen(registerJson));
+		// writeUsbSerial(0, registerJson, strlen(registerJson));
 //		printAllRegisters(chargerIC);
 		chargingState = getChargingState(chargerIC);
 	}
@@ -305,9 +312,9 @@ void modeTimerInterrupt() {
 	static uint8_t currentChangeIndex = 0;
 
 	Waveform waveform;
+
 	// TODO: check for configurable trigger threshold
-	if (accel->currentJerkGPerTick > 0.3f) {
-		// TODO: check if accel enabled and waveform at index exists
+	if (isOverThreshold(accel, 0.3f) && currentMode.triggerCount > 0) {
 		waveform = currentMode.triggers[0].waveform;
 	} else {
 		waveform = currentMode.waveform;

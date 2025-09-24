@@ -5,9 +5,9 @@
 #include <stdbool.h>
 #include <math.h>
 
-
-// TODO: take derivative over a few different time frames and see if any are greater than threshold?
-static const unsigned long kSampleIntervalTicks = 2UL; // TODO: dial this in after 6 byte fast read, see data sheet
+// TODO: set decimation rate
+// TODO: take derivative over a few different time frames?
+static const unsigned long kSampleIntervalTicks = 1UL; // TODO: dial this in
 static const float kSensitivityLsbPerG = 2048.0f;
 
 /* Small helper to safely call the optional USB logging callback */
@@ -19,25 +19,17 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
     dev->writeToUsbSerial(0, msg, strlen(msg));
 }
 
-void mc3479Init(MC3479 *dev, MC3479ReadRegister *readCb, MC3479WriteRegister *writeCb, uint8_t devAddress) {
-    if (!dev || !readCb || !writeCb) return;
+void mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress) {
+    if (!dev || !readRegsCb || !writeCb) return;
 
-    dev->readRegister = readCb;
+    dev->readRegisters = readRegsCb;
     dev->writeRegister = writeCb;
     dev->devAddress = devAddress;
     dev->writeToUsbSerial = NULL;
 
-    dev->currentMagnitudeG = 0.0f;
-    dev->currentJerkGPerTick = 0.0f;
-    dev->enabled = false;
-    dev->lastSampleTick = 0;
-
-    dev->lastAxG = 0.0f;
-    dev->lastAyG = 0.0f;
-    dev->lastAzG = 0.0f;
-
     // make sure in STANDBY when configuring
-    dev->writeRegister(dev, MC3479_REG_CTRL1, 0x00);
+    mc3479Disable(dev);
+
     // set +/- 16g
     dev->writeRegister(dev, MC3479_REG_RANGE, 0b00110000);
 }
@@ -72,24 +64,21 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastAzG = 0.0f;
 }
 
-static int16_t mc3479ReadAxis(MC3479 *dev, uint8_t reg_l, uint8_t reg_h) {
-    if (!dev || !dev->readRegister) return 0;
+bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
+    if (!dev || !dev->enabled) return false;
 
-    int8_t l = dev->readRegister(dev, reg_l);
-    int8_t h = dev->readRegister(dev, reg_h);
+    // read all 6 bytes
+    uint8_t buf[6] = {0};
+    if (dev->readRegisters) {
+        // readRegisters should read 6 bytes starting at MC3479_REG_XOUT_L
+    	bool read_ok = dev->readRegisters(dev, MC3479_REG_XOUT_L, buf, 6);
+    	if (!read_ok) return false;
+    }
 
     // Assemble as signed 16-bit two's complement
-    int16_t raw = (int16_t)(((uint8_t)h << 8) | (uint8_t)l);
-    return raw;
-}
-
-bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
-    if (!dev || !dev->readRegister || !dev->enabled) return false;
-
-    // TODO: convert to 6 byte read, check data sheet
-    int16_t raw_x = mc3479ReadAxis(dev, MC3479_REG_XOUT_L, MC3479_REG_XOUT_H);
-    int16_t raw_y = mc3479ReadAxis(dev, MC3479_REG_YOUT_L, MC3479_REG_YOUT_H);
-    int16_t raw_z = mc3479ReadAxis(dev, MC3479_REG_ZOUT_L, MC3479_REG_ZOUT_H);
+    int16_t raw_x = (int16_t)(((uint16_t)buf[1] << 8) | buf[0]);
+    int16_t raw_y = (int16_t)(((uint16_t)buf[3] << 8) | buf[2]);
+    int16_t raw_z = (int16_t)(((uint16_t)buf[5] << 8) | buf[4]);
 
     // Convert to g using configured sensitivity
     float gx = ((float)raw_x) / kSensitivityLsbPerG;
@@ -141,4 +130,11 @@ void mc3479Task(MC3479 *dev, unsigned long nowTicks) {
             dev->lastSampleTick = nowTicks;
         }
     }
+}
+
+bool isOverThreshold(MC3479 *dev, float threshold) {
+	if (!dev) return false;
+	if (!dev->enabled) return false;
+
+	return dev->currentJerkGPerTick > threshold;
 }
