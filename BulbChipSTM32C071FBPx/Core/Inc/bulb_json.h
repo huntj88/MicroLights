@@ -37,17 +37,27 @@ typedef struct Waveform {
 
 typedef struct AccelTrigger {
 	uint8_t threshold;
-	char color[16]; // e.g. "#3584e4"
+	char color[8]; // e.g. "#3584e4"
 	Waveform waveform;
+
+	// metadata calculated at runtime
+	int8_t red;
+	uint8_t green;
+	uint8_t blue;
 } AccelTrigger;
 
 typedef struct BulbMode {
 	char name[32];
-	char color[16];
+	char color[8]; // e.g. "#3584e4"
 	Waveform waveform;
 	AccelTrigger triggers[8];
+
+	// metadata calculated at runtime
 	uint8_t triggerCount;
 	uint8_t modeIndex;
+	uint8_t red;
+	uint8_t green;
+	uint8_t blue;
 } BulbMode;
 
 typedef struct ChipSettings {

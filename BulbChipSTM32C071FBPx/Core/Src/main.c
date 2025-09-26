@@ -278,7 +278,7 @@ int main(void)
       // Poll accelerometer driver (caller supplies current tick)
       mc3479Task(&accel, HAL_GetTick());
 
-      stateTask();
+      stateTask(HAL_GetTick());
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

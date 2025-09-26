@@ -6,8 +6,25 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
+
+#include <string.h>
+#include <ctype.h>
 #include "bulb_json.h"
 #include "lwjson/lwjson.h"
+
+// Helper: Parse hex color string (e.g. "#3584e4") to r/g/b (0-255)
+static void parseHexColor(const char *hex, uint8_t *r, uint8_t *g, uint8_t *b) {
+	if (!hex || strlen(hex) < 7 || hex[0] != '#') {
+		*r = *g = *b = 0;
+		return;
+	}
+	char rs[3] = {hex[1], hex[2], 0};
+	char gs[3] = {hex[3], hex[4], 0};
+	char bs[3] = {hex[5], hex[6], 0};
+	*r = (uint8_t)strtoul(rs, NULL, 16);
+	*g = (uint8_t)strtoul(gs, NULL, 16);
+	*b = (uint8_t)strtoul(bs, NULL, 16);
+}
 
 static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
@@ -125,6 +142,12 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 			mode->color[i] = colorRaw[i];
 		}
 		mode->color[len] = '\0';
+		// Parse hex color to rgb
+		uint8_t r, g, b;
+		parseHexColor(mode->color, &r, &g, &b);
+		mode->red = r;
+		mode->green = g;
+		mode->blue = b;
 		didParseColor = true;
 	}
 
@@ -148,6 +171,7 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 					if ((tObject = lwjson_find_ex(lwjson, tkn, "threshold")) != NULL) {
 						trigger.threshold = tObject->u.num_int;
 					} else {
+						// TODO: validation and error out
 						continue; // skip malformed trigger
 					}
 					// color
@@ -158,15 +182,26 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 							trigger.color[i] = colorRaw[i];
 						}
 						trigger.color[len] = '\0';
+						// Parse hex color to rgb
+						uint8_t r, g, b;
+						parseHexColor(trigger.color, &r, &g, &b);
+						trigger.red = (int8_t)r;
+						trigger.green = g;
+						trigger.blue = b;
 					} else {
 						trigger.color[0] = '\0';
+						trigger.red = 0;
+						trigger.green = 0;
+						trigger.blue = 0;
 					}
 					// waveform
 					if ((tObject = lwjson_find_ex(lwjson, tkn, "waveform")) != NULL) {
 						if (!parseWaveformJson(lwjson, (lwjson_token_t *)tObject, &trigger.waveform)) {
+							// TODO: validation and error out
 							continue; // skip malformed trigger
 						}
 					} else {
+						// TODO: validation and error out
 						continue; // skip malformed trigger
 					}
 
@@ -187,26 +222,6 @@ static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, Bulb
 /**
  * Example commands
  *
-{
-  "command": "writeMode",
-  "index": 0,
-  "mode": {
-    "name": "blah0",
-	"color": "#3584e4",
-    "totalTicks": 3,
-    "changeAt": [
-      {
-        "tick": 0,
-        "output": "low"
-      },
-      {
-        "tick": 1,
-        "output": "high"
-      }
-    ]
-  }
-}
-
 {
   "command": "writeMode",
   "index": 1,

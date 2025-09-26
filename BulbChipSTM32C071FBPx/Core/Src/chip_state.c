@@ -33,8 +33,8 @@ static void (*writeBulbLedPin)(uint8_t state);
 static void (*startLedTimers)();
 static void (*stopLedTimers)();
 
-static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"default\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}";
-static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"color\":\"#000000\",\"waveform\":{\"name\":\"secondColor\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}}";
+static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"color\":\"#000000\",\"waveform\":{\"name\":\"off\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}}";
+static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"color\":\"#000000\",\"waveform\":{\"name\":\"on\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}}";
 
 static void readBulbModeWithBuffer(uint8_t modeIndex, BulbMode *mode, char *buffer) {
 	CliInput input;
@@ -57,16 +57,31 @@ static void readBulbMode(uint8_t modeIndex, BulbMode *mode) {
 		parseJson(fakeOffMode, 1024, &input);
 		*mode = input.mode;
 	} else {
-		startLedTimers();
 		char flashReadBuffer[1024];
 		readBulbModeWithBuffer(modeIndex, mode, flashReadBuffer);
-
-		if (mode->triggerCount == 0) {
-			mc3479Disable(accel);
-		} else {
-			mc3479Enable(accel);
-		}
 	}
+}
+
+static void setCurrentMode(BulbMode *mode) {
+	currentMode = *mode;
+
+	if (currentMode.modeIndex == fakeOffModeIndex) {
+		stopLedTimers();
+	} else {
+		startLedTimers();
+	}
+
+	if (currentMode.triggerCount == 0) {
+		mc3479Disable(accel);
+	} else {
+		mc3479Enable(accel);
+	}
+}
+
+static void setCurrentModeIndex(uint8_t modeIndex) {
+	BulbMode mode;
+	readBulbMode(modeIndex, &mode);
+	setCurrentMode(&mode);
 }
 
 static void readSettingsWithBuffer(ChipSettings *settings, char *buffer) {
@@ -90,13 +105,8 @@ static void readSettings(ChipSettings *settings) {
 }
 
 static void shutdownFake() {
-	BulbMode mode;
-	readBulbMode(fakeOffModeIndex, &mode);
-	currentMode = mode;
-
-	if (getChargingState(chargerIC) == notConnected) {
-		stopLedTimers();
-	} else {
+	setCurrentModeIndex(fakeOffModeIndex);
+	if (getChargingState(chargerIC) != notConnected) {
 		startLedTimers();
 	}
 }
@@ -123,9 +133,7 @@ void configureChipState(
 	enum ChargeState state = getChargingState(chargerIC);
 
 	if (state == notConnected) {
-		BulbMode mode;
-		readBulbMode(0, &mode);
-		currentMode = mode;
+		setCurrentModeIndex(0);
 	} else {
 		shutdownFake();
 	}
@@ -139,6 +147,7 @@ void configureChipState(
 
 void setClickStarted() {
 	clickStarted = true;
+	showNoColor();
 	startLedTimers();
 }
 
@@ -173,6 +182,8 @@ enum ButtonResult {
 // See setClickStarted();
 // After, the timers may be stopped depending on click result
 static void handleButtonInput() {
+	// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
+
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
 
@@ -213,9 +224,7 @@ static void handleButtonInput() {
 						newModeIndex = 0;
 					}
 
-					BulbMode newMode;
-					readBulbMode(newModeIndex, &newMode);
-					currentMode = newMode;
+					setCurrentModeIndex(newModeIndex);
 					break;
 				case shutdown:
 					shutdownFake();
@@ -232,6 +241,11 @@ static void handleButtonInput() {
 }
 
 static void showChargingState(enum ChargeState state) {
+	if (hasClickStarted() || currentMode.modeIndex != fakeOffModeIndex) {
+		// don't show charging during button input, or when a mode is in use while plugged in, will still charge
+		return;
+	}
+
 	switch (state) {
 	case notConnected:
 		// do nothing
@@ -251,6 +265,7 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
+// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
 // TODO: when it starts flashing green/yellow, maybe lower the max voltage a tiny bit and see if it stays green? on unplug, reset to normal voltage
 static void chargerTask(uint16_t tickCount) {
 	static enum ChargeState chargingState = notConnected;
@@ -259,10 +274,10 @@ static void chargerTask(uint16_t tickCount) {
 	if (tickCount % 1024 == 0) {
 		configureChargerIC(chargerIC);
 
-		char registerJson[256];
-		readAllRegistersJson(chargerIC, registerJson);
+		// char registerJson[256];
+		// readAllRegistersJson(chargerIC, registerJson);
 		// writeUsbSerial(0, registerJson, strlen(registerJson));
-//		printAllRegisters(chargerIC);
+		// printAllRegisters(chargerIC);
 		chargingState = getChargingState(chargerIC);
 	}
 
@@ -270,7 +285,6 @@ static void chargerTask(uint16_t tickCount) {
 		showChargingState(chargingState);
 	}
 
-	// TODO: charger alternates between status's too fast when transitioning from one charging mode to another
 	if (readChargerNow) {
 		readChargerNow = false;
 		enum ChargeState state = getChargingState(chargerIC);
@@ -284,16 +298,13 @@ static void chargerTask(uint16_t tickCount) {
 		bool wasConnected = previousState == notConnected && state != notConnected;
 		if (wasConnected) {
 			startLedTimers(); // show charging status led
-		}
-
-		if (chargingState != state) {
 			showChargingState(state);
-			chargingState = state;
 		}
 	}
 }
 
-void stateTask() {
+// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
+void stateTask(uint32_t sysTicks) {
 	static uint16_t tickCount = 0;
 
 	chargerTask(tickCount);
@@ -315,9 +326,17 @@ void modeTimerInterrupt() {
 
 	// TODO: check for configurable trigger threshold
 	if (isOverThreshold(accel, 0.3f) && currentMode.triggerCount > 0) {
-		waveform = currentMode.triggers[0].waveform;
+		AccelTrigger trigger = currentMode.triggers[0];
+		waveform = trigger.waveform;
+
+		if (!hasClickStarted()) {
+			showUserColor(trigger.red, trigger.green, trigger.blue);
+		}
 	} else {
 		waveform = currentMode.waveform;
+		if (!hasClickStarted()) {
+			showUserColor(currentMode.red, currentMode.green, currentMode.blue);
+		}
 	}
 
 	if (waveform.totalTicks <= modeInterruptCount) {
@@ -380,7 +399,7 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	case parseWriteMode: {
 		 BulbMode mode = input.mode;
 		 writeBulbModeToFlash(mode.modeIndex, buf, input.jsonLength);
-		 currentMode = mode;
+		 setCurrentMode(&mode);
 		break;
 	}
 	case parseReadMode: {
