@@ -266,24 +266,32 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
-// TODO: use milliseconds elapsed instead of tick count. see millisForElapsedChipTicks
-static void chargerTask(uint16_t tickCount) {
+static void chargerTask(uint16_t tick, float millisPerTick) {
 	static enum ChargeState chargingState = notConnected;
+	static uint16_t checkedAtTick = 0;
 
 	uint8_t previousState = chargingState;
-	if (tickCount % 1024 == 0) {
-		// TODO: Do I need to configure periodically? There should be i2c communication 
-		// 		 from reads, should not reset to defaults.
-		// configureChargerIC(chargerIC);
+	uint16_t elapsedMillis = 0;
 
+	if (checkedAtTick != 0) {
+		uint16_t elapsedTicks = tick - checkedAtTick;
+		elapsedMillis = elapsedTicks * millisPerTick;
+	}
+
+	// charger i2c watchdog timer will reset if not communicated
+	// with for 40 seconds, and 15 seconds after plugged in.
+	if (elapsedMillis > 30000 || checkedAtTick == 0) {
 		// char registerJson[256];
 		// readAllRegistersJson(chargerIC, registerJson);
 		// writeUsbSerial(0, registerJson, strlen(registerJson));
 		// printAllRegisters(chargerIC);
+
 		chargingState = getChargingState(chargerIC);
+		checkedAtTick = tick;
 	}
 
-	if (tickCount % 256 == 0) {
+	// flash charging state to user every second
+	if (elapsedMillis % 1000 >= 1000 - millisPerTick) {
 		showChargingState(chargingState);
 	}
 
@@ -292,7 +300,7 @@ static void chargerTask(uint16_t tickCount) {
 		enum ChargeState state = getChargingState(chargerIC);
 
 		bool wasDisconnected = previousState != notConnected && state == notConnected;
-		if (tickCount != 0 && wasDisconnected && currentMode.modeIndex == fakeOffModeIndex) {
+		if (tick != 0 && wasDisconnected && currentMode.modeIndex == fakeOffModeIndex) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock();
 		}
@@ -310,7 +318,7 @@ void stateTask() {
 	buttonInputTask(chipTick, millisPerTick);
 	rgbTask(caseLed, chipTick);
 	mc3479Task(accel, chipTick);
-	chargerTask(chipTick);
+	chargerTask2(chipTick, millisPerTick);
 }
 
 void handleChargerInterrupt() {
