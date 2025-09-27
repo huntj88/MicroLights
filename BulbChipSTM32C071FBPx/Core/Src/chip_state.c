@@ -317,7 +317,7 @@ void stateTask() {
 	float millisPerTick = getMillisecondsPerChipTick();
 	buttonInputTask(chipTick, millisPerTick);
 	rgbTask(caseLed, chipTick, millisPerTick);
-	mc3479Task(accel, chipTick);
+	mc3479Task(accel, chipTick, millisPerTick);
 	chargerTask(chipTick, millisPerTick);
 }
 

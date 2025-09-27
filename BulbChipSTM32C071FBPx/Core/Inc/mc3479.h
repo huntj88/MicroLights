@@ -73,7 +73,7 @@ void mc3479Disable(MC3479 *dev);
 // Polling task: call periodically from the main loop. When enabled and the
 // loop interval has elapsed this will read the three axis values, compute
 // magnitude and update `currentMagnitudeG`.
-void mc3479Task(MC3479 *dev, uint16_t tick);
+void mc3479Task(MC3479 *dev, uint16_t tick, float millisPerTick);
 
 // Force an immediate sample and magnitude calculation. Returns true on success,
 // false if a sample couldn't be taken (e.g. missing read callback).

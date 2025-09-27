@@ -116,13 +116,12 @@ bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
     return true;
 }
 
-// TODO: use milliseconds elapsed instead of tick. see millisForElapsedChipTicks
-void mc3479Task(MC3479 *dev, uint16_t tick) {
+void mc3479Task(MC3479 *dev, uint16_t tick, float millisPerTick) {
     if (!dev) return;
     if (!dev->enabled) return;
 
-    bool samplePeriodElapsed = tick - dev->lastSampleTick >= 10;
-
+    // If at least 50 milliseconds have elapsed since the last sample, take a new one
+    bool samplePeriodElapsed = (tick - dev->lastSampleTick) * millisPerTick >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
         if (mc3479SampleNow(dev, tick)) {
