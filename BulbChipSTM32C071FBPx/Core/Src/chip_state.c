@@ -187,61 +187,65 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-// TODO: use milliseconds elapsed instead of buttonDownCounter. see millisForElapsedChipTicks
 static void handleButtonInput() {
 	static enum ButtonResult buttonState = ignore;
-	static int16_t buttonDownCounter = 0;
+	static int16_t clickStartTick = 0;
+	
+	if (hasClickStarted() && clickStartTick == 0) {
+		clickStartTick = chipTick;
+		buttonState = ignore;
+	}
 
-	if (hasClickStarted()) {
-		uint8_t state = readButtonPin();
-		bool buttonCurrentlyDown = state == 0;
+	uint16_t elapsedMillis = 0;
+	if (clickStartTick != 0) {
+		elapsedMillis = millisForElapsedChipTicks(chipTick - clickStartTick);
+	}
 
-		if (buttonCurrentlyDown) {
-			buttonDownCounter += 1;
-			if (buttonDownCounter > 2 && buttonState == ignore) {
-				buttonState = clicked;
-			} else if (buttonDownCounter > 400 && buttonState == clicked) {
-				buttonState = shutdown;
-				rgbShowShutdown(caseLed);
-			} else if (buttonDownCounter > 800 && buttonState == shutdown) {
-				buttonState = lockOrHardwareReset;
-				rgbShowLocked(caseLed);
-			}
+	uint8_t state = readButtonPin();
+	bool buttonCurrentlyDown = state == 0;
 
-			// prevent long holds from increasing time for button action to start
-			if (buttonDownCounter > 800) {
-				buttonDownCounter = 800;
-			}
-		} else {
-			buttonDownCounter -= 500; // Large decrement to allow any hold time to "discharge" quickly.
-			if (buttonDownCounter < -1000) {
-				buttonDownCounter = 0;
-				switch (buttonState) {
-				case ignore:
-					if (currentMode.modeIndex == fakeOffModeIndex && getChargingState(chargerIC) == notConnected) {
-						stopLedTimers();
-					}
-					break;
-				case clicked:
-					rgbShowSuccess(caseLed);
-					uint8_t newModeIndex = currentMode.modeIndex + 1;
-					if (newModeIndex >= modeCount) {
-						newModeIndex = 0;
-					}
-
-					setCurrentModeIndex(newModeIndex);
-					break;
-				case shutdown:
-					shutdownFake();
-					break;
-				case lockOrHardwareReset:
-					lock();
-					break;
-				}
-				setClickEnded();
-				buttonState = ignore;
-			}
+	if (buttonCurrentlyDown) {
+		if (elapsedMillis > 2000 && elapsedMillis < 2100) {
+			rgbShowLocked(caseLed);
+		} else if (elapsedMillis > 1000 && elapsedMillis < 1100) {
+			rgbShowShutdown(caseLed);
 		}
+	}
+
+	if (!buttonCurrentlyDown && elapsedMillis > 20) {
+		if (elapsedMillis > 2000) {
+			buttonState = lockOrHardwareReset;
+		} else if (elapsedMillis > 1000) {
+			buttonState = shutdown;
+		} else if (elapsedMillis > 20) {
+			buttonState = clicked;
+		}
+
+		switch (buttonState) {
+		case ignore:
+			if (currentMode.modeIndex == fakeOffModeIndex && getChargingState(chargerIC) == notConnected) {
+				stopLedTimers();
+			}
+			break;
+		case clicked:
+			rgbShowSuccess(caseLed);
+			uint8_t newModeIndex = currentMode.modeIndex + 1;
+			if (newModeIndex >= modeCount) {
+				newModeIndex = 0;
+			}
+			setCurrentModeIndex(newModeIndex);
+			break;
+		case shutdown:
+			shutdownFake();
+			break;
+		case lockOrHardwareReset:
+			lock();
+			break;
+		}
+
+		clickStartTick = 0;
+		buttonState = ignore;
+		setClickEnded();
 	}
 }
 

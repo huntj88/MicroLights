@@ -182,7 +182,7 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
-static float millisForElapsedChipTicks(uint16_t elapsedTicks) {
+static uint16_t millisForElapsedChipTicks(uint16_t elapsedTicks) {
   RCC_ClkInitTypeDef clkConfig;
   uint32_t flashLatency;
   HAL_RCC_GetClockConfig(&clkConfig, &flashLatency);
@@ -204,7 +204,7 @@ static float millisForElapsedChipTicks(uint16_t elapsedTicks) {
   }
 
   double intervalSeconds = elapsedTicks * (prescaler * period) / (double)timerClock;
-  return (float)(intervalSeconds * 1000.0);
+  return (uint16_t)(intervalSeconds * 1000.0);
 }
 
 static void cdc_task() {
