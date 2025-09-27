@@ -181,7 +181,7 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
-static uint16_t millisForElapsedChipTicks(uint16_t elapsedTicks) {
+static float millisecondsPerChipTick() {
   RCC_ClkInitTypeDef clkConfig;
   uint32_t flashLatency;
   HAL_RCC_GetClockConfig(&clkConfig, &flashLatency);
@@ -202,8 +202,8 @@ static uint16_t millisForElapsedChipTicks(uint16_t elapsedTicks) {
     return 0.0f;
   }
 
-  double intervalSeconds = elapsedTicks * (prescaler * period) / (double)timerClock;
-  return (uint16_t)(intervalSeconds * 1000.0);
+  double intervalSeconds = (prescaler * period) / (double)timerClock;
+  return (float)(intervalSeconds * 1000.0);
 }
 
 static void cdcTask() {
@@ -296,7 +296,7 @@ int main(void)
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
 		  writeBulbLed,
-		  millisForElapsedChipTicks,
+		  millisecondsPerChipTick,
 		  startLedTimers,
 		  stopLedTimers
   );

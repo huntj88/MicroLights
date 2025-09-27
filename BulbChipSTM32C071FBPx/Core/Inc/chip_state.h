@@ -15,8 +15,6 @@
 #include "mc3479.h"
 #include "rgb.h"
 
-typedef uint16_t MillisForElapsedChipTicks(uint16_t elapsedTicks);
-
 typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 void configureChipState(
@@ -27,7 +25,7 @@ void configureChipState(
 		void (*enterDFU)(),
 		uint8_t (*readButtonPin)(),
 		void (*writeBulbLedPin)(uint8_t state),
-		MillisForElapsedChipTicks *millisForElapsedChipTicks,
+		float (*getMillisecondsPerChipTick)(),
 		void (*startLedTimers)(),
 		void (*stopLedTimers)()
 );

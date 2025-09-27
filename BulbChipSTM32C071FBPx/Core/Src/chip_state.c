@@ -16,6 +16,7 @@
 static const uint8_t fakeOffModeIndex = 255;
 
 static volatile uint16_t chipTick = 0;
+
 static volatile uint8_t modeCount;
 static volatile BulbMode currentMode;
 static volatile bool clickStarted = false;
@@ -32,7 +33,7 @@ static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
-static MillisForElapsedChipTicks *millisForElapsedChipTicks;
+static float (*getMillisecondsPerChipTick)();
 static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into
 static void (*stopLedTimers)();  //       different functions. Move rgb timers to RGB
 
@@ -122,7 +123,7 @@ void configureChipState(
 		void (*_enterDFU)(),
 		uint8_t (*_readButtonPin)(),
 		void (*_writeBulbLedPin)(uint8_t state),
-		MillisForElapsedChipTicks *_millisForElapsedChipTicks,
+		float (*_getMillisecondsPerChipTick)(),
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
@@ -133,7 +134,7 @@ void configureChipState(
 	enterDFU = _enterDFU;
 	readButtonPin = _readButtonPin;
 	writeBulbLedPin = _writeBulbLedPin;
-	millisForElapsedChipTicks = _millisForElapsedChipTicks;
+	getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
 	startLedTimers = _startLedTimers;
 	stopLedTimers = _stopLedTimers;
 
@@ -186,7 +187,7 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-static void buttonInputTask(uint16_t tick) {
+static void buttonInputTask(uint16_t tick, float millisPerTick) {
 	static int16_t clickStartTick = 0;
 	
 	if (hasClickStarted() && clickStartTick == 0) {
@@ -195,7 +196,8 @@ static void buttonInputTask(uint16_t tick) {
 
 	uint16_t elapsedMillis = 0;
 	if (clickStartTick != 0) {
-		elapsedMillis = millisForElapsedChipTicks(tick - clickStartTick);
+		uint16_t elapsedTicks = tick - clickStartTick;
+		elapsedMillis = elapsedTicks * millisPerTick;
 	}
 
 	uint8_t state = readButtonPin();
@@ -304,7 +306,8 @@ static void chargerTask(uint16_t tickCount) {
 }
 
 void stateTask() {
-	buttonInputTask(chipTick);
+	float millisPerTick = getMillisecondsPerChipTick();
+	buttonInputTask(chipTick, millisPerTick);
 	rgbTask(caseLed, chipTick);
 	mc3479Task(accel, chipTick);
 	chargerTask(chipTick);
