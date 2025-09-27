@@ -316,9 +316,9 @@ static void chargerTask(uint16_t tick, float millisPerTick) {
 void stateTask() {
 	float millisPerTick = getMillisecondsPerChipTick();
 	buttonInputTask(chipTick, millisPerTick);
-	rgbTask(caseLed, chipTick);
+	rgbTask(caseLed, chipTick, millisPerTick);
 	mc3479Task(accel, chipTick);
-	chargerTask2(chipTick, millisPerTick);
+	chargerTask(chipTick, millisPerTick);
 }
 
 void handleChargerInterrupt() {

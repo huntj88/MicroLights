@@ -51,16 +51,17 @@ bool rgbInit(RGB *device, RGBWritePwm *writeFn, uint16_t period) {
 	return true;
 }
 
-// TODO: use milliseconds elapsed instead of tick. see millisForElapsedChipTicks
-void rgbTask(RGB *device, uint16_t tick) {
+void rgbTask(RGB *device, uint16_t tick, float millisPerTick) {
 	if (!device) {
 		return;
 	}
 
 	device->tick = tick;
 
-	// show status color for 75 ticks, then switch back to user color
-	if (device->showingTransientStatus && device->tick >= device->tickOfColorChange + 75U) {
+	uint16_t elapsedMillis = (uint16_t)((tick - device->tickOfColorChange) * millisPerTick);
+
+	// show status color for 300 milliseconds, then switch back to user color
+	if (device->showingTransientStatus && elapsedMillis > 300) {
 		showColor(device, device->userRed, device->userGreen, device->userBlue, false);
 	}
 }

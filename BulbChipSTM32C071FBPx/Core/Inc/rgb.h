@@ -27,7 +27,7 @@ typedef struct RGB {
 
 bool rgbInit(RGB *device, RGBWritePwm *writeFn, uint16_t period);
 
-void rgbTask(RGB *device, uint16_t tick);
+void rgbTask(RGB *device, uint16_t tick, float millisPerTick);
 void rgbShowNoColor(RGB *device);
 void rgbShowUserColor(RGB *device, uint8_t red, uint8_t green, uint8_t blue);
 void rgbShowSuccess(RGB *device);
