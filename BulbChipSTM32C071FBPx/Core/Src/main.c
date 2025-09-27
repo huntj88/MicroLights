@@ -153,7 +153,6 @@ static uint8_t readButtonPin() {
 	return 1;
 }
 
-// defined in main.h for use in timer interrupt
 static void writeBulbLed(uint8_t state) {
 	if (state == 0) {
 		HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
@@ -207,7 +206,7 @@ static uint16_t millisForElapsedChipTicks(uint16_t elapsedTicks) {
   return (uint16_t)(intervalSeconds * 1000.0);
 }
 
-static void cdc_task() {
+static void cdcTask() {
 	static uint8_t jsonBuf[1024];
 	static uint16_t jsonIndex = 0;
 	uint8_t itf;
@@ -267,10 +266,14 @@ int main(void)
   MX_I2C1_Init();
   MX_USB_PCD_Init();
   MX_USART2_UART_Init();
-  MX_TIM1_Init(); // rgb status led timer
-  MX_TIM2_Init(); // chipTick timer
-  MX_TIM3_Init(); // autoOff timer
+  MX_TIM1_Init();
+  MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
+
+  // TIM1: rgb status led timer - no interrupts
+  // TIM2: chipTick timer - interrupts to increment chipTick
+  // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
@@ -306,7 +309,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   while (1) {
-	  cdc_task();
+	  cdcTask();
 
 	  stateTask();
 

@@ -33,8 +33,8 @@ static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
 static MillisForElapsedChipTicks *millisForElapsedChipTicks;
-static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
-static void (*stopLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
+static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into
+static void (*stopLedTimers)();  //       different functions. Move rgb timers to RGB
 
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"color\":\"#000000\",\"waveform\":{\"name\":\"off\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}}";
 static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"color\":\"#000000\",\"waveform\":{\"name\":\"on\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}}";
@@ -155,8 +155,7 @@ void configureChipState(
 void setClickStarted() {
 	clickStarted = true;
 	rgbShowNoColor(caseLed);
-	// Timers need to run for the duration of the click to properly detect input.
-	// After, the timers may be stopped depending on currentMode/click result
+	// Timers interrupts needed to properly detect input.
 	startLedTimers();
 }
 
@@ -187,18 +186,16 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-static void handleButtonInput() {
-	static enum ButtonResult buttonState = ignore;
+static void buttonInputTask(uint16_t tick) {
 	static int16_t clickStartTick = 0;
 	
 	if (hasClickStarted() && clickStartTick == 0) {
-		clickStartTick = chipTick;
-		buttonState = ignore;
+		clickStartTick = tick;
 	}
 
 	uint16_t elapsedMillis = 0;
 	if (clickStartTick != 0) {
-		elapsedMillis = millisForElapsedChipTicks(chipTick - clickStartTick);
+		elapsedMillis = millisForElapsedChipTicks(tick - clickStartTick);
 	}
 
 	uint8_t state = readButtonPin();
@@ -213,20 +210,14 @@ static void handleButtonInput() {
 	}
 
 	if (!buttonCurrentlyDown && elapsedMillis > 20) {
+		enum ButtonResult buttonState = clicked;
 		if (elapsedMillis > 2000) {
 			buttonState = lockOrHardwareReset;
 		} else if (elapsedMillis > 1000) {
 			buttonState = shutdown;
-		} else if (elapsedMillis > 20) {
-			buttonState = clicked;
 		}
 
 		switch (buttonState) {
-		case ignore:
-			if (currentMode.modeIndex == fakeOffModeIndex && getChargingState(chargerIC) == notConnected) {
-				stopLedTimers();
-			}
-			break;
 		case clicked:
 			rgbShowSuccess(caseLed);
 			uint8_t newModeIndex = currentMode.modeIndex + 1;
@@ -244,7 +235,6 @@ static void handleButtonInput() {
 		}
 
 		clickStartTick = 0;
-		buttonState = ignore;
 		setClickEnded();
 	}
 }
@@ -280,7 +270,8 @@ static void chargerTask(uint16_t tickCount) {
 
 	uint8_t previousState = chargingState;
 	if (tickCount % 1024 == 0) {
-		// TODO: Do I need to configure periodically? There should be i2c communication from reads, should not reset to defaults.
+		// TODO: Do I need to configure periodically? There should be i2c communication 
+		// 		 from reads, should not reset to defaults.
 		// configureChargerIC(chargerIC);
 
 		// char registerJson[256];
@@ -313,10 +304,10 @@ static void chargerTask(uint16_t tickCount) {
 }
 
 void stateTask() {
+	buttonInputTask(chipTick);
 	rgbTask(caseLed, chipTick);
 	mc3479Task(accel, chipTick);
 	chargerTask(chipTick);
-	handleButtonInput();
 }
 
 void handleChargerInterrupt() {
