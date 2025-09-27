@@ -116,6 +116,7 @@ bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
     return true;
 }
 
+// TODO: use milliseconds elapsed instead of tick. see millisForElapsedChipTicks
 void mc3479Task(MC3479 *dev, uint16_t tick) {
     if (!dev) return;
     if (!dev->enabled) return;

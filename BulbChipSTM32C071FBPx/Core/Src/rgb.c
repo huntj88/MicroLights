@@ -51,6 +51,7 @@ bool rgbInit(RGB *device, RGBWritePwm *writeFn, uint16_t period) {
 	return true;
 }
 
+// TODO: use milliseconds elapsed instead of tick. see millisForElapsedChipTicks
 void rgbTask(RGB *device, uint16_t tick) {
 	if (!device) {
 		return;

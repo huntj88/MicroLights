@@ -182,6 +182,31 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
+static float millisForElapsedChipTicks(uint16_t elapsedTicks) {
+  RCC_ClkInitTypeDef clkConfig;
+  uint32_t flashLatency;
+  HAL_RCC_GetClockConfig(&clkConfig, &flashLatency);
+
+  uint32_t timerClock = HAL_RCC_GetPCLK1Freq();
+  if (clkConfig.APB1CLKDivider == RCC_HCLK_DIV2) {
+    timerClock *= 2U;
+  } else if (clkConfig.APB1CLKDivider == RCC_HCLK_DIV4) {
+    timerClock *= 4U;
+  } else {
+    // TODO: more clock dividers
+  }
+
+  uint32_t prescaler = htim2.Init.Prescaler + 1U;
+  uint32_t period = htim2.Init.Period + 1U;
+
+  if (timerClock == 0U) {
+    return 0.0f;
+  }
+
+  double intervalSeconds = elapsedTicks * (prescaler * period) / (double)timerClock;
+  return (float)(intervalSeconds * 1000.0);
+}
+
 static void cdc_task() {
 	static uint8_t jsonBuf[1024];
 	static uint16_t jsonIndex = 0;
@@ -242,9 +267,9 @@ int main(void)
   MX_I2C1_Init();
   MX_USB_PCD_Init();
   MX_USART2_UART_Init();
-  MX_TIM1_Init();
-  MX_TIM2_Init();
-  MX_TIM3_Init();
+  MX_TIM1_Init(); // rgb status led timer
+  MX_TIM2_Init(); // chipTick timer
+  MX_TIM3_Init(); // autoOff timer
   /* USER CODE BEGIN 2 */
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
@@ -268,6 +293,7 @@ int main(void)
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
 		  writeBulbLed,
+		  millisForElapsedChipTicks,
 		  startLedTimers,
 		  stopLedTimers
   );

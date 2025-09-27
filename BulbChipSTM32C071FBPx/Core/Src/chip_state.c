@@ -15,7 +15,7 @@
 
 static const uint8_t fakeOffModeIndex = 255;
 
-static volatile uint16_t chipTick = 0; // TODO: provide way to resolve into milliseconds
+static volatile uint16_t chipTick = 0;
 static volatile uint8_t modeCount;
 static volatile BulbMode currentMode;
 static volatile bool clickStarted = false;
@@ -32,6 +32,7 @@ static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
+static MillisForElapsedChipTicks *millisForElapsedChipTicks;
 static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
 static void (*stopLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
 
@@ -121,6 +122,7 @@ void configureChipState(
 		void (*_enterDFU)(),
 		uint8_t (*_readButtonPin)(),
 		void (*_writeBulbLedPin)(uint8_t state),
+		MillisForElapsedChipTicks *_millisForElapsedChipTicks,
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
@@ -131,6 +133,7 @@ void configureChipState(
 	enterDFU = _enterDFU;
 	readButtonPin = _readButtonPin;
 	writeBulbLedPin = _writeBulbLedPin;
+	millisForElapsedChipTicks = _millisForElapsedChipTicks;
 	startLedTimers = _startLedTimers;
 	stopLedTimers = _stopLedTimers;
 
@@ -184,7 +187,7 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-// TODO: use chipTicks value instead of buttonDownCounter, otherwise can get inconsistent tick rates, resolve to time in milliseconds
+// TODO: use milliseconds elapsed instead of buttonDownCounter. see millisForElapsedChipTicks
 static void handleButtonInput() {
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
@@ -267,6 +270,7 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
+// TODO: use milliseconds elapsed instead of tick count. see millisForElapsedChipTicks
 static void chargerTask(uint16_t tickCount) {
 	static enum ChargeState chargingState = notConnected;
 
