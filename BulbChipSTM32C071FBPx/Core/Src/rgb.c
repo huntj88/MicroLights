@@ -5,91 +5,109 @@
  *      Author: jameshunt
  */
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "stm32c0xx_hal.h" // TODO: pass in register changes as param? treat like accelerometer or charger implementations
+#include <stddef.h>
 #include "rgb.h"
-
-static uint16_t tickCount = 0;
-static uint16_t tickOfStatusUpdate = 0;
-static bool showingTransientStatus = false;
-static uint8_t rUser, gUser, bUser;
 
 // TODO: multiple priorities, could create a prioritized led resource mutex if it gets more complicated
 // button input
 // user defined mode color
 // charging
 
+static uint16_t colorRangeToDuty(const RGB *device, uint8_t value) {
+	uint16_t increment = device->period / 255U;
+	return value * increment;
+}
+
 // expect red, green, blue to be in range of 0 to 255
-static void showColor(uint8_t red, uint8_t green, uint8_t blue) { 
-	uint16_t max = 4000; // 100% duty cycle is actually 47999 (check ioc file), but limiting for now
-	uint16_t increment = max / 256;
+static void showColor(RGB *device, uint8_t red, uint8_t green, uint8_t blue, bool transient) {
+	if (!device || !device->writePwm) {
+		return;
+	}
 
-	TIM1->CCR1 = red * increment;
-	TIM1->CCR2 = green * increment;
-	TIM1->CCR3 = blue * increment;
+	device->showingTransientStatus = transient;
 
-	tickOfStatusUpdate = tickCount;
+	uint16_t scaledRed = colorRangeToDuty(device, red);
+	uint16_t scaledGreen = colorRangeToDuty(device, green);
+	uint16_t scaledBlue = colorRangeToDuty(device, blue);
+
+	device->writePwm(scaledRed, scaledGreen, scaledBlue);
+	device->tickOfColorChange = device->tick;
 }
 
-void rgb_task() {
-	tickCount++;
+bool rgbInit(RGB *device, RGBWritePwm *writeFn, uint16_t period) {
+	if (!device || !writeFn) {
+		return false;
+	}
 
-	// show status color for 3 ticks
-	if (showingTransientStatus && tickOfStatusUpdate + 75 == tickCount) {
-		showingTransientStatus = false;
-		showColor(rUser, gUser, bUser);
+	device->writePwm = writeFn;
+	device->period = period;
+
+	device->tick = 0;
+	device->tickOfColorChange = 0;
+	device->showingTransientStatus = false;
+	device->userRed = 0;
+	device->userGreen = 0;
+	device->userBlue = 0;
+	return true;
+}
+
+// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
+void rgbTask(RGB *device) {
+	if (!device) {
+		return;
+	}
+
+	device->tick++;
+
+	// show status color for 75 ticks, then switch back to user color
+	if (device->showingTransientStatus && device->tick >= device->tickOfColorChange + 75U) {
+		showColor(device, device->userRed, device->userGreen, device->userBlue, false);
 	}
 }
 
-void showUserColor(uint8_t red, uint8_t green, uint8_t blue) {
-	rUser = red;
-	gUser = green;
-	bUser = blue;
+void rgbShowNoColor(RGB *device) {
+	rgbShowUserColor(device, 0, 0, 0);
+}
 
-	if (!showingTransientStatus) {
-		showColor(red, green, blue);
+void rgbShowUserColor(RGB *device, uint8_t red, uint8_t green, uint8_t blue) {
+	if (!device) {
+		return;
+	}
+
+	device->userRed = red;
+	device->userGreen = green;
+	device->userBlue = blue;
+
+	// only change color if not showing transient status, will show after
+	if (!device->showingTransientStatus) {
+		showColor(device, red, green, blue, false);
 	}
 }
 
-void showSuccess() {
-	showingTransientStatus = true;
-	showColor(40, 40, 40);
+void rgbShowSuccess(RGB *device) {
+	showColor(device, 10, 10, 10, true);
 }
 
-void showFailure() {
-	showColor(40, 0, 40);
+void rgbShowLocked(RGB *device) {
+	showColor(device, 0, 0, 20, false);
 }
 
-void showLocked() {
-	showColor(0, 0, 80);
+void rgbShowShutdown(RGB *device) {
+	showColor(device, 20, 20, 20, true);
 }
 
-void showShutdown() {
-	showingTransientStatus = true;
-	showColor(80, 80, 80);
+void rgbShowNotCharging(RGB *device) {
+	showColor(device, 10, 0, 10, true);
 }
 
-void showNoColor() {
-	showUserColor(0, 0, 0);
+void rgbShowConstantCurrentCharging(RGB *device) {
+	showColor(device, 2, 0, 0, true);
 }
 
-void showNotCharging() {
-	showingTransientStatus = true;
-	showFailure();
+void rgbShowConstantVoltageCharging(RGB *device) {
+	showColor(device, 2, 2, 0, true);
 }
 
-void showConstantCurrentCharging() {
-	showingTransientStatus = true;
-	showColor(80, 0, 0);
-}
-
-void showConstantVoltageCharging() {
-	showingTransientStatus = true;
-	showColor(40, 40, 0);
-}
-
-void showDoneCharging() {
-	showingTransientStatus = true;
-	showColor(0, 40, 0);
+void rgbShowDoneCharging(RGB *device) {
+	showColor(device, 0, 2, 0, true);
 }

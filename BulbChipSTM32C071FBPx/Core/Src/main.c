@@ -61,6 +61,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
 MC3479 accel;
+RGB caseLed;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -138,6 +139,12 @@ static void writeRegisterAccel(MC3479 *dev, uint8_t reg, uint8_t value) {
 				&hi2c1, dev->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
+static void writeRgbPwmCaseLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty) {
+  TIM1->CCR1 = redDuty;
+  TIM1->CCR2 = greenDuty;
+  TIM1->CCR3 = blueDuty;
+}
+
 static uint8_t readButtonPin() {
 	GPIO_PinState state = HAL_GPIO_ReadPin(button_GPIO_Port, button_Pin);
 	if (state == GPIO_PIN_RESET) {
@@ -175,6 +182,7 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
+// TODO: move to bqq25180 and pass in chargerIC and dependencies
 static void BQ25180_Init(void) {
 	chargerIC.readRegister = readRegister;
 	chargerIC.writeRegister = writeRegister;
@@ -249,12 +257,18 @@ int main(void)
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
+  // TODO: error check for charger and accel init
   BQ25180_Init();
   mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
-  accel.writeToUsbSerial = writeToSerial; // optional logging
+  accel.writeToUsbSerial = writeToSerial; // optional logging, TODO: move to init?
+
+  if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
+    Error_Handler();
+  }
   configureChipState(
 		  &chargerIC,
 		  &accel,
+		  &caseLed,
 		  writeToSerial,
 		  setBootloaderFlagAndReset,
 		  readButtonPin,
@@ -271,21 +285,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   while (1) {
-      cdc_task();
-      rgb_task();
+	  cdc_task();
+	  rgbTask(&caseLed);
 
-      // TODO: move this into state task?
-      // Poll accelerometer driver (caller supplies current tick)
-      mc3479Task(&accel, HAL_GetTick());
+	  // TODO: move this into state task?
+	  mc3479Task(&accel);
 
-      stateTask(HAL_GetTick());
+	  stateTask(HAL_GetTick());
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
 	  HAL_ResumeTick();
-    /* USER CODE END WHILE */
+	  /* USER CODE END WHILE */
 
-    /* USER CODE BEGIN 3 */
+	  /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
 }

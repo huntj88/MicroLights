@@ -6,8 +6,6 @@
 #include <math.h>
 
 // TODO: set decimation rate
-// TODO: take derivative over a few different time frames?
-static const unsigned long kSampleIntervalTicks = 1UL; // TODO: dial this in
 static const float kSensitivityLsbPerG = 2048.0f;
 
 /* Small helper to safely call the optional USB logging callback */
@@ -40,6 +38,7 @@ void mc3479Enable(MC3479 *dev) {
     // put into WAKE mode
     dev->writeRegister(dev, MC3479_REG_CTRL1, 0b00000001);
     dev->enabled = true;
+
     // reset last sample tick so the task may sample immediately on next mc3479Task call
     dev->lastSampleTick = 0;
     dev->currentJerkGPerTick = 0.0f;
@@ -64,7 +63,7 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastAzG = 0.0f;
 }
 
-bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
+bool mc3479SampleNow(MC3479 *dev) {
     if (!dev || !dev->enabled) return false;
 
     // read all 6 bytes
@@ -90,8 +89,8 @@ bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
 
     // Compute jerk (derivative of acceleration). This driver measures and
     // stores jerk in units of g per tick (caller ticks are used directly).
-    if (dev->lastSampleTick != 0 && nowTicks > dev->lastSampleTick) {
-        float dt_ticks = (float)(nowTicks - dev->lastSampleTick);
+    if (dev->lastSampleTick != 0 && dev->tick > dev->lastSampleTick) {
+        float dt_ticks = (float)(dev->tick - dev->lastSampleTick);
         if (dt_ticks > 0.0f) {
             float dax = gx - dev->lastAxG;
             float day = gy - dev->lastAyG;
@@ -111,25 +110,30 @@ bool mc3479SampleNow(MC3479 *dev, unsigned long nowTicks) {
     dev->lastAyG = gy;
     dev->lastAzG = gz;
 
-    dev->lastSampleTick = nowTicks;
+    dev->lastSampleTick = dev->tick;
 
     return true;
 }
 
-void mc3479Task(MC3479 *dev, unsigned long nowTicks) {
+// TODO: use hal ticks so rate is more consistent
+void mc3479Task(MC3479 *dev) {
     if (!dev) return;
     if (!dev->enabled) return;
 
-    if ((nowTicks - dev->lastSampleTick) >= kSampleIntervalTicks) {
+    bool samplePeriodElapsed = dev->tick - dev->lastSampleTick >= 10;
+
+    if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, nowTicks)) {
+        if (mc3479SampleNow(dev)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleTick = nowTicks;
+            dev->lastSampleTick = dev->tick;
         }
     }
+
+	dev->tick++;
 }
 
 bool isOverThreshold(MC3479 *dev, float threshold) {

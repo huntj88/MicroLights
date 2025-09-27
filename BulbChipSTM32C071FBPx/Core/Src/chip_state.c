@@ -24,6 +24,7 @@ static uint16_t minutesUntilAutoOff;
 static uint16_t minutesUntilLockAfterAutoOff;
 volatile static uint32_t ticksSinceLastUserActivity = 0;
 
+static RGB *caseLed;
 static BQ25180 *chargerIC;
 static MC3479 *accel;
 static WriteToUsbSerial *writeUsbSerial;
@@ -114,6 +115,7 @@ static void shutdownFake() {
 void configureChipState(
 		BQ25180 *_chargerIC,
 		MC3479 *_accel,
+		RGB *_caseLed,
 		WriteToUsbSerial *_writeUsbSerial,
 		void (*_enterDFU)(),
 		uint8_t (*_readButtonPin)(),
@@ -121,6 +123,7 @@ void configureChipState(
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
+	caseLed = _caseLed;
 	chargerIC = _chargerIC;
 	accel = _accel;
 	writeUsbSerial = _writeUsbSerial;
@@ -147,7 +150,7 @@ void configureChipState(
 
 void setClickStarted() {
 	clickStarted = true;
-	showNoColor();
+	rgbShowNoColor(caseLed);
 	startLedTimers();
 }
 
@@ -197,10 +200,10 @@ static void handleButtonInput() {
 				buttonState = clicked;
 			} else if (buttonDownCounter > 400 && buttonState == clicked) {
 				buttonState = shutdown;
-				showShutdown();
+				rgbShowShutdown(caseLed);
 			} else if (buttonDownCounter > 800 && buttonState == shutdown) {
 				buttonState = lockOrHardwareReset;
-				showLocked();
+				rgbShowLocked(caseLed);
 			}
 
 			// prevent long holds from increasing time for button action to start
@@ -218,7 +221,7 @@ static void handleButtonInput() {
 					}
 					break;
 				case clicked:
-					showSuccess();
+					rgbShowSuccess(caseLed);
 					uint8_t newModeIndex = currentMode.modeIndex + 1;
 					if (newModeIndex >= modeCount) {
 						newModeIndex = 0;
@@ -251,16 +254,16 @@ static void showChargingState(enum ChargeState state) {
 		// do nothing
 		break;
 	case notCharging:
-		showNotCharging();
+		rgbShowNotCharging(caseLed);
 		break;
 	case constantCurrent:
-		showConstantCurrentCharging();
+		rgbShowConstantCurrentCharging(caseLed);
 		break;
 	case constantVoltage:
-		showConstantVoltageCharging();
+		rgbShowConstantVoltageCharging(caseLed);
 		break;
 	case done:
-		showDoneCharging();
+		rgbShowDoneCharging(caseLed);
 		break;
 	}
 }
@@ -330,12 +333,12 @@ void modeTimerInterrupt() {
 		waveform = trigger.waveform;
 
 		if (!hasClickStarted()) {
-			showUserColor(trigger.red, trigger.green, trigger.blue);
+			rgbShowUserColor(caseLed, trigger.red, trigger.green, trigger.blue);
 		}
 	} else {
 		waveform = currentMode.waveform;
 		if (!hasClickStarted()) {
-			showUserColor(currentMode.red, currentMode.green, currentMode.blue);
+			rgbShowUserColor(caseLed, currentMode.red, currentMode.green, currentMode.blue);
 		}
 	}
 
@@ -436,6 +439,6 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	}}
 
 	if (input.parsedType != parseError) {
-		showSuccess();
+		rgbShowSuccess(caseLed);
 	}
 }

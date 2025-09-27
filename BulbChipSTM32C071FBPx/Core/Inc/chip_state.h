@@ -11,12 +11,14 @@
 #include "bulb_json.h"
 #include "bq25180.h"
 #include "mc3479.h"
+#include "rgb.h"
 
 typedef void WriteToUsbSerial(uint8_t itf, uint8_t buf[], uint32_t count);
 
 void configureChipState(
 		BQ25180 *chargerIC,
 		MC3479 *accel,
+		RGB *rgb,
 		WriteToUsbSerial *writeUsbSerial,
 		void (*enterDFU)(),
 		uint8_t (*readButtonPin)(),
