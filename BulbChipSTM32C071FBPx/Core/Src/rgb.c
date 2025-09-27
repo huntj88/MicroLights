@@ -51,13 +51,12 @@ bool rgbInit(RGB *device, RGBWritePwm *writeFn, uint16_t period) {
 	return true;
 }
 
-// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
-void rgbTask(RGB *device) {
+void rgbTask(RGB *device, uint16_t tick) {
 	if (!device) {
 		return;
 	}
 
-	device->tick++;
+	device->tick = tick;
 
 	// show status color for 75 ticks, then switch back to user color
 	if (device->showingTransientStatus && device->tick >= device->tickOfColorChange + 75U) {

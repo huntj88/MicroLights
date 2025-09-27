@@ -56,7 +56,6 @@ struct MC3479 {
     float currentJerkGPerTick;
 
     bool enabled;
-    uint16_t tick;
     uint16_t lastSampleTick;
 
     // Cached last acceleration values in units of g (for jerk calculation)
@@ -74,14 +73,14 @@ void mc3479Disable(MC3479 *dev);
 // Polling task: call periodically from the main loop. When enabled and the
 // loop interval has elapsed this will read the three axis values, compute
 // magnitude and update `currentMagnitudeG`.
-void mc3479Task(MC3479 *dev);
+void mc3479Task(MC3479 *dev, uint16_t tick);
 
 // Force an immediate sample and magnitude calculation. Returns true on success,
 // false if a sample couldn't be taken (e.g. missing read callback).
 // The caller must provide the current tick value (same units as used by
 // mc3479Task). Jerk is computed as change-in-acceleration divided by
 // delta-ticks, and therefore its units are g per tick (g/tick).
-bool mc3479SampleNow(MC3479 *dev);
+bool mc3479SampleNow(MC3479 *dev, uint16_t tick);
 
 bool isOverThreshold(MC3479 *dev, float threshold);
 

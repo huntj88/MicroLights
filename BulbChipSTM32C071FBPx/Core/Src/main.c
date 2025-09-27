@@ -81,7 +81,7 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN 0 */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-static void writeToSerial(uint8_t itf, uint8_t buf[], uint32_t count) {
+static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
 	for (uint32_t i = 0; i < count; i += 64) {
 		uint32_t countMax64 = MIN(count - i, 64);
 		tud_cdc_n_write(itf, buf + i, countMax64);
@@ -281,12 +281,8 @@ int main(void)
 
   while (1) {
 	  cdc_task();
-	  rgbTask(&caseLed);
 
-	  // TODO: move this into state task?
-	  mc3479Task(&accel);
-
-	  stateTask(HAL_GetTick());
+	  stateTask();
 
 	  HAL_SuspendTick();
 	  HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);

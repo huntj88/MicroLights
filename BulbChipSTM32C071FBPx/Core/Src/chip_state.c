@@ -15,6 +15,7 @@
 
 static const uint8_t fakeOffModeIndex = 255;
 
+static volatile uint16_t chipTick = 0; // TODO: provide way to resolve into milliseconds
 static volatile uint8_t modeCount;
 static volatile BulbMode currentMode;
 static volatile bool clickStarted = false;
@@ -22,7 +23,7 @@ static volatile bool readChargerNow = false;
 
 static uint16_t minutesUntilAutoOff;
 static uint16_t minutesUntilLockAfterAutoOff;
-volatile static uint32_t ticksSinceLastUserActivity = 0;
+static volatile uint32_t ticksSinceLastUserActivity = 0;
 
 static RGB *caseLed;
 static BQ25180 *chargerIC;
@@ -31,8 +32,8 @@ static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
-static void (*startLedTimers)();
-static void (*stopLedTimers)();
+static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
+static void (*stopLedTimers)(); // TODO: split bulb timer and rgb timer control into different functions. Move rgb timers to RGB
 
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"color\":\"#000000\",\"waveform\":{\"name\":\"off\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"low\"}]}}}";
 static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"color\":\"#000000\",\"waveform\":{\"name\":\"on\",\"totalTicks\":1,\"changeAt\":[{\"tick\":0,\"output\":\"high\"}]}}}";
@@ -151,6 +152,8 @@ void configureChipState(
 void setClickStarted() {
 	clickStarted = true;
 	rgbShowNoColor(caseLed);
+	// Timers need to run for the duration of the click to properly detect input.
+	// After, the timers may be stopped depending on currentMode/click result
 	startLedTimers();
 }
 
@@ -181,12 +184,8 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-// Start the timers if they are not already started until the click is over at least to capture the button press properly
-// See setClickStarted();
-// After, the timers may be stopped depending on click result
+// TODO: use chipTicks value instead of buttonDownCounter, otherwise can get inconsistent tick rates, resolve to time in milliseconds
 static void handleButtonInput() {
-	// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
-
 	static enum ButtonResult buttonState = ignore;
 	static int16_t buttonDownCounter = 0;
 
@@ -268,8 +267,6 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
-// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
-// TODO: when it starts flashing green/yellow, maybe lower the max voltage a tiny bit and see if it stays green? on unplug, reset to normal voltage
 static void chargerTask(uint16_t tickCount) {
 	static enum ChargeState chargingState = notConnected;
 
@@ -307,21 +304,19 @@ static void chargerTask(uint16_t tickCount) {
 	}
 }
 
-// TODO: pass in hal ticks value instead, otherwise can get inconsistent tick rates
-void stateTask(uint32_t sysTicks) {
-	static uint16_t tickCount = 0;
-
-	chargerTask(tickCount);
+void stateTask() {
+	rgbTask(caseLed, chipTick);
+	mc3479Task(accel, chipTick);
+	chargerTask(chipTick);
 	handleButtonInput();
-
-	tickCount++;
 }
 
 void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
-void modeTimerInterrupt() {
+// called from chipTick interrupt
+static void updateMode() {
 	static uint8_t modeInterruptCount = 0;
 	static uint8_t nextTickInMode = 0;
 	static uint8_t currentChangeIndex = 0;
@@ -364,6 +359,14 @@ void modeTimerInterrupt() {
 	}
 
 	modeInterruptCount++;
+}
+
+// TODO: Rate of chipTick interrupt should be configurable. Places
+//	 that use chipTick should be able to resolve to time in 
+//   milliseconds for consistent behavior with different timer rates
+void chipTickInterrupt() {
+	chipTick++;
+	updateMode();
 }
 
 // Auto off timer running at 0.1 hz

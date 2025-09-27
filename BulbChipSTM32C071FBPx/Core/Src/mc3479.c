@@ -64,7 +64,7 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastAzG = 0.0f;
 }
 
-bool mc3479SampleNow(MC3479 *dev) {
+bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
     if (!dev || !dev->enabled) return false;
 
     // read all 6 bytes
@@ -90,8 +90,8 @@ bool mc3479SampleNow(MC3479 *dev) {
 
     // Compute jerk (derivative of acceleration). This driver measures and
     // stores jerk in units of g per tick (caller ticks are used directly).
-    if (dev->lastSampleTick != 0 && dev->tick > dev->lastSampleTick) {
-        float dt_ticks = (float)(dev->tick - dev->lastSampleTick);
+    if (dev->lastSampleTick != 0 && tick > dev->lastSampleTick) {
+        float dt_ticks = (float)(tick - dev->lastSampleTick);
         if (dt_ticks > 0.0f) {
             float dax = gx - dev->lastAxG;
             float day = gy - dev->lastAyG;
@@ -111,30 +111,27 @@ bool mc3479SampleNow(MC3479 *dev) {
     dev->lastAyG = gy;
     dev->lastAzG = gz;
 
-    dev->lastSampleTick = dev->tick;
+    dev->lastSampleTick = tick;
 
     return true;
 }
 
-// TODO: use hal ticks so rate is more consistent
-void mc3479Task(MC3479 *dev) {
+void mc3479Task(MC3479 *dev, uint16_t tick) {
     if (!dev) return;
     if (!dev->enabled) return;
 
-    bool samplePeriodElapsed = dev->tick - dev->lastSampleTick >= 10;
+    bool samplePeriodElapsed = tick - dev->lastSampleTick >= 10;
 
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev)) {
+        if (mc3479SampleNow(dev, tick)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleTick = dev->tick;
+            dev->lastSampleTick = tick;
         }
     }
-
-	dev->tick++;
 }
 
 bool isOverThreshold(MC3479 *dev, float threshold) {
