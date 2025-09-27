@@ -37,13 +37,14 @@ typedef bool MC3479ReadRegisters(MC3479 *dev, uint8_t startReg, uint8_t *buf, si
 
 // Write a single 8-bit register.
 typedef void MC3479WriteRegister(MC3479 *dev, uint8_t reg, uint8_t value);
-// Optional short logging callback (mirrors pattern in bq25180).
-typedef void MC3479WriteToUsbSerial(uint8_t itf, const char *buf, unsigned long count);
+
+// TODO: consolidate this interface with the duplicates
+typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 struct MC3479 {
     MC3479ReadRegisters *readRegisters;
     MC3479WriteRegister *writeRegister;
-    MC3479WriteToUsbSerial *writeToUsbSerial; // optional, may be NULL
+    WriteToUsbSerial *writeToUsbSerial;
 
     uint8_t devAddress;
 
@@ -65,7 +66,7 @@ struct MC3479 {
 };
 
 
-void mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress);
+bool mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial);
 
 void mc3479Enable(MC3479 *dev);
 void mc3479Disable(MC3479 *dev);

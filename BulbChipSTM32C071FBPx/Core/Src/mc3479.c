@@ -17,19 +17,20 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
     dev->writeToUsbSerial(0, msg, strlen(msg));
 }
 
-void mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress) {
-    if (!dev || !readRegsCb || !writeCb) return;
+bool mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
+    if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) return false;
 
     dev->readRegisters = readRegsCb;
     dev->writeRegister = writeCb;
     dev->devAddress = devAddress;
-    dev->writeToUsbSerial = NULL;
+    dev->writeToUsbSerial = writeToUsbSerial;
 
     // make sure in STANDBY when configuring
     mc3479Disable(dev);
 
     // set +/- 16g
     dev->writeRegister(dev, MC3479_REG_RANGE, 0b00110000);
+    return true;
 }
 
 void mc3479Enable(MC3479 *dev) {

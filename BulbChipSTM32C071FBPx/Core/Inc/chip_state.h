@@ -13,7 +13,7 @@
 #include "mc3479.h"
 #include "rgb.h"
 
-typedef void WriteToUsbSerial(uint8_t itf, uint8_t buf[], uint32_t count);
+typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 void configureChipState(
 		BQ25180 *chargerIC,

@@ -7,6 +7,19 @@
 
 #include "bq25180.h"
 
+bool bq25180Init(BQ25180 *chargerIC, BQ25180ReadRegister *readRegCb, BQ25180WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
+	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial) return false;
+
+	chargerIC->readRegister = readRegCb;
+	chargerIC->writeRegister = writeCb;
+	chargerIC->devAddress = devAddress;
+	chargerIC->writeToUsbSerial = writeToUsbSerial;
+
+	configureChargerIC(chargerIC);
+
+	return true;
+}
+
 enum ChargeState getChargingState(BQ25180 *chargerIC) {
 	uint8_t regResult = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
 

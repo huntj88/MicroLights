@@ -182,14 +182,6 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
-// TODO: move to bqq25180 and pass in chargerIC and dependencies
-static void BQ25180_Init(void) {
-	chargerIC.readRegister = readRegister;
-	chargerIC.writeRegister = writeRegister;
-	chargerIC.writeToUsbSerial = writeToSerial;
-	chargerIC.devAddress = (0x6A << 1);
-}
-
 static void cdc_task() {
 	static uint8_t jsonBuf[1024];
 	static uint16_t jsonIndex = 0;
@@ -257,10 +249,13 @@ int main(void)
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-  // TODO: error check for charger and accel init
-  BQ25180_Init();
-  mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT);
-  accel.writeToUsbSerial = writeToSerial; // optional logging, TODO: move to init?
+  if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial)) {
+    Error_Handler();
+  }
+
+  if (!mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
+    Error_Handler();
+  }
 
   if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
     Error_Handler();

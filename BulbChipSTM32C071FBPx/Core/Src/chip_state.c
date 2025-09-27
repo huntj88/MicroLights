@@ -275,7 +275,8 @@ static void chargerTask(uint16_t tickCount) {
 
 	uint8_t previousState = chargingState;
 	if (tickCount % 1024 == 0) {
-		configureChargerIC(chargerIC);
+		// TODO: Do I need to configure periodically? There should be i2c communication from reads, should not reset to defaults.
+		// configureChargerIC(chargerIC);
 
 		// char registerJson[256];
 		// readAllRegistersJson(chargerIC, registerJson);
