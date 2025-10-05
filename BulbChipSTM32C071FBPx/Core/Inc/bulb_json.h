@@ -64,7 +64,6 @@ typedef struct ChipSettings {
 	uint8_t modeCount;
 	uint8_t minutesUntilAutoOff;
 	uint8_t minutesUntilLockAfterAutoOff;
-	// TODO: uint16_t chipTickPeriodMillis;
 } ChipSettings;
 
 typedef struct CliInput {

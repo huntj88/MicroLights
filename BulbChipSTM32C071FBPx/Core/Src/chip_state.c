@@ -163,7 +163,7 @@ void setClickStarted() {
 static void setClickEnded() {
 	clickStarted = false;
 	ticksSinceLastUserActivity = 0;
-	char *blah = "clicked\n";
+	const char *blah = "clicked\n";
 	writeUsbSerial(0, blah, strlen(blah));
 }
 
@@ -325,6 +325,7 @@ void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
+// TODO: associated specific bulb timer period with bulb mode?
 // called from chipTick interrupt
 static void updateMode() {
 	static uint8_t modeInterruptCount = 0;

@@ -346,7 +346,6 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			}
 
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
-				// TODO: validate this works correctly
 				input->mode.modeIndex = t->u.num_int;
 				didParseIndex = true;
 			}
