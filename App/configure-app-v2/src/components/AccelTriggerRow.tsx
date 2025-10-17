@@ -2,12 +2,9 @@ import { useTranslation } from 'react-i18next';
 
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { CloseButton } from '@/components/CloseButton';
-import { WaveformPicker } from '@/components/WaveformPicker';
+import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
 import { ALLOWED_THRESHOLDS } from '@/lib/store';
-import type { Trigger } from '@/lib/store';
-import type { Waveform } from '@/lib/waveform';
-
-type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
+import type { BulbModeWaveformDoc, Trigger } from '@/lib/store';
 
 export function AccelTriggerRow({
   trigger,
@@ -26,7 +23,7 @@ export function AccelTriggerRow({
   trigger: Trigger;
   index: number;
   prevThreshold?: number;
-  waveforms: WaveformDoc[];
+  waveforms: BulbModeWaveformDoc[];
   defaultColor: string;
   onChangeThreshold: (v: number) => void;
   onRemove: () => void;
@@ -73,8 +70,8 @@ export function AccelTriggerRow({
           {t('waveform')}
         </div>
         <div className="flex items-center gap-2 self-start">
-          <WaveformPicker
-            value={trigger.waveformId}
+          <BulbModeWaveformPicker
+            value={trigger.bulbModeWaveformId}
             onChange={onChangeWaveform}
             waveforms={waveforms}
             onCreate={onCreateWaveform}

@@ -6,12 +6,12 @@ import { AccelTriggerRow } from '@/components/AccelTriggerRow';
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { CloseButton } from '@/components/CloseButton';
 import { FingerSelector } from '@/components/FingerSelector';
-import { WaveformEditorModal } from '@/components/WaveformEditorModal';
-import { WaveformPicker } from '@/components/WaveformPicker';
+import { BulbModeWaveformEditorModal } from '@/components/BulbModeWaveformEditorModal';
+import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
 import { DISABLED_COLOR } from '@/lib/constants';
-import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
+import { DEFAULT_NEW_BULB_MODE_WAVEFORM } from '@/lib/defaultWaveforms';
 import { Trigger, useAppStore, type Mode } from '@/lib/store';
-import type { Waveform } from '@/lib/waveform';
+import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
 
 export function ModeCard({
   mode,
@@ -29,16 +29,18 @@ export function ModeCard({
   const unassign = useAppStore(s => s.unassignFinger);
   const remove = useAppStore(s => s.removeMode);
 
-  const waveforms = useAppStore(s => s.waveforms);
-  const setWaveform = useAppStore(s => s.setWaveform);
-  const addWaveform = useAppStore(s => s.addWaveform);
-  const updateWaveform = useAppStore(s => s.updateWaveform);
+  const bulbModeWaveforms = useAppStore(s => s.bulbModeWaveforms);
+  const setBulbModeWaveformId = useAppStore(s => s.setBulbModeWaveformId);
+  const addBulbModeWaveform = useAppStore(s => s.addBulbModeWaveform);
+  const updateBulbModeWaveform = useAppStore(s => s.updateBulbModeWaveform);
 
   // accelerometer actions
   const addAccelTrigger = useAppStore(s => s.addAccelTrigger);
   const removeAccelTrigger = useAppStore(s => s.removeAccelTrigger);
   const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
-  const setAccelTriggerWaveform = useAppStore(s => s.setAccelTriggerWaveform);
+  const setAccelTriggerBulbModeWaveformId = useAppStore(
+    s => s.setAccelTriggerBulbModeWaveformId,
+  );
   const setAccelTriggerColor = useAppStore(s => s.setAccelTriggerColor);
 
   const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
@@ -47,7 +49,7 @@ export function ModeCard({
 
   // Popup state for creating a new waveform inline
   const [wfModalOpen, setWfModalOpen] = useState(false);
-  const [wfDraft, setWfDraft] = useState<Waveform>(DEFAULT_NEW_WAVEFORM);
+  const [wfDraft, setWfDraft] = useState<BulbModeWaveform>(DEFAULT_NEW_BULB_MODE_WAVEFORM);
   const [wfModalTarget, setWfModalTarget] = useState<
     { kind: 'mode' } | { kind: 'accel'; index: number }
   >({ kind: 'mode' });
@@ -94,18 +96,18 @@ export function ModeCard({
             <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
               {t('waveform')}
             </div>
-            <WaveformPicker
-              value={mode.waveformId}
-              onChange={id => setWaveform(mode.id, id)}
-              waveforms={waveforms}
+            <BulbModeWaveformPicker
+              value={mode.bulbModeWaveformId}
+              onChange={(id: string | undefined) => setBulbModeWaveformId(mode.id, id)}
+              waveforms={bulbModeWaveforms}
               onCreate={() => {
-                setWfDraft(DEFAULT_NEW_WAVEFORM);
+                setWfDraft(DEFAULT_NEW_BULB_MODE_WAVEFORM);
                 setWfEditId(null);
                 setWfModalTarget({ kind: 'mode' });
                 setWfModalOpen(true);
               }}
-              onEdit={id => {
-                const wf = waveforms.find(w => w.id === id);
+              onEdit={(id: string) => {
+                const wf = bulbModeWaveforms.find(w => w.id === id);
                 if (!wf) return;
                 setWfDraft({ name: wf.name, totalTicks: wf.totalTicks, changeAt: wf.changeAt });
                 // If readonly, force Save-As (no edit id)
@@ -144,19 +146,21 @@ export function ModeCard({
                     index={i}
                     trigger={trig}
                     prevThreshold={i > 0 ? triggers[i - 1]?.threshold : undefined}
-                    waveforms={waveforms}
+                    waveforms={bulbModeWaveforms}
                     defaultColor={mode.color}
                     onChangeThreshold={v => setAccelTriggerThreshold(mode.id, i, v)}
                     onRemove={() => removeAccelTrigger(mode.id, i)}
-                    onChangeWaveform={id => setAccelTriggerWaveform(mode.id, i, id)}
+                    onChangeWaveform={(id: string | undefined) =>
+                      setAccelTriggerBulbModeWaveformId(mode.id, i, id)
+                    }
                     onCreateWaveform={() => {
-                      setWfDraft(DEFAULT_NEW_WAVEFORM);
+                      setWfDraft(DEFAULT_NEW_BULB_MODE_WAVEFORM);
                       setWfEditId(null);
                       setWfModalTarget({ kind: 'accel', index: i });
                       setWfModalOpen(true);
                     }}
                     onEditWaveform={id => {
-                      const wf = waveforms.find(w => w.id === id);
+                      const wf = bulbModeWaveforms.find(w => w.id === id);
                       if (!wf) return;
                       setWfDraft({
                         name: wf.name,
@@ -207,7 +211,7 @@ export function ModeCard({
       </div>
 
       {/* New Waveform Modal */}
-      <WaveformEditorModal
+      <BulbModeWaveformEditorModal
         open={wfModalOpen}
         title={wfEditId ? t('editWaveform') : t('newWaveform')}
         draft={wfDraft}
@@ -222,11 +226,11 @@ export function ModeCard({
           if (action === 'edit-fullscreen') {
             let id = wfEditId;
             if (id) {
-              updateWaveform(id, wfDraft);
+              updateBulbModeWaveform(id, wfDraft);
             } else {
-              id = addWaveform(wfDraft);
-              if (wfModalTarget.kind === 'mode') setWaveform(mode.id, id);
-              else setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
+              id = addBulbModeWaveform(wfDraft);
+              if (wfModalTarget.kind === 'mode') setBulbModeWaveformId(mode.id, id);
+              else setAccelTriggerBulbModeWaveformId(mode.id, wfModalTarget.index, id);
             }
             setWfModalOpen(false);
             if (id) navigate(`/create/wave?select=${id}`);
@@ -234,11 +238,11 @@ export function ModeCard({
           }
           if (action === 'save' || action === 'save-and-use') {
             if (wfEditId) {
-              updateWaveform(wfEditId, wfDraft);
+              updateBulbModeWaveform(wfEditId, wfDraft);
             } else {
-              const id = addWaveform(wfDraft);
-              if (wfModalTarget.kind === 'mode') setWaveform(mode.id, id);
-              else setAccelTriggerWaveform(mode.id, wfModalTarget.index, id);
+              const id = addBulbModeWaveform(wfDraft);
+              if (wfModalTarget.kind === 'mode') setBulbModeWaveformId(mode.id, id);
+              else setAccelTriggerBulbModeWaveformId(mode.id, wfModalTarget.index, id);
             }
             setWfModalOpen(false);
             setWfEditId(null);

@@ -3,34 +3,38 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
 import {
-  zWaveform,
-  type Waveform,
-  type WavePoint,
-  toSegments,
-  type WaveOutput,
-} from '@/lib/waveform';
+  bulbModeToSegments,
+  zBulbModeWaveform,
+} from '@/lib/bulbModeWaveform';
+import type {
+  BulbModeWaveform,
+  BulbModeWavePoint,
+  BulbModeWaveOutput,
+} from '@/lib/bulbModeWaveform';
 
 type Props = {
-  value: Waveform;
-  onChange: (wf: Waveform) => void;
+  value: BulbModeWaveform;
+  onChange: (wf: BulbModeWaveform) => void;
   height?: number;
   readOnly?: boolean;
 };
 
 // Simple square-wave timeline editor with draggable markers
-export function WaveformEditor({ value, onChange, height = 160, readOnly = false }: Props) {
+export function BulbModeWaveformEditor({
+  value,
+  onChange,
+  height = 160,
+  readOnly = false,
+}: Props) {
   const { t } = useTranslation();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-
-  // keep latest draft while dragging (state to trigger re-render)
-  const [dragPreview, setDragPreview] = useState<WavePoint[] | null>(null);
-  // suppress stray click after a drag
+  const [dragPreview, setDragPreview] = useState<BulbModeWavePoint[] | null>(null);
   const suppressNextClickRef = useRef<boolean>(false);
 
   // history for undo/redo
-  const [past, setPast] = useState<Waveform[]>([]);
-  const [future, setFuture] = useState<Waveform[]>([]);
+  const [past, setPast] = useState<BulbModeWaveform[]>([]);
+  const [future, setFuture] = useState<BulbModeWaveform[]>([]);
 
   useEffect(() => {
     setFuture([]);
@@ -40,24 +44,39 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     return Math.max(1, (width - 24) / value.totalTicks);
   }
 
-  function yFor(output: WaveOutput) {
+  function yFor(output: BulbModeWaveOutput) {
     return output === 'high' ? 24 : height - 24;
   }
 
-  function pushHistory(prev: Waveform) {
+  function pushHistory(prev: BulbModeWaveform) {
     setPast(p => [...p, prev]);
     setFuture([]);
   }
 
-  function commit(points: WavePoint[]) {
-    const next: Waveform = { ...value, changeAt: points };
-    const res = zWaveform.safeParse(next);
+  function commit(points: BulbModeWavePoint[]) {
+    const next: BulbModeWaveform = { ...value, changeAt: points };
+    const res = zBulbModeWaveform.safeParse(next);
     if (!res.success) {
       toast.error(res.error.issues[0]?.message ?? t('invalidWaveform'));
       return;
     }
     pushHistory(value);
     onChange(res.data);
+  }
+
+  // helper to clamp a tick for the dragged index between its neighbors
+  function clampTickForIndex(
+    points: BulbModeWavePoint[],
+    idx: number,
+    tick: number,
+    totalTicks: number,
+  ): number {
+    if (idx === 0) return 0; // first marker must stay at 0
+    const prevTick = points[idx - 1]?.tick ?? 0;
+    const nextTick = points[idx + 1]?.tick ?? totalTicks; // if last, allow up to totalTicks - 1
+    const min = prevTick + 1;
+    const max = idx === points.length - 1 ? totalTicks - 1 : nextTick - 1;
+    return Math.max(min, Math.min(max, tick));
   }
 
   function onPointerDown(e: React.PointerEvent<SVGGElement>, idx: number) {
@@ -75,21 +94,6 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     suppressNextClickRef.current = false;
   }
 
-  // helper to clamp a tick for the dragged index between its neighbors
-  function clampTickForIndex(
-    points: WavePoint[],
-    idx: number,
-    tick: number,
-    totalTicks: number,
-  ): number {
-    if (idx === 0) return 0; // first marker must stay at 0
-    const prevTick = points[idx - 1]?.tick ?? 0;
-    const nextTick = points[idx + 1]?.tick ?? totalTicks; // if last, allow up to totalTicks - 1
-    const min = prevTick + 1;
-    const max = idx === points.length - 1 ? totalTicks - 1 : nextTick - 1;
-    return Math.max(min, Math.min(max, tick));
-  }
-
   function onPointerMove(e: React.PointerEvent<SVGSVGElement>) {
     if (readOnly || dragIndex == null || !svgRef.current) return;
     e.preventDefault();
@@ -101,12 +105,12 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     let tick = Math.round((x - 12) / per);
 
     const y = e.clientY - bounds.top;
-    const output: WaveOutput = y < height / 2 ? 'high' : 'low';
+    const output: BulbModeWaveOutput = y < height / 2 ? 'high' : 'low';
 
     // clamp the dragged point between neighbors so others do not move
     tick = clampTickForIndex(value.changeAt, dragIndex, tick, value.totalTicks);
 
-    const next: WavePoint[] = value.changeAt.map((p, i) =>
+    const next: BulbModeWavePoint[] = value.changeAt.map((p, i) =>
       i === dragIndex ? { tick, output } : p,
     );
 
@@ -143,11 +147,11 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     const tick = Math.max(0, Math.min(value.totalTicks - 1, Math.round((x - 12) / per)));
 
     // set output from click position (no toggle)
-    const output: WaveOutput = y < height / 2 ? 'high' : 'low';
-    const p: WavePoint = { tick, output };
+    const output: BulbModeWaveOutput = y < height / 2 ? 'high' : 'low';
+    const p: BulbModeWavePoint = { tick, output };
 
     // insert sorted; replace if duplicate tick exists (previous or next)
-    const next: WavePoint[] = [];
+    const next: BulbModeWavePoint[] = [];
     let inserted = false;
     for (let i = 0; i < value.changeAt.length; i++) {
       const c = value.changeAt[i];
@@ -228,80 +232,77 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
     suppressNextClickRef.current = true;
   }
 
+  const view: BulbModeWaveform = dragPreview ? { ...value, changeAt: dragPreview } : value;
+  const renderWidth = svgRef.current?.clientWidth ?? 600;
+  const tickWidth = pxPerTick(renderWidth);
+  const toX = (tick: number) => 12 + tick * tickWidth;
+  const segments = bulbModeToSegments(view);
+
   return (
-    <div className="space-y-2" onKeyDown={onKeyDown} tabIndex={0}>
-      {(() => {
-        const view: Waveform = dragPreview ? { ...value, changeAt: dragPreview } : value;
-        const segs = toSegments(view);
-        return (
-          <svg
-            ref={svgRef}
-            width="100%"
-            height={height}
-            onClick={onSvgClick}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            className="bg-slate-900/60 rounded border border-slate-700/50"
-            style={{ touchAction: 'none' }}
-          >
-            {/* grid */}
-            <g>
-              <line
-                x1={12}
-                y1={height / 2}
-                x2="100%"
-                y2={height / 2}
-                stroke="#334155"
-                strokeDasharray="4 4"
-              />
+    <div className="space-y-3" onKeyDown={onKeyDown} tabIndex={0}>
+      <svg
+        ref={svgRef}
+        width="100%"
+        height={height}
+        onClick={onSvgClick}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        className="bg-slate-900/60 rounded border border-slate-700/50"
+        style={{ touchAction: 'none' }}
+      >
+        {/* grid */}
+        <line
+          x1={12}
+          y1={height / 2}
+          x2={renderWidth - 12}
+          y2={height / 2}
+          stroke="#334155"
+          strokeDasharray="4 4"
+        />
+
+        {/* waveform */}
+        <polyline
+          fill="none"
+          stroke="#22c55e"
+          strokeWidth={2}
+          points={segments
+            .flatMap(segment => [
+              [toX(segment.from), yFor(segment.output)],
+              [toX(segment.to), yFor(segment.output)],
+            ])
+            .map(pair => pair.join(','))
+            .join(' ')}
+        />
+
+        {/* markers */}
+        {view.changeAt.map((point, index) => {
+          const x = toX(point.tick);
+          const y = yFor(point.output);
+          return (
+            <g
+              key={index}
+              onPointerDown={event => onPointerDown(event, index)}
+              onPointerMove={onMarkerPointerMove}
+              onPointerUp={onMarkerPointerUp}
+              onDoubleClick={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                removeMarker(index);
+              }}
+              style={{
+                cursor: readOnly ? 'default' : 'grab',
+                pointerEvents: readOnly ? 'none' : 'auto',
+              }}
+            >
+              <circle cx={x} cy={y} r={10} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
+              <text x={x} y={y + 4} fontSize={12} textAnchor="middle" fill="#e2e8f0">
+                {index}
+              </text>
             </g>
+          );
+        })}
+      </svg>
 
-            {/* waveform */}
-            <polyline
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth="2"
-              points={segs
-                .flatMap(s => [
-                  [12 + s.from * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
-                  [12 + s.to * pxPerTick(svgRef.current?.clientWidth ?? 600), yFor(s.output)],
-                ])
-                .map(p => p.join(','))
-                .join(' ')}
-            />
-
-            {/* markers */}
-            {view.changeAt.map((p, i) => {
-              const x = 12 + p.tick * pxPerTick(svgRef.current?.clientWidth ?? 600);
-              const y = yFor(p.output);
-              return (
-                <g
-                  key={i}
-                  onPointerDown={e => onPointerDown(e, i)}
-                  onPointerMove={onMarkerPointerMove}
-                  onPointerUp={onMarkerPointerUp}
-                  onDoubleClick={e => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    removeMarker(i);
-                  }}
-                  style={{
-                    cursor: readOnly ? 'default' : 'grab',
-                    pointerEvents: readOnly ? 'none' : 'auto',
-                  }}
-                >
-                  <circle cx={x} cy={y} r={12} fill="#0b1220" stroke="#94a3b8" strokeWidth={2} />
-                  <text x={x} y={y + 4} fontSize="12" textAnchor="middle" fill="#e2e8f0">
-                    {i}
-                  </text>
-                </g>
-              );
-            })}
-          </svg>
-        );
-      })()}
-
-      {/* hint */}
       <div className="text-xs text-slate-400">{t('tipWaveformEditor')}</div>
 
       <div className="flex flex-wrap gap-2 items-center">
@@ -322,17 +323,19 @@ export function WaveformEditor({ value, onChange, height = 160, readOnly = false
       </div>
 
       <div>
-        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('jsonConfig')}</div>
+        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
+          {t('jsonConfig')}
+        </div>
         <textarea
           className="w-full h-48 bg-slate-950/80 rounded border border-slate-700/50 p-2 font-mono text-sm"
           value={JSON.stringify(value, null, 2)}
           disabled={readOnly}
-          onChange={e => {
+          onChange={event => {
             if (readOnly) return;
             try {
-              const parsed = JSON.parse(e.target.value);
-              const res = zWaveform.safeParse(parsed);
-              if (res.success) onChange(res.data);
+              const parsed = JSON.parse(event.target.value);
+              const result = zBulbModeWaveform.safeParse(parsed);
+              if (result.success) onChange(result.data);
             } catch {
               // ignore invalid json while typing
             }

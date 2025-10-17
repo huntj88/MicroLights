@@ -1,9 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { toSegments, type Waveform, type WaveOutput } from '@/lib/waveform';
+import {
+  bulbModeToSegments,
+  type BulbModeWaveform,
+  type BulbModeWaveOutput,
+} from '@/lib/bulbModeWaveform';
 
-// Read-only renderer that matches the WaveformEditor look (grid + 2px green polyline)
-export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: number }) {
+// Read-only renderer that matches the BulbModeWaveformEditor look (grid + 2px green polyline)
+export function BulbModeWaveformMini({
+  wf,
+  height = 64,
+}: {
+  wf: BulbModeWaveform;
+  height?: number;
+}) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [width, setWidth] = useState<number>(600);
 
@@ -21,11 +31,11 @@ export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: numbe
     };
   }, []);
 
-  const segs = toSegments(wf);
+  const segs = bulbModeToSegments(wf);
   const leftPad = 12;
   const rightPad = 12;
   const per = Math.max(1, (width - leftPad - rightPad) / wf.totalTicks);
-  const yFor = (out: WaveOutput) => (out === 'high' ? 24 : height - 24);
+  const yFor = (out: BulbModeWaveOutput) => (out === 'high' ? 24 : height - 24);
 
   const points = segs
     .flatMap(s => [
@@ -41,7 +51,7 @@ export function WaveformMini({ wf, height = 64 }: { wf: Waveform; height?: numbe
       width="100%"
       height={height}
       role="img"
-      aria-label="Waveform preview"
+  aria-label="Bulb mode waveform preview"
       className="rounded"
     >
       {/* center dashed line */}

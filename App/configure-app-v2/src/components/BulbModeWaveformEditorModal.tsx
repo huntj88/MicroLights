@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 
 import { Modal } from '@/components/Modal';
-import { WaveformEditor } from '@/components/WaveformEditor';
-import type { Waveform } from '@/lib/waveform';
+import { BulbModeWaveformEditor } from '@/components/BulbModeWaveformEditor';
+import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
 
-export type WaveformEditorAction = 'edit-fullscreen' | 'save' | 'save-and-use';
+export type BulbModeWaveformEditorAction = 'edit-fullscreen' | 'save' | 'save-and-use';
 
-export function WaveformEditorModal({
+export function BulbModeWaveformEditorModal({
   open,
   title,
   draft,
@@ -18,11 +18,11 @@ export function WaveformEditorModal({
 }: {
   open: boolean;
   title: string;
-  draft: Waveform;
+  draft: BulbModeWaveform;
   editId?: string | null;
   onClose: () => void;
-  onAction: (action: WaveformEditorAction) => void;
-  onDraftChange: (wf: Waveform) => void;
+  onAction: (action: BulbModeWaveformEditorAction) => void;
+  onDraftChange: (wf: BulbModeWaveform) => void;
   canSave: boolean;
 }) {
   const { t } = useTranslation();
@@ -76,7 +76,7 @@ export function WaveformEditorModal({
             className="w-24 bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           />
         </div>
-        <WaveformEditor value={draft} onChange={onDraftChange} height={140} readOnly={false} />
+        <BulbModeWaveformEditor value={draft} onChange={onDraftChange} height={140} readOnly={false} />
       </div>
     </Modal>
   );

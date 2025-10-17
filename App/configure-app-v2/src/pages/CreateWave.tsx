@@ -2,27 +2,30 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 
-import { WaveformEditor } from '@/components/WaveformEditor';
-import { DEFAULT_NEW_WAVEFORM } from '@/lib/defaultWaveforms';
+import { BulbModeWaveformEditor } from '@/components/BulbModeWaveformEditor';
+import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
+import { DEFAULT_NEW_BULB_MODE_WAVEFORM } from '@/lib/defaultWaveforms';
 import { useAppStore } from '@/lib/store';
-import type { Waveform } from '@/lib/waveform';
 
 // No selection by default: start with a localized default-new waveform
 
 export default function CreateWave() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const waveforms = useAppStore(s => s.waveforms);
-  const lastSelectedWaveformId = useAppStore(s => s.lastSelectedWaveformId);
-  const setLastSelectedWaveformId = useAppStore(s => s.setLastSelectedWaveformId);
-  const addWaveform = useAppStore(s => s.addWaveform);
-  const updateWaveform = useAppStore(s => s.updateWaveform);
-  const removeWaveform = useAppStore(s => s.removeWaveform);
+  const bulbModeWaveforms = useAppStore(s => s.bulbModeWaveforms);
+  const lastSelectedWaveformId = useAppStore(s => s.lastSelectedBulbModeWaveformId);
+  const setLastSelectedWaveformId = useAppStore(s => s.setLastSelectedBulbModeWaveformId);
+  const addWaveform = useAppStore(s => s.addBulbModeWaveform);
+  const updateWaveform = useAppStore(s => s.updateBulbModeWaveform);
+  const removeWaveform = useAppStore(s => s.removeBulbModeWaveform);
 
   const [selectedId, setSelectedId] = useState<string | ''>('');
-  const [draft, setDraft] = useState<Waveform>(DEFAULT_NEW_WAVEFORM);
+  const [draft, setDraft] = useState<BulbModeWaveform>(DEFAULT_NEW_BULB_MODE_WAVEFORM);
 
-  const selected = useMemo(() => waveforms.find(w => w.id === selectedId), [waveforms, selectedId]);
+  const selected = useMemo(
+    () => bulbModeWaveforms.find(w => w.id === selectedId),
+    [bulbModeWaveforms, selectedId],
+  );
   const selectedReadonly = !!selected?.readonly;
 
   function saveToLibrary() {
@@ -38,7 +41,7 @@ export default function CreateWave() {
 
   function newDraft() {
     setSelectedId('');
-    setDraft(DEFAULT_NEW_WAVEFORM);
+    setDraft(DEFAULT_NEW_BULB_MODE_WAVEFORM);
     setLastSelectedWaveformId(null);
   }
 
@@ -46,7 +49,7 @@ export default function CreateWave() {
   useEffect(() => {
     const id = searchParams.get('select');
     if (!id) return;
-    const item = waveforms.find(w => w.id === id);
+    const item = bulbModeWaveforms.find(w => w.id === id);
     if (item) {
       setSelectedId(item.id);
       setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
@@ -54,18 +57,18 @@ export default function CreateWave() {
       // keep the param so reload preserves selection; or we could clear it:
       // setSearchParams(prev => { prev.delete('select'); return prev; }, { replace: true });
     }
-  }, [searchParams, waveforms, setLastSelectedWaveformId]);
+  }, [searchParams, bulbModeWaveforms, setLastSelectedWaveformId]);
 
   // Default to the most recently opened waveform from store if no URL param drives selection
   useEffect(() => {
     if (searchParams.get('select')) return;
     if (selectedId) return;
     if (!lastSelectedWaveformId) return;
-    const item = waveforms.find(w => w.id === lastSelectedWaveformId);
+    const item = bulbModeWaveforms.find(w => w.id === lastSelectedWaveformId);
     if (!item) return;
     setSelectedId(item.id);
     setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
-  }, [searchParams, selectedId, lastSelectedWaveformId, waveforms]);
+  }, [searchParams, selectedId, lastSelectedWaveformId, bulbModeWaveforms]);
 
   return (
     <div className="space-y-6">
@@ -78,12 +81,12 @@ export default function CreateWave() {
               const id = e.target.value as string;
               setSelectedId(id);
               setLastSelectedWaveformId(id || null);
-              const item = waveforms.find(w => w.id === id);
+              const item = bulbModeWaveforms.find(w => w.id === id);
               if (item) {
                 setDraft({ name: item.name, totalTicks: item.totalTicks, changeAt: item.changeAt });
               } else {
                 // No selection -> show default new waveform
-                setDraft(DEFAULT_NEW_WAVEFORM);
+                setDraft(DEFAULT_NEW_BULB_MODE_WAVEFORM);
               }
               // reflect selection in URL for deep link / navigation from other pages
               if (id) setSearchParams({ select: id });
@@ -92,7 +95,7 @@ export default function CreateWave() {
             className="bg-transparent border border-slate-700/50 rounded px-2 py-1 text-sm"
           >
             <option value="">{t('unsavedDraft')}</option>
-            {waveforms.map(w => (
+            {bulbModeWaveforms.map(w => (
               <option key={w.id} value={w.id}>
                 {w.name}
               </option>
@@ -142,7 +145,7 @@ export default function CreateWave() {
         />
       </div>
 
-      <WaveformEditor value={draft} onChange={setDraft} readOnly={selectedReadonly} />
+      <BulbModeWaveformEditor value={draft} onChange={setDraft} readOnly={selectedReadonly} />
     </div>
   );
 }

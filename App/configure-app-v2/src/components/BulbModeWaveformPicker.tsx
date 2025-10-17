@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
-import { WaveformMini } from '@/components/WaveformMini';
-import type { Waveform } from '@/lib/waveform';
+import { BulbModeWaveformMini } from '@/components/BulbModeWaveformMini';
+import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
 
-export type WaveformDoc = { id: string; readonly?: boolean } & Waveform;
+export type BulbModeWaveformDoc = { id: string; readonly?: boolean } & BulbModeWaveform;
 
-export function WaveformPicker({
+export function BulbModeWaveformPicker({
   value,
   onChange,
   waveforms,
@@ -15,7 +15,7 @@ export function WaveformPicker({
 }: {
   value?: string;
   onChange: (id: string | undefined) => void;
-  waveforms: WaveformDoc[];
+  waveforms: BulbModeWaveformDoc[];
   onCreate: () => void;
   onEdit: (id: string) => void;
   previewHeight?: number;
@@ -78,7 +78,7 @@ export function WaveformPicker({
       </div>
       {selected && (
         <div className="mt-2 rounded border border-slate-700/50 bg-slate-900/60">
-          <WaveformMini wf={selected} height={64} />
+          <BulbModeWaveformMini wf={selected} height={64} />
         </div>
       )}
     </div>

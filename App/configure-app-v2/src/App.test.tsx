@@ -1,3 +1,7 @@
-import { describe } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-describe('App', () => {});
+describe('App', () => {
+	it('smoke test placeholder', () => {
+		expect(true).toBe(true);
+	});
+});

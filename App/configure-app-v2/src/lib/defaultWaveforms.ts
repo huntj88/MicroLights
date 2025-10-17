@@ -1,14 +1,14 @@
-import type { Waveform } from './waveform';
+import type { BulbModeWaveform } from './bulbModeWaveform';
 
-export const DEFAULT_NEW_WAVEFORM: Waveform = {
+export const DEFAULT_NEW_BULB_MODE_WAVEFORM: BulbModeWaveform = {
   name: 'New Pattern',
   totalTicks: 16,
   changeAt: [{ tick: 0, output: 'high' }],
 };
 
 // Five varied default waveforms. totalTicks kept small/consistent for easy previewing.
-// All waveforms satisfy zWaveform constraints: first change at tick 0 and strictly increasing.
-export const DEFAULT_WAVEFORMS: Waveform[] = [
+// All waveforms satisfy zBulbModeWaveform constraints: first change at tick 0 and strictly increasing.
+export const DEFAULT_BULB_MODE_WAVEFORMS: BulbModeWaveform[] = [
   // 1) Classic 50% duty pulse (baseline)
   {
     name: 'Pulse',
