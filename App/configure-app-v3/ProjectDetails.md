@@ -194,3 +194,7 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Built a Serial Log page featuring the stateless `SerialLogPanel` (autoscroll toggle, timestamped log view, clear button, outbound payload entry) with full localization coverage.
 - Added Vitest suites for layout and component behavior to enforce the stateless contract and i18n wiring.
 - Codified zod-backed data models for mode definitions (binary and RGB patterns, accelerometer triggers) with unit tests validating the documented JSON examples and failure modes.
+- Delivered the simple RGB pattern creation flow with localized color/duration inputs, proportional preview visualization, removal controls, and dedicated component tests.
+- Enhanced the simple RGB pattern flow with move, reorder, and duplicate controls plus expanded tests to validate the new interactions and maintain stateless behavior.
+- Added inline color swatches beside each simple RGB step so the hex values are visually reinforced, along with tests ensuring every segment renders a preview chip.
+- Reworked the simple RGB pattern panel to accept canonical `ModePattern` data, own draft form inputs locally, and emit schema-valid patterns with refreshed unit coverage.

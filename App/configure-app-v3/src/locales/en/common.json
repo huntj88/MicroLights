@@ -24,7 +24,41 @@
   "rgbPattern": {
     "title": "RGB Pattern Workshop",
     "subtitle": "Author precise multi-color animations for the case LEDs.",
-    "todo": "TODO · Choose a creation method (simple or equation) to begin crafting a pattern."
+    "simple": {
+      "title": "Simple method",
+      "description": "Build a pattern by stacking color segments and choosing how long each should shine.",
+      "form": {
+        "ariaLabel": "Simple RGB pattern form",
+        "nameLabel": "Pattern name",
+        "nameHelper": "Give this pattern a descriptive name to recognize it later.",
+        "namePlaceholder": "Sunrise cascade",
+        "colorLabel": "Color",
+        "colorHelper": "Use the color picker to choose the LED output.",
+        "durationLabel": "Duration (ms)",
+        "durationHelper": "How long the LED should display this color.",
+        "addButton": "Add color step"
+      },
+      "preview": {
+        "title": "Pattern preview",
+        "empty": "No colors have been added yet.",
+        "summary": "Total duration {{total}} ms.",
+        "segmentLabel": "{{color}} for {{duration}} ms"
+      },
+      "steps": {
+        "title": "Pattern steps",
+        "subtitle": "Adjust or remove segments as needed.",
+        "entryLabel": "{{color}} · {{duration}} ms",
+        "duration": "{{duration}} milliseconds",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "duplicate": "Duplicate step",
+        "remove": "Remove step"
+      }
+    },
+    "equation": {
+      "title": "Equation method",
+      "todo": "TODO · Define the equation-driven workflow for procedural color generation."
+    }
   },
   "bulbPattern": {
     "title": "Bulb Pattern Studio",
