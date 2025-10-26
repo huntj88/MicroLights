@@ -64,6 +64,30 @@ import { MyComponent } from '@/components/MyComponent';
 - .prettierrc, .prettierignore — Prettier config
 - .husky/ — Git hooks (created by Husky)
 
+## ChromaSynth RGB Waveform Editor
+
+The `ChromaSynthEditor` component (`src/components/ChromaSynthEditor.tsx`) renders a three-lane RGB waveform editor with:
+
+- A combined preview strip that animates over time with play/pause controls.
+- Separate SVG waveform visualizers and section managers for the red, green, and blue channels.
+- Stateless data flow that relies on `ChromaSynthState` props and emits the same shape through the `onChange` callback.
+
+Shapes and helpers live in `src/types/chromaSynth.ts`:
+
+```ts
+import type { ChromaSynthState } from '@/types/chromaSynth';
+
+const [value, setValue] = useState<ChromaSynthState>({
+   red: { sections: [] },
+   green: { sections: [] },
+   blue: { sections: [] },
+});
+
+<ChromaSynthEditor value={value} onChange={setValue} />;
+```
+
+Optionally forward export requests via the `onExport(format, frames)` prop to integrate with rendering or capture pipelines.
+
 ## Pre-commit hooks
 
 Husky runs `lint-staged` to lint/format staged files.

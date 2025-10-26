@@ -2,11 +2,11 @@ import { nanoid } from 'nanoid/non-secure';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { BulbModeWaveform } from './bulbModeWaveform';
 import { DISABLED_COLOR } from './constants';
 import { DEFAULT_BULB_MODE_WAVEFORMS } from './defaultWaveforms';
 import { ALL_FINGERS, type Finger } from './fingers';
 import { serial } from './serial';
-import type { BulbModeWaveform } from './bulbModeWaveform';
 
 // Allowed accelerometer threshold values
 export const ALLOWED_THRESHOLDS = [2, 4, 8, 12, 16] as const;
@@ -197,9 +197,7 @@ export const useAppStore = create<AppState>()(
 
         setBulbModeWaveformId: (modeId, bulbModeWaveformId) =>
           set(s => ({
-            modes: s.modes.map(m =>
-              m.id === modeId ? { ...m, bulbModeWaveformId } : m,
-            ),
+            modes: s.modes.map(m => (m.id === modeId ? { ...m, bulbModeWaveformId } : m)),
           })),
         setColor: (modeId, hex) =>
           set(s => ({
@@ -298,39 +296,29 @@ export const useAppStore = create<AppState>()(
         updateBulbModeWaveform: (id, wf) =>
           set(s => {
             const target = s.bulbModeWaveforms.find(x => x.id === id);
-            if (!target || target.readonly)
-              return { bulbModeWaveforms: s.bulbModeWaveforms };
+            if (!target || target.readonly) return { bulbModeWaveforms: s.bulbModeWaveforms };
             return {
-              bulbModeWaveforms: s.bulbModeWaveforms.map(x =>
-                x.id === id ? { ...x, ...wf } : x,
-              ),
+              bulbModeWaveforms: s.bulbModeWaveforms.map(x => (x.id === id ? { ...x, ...wf } : x)),
             };
           }),
         removeBulbModeWaveform: id =>
           set(s => {
             const target = s.bulbModeWaveforms.find(x => x.id === id);
-            if (!target || target.readonly)
-              return { bulbModeWaveforms: s.bulbModeWaveforms };
+            if (!target || target.readonly) return { bulbModeWaveforms: s.bulbModeWaveforms };
             return {
               bulbModeWaveforms: s.bulbModeWaveforms.filter(x => x.id !== id),
               modes: s.modes.map(m => {
                 const cleared =
-                  m.bulbModeWaveformId === id
-                    ? { ...m, bulbModeWaveformId: undefined }
-                    : m;
+                  m.bulbModeWaveformId === id ? { ...m, bulbModeWaveformId: undefined } : m;
                 const acc = cleared.accel;
                 if (!acc) return cleared;
                 const nextTriggers = acc.triggers.map(t =>
-                  t.bulbModeWaveformId === id
-                    ? { ...t, bulbModeWaveformId: undefined }
-                    : t,
+                  t.bulbModeWaveformId === id ? { ...t, bulbModeWaveformId: undefined } : t,
                 );
                 return { ...cleared, accel: { ...acc, triggers: nextTriggers } };
               }),
               lastSelectedBulbModeWaveformId:
-                s.lastSelectedBulbModeWaveformId === id
-                  ? null
-                  : s.lastSelectedBulbModeWaveformId,
+                s.lastSelectedBulbModeWaveformId === id ? null : s.lastSelectedBulbModeWaveformId,
             };
           }),
 
@@ -349,9 +337,7 @@ export const useAppStore = create<AppState>()(
           const modesSnap: ModeSnapshot[] = s.modes.map(m => ({
             color: m.color,
             bulbModeWaveformId: m.bulbModeWaveformId,
-            accel: m.accel
-              ? { triggers: m.accel.triggers.map(t => ({ ...t })) }
-              : { triggers: [] },
+            accel: m.accel ? { triggers: m.accel.triggers.map(t => ({ ...t })) } : { triggers: [] },
           }));
           const indexById = new Map<string, number>();
           s.modes.forEach((m, i) => indexById.set(m.id, i));
@@ -585,8 +571,7 @@ export const useAppStore = create<AppState>()(
           target.defaultBulbModeWaveformsSignature = currentSig;
           // Clear last selected waveform if it was removed
           const last = s.lastSelectedBulbModeWaveformId ?? null;
-          target.lastSelectedBulbModeWaveformId =
-            last && removedIds.includes(last) ? null : last;
+          target.lastSelectedBulbModeWaveformId = last && removedIds.includes(last) ? null : last;
         } catch (e) {
           console.error('Failed to sync default bulb mode waveforms after rehydrate', e);
         }

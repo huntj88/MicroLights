@@ -2,9 +2,10 @@ import { useTranslation } from 'react-i18next';
 
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { CloseButton } from '@/components/CloseButton';
-import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
 import { ALLOWED_THRESHOLDS } from '@/lib/store';
 import type { BulbModeWaveformDoc, Trigger } from '@/lib/store';
+
+import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
 
 export function AccelTriggerRow({
   trigger,

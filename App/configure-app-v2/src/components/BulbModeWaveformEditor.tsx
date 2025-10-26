@@ -2,10 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 
-import {
-  bulbModeToSegments,
-  zBulbModeWaveform,
-} from '@/lib/bulbModeWaveform';
+import { bulbModeToSegments, zBulbModeWaveform } from '@/lib/bulbModeWaveform';
 import type {
   BulbModeWaveform,
   BulbModeWavePoint,
@@ -20,12 +17,7 @@ type Props = {
 };
 
 // Simple square-wave timeline editor with draggable markers
-export function BulbModeWaveformEditor({
-  value,
-  onChange,
-  height = 160,
-  readOnly = false,
-}: Props) {
+export function BulbModeWaveformEditor({ value, onChange, height = 160, readOnly = false }: Props) {
   const { t } = useTranslation();
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -323,9 +315,7 @@ export function BulbModeWaveformEditor({
       </div>
 
       <div>
-        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">
-          {t('jsonConfig')}
-        </div>
+        <div className="text-xs uppercase tracking-wide text-slate-400 mb-1">{t('jsonConfig')}</div>
         <textarea
           className="w-full h-48 bg-slate-950/80 rounded border border-slate-700/50 p-2 font-mono text-sm"
           value={JSON.stringify(value, null, 2)}

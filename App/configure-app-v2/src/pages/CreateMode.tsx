@@ -48,7 +48,7 @@ export default function CreateMode() {
         // avoid toast spam on initial load
       } else {
         // no modeset yet; make sure draft has a sensible default name
-  setDraftName(DEFAULT_NEW_BULB_MODE_WAVEFORM.name);
+        setDraftName(DEFAULT_NEW_BULB_MODE_WAVEFORM.name);
       }
     }
   }, [modeSets.length]);

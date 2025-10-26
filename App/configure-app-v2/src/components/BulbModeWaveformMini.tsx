@@ -51,7 +51,7 @@ export function BulbModeWaveformMini({
       width="100%"
       height={height}
       role="img"
-  aria-label="Bulb mode waveform preview"
+      aria-label="Bulb mode waveform preview"
       className="rounded"
     >
       {/* center dashed line */}

@@ -1,16 +1,24 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { ChromaSynthEditor } from '@/components/ChromaSynthEditor';
 import { useAppStore } from '@/lib/store';
+import { ChromaSynthState } from '@/types/chromaSynth';
 
 export default function Settings() {
   const { t } = useTranslation();
   const pref = useAppStore(s => s.theme);
   const setPref = useAppStore(s => s.setThemePreference);
 
+  const [value, setValue] = useState<ChromaSynthState>({
+    red: { sections: [] },
+    green: { sections: [] },
+    blue: { sections: [] },
+  });
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">{t('settings')}</h1>
-
       <section className="space-y-2">
         <div className="text-xs uppercase tracking-wide text-slate-400">{t('appearance')}</div>
         <div className="grid grid-cols-[140px_1fr] items-center gap-3">
@@ -50,6 +58,7 @@ export default function Settings() {
           <div className="col-span-2 text-xs text-slate-400">{t('systemThemeHint')}</div>
         </div>
       </section>
+      <ChromaSynthEditor value={value} onChange={setValue} />
     </div>
   );
 }

@@ -3,15 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { AccelTriggerRow } from '@/components/AccelTriggerRow';
+import { BulbModeWaveformEditorModal } from '@/components/BulbModeWaveformEditorModal';
+import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
 import { CaseLightColorTogglePicker } from '@/components/CaseLightColorTogglePicker';
 import { CloseButton } from '@/components/CloseButton';
 import { FingerSelector } from '@/components/FingerSelector';
-import { BulbModeWaveformEditorModal } from '@/components/BulbModeWaveformEditorModal';
-import { BulbModeWaveformPicker } from '@/components/BulbModeWaveformPicker';
+import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
 import { DISABLED_COLOR } from '@/lib/constants';
 import { DEFAULT_NEW_BULB_MODE_WAVEFORM } from '@/lib/defaultWaveforms';
 import { Trigger, useAppStore, type Mode } from '@/lib/store';
-import type { BulbModeWaveform } from '@/lib/bulbModeWaveform';
 
 export function ModeCard({
   mode,
@@ -38,9 +38,7 @@ export function ModeCard({
   const addAccelTrigger = useAppStore(s => s.addAccelTrigger);
   const removeAccelTrigger = useAppStore(s => s.removeAccelTrigger);
   const setAccelTriggerThreshold = useAppStore(s => s.setAccelTriggerThreshold);
-  const setAccelTriggerBulbModeWaveformId = useAppStore(
-    s => s.setAccelTriggerBulbModeWaveformId,
-  );
+  const setAccelTriggerBulbModeWaveformId = useAppStore(s => s.setAccelTriggerBulbModeWaveformId);
   const setAccelTriggerColor = useAppStore(s => s.setAccelTriggerColor);
 
   const exportModeAsJSON = useAppStore(s => s.exportModeAsJSON);
