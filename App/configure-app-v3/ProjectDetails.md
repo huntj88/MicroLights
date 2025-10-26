@@ -79,6 +79,46 @@ The duration and when each change happens is represented in milliseconds (ms).
 }
 ```
 
+```
+{
+  "mode": {
+    "name": "has rgb patterns for both",
+    "front": {
+      "pattern": {
+        "name": "front color pattern",
+        "duration": 3,
+        "changeAt": [
+          {
+            "ms": 0,
+            "output": "#222222"
+          },
+          {
+            "ms": 2,
+            "output": "#773377"
+          }
+        ]
+      }
+    },
+    "case": {
+      "pattern": {
+        "name": "case color pattern",
+        "duration": 3,
+        "changeAt": [
+          {
+            "ms": 0,
+            "output": "#ffaa00"
+          },
+          {
+            "ms": 2,
+            "output": "#005110"
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
 Project Tools. Ensure the latest versions are used.
 - TypeScript
 - Vite
@@ -153,3 +193,4 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Delivered a Settings page using a stateless `ThemePreferenceSelector` component that exposes value + action callbacks for switching between system, light, and dark themes.
 - Built a Serial Log page featuring the stateless `SerialLogPanel` (autoscroll toggle, timestamped log view, clear button, outbound payload entry) with full localization coverage.
 - Added Vitest suites for layout and component behavior to enforce the stateless contract and i18n wiring.
+- Codified zod-backed data models for mode definitions (binary and RGB patterns, accelerometer triggers) with unit tests validating the documented JSON examples and failure modes.
