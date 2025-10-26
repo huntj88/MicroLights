@@ -198,3 +198,8 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Enhanced the simple RGB pattern flow with move, reorder, and duplicate controls plus expanded tests to validate the new interactions and maintain stateless behavior.
 - Added inline color swatches beside each simple RGB step so the hex values are visually reinforced, along with tests ensuring every segment renders a preview chip.
 - Reworked the simple RGB pattern panel to accept canonical `ModePattern` data, own draft form inputs locally, and emit schema-valid patterns with refreshed unit coverage.
+- Introduced a persisted pattern library powered by zustand on the RGB Pattern page, including a method switcher UI, load/save controls, and overwrite protection when reusing names.
+- Added a delete control for saved RGB patterns with confirmation prompts, plus expanded Vitest coverage for the page-level interactions and persistence store.
+- Updated the simple RGB editor to default the segment duration to 250ms, restrict inputs to integers, and prevent saving patterns without at least one step, supported by refreshed unit tests.
+- Refined the RGB pattern picker so selecting "New pattern" clears the editor, saving auto-selects the new entry, and accompanying tests ensure the dropdown mirrors the persisted library.
+- Simplified the saved pattern workflow by removing the explicit load button—selections now hydrate the editor immediately, with updated tests confirming the auto-load flow.

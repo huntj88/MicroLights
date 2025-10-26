@@ -43,7 +43,10 @@ describe('SimpleRgbPatternPanel', () => {
     renderComponent({ value: createPattern([]) });
 
     expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
-    expect(screen.getByRole('button', { name: /add color step/i })).toBeDisabled();
+    const addButton = screen.getByRole('button', { name: /add color step/i });
+    expect(addButton).toBeEnabled();
+  const durationInput = screen.getByLabelText(/duration/i);
+  expect(durationInput).toHaveValue(250);
   });
 
   it('emits an add-step action with the new segment when submitting the form', async () => {
@@ -56,7 +59,8 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     const durationInput = screen.getByLabelText(/duration/i);
-    await user.type(durationInput, '200');
+  await user.clear(durationInput);
+  await user.type(durationInput, '200');
     await user.click(screen.getByRole('button', { name: /add color step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -179,6 +183,17 @@ describe('SimpleRgbPatternPanel', () => {
       expect(action.newStep.color).toBe('#334455');
       expect(action.newStep.durationMs).toBe(300);
     }
+  });
+
+  it('ignores non-integer duration input characters', async () => {
+    const user = userEvent.setup();
+    renderComponent({ value: createPattern([]) });
+
+    const durationInput = screen.getByLabelText(/duration/i);
+    await user.clear(durationInput);
+    await user.type(durationInput, '1.5');
+
+    expect(durationInput).toHaveValue(1);
   });
 
   it('summarizes the total duration when steps exist', () => {

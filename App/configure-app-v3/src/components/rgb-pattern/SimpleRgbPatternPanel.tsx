@@ -23,6 +23,7 @@ export interface SimpleRgbPatternPanelProps {
 }
 
 const STEP_ID_PREFIX = 'rgb-step-';
+const DEFAULT_DURATION_MS = '250';
 
 const createStep = (color: string, durationMs: number): SimpleRgbPatternStep => ({
   id: `${STEP_ID_PREFIX}${Date.now().toString(36)}-${Math.random().toString(16).slice(2)}`,
@@ -82,19 +83,21 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
 
   const steps = useMemo(() => convertPatternToSteps(value), [value]);
   const [draftColor, setDraftColor] = useState(() => steps[steps.length - 1]?.color ?? '#ff7b00');
-  const [draftDurationMs, setDraftDurationMs] = useState('');
+  const [draftDurationMs, setDraftDurationMs] = useState(DEFAULT_DURATION_MS);
 
   useEffect(() => {
     if (steps.length === 0) {
       setDraftColor('#ff7b00');
+      setDraftDurationMs(DEFAULT_DURATION_MS);
       return;
     }
 
     setDraftColor(steps[steps.length - 1].color);
+    setDraftDurationMs(String(steps[steps.length - 1].durationMs));
   }, [steps]);
 
   const parsedDuration = Number.parseInt(draftDurationMs, 10);
-  const canAddStep = Number.isFinite(parsedDuration) && parsedDuration > 0;
+  const canAddStep = draftDurationMs !== '' && Number.isFinite(parsedDuration) && parsedDuration > 0;
 
   const totalDuration = useMemo(
     () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
@@ -126,6 +129,15 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
       return;
     }
 
+    if (duration === '') {
+      setDraftDurationMs(duration);
+      return;
+    }
+
+    if (!/^[0-9]+$/.test(duration)) {
+      return;
+    }
+
     setDraftDurationMs(duration);
   };
 
@@ -138,7 +150,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
 
     const step = createStep(draftColor, parsedDuration);
     emitChange([...steps, step], { type: 'add-step', step });
-    setDraftDurationMs('');
+    setDraftDurationMs(DEFAULT_DURATION_MS);
   };
 
   const handleRemove = (stepId: string) => {
@@ -248,8 +260,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             className="w-full rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
             inputMode="numeric"
             min={1}
+            step={1}
             onChange={handleDurationChange}
-            placeholder="250"
             type="number"
             value={draftDurationMs}
           />

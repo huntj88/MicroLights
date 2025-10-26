@@ -24,6 +24,11 @@
   "rgbPattern": {
     "title": "RGB Pattern Workshop",
     "subtitle": "Author precise multi-color animations for the case LEDs.",
+    "methodSwitcher": {
+      "label": "Pattern builder",
+      "simple": "Simple method",
+      "equation": "Equation method"
+    },
     "simple": {
       "title": "Simple method",
       "description": "Build a pattern by stacking color segments and choosing how long each should shine.",
@@ -37,6 +42,14 @@
         "durationLabel": "Duration (ms)",
         "durationHelper": "How long the LED should display this color.",
         "addButton": "Add color step"
+      },
+      "storage": {
+        "selectLabel": "Saved patterns",
+  "selectPlaceholder": "New pattern",
+        "deleteButton": "Delete pattern",
+        "saveButton": "Save pattern",
+        "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
+        "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
       },
       "preview": {
         "title": "Pattern preview",
