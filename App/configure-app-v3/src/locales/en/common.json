@@ -57,11 +57,18 @@
         "summary": "Total duration {{total}} ms.",
         "segmentLabel": "{{color}} for {{duration}} ms"
       },
+      "addModal": {
+        "title": "Add color step",
+        "cancel": "Cancel",
+        "confirm": "Add step"
+      },
       "steps": {
         "title": "Pattern steps",
         "subtitle": "Adjust or remove segments as needed.",
         "entryLabel": "{{color}} · {{duration}} ms",
         "duration": "{{duration}} milliseconds",
+        "colorEditLabel": "Color for step {{index}}",
+        "durationEditLabel": "Duration for step {{index}} (ms)",
         "moveUp": "Move up",
         "moveDown": "Move down",
         "duplicate": "Duplicate step",

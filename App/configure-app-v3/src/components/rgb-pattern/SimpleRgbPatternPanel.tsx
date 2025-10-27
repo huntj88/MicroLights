@@ -1,4 +1,4 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -15,7 +15,8 @@ export type SimpleRgbPatternAction =
   | { type: 'remove-step'; stepId: string }
   | { type: 'move-step'; fromIndex: number; toIndex: number }
   | { type: 'duplicate-step'; sourceId: string; newStep: SimpleRgbPatternStep }
-  | { type: 'rename-pattern'; name: string };
+  | { type: 'rename-pattern'; name: string }
+  | { type: 'update-step'; stepId: string; step: SimpleRgbPatternStep };
 
 export interface SimpleRgbPatternPanelProps {
   value: ModePattern;
@@ -23,7 +24,9 @@ export interface SimpleRgbPatternPanelProps {
 }
 
 const STEP_ID_PREFIX = 'rgb-step-';
+const DEFAULT_COLOR = '#ff7b00';
 const DEFAULT_DURATION_MS = '250';
+const MAX_DURATION_LENGTH = 6;
 
 const createStep = (color: string, durationMs: number): SimpleRgbPatternStep => ({
   id: `${STEP_ID_PREFIX}${Date.now().toString(36)}-${Math.random().toString(16).slice(2)}`,
@@ -82,22 +85,69 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   const { t } = useTranslation();
 
   const steps = useMemo(() => convertPatternToSteps(value), [value]);
-  const [draftColor, setDraftColor] = useState(() => steps[steps.length - 1]?.color ?? '#ff7b00');
-  const [draftDurationMs, setDraftDurationMs] = useState(DEFAULT_DURATION_MS);
+  const [stepDurationDrafts, setStepDurationDrafts] = useState<Record<string, string>>({});
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalColor, setModalColor] = useState(DEFAULT_COLOR);
+  const [modalDurationMs, setModalDurationMs] = useState(DEFAULT_DURATION_MS);
 
   useEffect(() => {
-    if (steps.length === 0) {
-      setDraftColor('#ff7b00');
-      setDraftDurationMs(DEFAULT_DURATION_MS);
+    setStepDurationDrafts((previous) => {
+      const nextEntries = steps.map((step) => [step.id, previous[step.id] ?? String(step.durationMs)] as const);
+      const shouldUpdate =
+        nextEntries.length !== Object.keys(previous).length
+        || nextEntries.some(([id, value]) => previous[id] !== value);
+
+      if (!shouldUpdate) {
+        return previous;
+      }
+
+      const next: Record<string, string> = {};
+      for (const [id, value] of nextEntries) {
+        next[id] = value;
+      }
+      return next;
+    });
+  }, [steps]);
+
+  const lastStepIndex = steps.length - 1;
+  const defaultModalColor = steps.length > 0 ? steps[lastStepIndex].color : DEFAULT_COLOR;
+  const defaultModalDuration = steps.length > 0
+    ? String(steps[lastStepIndex].durationMs)
+    : DEFAULT_DURATION_MS;
+
+  useEffect(() => {
+    if (isAddModalOpen) {
       return;
     }
 
-    setDraftColor(steps[steps.length - 1].color);
-    setDraftDurationMs(String(steps[steps.length - 1].durationMs));
-  }, [steps]);
+    setModalColor(defaultModalColor);
+    setModalDurationMs(defaultModalDuration);
+  }, [defaultModalColor, defaultModalDuration, isAddModalOpen]);
 
-  const parsedDuration = Number.parseInt(draftDurationMs, 10);
-  const canAddStep = draftDurationMs !== '' && Number.isFinite(parsedDuration) && parsedDuration > 0;
+  useEffect(() => {
+    if (!isAddModalOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') {
+        return;
+      }
+
+      event.preventDefault();
+      setIsAddModalOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAddModalOpen]);
+
+  const parsedModalDuration = Number.parseInt(modalDurationMs, 10);
+  const canConfirmModal = modalDurationMs !== ''
+    && Number.isFinite(parsedModalDuration)
+    && parsedModalDuration > 0;
 
   const totalDuration = useMemo(
     () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
@@ -107,6 +157,16 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   const emitChange = (nextSteps: SimpleRgbPatternStep[], action: SimpleRgbPatternAction) => {
     const nextPattern = createPatternFromSteps(value, nextSteps);
     onChange(nextPattern, action);
+  };
+
+  const handleStepUpdate = (stepId: string, updates: Partial<SimpleRgbPatternStep>) => {
+    const nextSteps = steps.map((step) => (step.id === stepId ? { ...step, ...updates } : step));
+    const updatedStep = nextSteps.find((step) => step.id === stepId);
+    if (!updatedStep) {
+      return;
+    }
+
+    emitChange(nextSteps, { type: 'update-step', stepId, step: updatedStep });
   };
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -119,18 +179,48 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
     onChange(nextPattern, { type: 'rename-pattern', name: nextName });
   };
 
-  const handleColorChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setDraftColor(event.target.value);
+  const handleStepColorChange = (stepId: string, color: string) => {
+    handleStepUpdate(stepId, { color });
   };
 
-  const handleDurationChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleStepDurationChange = (stepId: string, duration: string) => {
+    if (duration.length > MAX_DURATION_LENGTH) {
+      return;
+    }
+
+    if (!/^[0-9]*$/.test(duration)) {
+      return;
+    }
+
+    setStepDurationDrafts((previous) => ({
+      ...previous,
+      [stepId]: duration,
+    }));
+
+    if (duration === '') {
+      return;
+    }
+
+    const parsed = Number.parseInt(duration, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return;
+    }
+
+    handleStepUpdate(stepId, { durationMs: parsed });
+  };
+
+  const handleModalColorChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setModalColor(event.target.value);
+  };
+
+  const handleModalDurationChange = (event: ChangeEvent<HTMLInputElement>) => {
     const duration = event.target.value;
-    if (duration.length > 6) {
+    if (duration.length > MAX_DURATION_LENGTH) {
       return;
     }
 
     if (duration === '') {
-      setDraftDurationMs(duration);
+      setModalDurationMs(duration);
       return;
     }
 
@@ -138,19 +228,25 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
       return;
     }
 
-    setDraftDurationMs(duration);
+    setModalDurationMs(duration);
   };
 
-  const handleAddStep = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const openAddModal = () => {
+    setIsAddModalOpen(true);
+  };
 
-    if (!canAddStep) {
+  const handleModalCancel = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleModalConfirm = () => {
+    if (!canConfirmModal) {
       return;
     }
 
-    const step = createStep(draftColor, parsedDuration);
+    const step = createStep(modalColor, parsedModalDuration);
     emitChange([...steps, step], { type: 'add-step', step });
-    setDraftDurationMs(DEFAULT_DURATION_MS);
+    setIsAddModalOpen(false);
   };
 
   const handleRemove = (stepId: string) => {
@@ -220,12 +316,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
 
   return (
     <div className="space-y-6">
-      <form
-        className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto_auto_auto] md:items-end"
-        onSubmit={handleAddStep}
-        aria-label={t('rgbPattern.simple.form.ariaLabel')}
-      >
-        <label className="flex flex-col gap-2 text-sm md:col-span-4">
+      <section aria-label={t('rgbPattern.simple.form.ariaLabel')} className="space-y-4">
+        <label className="flex flex-col gap-2 text-sm">
           <span className="font-medium">{t('rgbPattern.simple.form.nameLabel')}</span>
           <input
             aria-describedby="simple-rgb-name-helper"
@@ -239,47 +331,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             {t('rgbPattern.simple.form.nameHelper')}
           </span>
         </label>
-        <label className="flex flex-col gap-2 text-sm">
-          <span className="font-medium">{t('rgbPattern.simple.form.colorLabel')}</span>
-          <input
-            aria-describedby="simple-rgb-color-helper"
-            className="h-12 w-24 rounded-full border border-solid theme-border"
-            onChange={handleColorChange}
-            type="color"
-            value={draftColor}
-          />
-          <span className="theme-muted text-xs" id="simple-rgb-color-helper">
-            {t('rgbPattern.simple.form.colorHelper')}
-          </span>
-        </label>
-
-        <label className="flex flex-col gap-2 text-sm">
-          <span className="font-medium">{t('rgbPattern.simple.form.durationLabel')}</span>
-          <input
-            aria-describedby="simple-rgb-duration-helper"
-            className="w-full rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
-            inputMode="numeric"
-            min={1}
-            step={1}
-            onChange={handleDurationChange}
-            type="number"
-            value={draftDurationMs}
-          />
-          <span className="theme-muted text-xs" id="simple-rgb-duration-helper">
-            {t('rgbPattern.simple.form.durationHelper')}
-          </span>
-        </label>
-
-        <div className="flex items-center md:justify-end">
-          <button
-            className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-            type="submit"
-            disabled={!canAddStep}
-          >
-            {t('rgbPattern.simple.form.addButton')}
-          </button>
-        </div>
-      </form>
+      </section>
 
       <section aria-live="polite" className="space-y-3">
         <header className="space-y-1">
@@ -299,6 +351,15 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
           ) : (
             patternSegments
           )}
+          <button
+            aria-label={t('rgbPattern.simple.form.addButton')}
+            className="flex min-w-[56px] items-center justify-center border-l border-white/10 bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+            onClick={openAddModal}
+            title={t('rgbPattern.simple.form.addButton')}
+            type="button"
+          >
+            <span aria-hidden="true">＋</span>
+          </button>
         </div>
       </section>
 
@@ -316,24 +377,44 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
               return (
                 <li
                   key={step.id}
-                  className="theme-panel theme-border flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3"
+                  className="theme-panel theme-border flex flex-wrap items-center justify-between gap-4 rounded-xl border px-4 py-3"
                 >
-                  <div className="flex flex-col">
-                    <span className="flex items-center gap-2 text-sm font-medium">
-                      <span
-                        aria-hidden="true"
-                        className="h-4 w-4 rounded-full border border-white/40"
-                        data-testid="rgb-step-color"
-                        style={{ backgroundColor: step.color }}
+                  <div className="flex flex-1 flex-wrap items-center gap-4">
+                    <label className="flex items-center gap-3 text-sm font-medium">
+                      <span className="sr-only">
+                        {t('rgbPattern.simple.steps.colorEditLabel', { index: index + 1 })}
+                      </span>
+                      <input
+                        aria-label={t('rgbPattern.simple.steps.colorEditLabel', { index: index + 1 })}
+                        className="h-10 w-10 rounded-full border border-solid theme-border"
+                        onChange={(event) => {
+                          handleStepColorChange(step.id, event.target.value);
+                        }}
+                        type="color"
+                        value={step.color}
                       />
-                      {t('rgbPattern.simple.steps.entryLabel', {
-                        color: step.color.toUpperCase(),
-                        duration: step.durationMs,
-                      })}
-                    </span>
-                    <span className="theme-muted text-xs">
-                      {t('rgbPattern.simple.steps.duration', { duration: step.durationMs })}
-                    </span>
+                      <span className="flex items-center gap-2">
+                        {t('rgbPattern.simple.steps.entryLabel', {
+                          color: step.color.toUpperCase(),
+                          duration: step.durationMs,
+                        })}
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-medium">
+                      <span>{t('rgbPattern.simple.steps.durationEditLabel', { index: index + 1 })}</span>
+                      <input
+                        aria-label={t('rgbPattern.simple.steps.durationEditLabel', { index: index + 1 })}
+                        className="w-24 rounded-lg border border-solid theme-border bg-transparent px-2 py-1 text-sm"
+                        inputMode="numeric"
+                        min={1}
+                        onChange={(event) => {
+                          handleStepDurationChange(step.id, event.target.value);
+                        }}
+                        step={1}
+                        type="number"
+                        value={stepDurationDrafts[step.id] ?? String(step.durationMs)}
+                      />
+                    </label>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -383,6 +464,73 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             })}
           </ol>
         </section>
+      )}
+
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div
+            aria-modal="true"
+            className="w-full max-w-sm space-y-4 rounded-2xl border border-white/20 bg-[rgb(var(--surface-raised)/0.95)] p-6 shadow-xl"
+            role="dialog"
+          >
+            <header className="space-y-1">
+              <h4 className="text-lg font-semibold">{t('rgbPattern.simple.addModal.title')}</h4>
+              <p className="theme-muted text-sm">
+                {t('rgbPattern.simple.preview.summary', {
+                  total: totalDuration + (canConfirmModal ? parsedModalDuration : 0),
+                })}
+              </p>
+            </header>
+            <div className="space-y-4">
+              <label className="flex flex-col gap-2 text-sm">
+                <span className="font-medium">{t('rgbPattern.simple.form.colorLabel')}</span>
+                <input
+                  aria-describedby="simple-rgb-modal-color-helper"
+                  className="h-12 w-24 rounded-full border border-solid theme-border"
+                  onChange={handleModalColorChange}
+                  type="color"
+                  value={modalColor}
+                />
+                <span className="theme-muted text-xs" id="simple-rgb-modal-color-helper">
+                  {t('rgbPattern.simple.form.colorHelper')}
+                </span>
+              </label>
+              <label className="flex flex-col gap-2 text-sm">
+                <span className="font-medium">{t('rgbPattern.simple.form.durationLabel')}</span>
+                <input
+                  aria-describedby="simple-rgb-modal-duration-helper"
+                  className="w-full rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
+                  inputMode="numeric"
+                  min={1}
+                  onChange={handleModalDurationChange}
+                  step={1}
+                  type="number"
+                  value={modalDurationMs}
+                />
+                <span className="theme-muted text-xs" id="simple-rgb-modal-duration-helper">
+                  {t('rgbPattern.simple.form.durationHelper')}
+                </span>
+              </label>
+            </div>
+            <footer className="flex justify-end gap-3">
+              <button
+                className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+                onClick={handleModalCancel}
+                type="button"
+              >
+                {t('rgbPattern.simple.addModal.cancel')}
+              </button>
+              <button
+                className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition hover:scale-[1.01] disabled:opacity-50"
+                disabled={!canConfirmModal}
+                onClick={handleModalConfirm}
+                type="button"
+              >
+                {t('rgbPattern.simple.addModal.confirm')}
+              </button>
+            </footer>
+          </div>
+        </div>
       )}
     </div>
   );

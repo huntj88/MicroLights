@@ -203,3 +203,4 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Updated the simple RGB editor to default the segment duration to 250ms, restrict inputs to integers, and prevent saving patterns without at least one step, supported by refreshed unit tests.
 - Refined the RGB pattern picker so selecting "New pattern" clears the editor, saving auto-selects the new entry, and accompanying tests ensure the dropdown mirrors the persisted library.
 - Simplified the saved pattern workflow by removing the explicit load button—selections now hydrate the editor immediately, with updated tests confirming the auto-load flow.
+- Redesigned the simple RGB step list with inline color and duration editors, wired through the new update-step action and validated by expanded unit coverage.

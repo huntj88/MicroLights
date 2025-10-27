@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { ModePattern } from '@/app/models/mode';
-import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render-with-providers';
 
 import {
   SimpleRgbPatternPanel,
@@ -45,11 +45,10 @@ describe('SimpleRgbPatternPanel', () => {
     expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
     const addButton = screen.getByRole('button', { name: /add color step/i });
     expect(addButton).toBeEnabled();
-  const durationInput = screen.getByLabelText(/duration/i);
-  expect(durationInput).toHaveValue(250);
+    expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
   });
 
-  it('emits an add-step action with the new segment when submitting the form', async () => {
+  it('emits an add-step action with the new segment when confirming the modal', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
 
@@ -58,10 +57,13 @@ describe('SimpleRgbPatternPanel', () => {
       value: createPattern([]),
     });
 
-    const durationInput = screen.getByLabelText(/duration/i);
-  await user.clear(durationInput);
-  await user.type(durationInput, '200');
     await user.click(screen.getByRole('button', { name: /add color step/i }));
+
+    const modalDurationInput = await screen.findByLabelText(/duration/i);
+    await user.clear(modalDurationInput);
+    await user.type(modalDurationInput, '200');
+
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
@@ -189,11 +191,65 @@ describe('SimpleRgbPatternPanel', () => {
     const user = userEvent.setup();
     renderComponent({ value: createPattern([]) });
 
-    const durationInput = screen.getByLabelText(/duration/i);
+    await user.click(screen.getByRole('button', { name: /add color step/i }));
+
+    const durationInput = await screen.findByLabelText(/duration/i);
     await user.clear(durationInput);
     await user.type(durationInput, '1.5');
 
     expect(durationInput).toHaveValue(1);
+  });
+
+  it('updates an existing step when editing color and duration', () => {
+    const handleChange = vi.fn();
+    const pattern = createPattern([
+      { color: '#000000', duration: 100 },
+      { color: '#ffffff', duration: 200 },
+    ]);
+
+    const Harness = () => {
+      const [value, setValue] = useState(pattern);
+      return (
+        <SimpleRgbPatternPanel
+          onChange={(nextPattern, action) => {
+            setValue(nextPattern);
+            handleChange(nextPattern, action);
+          }}
+          value={value}
+        />
+      );
+    };
+
+    renderWithProviders(<Harness />);
+
+    const colorInput = screen.getByLabelText(/color for step 1/i);
+    fireEvent.input(colorInput, { target: { value: '#123456' } });
+
+    const durationInput = screen.getByLabelText(/duration for step 1/i);
+    fireEvent.change(durationInput, { target: { value: '150' } });
+    expect(durationInput).toHaveValue(150);
+
+    const updateCalls = handleChange.mock.calls.filter((call): call is Parameters<SimpleRgbPatternPanelProps['onChange']> => {
+      const [, action] = call as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+      return action.type === 'update-step';
+    });
+
+    const finalCall = updateCalls.at(-1);
+    if (!finalCall) {
+      throw new Error('Expected an update-step action when editing a step');
+    }
+
+    const [nextPattern, action] = finalCall;
+    expect(nextPattern.duration).toBe(350);
+    expect(nextPattern.changeAt).toEqual([
+      { ms: 0, output: '#123456' as ModePattern['changeAt'][number]['output'] },
+      { ms: 150, output: '#ffffff' as ModePattern['changeAt'][number]['output'] },
+    ]);
+    expect(action.type).toBe('update-step');
+    if (action.type === 'update-step') {
+      expect(action.step.color).toBe('#123456');
+      expect(action.step.durationMs).toBe(150);
+    }
   });
 
   it('summarizes the total duration when steps exist', () => {
@@ -209,5 +265,20 @@ describe('SimpleRgbPatternPanel', () => {
     expect(segments).toHaveLength(2);
     const swatches = screen.getAllByTestId('rgb-step-color');
     expect(swatches).toHaveLength(2);
+  });
+
+  it('closes the modal when cancelling', async () => {
+    const user = userEvent.setup();
+    renderComponent({ value: createPattern([]) });
+
+    await user.click(screen.getByRole('button', { name: /add color step/i }));
+
+    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /cancel/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });
