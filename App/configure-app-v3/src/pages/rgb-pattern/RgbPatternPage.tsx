@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import type { ModePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { EquationRgbPatternPanel } from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
 import {
   type SimpleRgbPatternAction,
   SimpleRgbPatternPanel,
@@ -206,8 +207,7 @@ export const RgbPatternPage = () => {
         </article>
       ) : (
         <article className="theme-panel theme-border rounded-2xl border p-6">
-          <h3 className="text-2xl font-semibold">{t('rgbPattern.equation.title')}</h3>
-          <p className="theme-muted">{t('rgbPattern.equation.todo')}</p>
+          <EquationRgbPatternPanel />
         </article>
       )}
     </section>
