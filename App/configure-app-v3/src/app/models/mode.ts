@@ -47,7 +47,7 @@ export const patternChangeSchema = z.union([
 export type PatternChange = z.infer<typeof patternChangeSchema>;
 
 export const equationSectionSchema = z.object({
-  id: z.string().uuid(),
+  id: z.uuid(),
   equation: z.string().min(1, 'Equation cannot be empty'),
   duration: z.number().min(1, 'Duration must be at least 1ms'),
 });
@@ -62,7 +62,7 @@ export type ChannelConfig = z.infer<typeof channelConfigSchema>;
 
 export const equationPatternSchema = z.object({
   type: z.literal('equation'),
-  id: z.string().uuid().optional(),
+  id: z.uuid().optional(),
   name: z.string().min(1, 'Name is required'),
   duration: z.number().nonnegative(),
   red: channelConfigSchema,

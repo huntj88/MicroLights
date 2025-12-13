@@ -1,14 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+
+import { ColorPreview } from './ColorPreview';
+import { SectionLane } from './SectionLane';
+import { WaveformLane } from './WaveformLane';
 import {
   createDefaultEquationPattern,
   type EquationPattern,
   type EquationSection,
 } from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
-import { ColorPreview } from './ColorPreview';
-import { SectionLane } from './SectionLane';
-import { WaveformLane } from './WaveformLane';
 
 export const EquationRgbPatternPanel = () => {
   const { t } = useTranslation();
@@ -34,19 +35,19 @@ export const EquationRgbPatternPanel = () => {
   // We generate points for the entire duration.
   // Sample rate 10ms is fine for display.
   const redPoints = useMemo(
-    () => generateWaveformPoints(pattern.red.sections, totalDuration),
-    [pattern.red.sections, totalDuration]
+    () => generateWaveformPoints(pattern.red.sections),
+    [pattern.red.sections]
   );
   const greenPoints = useMemo(
-    () => generateWaveformPoints(pattern.green.sections, totalDuration),
-    [pattern.green.sections, totalDuration]
+    () => generateWaveformPoints(pattern.green.sections),
+    [pattern.green.sections]
   );
   const bluePoints = useMemo(
-    () => generateWaveformPoints(pattern.blue.sections, totalDuration),
-    [pattern.blue.sections, totalDuration]
+    () => generateWaveformPoints(pattern.blue.sections),
+    [pattern.blue.sections]
   );
 
-  const animate = (time: number) => {
+  const animate = useCallback((time: number) => {
     if (lastTimeRef.current === 0) {
       lastTimeRef.current = time;
     }
@@ -65,7 +66,7 @@ export const EquationRgbPatternPanel = () => {
     });
 
     requestRef.current = requestAnimationFrame(animate);
-  };
+  }, [totalDuration]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -81,7 +82,7 @@ export const EquationRgbPatternPanel = () => {
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [isPlaying, totalDuration]);
+  }, [animate, isPlaying, totalDuration]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -234,26 +235,26 @@ export const EquationRgbPatternPanel = () => {
         <SectionLane
           color="red"
           sections={pattern.red.sections}
-          onAddSection={() => addSection('red')}
-          onUpdateSection={(id, u) => updateSection('red', id, u)}
-          onDeleteSection={id => deleteSection('red', id)}
-          onMoveSection={(id, dir) => moveSection('red', id, dir)}
+          onAddSection={() => { addSection('red'); }}
+          onUpdateSection={(id, u) => { updateSection('red', id, u); }}
+          onDeleteSection={id => { deleteSection('red', id); }}
+          onMoveSection={(id, dir) => { moveSection('red', id, dir); }}
         />
         <SectionLane
           color="green"
           sections={pattern.green.sections}
-          onAddSection={() => addSection('green')}
-          onUpdateSection={(id, u) => updateSection('green', id, u)}
-          onDeleteSection={id => deleteSection('green', id)}
-          onMoveSection={(id, dir) => moveSection('green', id, dir)}
+          onAddSection={() => { addSection('green'); }}
+          onUpdateSection={(id, u) => { updateSection('green', id, u); }}
+          onDeleteSection={id => { deleteSection('green', id); }}
+          onMoveSection={(id, dir) => { moveSection('green', id, dir); }}
         />
         <SectionLane
           color="blue"
           sections={pattern.blue.sections}
-          onAddSection={() => addSection('blue')}
-          onUpdateSection={(id, u) => updateSection('blue', id, u)}
-          onDeleteSection={id => deleteSection('blue', id)}
-          onMoveSection={(id, dir) => moveSection('blue', id, dir)}
+          onAddSection={() => { addSection('blue'); }}
+          onUpdateSection={(id, u) => { updateSection('blue', id, u); }}
+          onDeleteSection={id => { deleteSection('blue', id); }}
+          onMoveSection={(id, dir) => { moveSection('blue', id, dir); }}
         />
       </div>
     </div>

@@ -32,28 +32,19 @@ export const evaluateEquation = (equation: string, t: number, duration: number):
 
 export const generateWaveformPoints = (
   sections: { equation: string; duration: number }[],
-  totalDuration: number,
   sampleRateMs = 10
 ): number[] => {
   const points: number[] = [];
-  let currentT = 0;
-  
-  // We need to map global time 't' to the section's local time if needed, 
-  // but usually 't' in these equations refers to time within the section or global time?
-  // The prompt says: "Equation 255 * exp(-0.1*t) (starts at full red, decays)."
-  // This implies 't' is relative to the start of the section.
-  
   for (const section of sections) {
     const steps = Math.floor(section.duration / sampleRateMs);
     for (let i = 0; i < steps; i++) {
-      const t = i * (sampleRateMs / 1000); // t in seconds usually? Or ms?
-      // Let's assume t is in seconds for equations like exp(-0.1*t) to make sense comfortably,
-      // or the user specifies. Let's assume seconds for the equation variable 't'.
+
+      // 't' is relative to the start of the section.
+      const t = i * (sampleRateMs / 1000); // t in seconds usually
       
       const val = evaluateEquation(section.equation, t, section.duration / 1000);
       points.push(val);
     }
-    currentT += section.duration;
   }
   
   // Fill remaining if any (though we iterate by sections)

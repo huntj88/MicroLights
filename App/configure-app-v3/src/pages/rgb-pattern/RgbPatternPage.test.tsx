@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ModePattern } from '@/app/models/mode';
+import type { SimplePattern } from '@/app/models/mode';
 import { usePatternStore } from '@/app/providers/pattern-store';
 import { renderWithProviders, screen, within } from '@/test-utils/render-with-providers';
 
@@ -65,12 +65,12 @@ describe('RgbPatternPage', () => {
 
   it('deletes the selected pattern after confirmation', async () => {
     const { user } = setup();
-    const storedPattern: ModePattern = {
+    const storedPattern: SimplePattern = {
       type: 'simple',
       name: 'Stored Pattern',
       duration: 100,
       changeAt: [
-        { ms: 0, output: '#123456' as ModePattern['changeAt'][number]['output'] },
+        { ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
       ],
     };
     usePatternStore.getState().savePattern(storedPattern);

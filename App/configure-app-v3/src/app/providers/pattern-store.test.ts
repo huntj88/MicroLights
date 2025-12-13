@@ -1,13 +1,14 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { usePatternStore } from './pattern-store';
-import type { ModePattern } from '../models/mode';
+import type { SimplePattern } from '../models/mode';
 
-const createPattern = (overrides?: Partial<ModePattern>): ModePattern => ({
+const createSimplePattern = (overrides?: Partial<SimplePattern>): SimplePattern => ({
   name: 'Test Pattern',
+  type: 'simple',
   duration: 100,
   changeAt: [
-    { ms: 0, output: '#112233' as ModePattern['changeAt'][number]['output'] },
+    { ms: 0, output: '#112233' as SimplePattern['changeAt'][number]['output'] },
   ],
   ...overrides,
 });
@@ -24,7 +25,7 @@ describe('pattern-store', () => {
   });
 
   it('saves new patterns and retrieves them by name', () => {
-    const pattern = createPattern();
+    const pattern = createSimplePattern();
     usePatternStore.getState().savePattern(pattern);
 
     const stored = usePatternStore.getState().getPattern(pattern.name);
@@ -33,11 +34,11 @@ describe('pattern-store', () => {
   });
 
   it('overwrites patterns with the same name', () => {
-    const patternA = createPattern();
-    const patternB = createPattern({
+    const patternA = createSimplePattern();
+    const patternB = createSimplePattern({
       duration: 250,
       changeAt: [
-        { ms: 0, output: '#abcdef' as ModePattern['changeAt'][number]['output'] },
+        { ms: 0, output: '#abcdef' as SimplePattern['changeAt'][number]['output'] },
       ],
     });
 
@@ -49,7 +50,7 @@ describe('pattern-store', () => {
   });
 
   it('deletes patterns by name', () => {
-    const pattern = createPattern();
+    const pattern = createSimplePattern();
     usePatternStore.getState().savePattern(pattern);
 
     usePatternStore.getState().deletePattern(pattern.name);
