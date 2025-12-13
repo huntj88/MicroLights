@@ -11,6 +11,7 @@ The duration and when each change happens is represented in milliseconds (ms).
     "front": {
       "pattern": {
         "name": "front binary pattern",
+        "type": "simple",
         "duration": 3,
         "changeAt": [
           {
@@ -27,6 +28,7 @@ The duration and when each change happens is represented in milliseconds (ms).
     "case": {
       "pattern": {
         "name": "case color pattern",
+        "type": "simple",
         "duration": 3,
         "changeAt": [
           {
@@ -47,6 +49,7 @@ The duration and when each change happens is represented in milliseconds (ms).
           "front": {
             "pattern": {
               "name": "fullOn",
+              "type": "simple",
               "duration": 1,
               "changeAt": [
                 {
@@ -59,6 +62,7 @@ The duration and when each change happens is represented in milliseconds (ms).
           "case": {
             "pattern": {
               "name": "flash white",
+              "type": "simple",
               "duration": 3,
               "changeAt": [
                 {
@@ -86,6 +90,7 @@ The duration and when each change happens is represented in milliseconds (ms).
     "front": {
       "pattern": {
         "name": "front color pattern",
+        "type": "simple",
         "duration": 3,
         "changeAt": [
           {
@@ -102,6 +107,7 @@ The duration and when each change happens is represented in milliseconds (ms).
     "case": {
       "pattern": {
         "name": "case color pattern",
+        "type": "simple",
         "duration": 3,
         "changeAt": [
           {
@@ -112,6 +118,49 @@ The duration and when each change happens is represented in milliseconds (ms).
             "ms": 2,
             "output": "#005110"
           }
+        ]
+      }
+    }
+  }
+}
+```
+
+Equation pattern example
+```
+{
+  "mode": {
+    "name": "equation mode",
+    "front": {
+      "pattern": {
+        "type": "equation",
+        "name": "sine wave",
+        "duration": 1000,
+        "red": {
+          "sections": [
+            {
+              "equation": "127 + 127 * sin(2 * PI * t)",
+              "duration": 1000
+            }
+          ],
+          "loopAfterDuration": false
+        },
+        "green": {
+          "sections": [],
+          "loopAfterDuration": true
+        },
+        "blue": {
+          "sections": [],
+          "loopAfterDuration": true
+        }
+      }
+    },
+    "case": {
+      "pattern": {
+        "type": "simple",
+        "name": "simple case",
+        "duration": 100,
+        "changeAt": [
+          { "ms": 0, "output": "#000000" }
         ]
       }
     }
@@ -154,9 +203,9 @@ Each component should be themed.
 
 - select method of pattern creation
   - simple
-    - TODO
+    - Create patterns by defining a sequence of colors and durations.
   - equation
-    - TODO
+    - Create patterns using mathematical equations for Red, Green, and Blue channels.
 
 ### Bulb pattern creation page
 
@@ -204,3 +253,12 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Refined the RGB pattern picker so selecting "New pattern" clears the editor, saving auto-selects the new entry, and accompanying tests ensure the dropdown mirrors the persisted library.
 - Simplified the saved pattern workflow by removing the explicit load button—selections now hydrate the editor immediately, with updated tests confirming the auto-load flow.
 - Redesigned the simple RGB step list with inline color and duration editors, wired through the new update-step action and validated by expanded unit coverage.
+
+## 2025-12-12
+
+- Implemented the Equation RGB pattern creation flow, allowing users to define patterns using mathematical formulas for Red, Green, and Blue channels.
+- Added `EquationRgbPatternPanel` with interactive waveform visualization, playback controls, and section management (add, remove, reorder).
+- Created `equation-evaluator` utility to safely evaluate user-defined mathematical expressions (e.g., `sin(t)`, `exp(t)`) for pattern generation.
+- Integrated the equation editor into the `RgbPatternPage`, enabling switching between Simple and Equation methods with state persistence.
+- Added `SectionLane`, `WaveformLane`, and `ColorPreview` components to support the equation editor UI.
+- Validated the equation logic and components with comprehensive unit tests.
