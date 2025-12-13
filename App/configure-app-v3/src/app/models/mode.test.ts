@@ -37,7 +37,9 @@ describe('simplePatternSchema', () => {
     const result = simplePatternSchema.safeParse(pattern);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toContain('validation.pattern.simple.stepDurationZero');
+      expect(result.error.issues[0].message).toContain(
+        'validation.pattern.simple.stepDurationZero',
+      );
     }
   });
 });
@@ -197,7 +199,11 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some(issue => issue.message === 'validation.pattern.simple.timestamp.unique')).toBe(true);
+      expect(
+        result.error.issues.some(
+          issue => issue.message === 'validation.pattern.simple.timestamp.unique',
+        ),
+      ).toBe(true);
     }
   });
 
@@ -233,9 +239,9 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some(issue => issue.message === 'validation.accel.componentRequired')).toBe(
-        true,
-      );
+      expect(
+        result.error.issues.some(issue => issue.message === 'validation.accel.componentRequired'),
+      ).toBe(true);
     }
   });
 

@@ -121,16 +121,18 @@ export const simplePatternSchema = z
     // Check for zero-duration steps
     // A step's duration is the difference between its start time and the next step's start time (or total duration)
     const sortedChanges = [...pattern.changeAt].sort((a, b) => a.ms - b.ms);
-    
+
     for (let i = 0; i < sortedChanges.length; i++) {
       const current = sortedChanges[i];
       const nextMs = i === sortedChanges.length - 1 ? pattern.duration : sortedChanges[i + 1].ms;
       const duration = nextMs - current.ms;
-      
+
       if (duration <= 0) {
         ctx.addIssue({
           code: 'custom',
-          message: createLocalizedError('validation.pattern.simple.stepDurationZero', { step: i + 1 }),
+          message: createLocalizedError('validation.pattern.simple.stepDurationZero', {
+            step: i + 1,
+          }),
           path: ['changeAt', i],
         });
       }
@@ -160,19 +162,14 @@ export const modeAccelTriggerSchema = z
     front: modeComponentSchema.optional(),
     case: modeComponentSchema.optional(),
   })
-  .refine(
-    trigger => Boolean(trigger.front ?? trigger.case),
-    'validation.accel.componentRequired',
-  )
+  .refine(trigger => Boolean(trigger.front ?? trigger.case), 'validation.accel.componentRequired')
   .describe('Defines a pattern swap when the accelerometer exceeds a threshold.');
 
 export type ModeAccelTrigger = z.infer<typeof modeAccelTriggerSchema>;
 
 export const modeAccelSchema = z
   .object({
-    triggers: z
-      .array(modeAccelTriggerSchema)
-      .min(1, 'validation.accel.triggerRequired'),
+    triggers: z.array(modeAccelTriggerSchema).min(1, 'validation.accel.triggerRequired'),
   })
   .describe('Accelerometer-driven pattern overrides.');
 
