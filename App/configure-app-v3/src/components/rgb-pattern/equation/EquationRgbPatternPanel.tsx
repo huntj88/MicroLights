@@ -43,15 +43,15 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   // We generate points for the entire duration.
   // Sample rate 10ms is fine for display.
   const redPoints = useMemo(
-    () => generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration ?? true),
+    () => generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration),
     [pattern.red.sections, totalDuration, pattern.red.loopAfterDuration]
   );
   const greenPoints = useMemo(
-    () => generateWaveformPoints(pattern.green.sections, totalDuration, pattern.green.loopAfterDuration ?? true),
+    () => generateWaveformPoints(pattern.green.sections, totalDuration, pattern.green.loopAfterDuration),
     [pattern.green.sections, totalDuration, pattern.green.loopAfterDuration]
   );
   const bluePoints = useMemo(
-    () => generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration ?? true),
+    () => generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration),
     [pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration]
   );
 

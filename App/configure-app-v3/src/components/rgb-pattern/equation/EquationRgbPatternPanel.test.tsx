@@ -2,51 +2,14 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { createDefaultEquationPattern, type EquationPattern } from '@/app/models/mode';
-import { fireEvent, renderWithProviders, screen, within } from '@/test-utils/render-with-providers';
+import { createDefaultEquationPattern } from '@/app/models/mode';
+import { renderWithProviders, screen, within } from '@/test-utils/render-with-providers';
 
 import {
   EquationRgbPatternPanel,
   type EquationRgbPatternPanelProps,
 } from './EquationRgbPatternPanel';
 
-// Mock the canvas context to avoid errors during testing
-beforeAll(() => {
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
-    fillRect: vi.fn(),
-    clearRect: vi.fn(),
-    getImageData: vi.fn(() => ({ data: new Uint8ClampedArray(800 * 100 * 4) })),
-    putImageData: vi.fn(),
-    createImageData: vi.fn((w, h) => {
-      const width = w || 1;
-      const height = h || 1;
-      return {
-        data: new Uint8ClampedArray(width * height * 4),
-        width,
-        height,
-      };
-    }),
-    setTransform: vi.fn(),
-    drawImage: vi.fn(),
-    save: vi.fn(),
-    restore: vi.fn(),
-    beginPath: vi.fn(),
-    moveTo: vi.fn(),
-    lineTo: vi.fn(),
-    closePath: vi.fn(),
-    stroke: vi.fn(),
-    translate: vi.fn(),
-    scale: vi.fn(),
-    rotate: vi.fn(),
-    arc: vi.fn(),
-    fill: vi.fn(),
-    measureText: vi.fn(() => ({ width: 0 })),
-    transform: vi.fn(),
-    rect: vi.fn(),
-    clip: vi.fn(),
-    setLineDash: vi.fn(),
-  })) as unknown as CanvasRenderingContext2D;
-});
 
 const renderComponent = (props?: Partial<EquationRgbPatternPanelProps>) => {
   const defaultPattern = createDefaultEquationPattern();

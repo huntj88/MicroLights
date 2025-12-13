@@ -41,7 +41,7 @@ export const generateWaveformPoints = (
   const steps = Math.floor(totalDurationMs / sampleRateMs);
 
   if (channelDurationMs === 0) {
-    return new Array(steps).fill(0);
+    return new Array<number>(steps).fill(0);
   }
 
   for (let i = 0; i < steps; i++) {
@@ -55,14 +55,12 @@ export const generateWaveformPoints = (
     // Find active section
     let activeSection = sections[sections.length - 1];
     let sectionStartTime = channelDurationMs - activeSection.duration;
-    let found = false;
 
     let accumulated = 0;
     for (const section of sections) {
       if (tMs < accumulated + section.duration) {
         activeSection = section;
         sectionStartTime = accumulated;
-        found = true;
         break;
       }
       accumulated += section.duration;
