@@ -68,7 +68,7 @@ const createPatternFromSteps = (
       ms: cursor,
       output: hexColorSchema.parse(step.color),
     };
-    cursor += step.durationMs;
+    cursor += Number.isNaN(step.durationMs) ? 0 : step.durationMs;
     return entry;
   });
 

@@ -114,7 +114,26 @@ export const simplePatternSchema = z
         }
       }),
   })
-  .describe('A pattern defining how an LED output changes over time.');
+  .describe('A pattern defining how an LED output changes over time.')
+  .superRefine((pattern, ctx) => {
+    // Check for zero-duration steps
+    // A step's duration is the difference between its start time and the next step's start time (or total duration)
+    const sortedChanges = [...pattern.changeAt].sort((a, b) => a.ms - b.ms);
+    
+    for (let i = 0; i < sortedChanges.length; i++) {
+      const current = sortedChanges[i];
+      const nextMs = i === sortedChanges.length - 1 ? pattern.duration : sortedChanges[i + 1].ms;
+      const duration = nextMs - current.ms;
+      
+      if (duration <= 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `Step ${String(i + 1)} has a duration of 0ms. All steps must have a positive duration.`,
+          path: ['changeAt', i],
+        });
+      }
+    }
+  });
 
 export type SimplePattern = z.infer<typeof simplePatternSchema>;
 

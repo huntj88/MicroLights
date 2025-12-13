@@ -362,14 +362,37 @@ describe('SimpleRgbPatternPanel', () => {
     // Clear input
     await user.clear(durationInput);
 
-    // Check if onChange was called with NaN duration
+    // Check if onChange was called with 0 duration (NaN treated as 0 to prevent cascading)
     expect(onChange).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        duration: NaN,
+        duration: 0,
       }),
       expect.objectContaining({
         type: 'update-step',
       }),
     );
+  });
+
+  it('preserves subsequent steps when clearing duration of the first step', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createPattern([
+      { color: '#ff0000', duration: 100 },
+      { color: '#00ff00', duration: 100 },
+    ]);
+
+    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+
+    // Select the first step
+    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+
+    // Find the duration input
+    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+
+    // Clear the input
+    await user.clear(durationInput);
+
+    // Verify the second step still exists and has valid duration in the UI
+    expect(screen.getByRole('button', { name: /#00ff00 for 100 ms/i })).toBeInTheDocument();
   });
 });

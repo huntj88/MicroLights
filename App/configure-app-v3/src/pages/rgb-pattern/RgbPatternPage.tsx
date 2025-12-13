@@ -201,7 +201,6 @@ export const RgbPatternPage = () => {
   };
 
   const handlePatternSave = () => {
-    setValidationErrors([]);
     const pattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
 
     const result =
