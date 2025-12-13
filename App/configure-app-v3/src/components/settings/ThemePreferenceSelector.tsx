@@ -19,9 +19,21 @@ export interface ThemePreferenceSelectorProps {
 }
 
 const themeOptions: { key: ThemePreference; translationKey: string; descriptionKey: string }[] = [
-  { key: 'system', translationKey: 'settings.theme.options.system.label', descriptionKey: 'settings.theme.options.system.description' },
-  { key: 'light', translationKey: 'settings.theme.options.light.label', descriptionKey: 'settings.theme.options.light.description' },
-  { key: 'dark', translationKey: 'settings.theme.options.dark.label', descriptionKey: 'settings.theme.options.dark.description' },
+  {
+    key: 'system',
+    translationKey: 'settings.theme.options.system.label',
+    descriptionKey: 'settings.theme.options.system.description',
+  },
+  {
+    key: 'light',
+    translationKey: 'settings.theme.options.light.label',
+    descriptionKey: 'settings.theme.options.light.description',
+  },
+  {
+    key: 'dark',
+    translationKey: 'settings.theme.options.dark.label',
+    descriptionKey: 'settings.theme.options.dark.description',
+  },
 ];
 
 export const ThemePreferenceSelector = ({ value, onChange }: ThemePreferenceSelectorProps) => {

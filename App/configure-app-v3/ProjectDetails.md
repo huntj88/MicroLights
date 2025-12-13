@@ -4,6 +4,7 @@ This project represents a Web app that is used to configure LED flashing pattern
 
 This json represents a mode that controls two leds. The 'front' LED is binary on/off and the 'case' led is represented by hex colors. It also changes to a different set of patterns when the accelerometer detects faster movement.
 The duration and when each change happens is represented in milliseconds (ms).
+
 ```
 {
   "mode": {
@@ -126,6 +127,7 @@ The duration and when each change happens is represented in milliseconds (ms).
 ```
 
 Equation pattern example
+
 ```
 {
   "mode": {
@@ -169,6 +171,7 @@ Equation pattern example
 ```
 
 Project Tools. Ensure the latest versions are used.
+
 - TypeScript
 - Vite
 - React 19
@@ -181,7 +184,7 @@ Project Tools. Ensure the latest versions are used.
 - zod
 - zustand (only to be used when persisting something)
 
-This will be hosted on vercel. 
+This will be hosted on vercel.
 Linting should be strict.
 
 # components
@@ -189,8 +192,8 @@ Linting should be strict.
 Each component should be stateless. Props should have everything needed to show the state, and should include a callback that returns the current state, as well as what happened to change the state.
 
 type Props = {
-  value: ComponentState;
-  onChange: (newState: ComponentState, action: ComponentAction) => void;
+value: ComponentState;
+onChange: (newState: ComponentState, action: ComponentAction) => void;
 };
 
 Each component should have unit tests to validate the behavior.
@@ -226,7 +229,7 @@ Each component should be themed.
 
 ### Serial log page
 
-- shows all serial messages. 
+- shows all serial messages.
   - Each message is separated by a new line with timestamp.
   - clear button
   - autoscroll toggle

@@ -39,11 +39,19 @@ export const SectionLane = ({
           })}
         </h3>
         <div className="flex items-center gap-2">
-          <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer" title={t('rgbPattern.equation.sections.loopTooltip', 'Loop back to first section after last section finishes')}>
+          <label
+            className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer"
+            title={t(
+              'rgbPattern.equation.sections.loopTooltip',
+              'Loop back to first section after last section finishes',
+            )}
+          >
             <input
               type="checkbox"
               checked={loopAfterDuration}
-              onChange={e => { onToggleLoop(e.target.checked); }}
+              onChange={e => {
+                onToggleLoop(e.target.checked);
+              }}
               className="rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
             />
             {t('rgbPattern.equation.sections.loop', 'Loop')}
@@ -151,10 +159,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           ↓
         </button>
         <div className="w-px bg-gray-600 mx-1"></div>
-        <button
-          onClick={onDelete}
-          className="text-red-400 hover:text-red-300 text-xs"
-        >
+        <button onClick={onDelete} className="text-red-400 hover:text-red-300 text-xs">
           {t('rgbPattern.equation.sections.delete')}
         </button>
       </div>

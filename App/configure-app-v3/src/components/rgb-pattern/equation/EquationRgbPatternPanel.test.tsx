@@ -10,17 +10,12 @@ import {
   type EquationRgbPatternPanelProps,
 } from './EquationRgbPatternPanel';
 
-
 const renderComponent = (props?: Partial<EquationRgbPatternPanelProps>) => {
   const defaultPattern = createDefaultEquationPattern();
   defaultPattern.name = 'Test Pattern';
-  
+
   return renderWithProviders(
-    <EquationRgbPatternPanel
-      onChange={vi.fn()}
-      pattern={defaultPattern}
-      {...props}
-    />,
+    <EquationRgbPatternPanel onChange={vi.fn()} pattern={defaultPattern} {...props} />,
   );
 };
 
@@ -33,7 +28,7 @@ describe('EquationRgbPatternPanel', () => {
   it('emits rename-pattern action when name is changed', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    
+
     const Harness = () => {
       const [pattern, setPattern] = useState(() => {
         const p = createDefaultEquationPattern();
@@ -58,7 +53,9 @@ describe('EquationRgbPatternPanel', () => {
     await user.type(nameInput, 'New Name');
 
     expect(handleChange).toHaveBeenCalled();
-    const lastCall = handleChange.mock.calls.at(-1) as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const lastCall = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
     const [nextPattern, action] = lastCall;
 
     expect(nextPattern.name).toBe('New Name');
@@ -68,7 +65,7 @@ describe('EquationRgbPatternPanel', () => {
   it('adds a section to the red channel', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    
+
     renderComponent({ onChange: handleChange });
 
     const redSectionHeader = screen.getByText(/red sections/i);
@@ -79,7 +76,9 @@ describe('EquationRgbPatternPanel', () => {
     await user.click(addButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.red.sections).toHaveLength(1);
     expect(action.type).toBe('add-section');
@@ -118,7 +117,9 @@ describe('EquationRgbPatternPanel', () => {
     await user.type(equationInput, 'sin(t)');
 
     expect(handleChange).toHaveBeenCalled();
-    const lastCall = handleChange.mock.calls.at(-1) as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const lastCall = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
     const [nextPattern, action] = lastCall;
 
     expect(nextPattern.red.sections[0].equation).toBe('sin(t)');
@@ -141,7 +142,9 @@ describe('EquationRgbPatternPanel', () => {
     await user.click(deleteButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.red.sections).toHaveLength(0);
     expect(action).toEqual({ type: 'remove-section', channel: 'red', index: 0 });
@@ -161,11 +164,13 @@ describe('EquationRgbPatternPanel', () => {
     const moveUpButtons = screen.getAllByTitle(/move up/i);
     // The first section's move up should be disabled or not present.
     // We want to click the second one (index 1).
-    
+
     await user.click(moveUpButtons[1]);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.red.sections[0].equation).toBe('2');
     expect(nextPattern.red.sections[1].equation).toBe('1');
@@ -189,9 +194,15 @@ describe('EquationRgbPatternPanel', () => {
     await user.click(loopCheckbox);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.red.loopAfterDuration).toBe(false);
-    expect(action).toEqual({ type: 'update-channel-config', channel: 'red', loopAfterDuration: false });
+    expect(action).toEqual({
+      type: 'update-channel-config',
+      channel: 'red',
+      loopAfterDuration: false,
+    });
   });
 });

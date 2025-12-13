@@ -4,19 +4,25 @@ import { Trans, useTranslation } from 'react-i18next';
 import { ColorPreview } from './ColorPreview';
 import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
-import {
-  type EquationPattern,
-  type EquationSection,
-} from '../../../app/models/mode';
+import { type EquationPattern, type EquationSection } from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
 
 export type EquationRgbPatternAction =
   | { type: 'rename-pattern'; name: string }
   | { type: 'add-section'; channel: 'red' | 'green' | 'blue'; section: EquationSection }
-  | { type: 'update-section'; channel: 'red' | 'green' | 'blue'; index: number; section: EquationSection }
+  | {
+      type: 'update-section';
+      channel: 'red' | 'green' | 'blue';
+      index: number;
+      section: EquationSection;
+    }
   | { type: 'remove-section'; channel: 'red' | 'green' | 'blue'; index: number }
   | { type: 'move-section'; channel: 'red' | 'green' | 'blue'; fromIndex: number; toIndex: number }
-  | { type: 'update-channel-config'; channel: 'red' | 'green' | 'blue'; loopAfterDuration: boolean };
+  | {
+      type: 'update-channel-config';
+      channel: 'red' | 'green' | 'blue';
+      loopAfterDuration: boolean;
+    };
 
 export interface EquationRgbPatternPanelProps {
   pattern: EquationPattern;
@@ -33,9 +39,18 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   const calculateChannelDuration = (sections: EquationSection[]) =>
     sections.reduce((acc, section) => acc + section.duration, 0);
 
-  const redDuration = useMemo(() => calculateChannelDuration(pattern.red.sections), [pattern.red.sections]);
-  const greenDuration = useMemo(() => calculateChannelDuration(pattern.green.sections), [pattern.green.sections]);
-  const blueDuration = useMemo(() => calculateChannelDuration(pattern.blue.sections), [pattern.blue.sections]);
+  const redDuration = useMemo(
+    () => calculateChannelDuration(pattern.red.sections),
+    [pattern.red.sections],
+  );
+  const greenDuration = useMemo(
+    () => calculateChannelDuration(pattern.green.sections),
+    [pattern.green.sections],
+  );
+  const blueDuration = useMemo(
+    () => calculateChannelDuration(pattern.blue.sections),
+    [pattern.blue.sections],
+  );
 
   const totalDuration = Math.max(redDuration, greenDuration, blueDuration, 1000); // Min 1s for display
 
@@ -43,37 +58,47 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   // We generate points for the entire duration.
   // Sample rate 10ms is fine for display.
   const redPoints = useMemo(
-    () => generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration),
-    [pattern.red.sections, totalDuration, pattern.red.loopAfterDuration]
+    () =>
+      generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration),
+    [pattern.red.sections, totalDuration, pattern.red.loopAfterDuration],
   );
   const greenPoints = useMemo(
-    () => generateWaveformPoints(pattern.green.sections, totalDuration, pattern.green.loopAfterDuration),
-    [pattern.green.sections, totalDuration, pattern.green.loopAfterDuration]
+    () =>
+      generateWaveformPoints(
+        pattern.green.sections,
+        totalDuration,
+        pattern.green.loopAfterDuration,
+      ),
+    [pattern.green.sections, totalDuration, pattern.green.loopAfterDuration],
   );
   const bluePoints = useMemo(
-    () => generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration),
-    [pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration]
+    () =>
+      generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration),
+    [pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration],
   );
 
-  const animate = useCallback((time: number) => {
-    if (lastTimeRef.current === 0) {
-      lastTimeRef.current = time;
-    }
-    
-    const deltaTime = time - lastTimeRef.current;
-    lastTimeRef.current = time;
-
-    setCurrentTime(prev => {
-      const next = prev + deltaTime;
-      if (next >= totalDuration) {
-        // Loop or stop? loop for now in the preview.
-        return 0; 
+  const animate = useCallback(
+    (time: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = time;
       }
-      return next;
-    });
 
-    requestRef.current = requestAnimationFrame(animate);
-  }, [totalDuration]);
+      const deltaTime = time - lastTimeRef.current;
+      lastTimeRef.current = time;
+
+      setCurrentTime(prev => {
+        const next = prev + deltaTime;
+        if (next >= totalDuration) {
+          // Loop or stop? loop for now in the preview.
+          return 0;
+        }
+        return next;
+      });
+
+      requestRef.current = requestAnimationFrame(animate);
+    },
+    [totalDuration],
+  );
 
   useEffect(() => {
     if (isPlaying) {
@@ -111,7 +136,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       equation: '0',
       duration: 1000,
     };
-    
+
     const nextSections = [...pattern[channel].sections, newSection];
     const nextPattern = {
       ...pattern,
@@ -120,14 +145,14 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         sections: nextSections,
       },
     };
-    
+
     onChange(nextPattern, { type: 'add-section', channel, section: newSection });
   };
 
   const updateSection = (
     channel: 'red' | 'green' | 'blue',
     index: number,
-    updates: Partial<EquationSection>
+    updates: Partial<EquationSection>,
   ) => {
     const sections = pattern[channel].sections;
     if (index < 0 || index >= sections.length) return;
@@ -149,7 +174,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
 
   const deleteSection = (channel: 'red' | 'green' | 'blue', index: number) => {
     const nextSections = pattern[channel].sections.filter((_, i) => i !== index);
-    
+
     const nextPattern = {
       ...pattern,
       [channel]: {
@@ -164,7 +189,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   const moveSection = (
     channel: 'red' | 'green' | 'blue',
     index: number,
-    direction: 'up' | 'down'
+    direction: 'up' | 'down',
   ) => {
     const sections = pattern[channel].sections;
     if (index < 0 || index >= sections.length) return;
@@ -201,16 +226,18 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
     <div className="flex flex-col gap-6 p-4 bg-gray-900 text-gray-100 rounded-lg shadow-xl">
       <div className="flex justify-between items-center">
         <div className="flex-1 mr-4">
-            <label className="flex flex-col gap-1 text-sm">
-                <span className="font-bold text-gray-400">{t('rgbPattern.equation.form.nameLabel', 'Pattern Name')}</span>
-                <input
-                    className="w-full rounded bg-gray-800 border border-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-                    onChange={handleNameChange}
-                    placeholder={t('rgbPattern.equation.form.namePlaceholder', 'Enter pattern name')}
-                    type="text"
-                    value={pattern.name}
-                />
-            </label>
+          <label className="flex flex-col gap-1 text-sm">
+            <span className="font-bold text-gray-400">
+              {t('rgbPattern.equation.form.nameLabel', 'Pattern Name')}
+            </span>
+            <input
+              className="w-full rounded bg-gray-800 border border-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+              onChange={handleNameChange}
+              placeholder={t('rgbPattern.equation.form.namePlaceholder', 'Enter pattern name')}
+              type="text"
+              value={pattern.name}
+            />
+          </label>
         </div>
         <div className="flex gap-2 self-end mb-1">
           <button
@@ -219,7 +246,9 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
               isPlaying ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-green-600 hover:bg-green-500'
             }`}
           >
-            {isPlaying ? t('rgbPattern.equation.controls.pause') : t('rgbPattern.equation.controls.play')}
+            {isPlaying
+              ? t('rgbPattern.equation.controls.pause')
+              : t('rgbPattern.equation.controls.play')}
           </button>
           <button
             onClick={handleStop}
@@ -241,9 +270,8 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           </Trans>
         </p>
         <p className="mt-1 text-xs">
-          {t('rgbPattern.equation.help.examples')}{' '}
-          <code>255 * abs(sin(t))</code>, <code>255 * (t / Duration)</code>,{' '}
-          <code>255 * exp(-t)</code>
+          {t('rgbPattern.equation.help.examples')} <code>255 * abs(sin(t))</code>,{' '}
+          <code>255 * (t / Duration)</code>, <code>255 * exp(-t)</code>
         </p>
       </div>
 
@@ -295,31 +323,61 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           color="red"
           sections={pattern.red.sections}
           loopAfterDuration={pattern.red.loopAfterDuration}
-          onToggleLoop={loop => { updateChannelLoop('red', loop); }}
-          onAddSection={() => { addSection('red'); }}
-          onUpdateSection={(index, u) => { updateSection('red', index, u); }}
-          onDeleteSection={index => { deleteSection('red', index); }}
-          onMoveSection={(index, dir) => { moveSection('red', index, dir); }}
+          onToggleLoop={loop => {
+            updateChannelLoop('red', loop);
+          }}
+          onAddSection={() => {
+            addSection('red');
+          }}
+          onUpdateSection={(index, u) => {
+            updateSection('red', index, u);
+          }}
+          onDeleteSection={index => {
+            deleteSection('red', index);
+          }}
+          onMoveSection={(index, dir) => {
+            moveSection('red', index, dir);
+          }}
         />
         <SectionLane
           color="green"
           sections={pattern.green.sections}
           loopAfterDuration={pattern.green.loopAfterDuration}
-          onToggleLoop={loop => { updateChannelLoop('green', loop); }}
-          onAddSection={() => { addSection('green'); }}
-          onUpdateSection={(index, u) => { updateSection('green', index, u); }}
-          onDeleteSection={index => { deleteSection('green', index); }}
-          onMoveSection={(index, dir) => { moveSection('green', index, dir); }}
+          onToggleLoop={loop => {
+            updateChannelLoop('green', loop);
+          }}
+          onAddSection={() => {
+            addSection('green');
+          }}
+          onUpdateSection={(index, u) => {
+            updateSection('green', index, u);
+          }}
+          onDeleteSection={index => {
+            deleteSection('green', index);
+          }}
+          onMoveSection={(index, dir) => {
+            moveSection('green', index, dir);
+          }}
         />
         <SectionLane
           color="blue"
           sections={pattern.blue.sections}
           loopAfterDuration={pattern.blue.loopAfterDuration}
-          onToggleLoop={loop => { updateChannelLoop('blue', loop); }}
-          onAddSection={() => { addSection('blue'); }}
-          onUpdateSection={(index, u) => { updateSection('blue', index, u); }}
-          onDeleteSection={index => { deleteSection('blue', index); }}
-          onMoveSection={(index, dir) => { moveSection('blue', index, dir); }}
+          onToggleLoop={loop => {
+            updateChannelLoop('blue', loop);
+          }}
+          onAddSection={() => {
+            addSection('blue');
+          }}
+          onUpdateSection={(index, u) => {
+            updateSection('blue', index, u);
+          }}
+          onDeleteSection={index => {
+            deleteSection('blue', index);
+          }}
+          onMoveSection={(index, dir) => {
+            moveSection('blue', index, dir);
+          }}
         />
       </div>
     </div>

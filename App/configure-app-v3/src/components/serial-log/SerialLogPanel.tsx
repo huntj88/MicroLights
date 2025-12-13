@@ -118,9 +118,13 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
   const renderedEntries = useMemo(
     () =>
       value.entries.map(entry => (
-        <li key={entry.id} className="flex flex-col gap-1 border-b border-dashed border-white/5 pb-2 last:border-none last:pb-0">
+        <li
+          key={entry.id}
+          className="flex flex-col gap-1 border-b border-dashed border-white/5 pb-2 last:border-none last:pb-0"
+        >
           <span className="font-mono text-xs theme-muted">
-            {timestampFormatter.format(new Date(entry.timestamp))} · {t(`serialLog.direction.${entry.direction}`)}
+            {timestampFormatter.format(new Date(entry.timestamp))} ·{' '}
+            {t(`serialLog.direction.${entry.direction}`)}
           </span>
           <code className="whitespace-pre-wrap break-words text-sm">{entry.payload}</code>
         </li>
@@ -137,7 +141,9 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
           type="button"
           aria-pressed={value.autoscroll}
         >
-          {value.autoscroll ? t('serialLog.actions.autoscrollOn') : t('serialLog.actions.autoscrollOff')}
+          {value.autoscroll
+            ? t('serialLog.actions.autoscrollOn')
+            : t('serialLog.actions.autoscrollOff')}
         </button>
         <button
           className="rounded-full border border-solid theme-border px-3 py-1 text-sm transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"

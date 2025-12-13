@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 const binaryOutputs = ['high', 'low'] as const;
 
-export const binaryOutputSchema = z.enum(binaryOutputs).describe(
-  'Binary output levels used by digital LEDs.',
-);
+export const binaryOutputSchema = z
+  .enum(binaryOutputs)
+  .describe('Binary output levels used by digital LEDs.');
 
 export type BinaryOutput = z.infer<typeof binaryOutputSchema>;
 
@@ -39,10 +39,7 @@ export const patternChangeColorSchema = z.object({
 
 export type ColorPatternChange = z.infer<typeof patternChangeColorSchema>;
 
-export const patternChangeSchema = z.union([
-  patternChangeBinarySchema,
-  patternChangeColorSchema,
-]);
+export const patternChangeSchema = z.union([patternChangeBinarySchema, patternChangeColorSchema]);
 
 export type PatternChange = z.infer<typeof patternChangeSchema>;
 
@@ -128,14 +125,12 @@ export type ModeComponent = z.infer<typeof modeComponentSchema>;
 
 export const modeAccelTriggerSchema = z
   .object({
-    threshold: z
-      .number()
-      .nonnegative('Accelerometer thresholds cannot be negative.'),
+    threshold: z.number().nonnegative('Accelerometer thresholds cannot be negative.'),
     front: modeComponentSchema.optional(),
     case: modeComponentSchema.optional(),
   })
   .refine(
-    (trigger) => Boolean(trigger.front ?? trigger.case),
+    trigger => Boolean(trigger.front ?? trigger.case),
     'Accelerometer triggers must configure at least one LED component.',
   )
   .describe('Defines a pattern swap when the accelerometer exceeds a threshold.');
@@ -177,10 +172,10 @@ export const isBinaryPattern = (
   pattern: ModePattern,
 ): pattern is SimplePattern & { changeAt: BinaryPatternChange[] } =>
   pattern.type === 'simple' &&
-  pattern.changeAt.every((change) => change.output === 'high' || change.output === 'low');
+  pattern.changeAt.every(change => change.output === 'high' || change.output === 'low');
 
 export const isColorPattern = (
   pattern: ModePattern,
 ): pattern is SimplePattern & { changeAt: ColorPatternChange[] } =>
   pattern.type === 'simple' &&
-  pattern.changeAt.every((change) => change.output !== 'high' && change.output !== 'low');
+  pattern.changeAt.every(change => change.output !== 'high' && change.output !== 'low');

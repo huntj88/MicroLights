@@ -9,4 +9,11 @@ export const ROUTES = {
 
 type RouteKey = keyof typeof ROUTES;
 
-export const routeOrder: RouteKey[] = ['home', 'rgbPattern', 'bulbPattern', 'mode', 'serialLog', 'settings'];
+export const routeOrder: RouteKey[] = [
+  'home',
+  'rgbPattern',
+  'bulbPattern',
+  'mode',
+  'serialLog',
+  'settings',
+];

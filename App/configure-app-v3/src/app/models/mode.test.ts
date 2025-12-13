@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  isBinaryPattern,
-  isColorPattern,
-  modeDocumentSchema,
-  parseModeDocument,
-} from './mode';
+import { isBinaryPattern, isColorPattern, modeDocumentSchema, parseModeDocument } from './mode';
 
 describe('modeDocumentSchema', () => {
   it('parses a mode with accelerometer triggers and binary outputs', () => {
@@ -162,7 +157,7 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((issue) => issue.message.includes('unique'))).toBe(true);
+      expect(result.error.issues.some(issue => issue.message.includes('unique'))).toBe(true);
     }
   });
 
@@ -198,7 +193,7 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some((issue) => issue.message.includes('at least one LED'))).toBe(
+      expect(result.error.issues.some(issue => issue.message.includes('at least one LED'))).toBe(
         true,
       );
     }

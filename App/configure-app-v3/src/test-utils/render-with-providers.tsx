@@ -12,9 +12,7 @@ const Providers = ({ children }: PropsWithChildren): ReactElement => (
   </I18nextProvider>
 );
 
-export const renderWithProviders = (
-  ui: ReactElement,
-  options?: RenderOptions,
-) => render(ui, { wrapper: Providers, ...options });
+export const renderWithProviders = (ui: ReactElement, options?: RenderOptions) =>
+  render(ui, { wrapper: Providers, ...options });
 
 export * from '@testing-library/react';

@@ -43,9 +43,8 @@ const convertPatternToSteps = (pattern: SimplePattern): SimpleRgbPatternStep[] =
 
   for (let index = 0; index < pattern.changeAt.length; index += 1) {
     const current = pattern.changeAt[index];
-    const endMs = index === pattern.changeAt.length - 1
-      ? pattern.duration
-      : pattern.changeAt[index + 1].ms;
+    const endMs =
+      index === pattern.changeAt.length - 1 ? pattern.duration : pattern.changeAt[index + 1].ms;
     const duration = Math.max(endMs - current.ms, 0);
 
     if (duration === 0) {
@@ -62,7 +61,10 @@ const convertPatternToSteps = (pattern: SimplePattern): SimpleRgbPatternStep[] =
   return steps;
 };
 
-const createPatternFromSteps = (pattern: SimplePattern, steps: SimpleRgbPatternStep[]): SimplePattern => {
+const createPatternFromSteps = (
+  pattern: SimplePattern,
+  steps: SimpleRgbPatternStep[],
+): SimplePattern => {
   let cursor = 0;
 
   const changeAt = steps.map(step => {
@@ -92,11 +94,13 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    setStepDurationDrafts((previous) => {
-      const nextEntries = steps.map((step) => [step.id, previous[step.id] ?? String(step.durationMs)] as const);
+    setStepDurationDrafts(previous => {
+      const nextEntries = steps.map(
+        step => [step.id, previous[step.id] ?? String(step.durationMs)] as const,
+      );
       const shouldUpdate =
-        nextEntries.length !== Object.keys(previous).length
-        || nextEntries.some(([id, value]) => previous[id] !== value);
+        nextEntries.length !== Object.keys(previous).length ||
+        nextEntries.some(([id, value]) => previous[id] !== value);
 
       if (!shouldUpdate) {
         return previous;
@@ -112,9 +116,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
 
   const lastStepIndex = steps.length - 1;
   const defaultModalColor = steps.length > 0 ? steps[lastStepIndex].color : DEFAULT_COLOR;
-  const defaultModalDuration = steps.length > 0
-    ? String(steps[lastStepIndex].durationMs)
-    : DEFAULT_DURATION_MS;
+  const defaultModalDuration =
+    steps.length > 0 ? String(steps[lastStepIndex].durationMs) : DEFAULT_DURATION_MS;
 
   useEffect(() => {
     if (isAddModalOpen) {
@@ -146,9 +149,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   }, [isAddModalOpen]);
 
   const parsedModalDuration = Number.parseInt(modalDurationMs, 10);
-  const canConfirmModal = modalDurationMs !== ''
-    && Number.isFinite(parsedModalDuration)
-    && parsedModalDuration > 0;
+  const canConfirmModal =
+    modalDurationMs !== '' && Number.isFinite(parsedModalDuration) && parsedModalDuration > 0;
 
   const totalDuration = useMemo(
     () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
@@ -161,8 +163,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   };
 
   const handleStepUpdate = (stepId: string, updates: Partial<SimpleRgbPatternStep>) => {
-    const nextSteps = steps.map((step) => (step.id === stepId ? { ...step, ...updates } : step));
-    const updatedStep = nextSteps.find((step) => step.id === stepId);
+    const nextSteps = steps.map(step => (step.id === stepId ? { ...step, ...updates } : step));
+    const updatedStep = nextSteps.find(step => step.id === stepId);
     if (!updatedStep) {
       return;
     }
@@ -193,7 +195,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
       return;
     }
 
-    setStepDurationDrafts((previous) => ({
+    setStepDurationDrafts(previous => ({
       ...previous,
       [stepId]: duration,
     }));
@@ -252,8 +254,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   };
 
   const handleRemove = (stepId: string) => {
-    const indexToRemove = steps.findIndex((step) => step.id === stepId);
-    const nextSteps = steps.filter((step) => step.id !== stepId);
+    const indexToRemove = steps.findIndex(step => step.id === stepId);
+    const nextSteps = steps.filter(step => step.id !== stepId);
     emitChange(nextSteps, { type: 'remove-step', stepId });
 
     if (selectedStepIndex === indexToRemove) {
@@ -264,7 +266,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   };
 
   const handleMove = (stepId: string, direction: 'up' | 'down') => {
-    const fromIndex = steps.findIndex((step) => step.id === stepId);
+    const fromIndex = steps.findIndex(step => step.id === stepId);
     if (fromIndex === -1) {
       return;
     }
@@ -288,7 +290,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   };
 
   const handleDuplicate = (stepId: string) => {
-    const sourceIndex = steps.findIndex((step) => step.id === stepId);
+    const sourceIndex = steps.findIndex(step => step.id === stepId);
     if (sourceIndex === -1) {
       return;
     }
@@ -322,9 +324,13 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
           })}
           aria-pressed={isSelected}
           className={`flex flex-1 items-center justify-center text-xs font-medium text-[rgb(var(--surface-contrast)/1)] transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/1)] focus:ring-inset ${
-            isSelected ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset' : ''
+            isSelected
+              ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
+              : ''
           }`}
-          onClick={() => { setSelectedStepIndex(index); }}
+          onClick={() => {
+            setSelectedStepIndex(index);
+          }}
           style={{
             backgroundColor: step.color,
             flexGrow: step.durationMs,
@@ -399,7 +405,9 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <button
               aria-label={t('rgbPattern.simple.steps.closeEditor')}
               className="rounded-full p-2 text-xl transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
-              onClick={() => { setSelectedStepIndex(null); }}
+              onClick={() => {
+                setSelectedStepIndex(null);
+              }}
               type="button"
             >
               ✕
@@ -411,7 +419,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
               <span>{t('rgbPattern.simple.form.colorLabel')}</span>
               <input
                 className="h-10 w-10 rounded-full border border-solid theme-border"
-                onChange={(event) => {
+                onChange={event => {
                   handleStepColorChange(steps[selectedStepIndex].id, event.target.value);
                 }}
                 type="color"
@@ -427,14 +435,19 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
                   className="w-24 rounded-lg border border-solid theme-border bg-transparent px-3 py-2 pr-8 text-sm"
                   inputMode="numeric"
                   min={1}
-                  onChange={(event) => {
+                  onChange={event => {
                     handleStepDurationChange(steps[selectedStepIndex].id, event.target.value);
                   }}
                   step={1}
                   type="number"
-                  value={stepDurationDrafts[steps[selectedStepIndex].id] ?? String(steps[selectedStepIndex].durationMs)}
+                  value={
+                    stepDurationDrafts[steps[selectedStepIndex].id] ??
+                    String(steps[selectedStepIndex].durationMs)
+                  }
                 />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs theme-muted">ms</span>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs theme-muted">
+                  ms
+                </span>
               </div>
             </label>
           </div>
@@ -443,7 +456,9 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <button
               className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)] disabled:opacity-40"
               disabled={selectedStepIndex === 0}
-              onClick={() => { handleMove(steps[selectedStepIndex].id, 'up'); }}
+              onClick={() => {
+                handleMove(steps[selectedStepIndex].id, 'up');
+              }}
               type="button"
             >
               ← {t('rgbPattern.simple.steps.moveUp')}
@@ -451,7 +466,9 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <button
               className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)] disabled:opacity-40"
               disabled={selectedStepIndex === steps.length - 1}
-              onClick={() => { handleMove(steps[selectedStepIndex].id, 'down'); }}
+              onClick={() => {
+                handleMove(steps[selectedStepIndex].id, 'down');
+              }}
               type="button"
             >
               {t('rgbPattern.simple.steps.moveDown')} →
@@ -459,14 +476,18 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <div className="flex-1" />
             <button
               className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
-              onClick={() => { handleDuplicate(steps[selectedStepIndex].id); }}
+              onClick={() => {
+                handleDuplicate(steps[selectedStepIndex].id);
+              }}
               type="button"
             >
               {t('rgbPattern.simple.steps.duplicate')}
             </button>
             <button
               className="rounded-full border border-solid theme-border bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20"
-              onClick={() => { handleRemove(steps[selectedStepIndex].id); }}
+              onClick={() => {
+                handleRemove(steps[selectedStepIndex].id);
+              }}
               type="button"
             >
               {t('rgbPattern.simple.steps.remove')}

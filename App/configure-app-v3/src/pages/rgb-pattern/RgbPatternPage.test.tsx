@@ -32,8 +32,12 @@ describe('RgbPatternPage', () => {
 
     await user.click(screen.getByRole('button', { name: /equation method/i }));
 
-    expect(screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i })).toBeInTheDocument();
-    expect(screen.queryByRole('heading', { level: 3, name: /simple method/i })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 3, name: /simple method/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('prompts before overwriting an existing pattern when saving', async () => {
@@ -69,17 +73,15 @@ describe('RgbPatternPage', () => {
       type: 'simple',
       name: 'Stored Pattern',
       duration: 100,
-      changeAt: [
-        { ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
-      ],
+      changeAt: [{ ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] }],
     };
     usePatternStore.getState().savePattern(storedPattern);
 
     renderWithProviders(<RgbPatternPage />);
 
     const chooser = screen.getByLabelText(/saved patterns/i);
-  await user.selectOptions(chooser, storedPattern.name);
-  expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(storedPattern.name);
+    await user.selectOptions(chooser, storedPattern.name);
+    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(storedPattern.name);
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
@@ -107,7 +109,9 @@ describe('RgbPatternPage', () => {
 
     expect(chooser).toHaveValue('');
     expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('Simple RGB Pattern');
+    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(
+      'Simple RGB Pattern',
+    );
   });
 
   it('restores the selected pattern name when switching back to a method with a loaded pattern', async () => {
@@ -129,7 +133,9 @@ describe('RgbPatternPage', () => {
 
     // Switch to Equation
     await user.click(screen.getByRole('button', { name: /equation method/i }));
-    expect(screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i }),
+    ).toBeInTheDocument();
 
     // Switch back to Simple
     await user.click(screen.getByRole('button', { name: /simple method/i }));
@@ -138,4 +144,3 @@ describe('RgbPatternPage', () => {
     expect(screen.getByLabelText(/saved patterns/i)).toHaveValue(storedPattern.name);
   });
 });
-

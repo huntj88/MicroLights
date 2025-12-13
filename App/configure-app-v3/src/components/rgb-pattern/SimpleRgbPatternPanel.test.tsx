@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import type { SimplePattern } from '@/app/models/mode';
-import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render-with-providers';
-
 import {
-  SimpleRgbPatternPanel,
-  type SimpleRgbPatternPanelProps,
-} from './SimpleRgbPatternPanel';
+  fireEvent,
+  renderWithProviders,
+  screen,
+  waitFor,
+} from '@/test-utils/render-with-providers';
+
+import { SimpleRgbPatternPanel, type SimpleRgbPatternPanelProps } from './SimpleRgbPatternPanel';
 
 const createPattern = (segments: { color: string; duration: number }[]): SimplePattern => {
   let cursor = 0;
@@ -32,11 +34,7 @@ const createPattern = (segments: { color: string; duration: number }[]): SimpleP
 
 const renderComponent = (props?: Partial<SimpleRgbPatternPanelProps>) =>
   renderWithProviders(
-    <SimpleRgbPatternPanel
-      onChange={vi.fn()}
-      value={createPattern([])}
-      {...props}
-    />,
+    <SimpleRgbPatternPanel onChange={vi.fn()} value={createPattern([])} {...props} />,
   );
 
 describe('SimpleRgbPatternPanel', () => {
@@ -67,7 +65,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: /add step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      SimpleRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.duration).toBe(200);
     expect(nextPattern.changeAt).toEqual([
@@ -96,7 +96,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: /remove step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      SimpleRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.changeAt).toEqual([]);
     expect(nextPattern.duration).toBe(0);
@@ -126,7 +128,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.type(nameInput, 'Evening Breeze');
 
     expect(handleChange).toHaveBeenCalled();
-    const lastCall = handleChange.mock.calls.at(-1) as Parameters<SimpleRgbPatternPanelProps['onChange']> | undefined;
+    const lastCall = handleChange.mock.calls.at(-1) as
+      | Parameters<SimpleRgbPatternPanelProps['onChange']>
+      | undefined;
     expect(lastCall).toBeDefined();
     if (!lastCall) {
       throw new Error('Expected handleChange to be called when renaming');
@@ -157,7 +161,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(moveDownButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      SimpleRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.duration).toBe(300);
     expect(nextPattern.changeAt).toEqual([
@@ -183,7 +189,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: /duplicate step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
+      SimpleRgbPatternPanelProps['onChange']
+    >;
 
     expect(nextPattern.duration).toBe(600);
     expect(nextPattern.changeAt).toEqual([
@@ -246,10 +254,12 @@ describe('SimpleRgbPatternPanel', () => {
     await user.type(durationInput, '150');
     expect(durationInput).toHaveValue(150);
 
-    const updateCalls = handleChange.mock.calls.filter((call): call is Parameters<SimpleRgbPatternPanelProps['onChange']> => {
-      const [, action] = call as Parameters<SimpleRgbPatternPanelProps['onChange']>;
-      return action.type === 'update-step';
-    });
+    const updateCalls = handleChange.mock.calls.filter(
+      (call): call is Parameters<SimpleRgbPatternPanelProps['onChange']> => {
+        const [, action] = call as Parameters<SimpleRgbPatternPanelProps['onChange']>;
+        return action.type === 'update-step';
+      },
+    );
 
     const finalCall = updateCalls.at(-1);
     if (!finalCall) {

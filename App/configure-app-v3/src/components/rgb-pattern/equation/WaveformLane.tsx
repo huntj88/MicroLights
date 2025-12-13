@@ -83,20 +83,17 @@ export const WaveformLane = ({
     ctx.setLineDash([4, 4]);
     ctx.stroke();
     ctx.setLineDash([]);
-
   }, [points, currentTime, totalDuration, strokeColor, fillColor]);
 
   return (
     <div className="relative bg-gray-900 rounded border border-gray-700 overflow-hidden">
-      <div className="absolute top-1 left-2 text-xs font-bold uppercase opacity-50" style={{ color: strokeColor }}>
+      <div
+        className="absolute top-1 left-2 text-xs font-bold uppercase opacity-50"
+        style={{ color: strokeColor }}
+      >
         {t(`rgbPattern.equation.colors.${color}`)}
       </div>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={height}
-        className="w-full h-full block"
-      />
+      <canvas ref={canvasRef} width={800} height={height} className="w-full h-full block" />
     </div>
   );
 };

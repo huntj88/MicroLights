@@ -45,7 +45,7 @@
       },
       "storage": {
         "selectLabel": "Saved patterns",
-  "selectPlaceholder": "New pattern",
+        "selectPlaceholder": "New pattern",
         "deleteButton": "Delete pattern",
         "saveButton": "Save pattern",
         "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",

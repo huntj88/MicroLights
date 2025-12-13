@@ -15,7 +15,7 @@ export const AppLayout = () => {
       <a className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4" href="#main">
         {t('layout.skipToContent')}
       </a>
-  <header className="border-b border-solid theme-border backdrop-blur">
+      <header className="border-b border-solid theme-border backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
           <div>
             <p className="text-xs uppercase tracking-widest theme-muted">{t('app.tagline')}</p>

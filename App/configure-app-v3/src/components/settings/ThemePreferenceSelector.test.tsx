@@ -1,10 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  renderWithProviders,
-  screen,
-} from '@/test-utils/render-with-providers';
+import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
 
 import { ThemePreferenceSelector } from './ThemePreferenceSelector';
 import type { ThemePreferenceState } from './ThemePreferenceSelector';

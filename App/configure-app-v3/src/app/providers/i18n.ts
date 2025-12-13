@@ -10,22 +10,22 @@ void i18n
   .init({
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
-      caches: ['localStorage']
+      caches: ['localStorage'],
     },
     fallbackLng: 'en',
     supportedLngs: ['en'],
     defaultNS: 'common',
     resources: {
       en: {
-        common: enCommon
-      }
+        common: enCommon,
+      },
     },
     interpolation: {
-      escapeValue: false
+      escapeValue: false,
     },
     react: {
-      useSuspense: true
-    }
+      useSuspense: true,
+    },
   });
 
 export { i18n };

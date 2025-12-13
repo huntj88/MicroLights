@@ -23,14 +23,14 @@ The app uses a `HashRouter`, so deep links continue to work on static hosting pl
 
 ### Recommended scripts
 
-| Script | Description |
-| --- | --- |
-| `npm run dev` | Start the development server with hot reloading. |
-| `npm run build` | Type-check and create a production build. |
-| `npm run preview` | Preview the production build locally. |
-| `npm run lint` / `npm run lint:fix` | Run ESLint in strict mode (with autofix). |
-| `npm run format` / `npm run format:check` | Apply or verify Prettier formatting. |
-| `npm run test` / `npm run test:watch` | Execute Vitest suites once or in watch mode. |
+| Script                                    | Description                                      |
+| ----------------------------------------- | ------------------------------------------------ |
+| `npm run dev`                             | Start the development server with hot reloading. |
+| `npm run build`                           | Type-check and create a production build.        |
+| `npm run preview`                         | Preview the production build locally.            |
+| `npm run lint` / `npm run lint:fix`       | Run ESLint in strict mode (with autofix).        |
+| `npm run format` / `npm run format:check` | Apply or verify Prettier formatting.             |
+| `npm run test` / `npm run test:watch`     | Execute Vitest suites once or in watch mode.     |
 
 ## 🧱 Project structure
 

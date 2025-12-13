@@ -33,7 +33,7 @@ export const RgbPatternPage = () => {
     ...createDefaultEquationPattern(),
     name: t('rgbPattern.equation.defaultName'),
   }));
-  
+
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
   const deletePattern = usePatternStore(state => state.deletePattern);
@@ -57,7 +57,8 @@ export const RgbPatternPage = () => {
       return;
     }
 
-    const currentPatternName = activeMethod === 'simple' ? simplePatternState.name : equationPatternState.name;
+    const currentPatternName =
+      activeMethod === 'simple' ? simplePatternState.name : equationPatternState.name;
 
     // If the pattern name is still the same as the state, we don't need to clear it
     if (currentPatternName === selectedPatternName) {
@@ -65,9 +66,18 @@ export const RgbPatternPage = () => {
     }
 
     setSelectedPatternName('');
-  }, [availablePatternNames, selectedPatternName, simplePatternState.name, equationPatternState.name, activeMethod]);
+  }, [
+    availablePatternNames,
+    selectedPatternName,
+    simplePatternState.name,
+    equationPatternState.name,
+    activeMethod,
+  ]);
 
-  const handleSimplePatternChange = (nextPattern: SimplePattern, action: SimpleRgbPatternAction) => {
+  const handleSimplePatternChange = (
+    nextPattern: SimplePattern,
+    action: SimpleRgbPatternAction,
+  ) => {
     setSimplePatternState(nextPattern);
 
     if (action.type === 'rename-pattern') {
@@ -79,7 +89,10 @@ export const RgbPatternPage = () => {
     }
   };
 
-  const handleEquationPatternChange = (nextPattern: EquationPattern, action: EquationRgbPatternAction) => {
+  const handleEquationPatternChange = (
+    nextPattern: EquationPattern,
+    action: EquationRgbPatternAction,
+  ) => {
     setEquationPatternState(nextPattern);
 
     if (action.type === 'rename-pattern') {
@@ -112,8 +125,8 @@ export const RgbPatternPage = () => {
         setSimplePatternState(createEmptyPattern());
       } else {
         setEquationPatternState({
-            ...createDefaultEquationPattern(),
-            name: t('rgbPattern.equation.defaultName'),
+          ...createDefaultEquationPattern(),
+          name: t('rgbPattern.equation.defaultName'),
         });
       }
       return;
@@ -133,7 +146,7 @@ export const RgbPatternPage = () => {
   const handlePatternSave = () => {
     const pattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
     const patternName = pattern.name.trim();
-    
+
     if (!patternName) return;
     if (activeMethod === 'simple' && (pattern as SimplePattern).changeAt.length === 0) return;
 
@@ -167,20 +180,20 @@ export const RgbPatternPage = () => {
     deletePattern(selectedPatternName);
     setSelectedPatternName('');
     if (activeMethod === 'simple') {
-        setSimplePatternState(createEmptyPattern());
+      setSimplePatternState(createEmptyPattern());
     } else {
-        setEquationPatternState({
-            ...createDefaultEquationPattern(),
-            name: t('rgbPattern.equation.defaultName'),
-        });
+      setEquationPatternState({
+        ...createDefaultEquationPattern(),
+        name: t('rgbPattern.equation.defaultName'),
+      });
     }
   };
 
   const isSimpleMethod = activeMethod === 'simple';
   const hasSimpleSteps = simplePatternState.changeAt.length > 0;
-  const canSave = isSimpleMethod 
-    ? (simplePatternState.name.trim() && hasSimpleSteps)
-    : (equationPatternState.name.trim());
+  const canSave = isSimpleMethod
+    ? simplePatternState.name.trim() && hasSimpleSteps
+    : equationPatternState.name.trim();
 
   return (
     <section className="space-y-6">
@@ -219,65 +232,66 @@ export const RgbPatternPage = () => {
           </button>
         </div>
       </div>
-      
-      <article className={`space-y-6 rounded-2xl border border-dashed border-white/10 bg-[rgb(var(--surface-raised)/0.35)] p-6`}>
-          <header className="space-y-3">
-            <div className="space-y-1">
-              <h3 className="text-2xl font-semibold">
-                  {isSimpleMethod ? t('rgbPattern.simple.title') : t('rgbPattern.equation.title')}
-              </h3>
-              <p className="theme-muted text-sm">
-                  {isSimpleMethod ? t('rgbPattern.simple.description') : t('rgbPattern.equation.description')}
-              </p>
+
+      <article
+        className={`space-y-6 rounded-2xl border border-dashed border-white/10 bg-[rgb(var(--surface-raised)/0.35)] p-6`}
+      >
+        <header className="space-y-3">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-semibold">
+              {isSimpleMethod ? t('rgbPattern.simple.title') : t('rgbPattern.equation.title')}
+            </h3>
+            <p className="theme-muted text-sm">
+              {isSimpleMethod
+                ? t('rgbPattern.simple.description')
+                : t('rgbPattern.equation.description')}
+            </p>
+          </div>
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+            <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
+              <span className="font-medium">{t('rgbPattern.simple.storage.selectLabel')}</span>
+              <select
+                className="rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
+                onChange={handlePatternSelect}
+                value={selectedPatternName}
+              >
+                <option value="">{t('rgbPattern.simple.storage.selectPlaceholder')}</option>
+                {availablePatternNames.map(name => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                className="rounded-full border border-solid border-red-400 px-4 py-2 text-sm font-medium text-red-100 transition-transform hover:scale-[1.01] disabled:opacity-50"
+                onClick={handlePatternDelete}
+                type="button"
+                disabled={!selectedPatternName}
+              >
+                {t('rgbPattern.simple.storage.deleteButton')}
+              </button>
+              <button
+                className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
+                onClick={handlePatternSave}
+                type="button"
+                disabled={!canSave}
+              >
+                {t('rgbPattern.simple.storage.saveButton')}
+              </button>
             </div>
-            <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-              <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
-                <span className="font-medium">{t('rgbPattern.simple.storage.selectLabel')}</span>
-                <select
-                  className="rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
-                  onChange={handlePatternSelect}
-                  value={selectedPatternName}
-                >
-                  <option value="">{t('rgbPattern.simple.storage.selectPlaceholder')}</option>
-                  {availablePatternNames.map(name => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  className="rounded-full border border-solid border-red-400 px-4 py-2 text-sm font-medium text-red-100 transition-transform hover:scale-[1.01] disabled:opacity-50"
-                  onClick={handlePatternDelete}
-                  type="button"
-                  disabled={!selectedPatternName}
-                >
-                  {t('rgbPattern.simple.storage.deleteButton')}
-                </button>
-                <button
-                  className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-                  onClick={handlePatternSave}
-                  type="button"
-                  disabled={!canSave}
-                >
-                  {t('rgbPattern.simple.storage.saveButton')}
-                </button>
-              </div>
-            </div>
-          </header>
-          
-          {isSimpleMethod ? (
-            <SimpleRgbPatternPanel
-                onChange={handleSimplePatternChange}
-                value={simplePatternState}
-            />
-          ) : (
-            <EquationRgbPatternPanel 
-                onChange={handleEquationPatternChange}
-                pattern={equationPatternState}
-            />
-          )}
+          </div>
+        </header>
+
+        {isSimpleMethod ? (
+          <SimpleRgbPatternPanel onChange={handleSimplePatternChange} value={simplePatternState} />
+        ) : (
+          <EquationRgbPatternPanel
+            onChange={handleEquationPatternChange}
+            pattern={equationPatternState}
+          />
+        )}
       </article>
     </section>
   );

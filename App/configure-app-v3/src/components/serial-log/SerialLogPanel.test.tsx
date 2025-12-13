@@ -2,10 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  renderWithProviders,
-  screen,
-} from '@/test-utils/render-with-providers';
+import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
 
 import { SerialLogPanel } from './SerialLogPanel';
 import type { SerialLogAction, SerialLogState } from './SerialLogPanel';
@@ -46,9 +43,9 @@ describe('SerialLogPanel', () => {
 
   it('emits updated payload when typing', async () => {
     const user = userEvent.setup();
-  const handleChange = vi.fn<ChangeHandler>();
+    const handleChange = vi.fn<ChangeHandler>();
 
-  renderWithProviders(<ControlledSerialLogPanel onChange={handleChange} />);
+    renderWithProviders(<ControlledSerialLogPanel onChange={handleChange} />);
 
     await user.type(screen.getByLabelText(/payload/i), 'test');
 
@@ -67,7 +64,7 @@ describe('SerialLogPanel', () => {
 
   it('toggles autoscroll', async () => {
     const user = userEvent.setup();
-  const handleChange = vi.fn<ChangeHandler>();
+    const handleChange = vi.fn<ChangeHandler>();
 
     renderWithProviders(<SerialLogPanel onChange={handleChange} value={baseState} />);
 
@@ -81,13 +78,10 @@ describe('SerialLogPanel', () => {
 
   it('submits payload and clears input', async () => {
     const user = userEvent.setup();
-  const handleChange = vi.fn<ChangeHandler>();
+    const handleChange = vi.fn<ChangeHandler>();
 
     renderWithProviders(
-      <SerialLogPanel
-        onChange={handleChange}
-        value={{ ...baseState, pendingPayload: 'ping' }}
-      />,
+      <SerialLogPanel onChange={handleChange} value={{ ...baseState, pendingPayload: 'ping' }} />,
     );
 
     await user.click(screen.getByRole('button', { name: /send payload/i }));
@@ -116,7 +110,7 @@ describe('SerialLogPanel', () => {
 
   it('clears entries when requested', async () => {
     const user = userEvent.setup();
-  const handleChange = vi.fn<ChangeHandler>();
+    const handleChange = vi.fn<ChangeHandler>();
     const populatedState: SerialLogState = {
       autoscroll: true,
       pendingPayload: '',
@@ -134,9 +128,8 @@ describe('SerialLogPanel', () => {
 
     await user.click(screen.getByRole('button', { name: /clear log/i }));
 
-    expect(handleChange).toHaveBeenCalledWith(
-      expect.objectContaining({ entries: [] }),
-      { type: 'clear' },
-    );
+    expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ entries: [] }), {
+      type: 'clear',
+    });
   });
 });

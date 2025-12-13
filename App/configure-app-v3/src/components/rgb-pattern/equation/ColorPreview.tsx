@@ -34,19 +34,19 @@ export const ColorPreview = ({
     const data = imageData.data;
 
     const totalPoints = Math.max(redPoints.length, greenPoints.length, bluePoints.length);
-    
+
     if (totalPoints === 0) return;
 
     for (let x = 0; x < width; x++) {
       const pointIndex = Math.floor((x / width) * totalPoints);
-      
+
       const r = redPoints[pointIndex] || 0;
       const g = greenPoints[pointIndex] || 0;
       const b = bluePoints[pointIndex] || 0;
 
       for (let y = 0; y < height; y++) {
         const index = (y * width + x) * 4;
-        data[index] = r;     // Red
+        data[index] = r; // Red
         data[index + 1] = g; // Green
         data[index + 2] = b; // Blue
         data[index + 3] = 255; // Alpha
@@ -63,7 +63,6 @@ export const ColorPreview = ({
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.stroke();
-    
   }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration]);
 
   // Calculate current color for a swatch
@@ -75,17 +74,14 @@ export const ColorPreview = ({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-4">
-        <div 
+        <div
           className="w-16 h-16 rounded border border-gray-600 shadow-sm"
-          style={{ backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})` }}
+          style={{
+            backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})`,
+          }}
         />
         <div className="flex-1 h-16 bg-gray-900 rounded overflow-hidden relative">
-            <canvas 
-                ref={canvasRef} 
-                width={800} 
-                height={64} 
-                className="w-full h-full"
-            />
+          <canvas ref={canvasRef} width={800} height={64} className="w-full h-full" />
         </div>
       </div>
     </div>
