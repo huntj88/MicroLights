@@ -225,27 +225,13 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
 
   return (
     <PatternPanelContainer>
-      <div className="flex justify-between items-center">
-        <div className="flex-1 mr-4">
-          <PatternNameEditor
-            name={pattern.name}
-            onChange={name => {
-              const nextPattern = { ...pattern, name };
-              onChange(nextPattern, { type: 'rename-pattern', name });
-            }}
-          />
-        </div>
-        <div className="flex gap-2 self-end mb-1">
-          <PatternButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
-            {isPlaying
-              ? t('rgbPattern.equation.controls.pause')
-              : t('rgbPattern.equation.controls.play')}
-          </PatternButton>
-          <PatternButton onClick={handleStop} variant="secondary">
-            {t('rgbPattern.equation.controls.stop')}
-          </PatternButton>
-        </div>
-      </div>
+      <PatternNameEditor
+        name={pattern.name}
+        onChange={name => {
+          const nextPattern = { ...pattern, name };
+          onChange(nextPattern, { type: 'rename-pattern', name });
+        }}
+      />
 
       <div className="bg-[rgb(var(--surface-raised)/0.5)] p-3 rounded-xl text-sm theme-muted border theme-border">
         <p>
@@ -264,7 +250,21 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       </div>
 
       {/* Preview Area */}
-      <PatternSection title={t('rgbPattern.equation.preview.title')}>
+      <PatternSection
+        title={t('rgbPattern.equation.preview.title')}
+        actions={
+          <>
+            <PatternButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
+              {isPlaying
+                ? t('rgbPattern.equation.controls.pause')
+                : t('rgbPattern.equation.controls.play')}
+            </PatternButton>
+            <PatternButton onClick={handleStop} variant="secondary">
+              {t('rgbPattern.equation.controls.stop')}
+            </PatternButton>
+          </>
+        }
+      >
         <ColorPreview
           redPoints={redPoints}
           greenPoints={greenPoints}
