@@ -1,0 +1,70 @@
+@import 'tailwindcss';
+
+:root {
+  color-scheme: light dark;
+  font-family:
+    'Inter',
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  --surface: 17 24 39;
+  --surface-contrast: 248 250 252;
+  --surface-muted: 100 116 139;
+  --surface-raised: 30 41 59;
+  --accent: 249 115 22;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: rgb(var(--surface) / 1);
+  color: rgb(var(--surface-contrast) / 1);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+[data-theme='light'] {
+  --surface: 248 250 252;
+  --surface-contrast: 15 23 42;
+  --surface-muted: 71 85 105;
+  --surface-raised: 226 232 240;
+  --accent: 217 119 6;
+}
+
+[data-theme='dark'] {
+  --surface: 17 24 39;
+  --surface-contrast: 248 250 252;
+  --surface-muted: 148 163 184;
+  --surface-raised: 30 41 59;
+  --accent: 249 115 22;
+}
+
+.theme-surface {
+  background-color: rgb(var(--surface) / 1);
+  color: rgb(var(--surface-contrast) / 1);
+}
+
+.theme-panel {
+  background-color: color-mix(in srgb, rgb(var(--surface-raised) / 1) 85%, transparent);
+  border-color: rgb(var(--surface-muted) / 0.35);
+}
+
+.theme-border {
+  border-color: rgb(var(--surface-muted) / 0.5);
+}
+
+.theme-muted {
+  color: rgb(var(--surface-muted) / 1);
+}
+
+.theme-accent {
+  color: rgb(var(--accent) / 1);
+}

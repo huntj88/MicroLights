@@ -1,0 +1,186 @@
+{
+  "app": {
+    "name": "Flow Art Forge",
+    "tagline": "Configure LED modes and patterns"
+  },
+  "nav": {
+    "home": "Overview",
+    "rgbPattern": "RGB Patterns",
+    "bulbPattern": "Bulb Patterns",
+    "mode": "Modes",
+    "serialLog": "Serial Log",
+    "settings": "Settings"
+  },
+  "layout": {
+    "skipToContent": "Skip to main content",
+    "footer": "Flow Art Forge · {{year}}"
+  },
+  "loading": "Loading…",
+  "home": {
+    "title": "Welcome to Flow Art Forge",
+    "subtitle": "Design synchronized LED patterns, build responsive modes, and fine-tune device behavior before flashing it to your boards.",
+    "description": "Use the navigation to create reusable RGB color patterns, sculpt bulb animations, assemble complete modes with accelerometer triggers, fine-tune appearance, and monitor serial traffic while testing on hardware."
+  },
+  "rgbPattern": {
+    "title": "RGB Pattern Workshop",
+    "subtitle": "Author precise multi-color animations for the case LEDs.",
+    "methodSwitcher": {
+      "label": "Pattern builder",
+      "simple": "Simple method",
+      "equation": "Equation method"
+    },
+    "simple": {
+      "title": "Simple method",
+      "description": "Build a pattern by stacking color segments and choosing how long each should shine.",
+      "form": {
+        "ariaLabel": "Simple RGB pattern form",
+        "nameLabel": "Pattern name",
+        "nameHelper": "Give this pattern a descriptive name to recognize it later.",
+        "namePlaceholder": "Sunrise cascade",
+        "colorLabel": "Color",
+        "colorHelper": "Use the color picker to choose the LED output.",
+        "durationLabel": "Duration (ms)",
+        "durationHelper": "How long the LED should display this color.",
+        "addButton": "Add color step"
+      },
+      "storage": {
+        "selectLabel": "Saved patterns",
+        "selectPlaceholder": "New pattern",
+        "deleteButton": "Delete pattern",
+        "saveButton": "Save pattern",
+        "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
+        "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
+      },
+      "preview": {
+        "title": "Pattern preview",
+        "empty": "No colors have been added yet.",
+        "summary": "Total duration {{total}} ms.",
+        "segmentLabel": "{{color}} for {{duration}} ms"
+      },
+      "addModal": {
+        "title": "Add color step",
+        "cancel": "Cancel",
+        "confirm": "Add step"
+      },
+      "steps": {
+        "title": "Pattern steps",
+        "subtitle": "Adjust or remove segments as needed.",
+        "entryLabel": "{{color}} · {{duration}} ms",
+        "duration": "{{duration}} milliseconds",
+        "colorEditLabel": "Color for step {{index}}",
+        "durationEditLabel": "Duration for step {{index}} (ms)",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "duplicate": "Duplicate step",
+        "remove": "Remove step",
+        "closeEditor": "Close step editor"
+      }
+    },
+    "equation": {
+      "title": "Equation RGB Pattern Editor",
+      "description": "Create complex patterns using mathematical equations.",
+      "defaultName": "New Equation Pattern",
+      "controls": {
+        "play": "Play",
+        "pause": "Pause",
+        "stop": "Stop",
+        "exportVideo": "Export Video",
+        "notImplemented": "Not implemented yet"
+      },
+      "help": {
+        "title": "Equation Help:",
+        "description": "Use 't' for time (seconds) and 'Duration' for section duration (seconds). Standard Math functions are available (e.g., sin(t), cos(t), exp(t), abs(t)). Output is clamped to 0-255.",
+        "examples": "Examples:"
+      },
+      "preview": {
+        "title": "Combined Output Preview"
+      },
+      "waveforms": {
+        "title": "Waveforms"
+      },
+      "colors": {
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue"
+      },
+      "sections": {
+        "title": "{{color}} Sections",
+        "add": "+ Add Section",
+        "empty": "No sections defined.",
+        "equationLabel": "Equation (t = time in sec)",
+        "equationPlaceholder": "e.g. 255 * sin(t)",
+        "durationLabel": "Duration (ms)",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "delete": "Delete"
+      }
+    }
+  },
+  "bulbPattern": {
+    "title": "Bulb Pattern Studio",
+    "subtitle": "Design intensity patterns for binary or single-channel bulbs.",
+    "todo": "TODO · Define transitions for bulb brightness and timing."
+  },
+  "mode": {
+    "title": "Mode Composer",
+    "subtitle": "Combine front and case patterns, attach accelerometer triggers, and manage presets.",
+    "todo": "TODO · Link saved patterns to build a mode, configure trigger thresholds, and save your preset."
+  },
+  "serialLog": {
+    "title": "Serial Console",
+    "subtitle": "Inspect inbound messages, send payloads, and keep an eye on runtime behavior.",
+    "todo": "TODO · Integrate serial connection to stream device messages.",
+    "empty": "No serial messages yet.",
+    "actions": {
+      "autoscrollOn": "Autoscroll • on",
+      "autoscrollOff": "Autoscroll • off",
+      "clear": "Clear log",
+      "send": "Send payload"
+    },
+    "fields": {
+      "payloadLabel": "Payload",
+      "payloadPlaceholder": "Type the payload you'd like to send over serial"
+    },
+    "direction": {
+      "inbound": "incoming",
+      "outbound": "outgoing"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Adjust application preferences and theme behavior.",
+    "theme": {
+      "title": "Theme",
+      "description": "Currently using the {{theme}}.",
+      "current": {
+        "light": "light theme",
+        "dark": "dark theme"
+      },
+      "options": {
+        "system": {
+          "label": "Follow system",
+          "description": "Automatically matches your operating system preference."
+        },
+        "light": {
+          "label": "Light",
+          "description": "Bright surfaces with high-contrast controls."
+        },
+        "dark": {
+          "label": "Dark",
+          "description": "Low-light friendly interface with subtle contrast."
+        }
+      }
+    }
+  },
+  "validation": {
+    "equation": {
+      "required": "Equation cannot be empty"
+    },
+    "duration": {
+      "min": "Duration must be at least 1ms"
+    },
+    "name": {
+      "required": "Name is required"
+    }
+  }
+}
