@@ -398,7 +398,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
               <span>{t('rgbPattern.simple.form.colorLabel')}</span>
               <input
-                className="h-10 w-10 rounded-full border theme-border bg-transparent cursor-pointer"
+                className="h-10 w-10 rounded-full border theme-border cursor-pointer"
                 onChange={event => {
                   handleStepColorChange(steps[selectedStepIndex].id, event.target.value);
                 }}
