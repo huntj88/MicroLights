@@ -1,9 +1,9 @@
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { SimplePattern } from '@/app/models/mode';
+import { hexColorSchema, type SimplePattern } from '@/app/models/mode';
 import { usePatternStore } from '@/app/providers/pattern-store';
-import { renderWithProviders, screen, within } from '@/test-utils/render-with-providers';
+import { renderWithProviders, screen, waitFor, within } from '@/test-utils/render-with-providers';
 
 import { RgbPatternPage } from './RgbPatternPage';
 
@@ -40,14 +40,63 @@ describe('RgbPatternPage', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('validates the pattern when switching methods', async () => {
+    const { user } = setup();
+    renderWithProviders(<RgbPatternPage />);
+
+    // Switch to equation method (default state is invalid because it has no sections)
+    await user.click(screen.getByRole('button', { name: /equation method/i }));
+
+    expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
+
+    // Switch back to simple method (default state is valid)
+    await user.click(screen.getByRole('button', { name: /simple method/i }));
+
+    expect(
+      screen.queryByText(/at least one equation section is required/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it('disables save button on initial load due to invalid default pattern', () => {
+    setup();
+    renderWithProviders(<RgbPatternPage />);
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    expect(saveButton).toBeDisabled();
+  });
+
+  it('disables save button when switching to new pattern', async () => {
+    const { user } = setup();
+    const storedPattern: SimplePattern = {
+      type: 'simple',
+      name: 'Valid Pattern',
+      duration: 100,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+    };
+    usePatternStore.getState().savePattern(storedPattern);
+
+    renderWithProviders(<RgbPatternPage />);
+
+    // Select valid pattern
+    const chooser = screen.getByLabelText(/saved patterns/i);
+    await user.selectOptions(chooser, storedPattern.name);
+
+    // Switch to New Pattern
+    await user.selectOptions(chooser, '');
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    expect(saveButton).toBeDisabled();
+  });
+
   it('prompts before overwriting an existing pattern when saving', async () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
     const saveButton = screen.getByRole('button', { name: /save pattern/i });
     const addButton = screen.getByRole('button', { name: /add color step/i });
-    expect(saveButton).toBeDisabled();
+    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
 
+    await user.type(nameInput, 'My Pattern');
     await user.click(addButton);
     await user.click(screen.getByRole('button', { name: /add step/i }));
     expect(saveButton).toBeEnabled();
@@ -57,7 +106,11 @@ describe('RgbPatternPage', () => {
     const chooser = screen.getByLabelText(/saved patterns/i);
     const options = within(chooser).getAllByRole('option');
     expect(options).toHaveLength(2);
-    expect(chooser).toHaveValue('Simple RGB Pattern');
+    expect(chooser).toHaveValue('My Pattern');
+
+    // Make a change to trigger the overwrite prompt (otherwise save is disabled)
+    await user.click(addButton);
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
@@ -67,13 +120,51 @@ describe('RgbPatternPage', () => {
     confirmSpy.mockRestore();
   });
 
+  it('shows validation errors when saving an invalid pattern', async () => {
+    const { user } = setup();
+    renderWithProviders(<RgbPatternPage />);
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    await user.click(saveButton);
+
+    expect(screen.getByText(/at least one change event is required/i)).toBeInTheDocument();
+  });
+
+  it('disables save button when loaded pattern is unchanged', async () => {
+    const { user } = setup();
+    const storedPattern: SimplePattern = {
+      type: 'simple',
+      name: 'My Pattern',
+      duration: 100,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+    };
+    usePatternStore.getState().savePattern(storedPattern);
+
+    renderWithProviders(<RgbPatternPage />);
+
+    const chooser = screen.getByLabelText(/saved patterns/i);
+    await user.selectOptions(chooser, storedPattern.name);
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    await waitFor(() => {
+      expect(saveButton).toBeDisabled();
+    });
+
+    // Change name
+    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    await user.clear(nameInput);
+    await user.type(nameInput, 'My Pattern Modified');
+
+    expect(saveButton).toBeEnabled();
+  });
+
   it('deletes the selected pattern after confirmation', async () => {
     const { user } = setup();
     const storedPattern: SimplePattern = {
       type: 'simple',
       name: 'Stored Pattern',
       duration: 100,
-      changeAt: [{ ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] }],
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#123456') }],
     };
     usePatternStore.getState().savePattern(storedPattern);
 
@@ -109,9 +200,7 @@ describe('RgbPatternPage', () => {
 
     expect(chooser).toHaveValue('');
     expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(
-      'Simple RGB Pattern',
-    );
+    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
   });
 
   it('restores the selected pattern name when switching back to a method with a loaded pattern', async () => {
@@ -120,7 +209,7 @@ describe('RgbPatternPage', () => {
       type: 'simple',
       name: 'My Simple Pattern',
       duration: 100,
-      changeAt: [{ ms: 0, output: '#ffffff' as SimplePattern['changeAt'][number]['output'] }],
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
     };
     usePatternStore.getState().savePattern(storedPattern);
 
@@ -142,5 +231,19 @@ describe('RgbPatternPage', () => {
 
     // Verify the pattern is still selected in the dropdown
     expect(screen.getByLabelText(/saved patterns/i)).toHaveValue(storedPattern.name);
+  });
+
+  it('shows validation errors when saving an empty equation pattern', async () => {
+    const { user } = setup();
+    renderWithProviders(<RgbPatternPage />);
+
+    // Switch to Equation method
+    await user.click(screen.getByRole('button', { name: /equation method/i }));
+
+    // Try to save immediately (default equation pattern is empty)
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    await user.click(saveButton);
+
+    expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
   });
 });

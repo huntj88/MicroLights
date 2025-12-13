@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { usePatternStore } from './pattern-store';
 import {
   createDefaultEquationPattern,
+  hexColorSchema,
   type EquationPattern,
   type SimplePattern,
 } from '../models/mode';
@@ -11,7 +12,7 @@ const createSimplePattern = (overrides?: Partial<SimplePattern>): SimplePattern 
   name: 'Test Pattern',
   type: 'simple',
   duration: 100,
-  changeAt: [{ ms: 0, output: '#112233' as SimplePattern['changeAt'][number]['output'] }],
+  changeAt: [{ ms: 0, output: hexColorSchema.parse('#112233') }],
   ...overrides,
 });
 
@@ -46,7 +47,7 @@ describe('pattern-store', () => {
       const patternA = createSimplePattern();
       const patternB = createSimplePattern({
         duration: 250,
-        changeAt: [{ ms: 0, output: '#abcdef' as SimplePattern['changeAt'][number]['output'] }],
+        changeAt: [{ ms: 0, output: hexColorSchema.parse('#abcdef') }],
       });
 
       usePatternStore.getState().savePattern(patternA);

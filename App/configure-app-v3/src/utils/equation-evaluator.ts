@@ -25,7 +25,10 @@ export const generateWaveformPoints = (
   sampleRateMs = 10,
 ): number[] => {
   const points: number[] = [];
-  const channelDurationMs = sections.reduce((acc, s) => acc + s.duration, 0);
+  const channelDurationMs = sections.reduce(
+    (acc, s) => acc + (Number.isNaN(s.duration) ? 0 : s.duration),
+    0,
+  );
   const steps = Math.floor(totalDurationMs / sampleRateMs);
 
   if (channelDurationMs === 0) {
@@ -42,16 +45,18 @@ export const generateWaveformPoints = (
 
     // Find active section
     let activeSection = sections[sections.length - 1];
-    let sectionStartTime = channelDurationMs - activeSection.duration;
+    let sectionStartTime =
+      channelDurationMs - (Number.isNaN(activeSection.duration) ? 0 : activeSection.duration);
 
     let accumulated = 0;
     for (const section of sections) {
-      if (tMs < accumulated + section.duration) {
+      const duration = Number.isNaN(section.duration) ? 0 : section.duration;
+      if (tMs < accumulated + duration) {
         activeSection = section;
         sectionStartTime = accumulated;
         break;
       }
-      accumulated += section.duration;
+      accumulated += duration;
     }
 
     // Calculate t relative to the section start (in seconds)
@@ -67,7 +72,7 @@ export const generateWaveformPoints = (
     // local time is `tMs - sectionStartTime`.
 
     const tSec = (tMs - sectionStartTime) / 1000;
-    const durationSec = activeSection.duration / 1000;
+    const durationSec = (Number.isNaN(activeSection.duration) ? 0 : activeSection.duration) / 1000;
 
     const val = evaluateEquation(activeSection.equation, tSec, durationSec);
     points.push(val);

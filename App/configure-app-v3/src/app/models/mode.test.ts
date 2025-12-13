@@ -1,6 +1,48 @@
 import { describe, expect, it } from 'vitest';
 
-import { isBinaryPattern, isColorPattern, modeDocumentSchema, parseModeDocument } from './mode';
+import {
+  hexColorSchema,
+  isBinaryPattern,
+  isColorPattern,
+  modeDocumentSchema,
+  parseModeDocument,
+  simplePatternSchema,
+} from './mode';
+
+describe('simplePatternSchema', () => {
+  it('validates a correct pattern', () => {
+    const pattern = {
+      type: 'simple',
+      name: 'Valid Pattern',
+      duration: 1000,
+      changeAt: [
+        { ms: 0, output: hexColorSchema.parse('#ff0000') },
+        { ms: 500, output: hexColorSchema.parse('#00ff00') },
+      ],
+    };
+    const result = simplePatternSchema.safeParse(pattern);
+    expect(result.success).toBe(true);
+  });
+
+  it('fails when the last step has zero duration', () => {
+    const pattern = {
+      type: 'simple',
+      name: 'Last Step Zero Duration',
+      duration: 1000,
+      changeAt: [
+        { ms: 0, output: hexColorSchema.parse('#ff0000') },
+        { ms: 1000, output: hexColorSchema.parse('#00ff00') }, // Last step starts at end duration
+      ],
+    };
+    const result = simplePatternSchema.safeParse(pattern);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain(
+        'validation.pattern.simple.stepDurationZero',
+      );
+    }
+  });
+});
 
 describe('modeDocumentSchema', () => {
   it('parses a mode with accelerometer triggers and binary outputs', () => {
@@ -122,7 +164,7 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0]?.message).toContain('6-digit hexadecimal');
+      expect(result.error.issues[0]?.message).toBe('validation.pattern.simple.hexColor');
     }
   });
 
@@ -157,7 +199,11 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some(issue => issue.message.includes('unique'))).toBe(true);
+      expect(
+        result.error.issues.some(
+          issue => issue.message === 'validation.pattern.simple.timestamp.unique',
+        ),
+      ).toBe(true);
     }
   });
 
@@ -193,9 +239,9 @@ describe('modeDocumentSchema', () => {
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues.some(issue => issue.message.includes('at least one LED'))).toBe(
-        true,
-      );
+      expect(
+        result.error.issues.some(issue => issue.message === 'validation.accel.componentRequired'),
+      ).toBe(true);
     }
   });
 

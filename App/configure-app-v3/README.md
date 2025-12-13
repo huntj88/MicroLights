@@ -9,8 +9,9 @@ Flow Art Forge is a Vite + React 19 single-page application for composing LED pa
 - **Global theming** — Automatic system detection with persistable user overrides powered by zustand.
 - **Settings page** exposing a stateless `ThemePreferenceSelector` that emits `(state, action)` pairs per component guidelines.
 - **Serial console UI** (`SerialLogPanel`) featuring timestamped logs, autoscroll toggle, clear button, and outbound payload submission.
+- **RGB Pattern Editor** supporting both Simple (step-based) and Equation (math-based) methods with real-time validation and waveform previews.
 - **Localization** via i18next + react-i18next with browser language detection and reusable translations.
-- **Comprehensive tests** covering layout, theme selector, and serial log behaviors.
+- **Comprehensive tests** covering layout, theme selector, serial log, and pattern editor behaviors.
 
 ## 🚀 Getting started
 

@@ -37,7 +37,10 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   const lastTimeRef = useRef<number>(0);
 
   const calculateChannelDuration = (sections: EquationSection[]) =>
-    sections.reduce((acc, section) => acc + section.duration, 0);
+    sections.reduce(
+      (acc, section) => acc + (Number.isNaN(section.duration) ? 0 : section.duration),
+      0,
+    );
 
   const redDuration = useMemo(
     () => calculateChannelDuration(pattern.red.sections),

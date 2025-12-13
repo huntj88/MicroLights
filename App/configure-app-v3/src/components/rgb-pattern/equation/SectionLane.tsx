@@ -128,9 +128,10 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           </label>
           <input
             type="number"
-            value={section.duration}
+            value={Number.isNaN(section.duration) ? '' : section.duration}
             onChange={e => {
-              onUpdate({ duration: parseInt(e.target.value) || 0 });
+              const val = parseInt(e.target.value);
+              onUpdate({ duration: Number.isNaN(val) ? NaN : val });
             }}
             className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-sm"
           />
