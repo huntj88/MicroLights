@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { createLocalizedError } from '../../utils/localization';
+
 const binaryOutputs = ['high', 'low'] as const;
 
 export const binaryOutputSchema = z
@@ -13,7 +15,7 @@ const HEX_COLOR_REGEX = /^#(?:[0-9a-fA-F]{6})$/;
 export const hexColorSchema = z
   .string()
   .regex(HEX_COLOR_REGEX, {
-    message: 'Colors must be provided as 6-digit hexadecimal values such as #ffaa00.',
+    message: 'validation.pattern.simple.hexColor',
   })
   .brand('HexColor');
 
@@ -22,8 +24,8 @@ export type HexColor = z.infer<typeof hexColorSchema>;
 export const patternChangeBinarySchema = z.object({
   ms: z
     .number()
-    .int('Timestamps must be integers representing milliseconds.')
-    .min(0, 'Timestamps cannot be negative.'),
+    .int('validation.pattern.simple.timestamp.integer')
+    .min(0, 'validation.pattern.simple.timestamp.negative'),
   output: binaryOutputSchema,
 });
 
@@ -32,8 +34,8 @@ export type BinaryPatternChange = z.infer<typeof patternChangeBinarySchema>;
 export const patternChangeColorSchema = z.object({
   ms: z
     .number()
-    .int('Timestamps must be integers representing milliseconds.')
-    .min(0, 'Timestamps cannot be negative.'),
+    .int('validation.pattern.simple.timestamp.integer')
+    .min(0, 'validation.pattern.simple.timestamp.negative'),
   output: hexColorSchema,
 });
 
@@ -44,8 +46,8 @@ export const patternChangeSchema = z.union([patternChangeBinarySchema, patternCh
 export type PatternChange = z.infer<typeof patternChangeSchema>;
 
 export const equationSectionSchema = z.object({
-  equation: z.string().min(1, 'Equation cannot be empty'),
-  duration: z.number().min(1, 'Duration must be at least 1ms'),
+  equation: z.string().min(1, 'validation.pattern.equation.required'),
+  duration: z.number().min(1, 'validation.pattern.duration.min'),
 });
 
 export type EquationSection = z.infer<typeof equationSectionSchema>;
@@ -61,7 +63,7 @@ export const equationPatternSchema = z
   .object({
     type: z.literal('equation'),
     id: z.uuid().optional(),
-    name: z.string().min(1, 'Name is required'),
+    name: z.string().min(1, 'validation.pattern.name.required'),
     duration: z.number().nonnegative(),
     red: channelConfigSchema,
     green: channelConfigSchema,
@@ -73,7 +75,7 @@ export const equationPatternSchema = z
       data.green.sections.length > 0 ||
       data.blue.sections.length > 0,
     {
-      message: 'At least one equation section is required in Red, Green, or Blue channels.',
+      message: 'validation.pattern.equation.sectionRequired',
     },
   );
 
@@ -92,21 +94,21 @@ export const createDefaultEquationPattern = (): EquationPattern => ({
 export const simplePatternSchema = z
   .object({
     type: z.literal('simple').default('simple'),
-    name: z.string().min(1, 'Pattern name cannot be empty.'),
+    name: z.string().min(1, 'validation.pattern.name.required'),
     duration: z
       .number()
-      .int('Pattern duration must be a whole number in milliseconds.')
-      .positive('Pattern duration must be greater than zero.'),
+      .int('validation.pattern.duration.integer')
+      .positive('validation.pattern.duration.min'),
     changeAt: z
       .array(patternChangeSchema)
-      .min(1, 'At least one change event is required for a pattern.')
+      .min(1, 'validation.pattern.simple.changeEventRequired')
       .superRefine((changes, ctx) => {
         const timestamps = new Set<number>();
         for (const change of changes) {
           if (timestamps.has(change.ms)) {
             ctx.addIssue({
               code: 'custom',
-              message: 'Each change event must use a unique millisecond timestamp.',
+              message: 'validation.pattern.simple.timestamp.unique',
             });
             break;
           }
@@ -128,7 +130,7 @@ export const simplePatternSchema = z
       if (duration <= 0) {
         ctx.addIssue({
           code: 'custom',
-          message: `Step ${String(i + 1)} has a duration of 0ms. All steps must have a positive duration.`,
+          message: createLocalizedError('validation.pattern.simple.stepDurationZero', { step: i + 1 }),
           path: ['changeAt', i],
         });
       }
@@ -154,13 +156,13 @@ export type ModeComponent = z.infer<typeof modeComponentSchema>;
 
 export const modeAccelTriggerSchema = z
   .object({
-    threshold: z.number().nonnegative('Accelerometer thresholds cannot be negative.'),
+    threshold: z.number().nonnegative('validation.accel.thresholdNegative'),
     front: modeComponentSchema.optional(),
     case: modeComponentSchema.optional(),
   })
   .refine(
     trigger => Boolean(trigger.front ?? trigger.case),
-    'Accelerometer triggers must configure at least one LED component.',
+    'validation.accel.componentRequired',
   )
   .describe('Defines a pattern swap when the accelerometer exceeds a threshold.');
 
@@ -170,7 +172,7 @@ export const modeAccelSchema = z
   .object({
     triggers: z
       .array(modeAccelTriggerSchema)
-      .min(1, 'At least one accelerometer trigger is required when accel is present.'),
+      .min(1, 'validation.accel.triggerRequired'),
   })
   .describe('Accelerometer-driven pattern overrides.');
 
@@ -178,7 +180,7 @@ export type ModeAccel = z.infer<typeof modeAccelSchema>;
 
 export const modeSchema = z
   .object({
-    name: z.string().min(1, 'Mode name cannot be empty.'),
+    name: z.string().min(1, 'validation.mode.nameEmpty'),
     front: modeComponentSchema,
     case: modeComponentSchema,
     accel: modeAccelSchema.optional(),

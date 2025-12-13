@@ -19,6 +19,7 @@ import {
   type SimpleRgbPatternAction,
   SimpleRgbPatternPanel,
 } from '../../components/rgb-pattern/SimpleRgbPatternPanel';
+import { getLocalizedError } from '../../utils/localization';
 
 const createEmptyPattern = (): SimplePattern => ({
   type: 'simple',
@@ -368,7 +369,7 @@ export const RgbPatternPage = () => {
           <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm text-red-200">
             <ul className="list-inside list-disc space-y-1">
               {validationErrors.map((error, index) => (
-                <li key={index}>{error}</li>
+                <li key={index}>{getLocalizedError(error, t)}</li>
               ))}
             </ul>
           </div>

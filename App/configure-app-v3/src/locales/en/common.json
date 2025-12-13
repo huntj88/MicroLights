@@ -172,14 +172,36 @@
     }
   },
   "validation": {
-    "equation": {
-      "required": "Equation cannot be empty"
+    "pattern": {
+      "name": {
+        "required": "Pattern name is required"
+      },
+      "equation": {
+        "required": "Equation cannot be empty",
+        "sectionRequired": "At least one equation section is required in Red, Green, or Blue channels."
+      },
+      "simple": {
+        "timestamp": {
+          "integer": "Timestamps must be integers representing milliseconds.",
+          "negative": "Timestamps cannot be negative.",
+          "unique": "Each change event must use a unique millisecond timestamp."
+        },
+        "hexColor": "Colors must be provided as 6-digit hexadecimal values such as #ffaa00.",
+        "changeEventRequired": "At least one change event is required for a pattern.",
+        "stepDurationZero": "Step {{step}} has a duration of 0ms. All steps must have a positive duration."
+      },
+      "duration": {
+        "integer": "Duration must be a whole number in milliseconds.",
+        "min": "Duration must be greater than zero."
+      }
     },
-    "duration": {
-      "min": "Duration must be at least 1ms"
+    "accel": {
+      "thresholdNegative": "Accelerometer thresholds cannot be negative.",
+      "triggerRequired": "At least one accelerometer trigger is required when accel is present.",
+      "componentRequired": "Accelerometer triggers must configure at least one LED component."
     },
-    "name": {
-      "required": "Name is required"
+    "mode": {
+      "nameEmpty": "Mode name cannot be empty."
     }
   }
 }
