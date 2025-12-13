@@ -46,7 +46,5 @@ export const generateWaveformPoints = (
       points.push(val);
     }
   }
-  
-  // Fill remaining if any (though we iterate by sections)
   return points;
 };

@@ -2,9 +2,16 @@ import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SimplePattern } from '../../app/models/mode';
+import {
+  createDefaultEquationPattern,
+  type EquationPattern,
+  type SimplePattern,
+} from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
-import { EquationRgbPatternPanel } from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
+import {
+  type EquationRgbPatternAction,
+  EquationRgbPatternPanel,
+} from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
 import {
   type SimpleRgbPatternAction,
   SimpleRgbPatternPanel,
@@ -22,6 +29,11 @@ export const RgbPatternPage = () => {
   const [activeMethod, setActiveMethod] = useState<'simple' | 'equation'>('simple');
   const [selectedPatternName, setSelectedPatternName] = useState('');
   const [simplePatternState, setSimplePatternState] = useState<SimplePattern>(createEmptyPattern);
+  const [equationPatternState, setEquationPatternState] = useState<EquationPattern>(() => ({
+    ...createDefaultEquationPattern(),
+    name: t('rgbPattern.equation.defaultName'),
+  }));
+  
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
   const deletePattern = usePatternStore(state => state.deletePattern);
@@ -45,13 +57,15 @@ export const RgbPatternPage = () => {
       return;
     }
 
+    const currentPatternName = activeMethod === 'simple' ? simplePatternState.name : equationPatternState.name;
+
     // If the pattern name is still the same as the state, we don't need to clear it
-    if (simplePatternState.name === selectedPatternName) {
+    if (currentPatternName === selectedPatternName) {
       return;
     }
 
     setSelectedPatternName('');
-  }, [availablePatternNames, selectedPatternName, simplePatternState.name]);
+  }, [availablePatternNames, selectedPatternName, simplePatternState.name, equationPatternState.name, activeMethod]);
 
   const handleSimplePatternChange = (nextPattern: SimplePattern, action: SimpleRgbPatternAction) => {
     setSimplePatternState(nextPattern);
@@ -65,9 +79,28 @@ export const RgbPatternPage = () => {
     }
   };
 
+  const handleEquationPatternChange = (nextPattern: EquationPattern, action: EquationRgbPatternAction) => {
+    setEquationPatternState(nextPattern);
+
+    if (action.type === 'rename-pattern') {
+      if (selectedPatternName === action.name) {
+        return;
+      }
+      setSelectedPatternName('');
+    }
+  };
+
   const handleMethodChange = (method: 'simple' | 'equation') => {
     setActiveMethod(method);
-    setSelectedPatternName(''); // Clear selection when switching methods
+
+    const targetState = method === 'simple' ? simplePatternState : equationPatternState;
+    const exists = patterns.some(p => p.type === method && p.name === targetState.name);
+
+    if (exists) {
+      setSelectedPatternName(targetState.name);
+    } else {
+      setSelectedPatternName('');
+    }
   };
 
   const handlePatternSelect = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -77,6 +110,11 @@ export const RgbPatternPage = () => {
       setSelectedPatternName('');
       if (activeMethod === 'simple') {
         setSimplePatternState(createEmptyPattern());
+      } else {
+        setEquationPatternState({
+            ...createDefaultEquationPattern(),
+            name: t('rgbPattern.equation.defaultName'),
+        });
       }
       return;
     }
@@ -86,16 +124,18 @@ export const RgbPatternPage = () => {
     if (stored) {
       if (activeMethod === 'simple' && stored.type === 'simple') {
         setSimplePatternState(stored);
+      } else if (activeMethod === 'equation' && stored.type === 'equation') {
+        setEquationPatternState(stored);
       }
-      // TODO: Handle equation pattern loading
     }
   };
 
-  const handleSimplePatternSave = () => {
-    const patternName = simplePatternState.name.trim();
-    if (!patternName || simplePatternState.changeAt.length === 0) {
-      return;
-    }
+  const handlePatternSave = () => {
+    const pattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
+    const patternName = pattern.name.trim();
+    
+    if (!patternName) return;
+    if (activeMethod === 'simple' && (pattern as SimplePattern).changeAt.length === 0) return;
 
     const isOverwrite = availablePatternNames.includes(patternName);
     if (isOverwrite) {
@@ -107,11 +147,11 @@ export const RgbPatternPage = () => {
       }
     }
 
-    savePattern(simplePatternState);
+    savePattern(pattern);
     setSelectedPatternName(patternName);
   };
 
-  const handleSimplePatternDelete = () => {
+  const handlePatternDelete = () => {
     if (!selectedPatternName) {
       return;
     }
@@ -126,11 +166,21 @@ export const RgbPatternPage = () => {
 
     deletePattern(selectedPatternName);
     setSelectedPatternName('');
-    setSimplePatternState(createEmptyPattern());
+    if (activeMethod === 'simple') {
+        setSimplePatternState(createEmptyPattern());
+    } else {
+        setEquationPatternState({
+            ...createDefaultEquationPattern(),
+            name: t('rgbPattern.equation.defaultName'),
+        });
+    }
   };
 
   const isSimpleMethod = activeMethod === 'simple';
   const hasSimpleSteps = simplePatternState.changeAt.length > 0;
+  const canSave = isSimpleMethod 
+    ? (simplePatternState.name.trim() && hasSimpleSteps)
+    : (equationPatternState.name.trim());
 
   return (
     <section className="space-y-6">
@@ -169,12 +219,16 @@ export const RgbPatternPage = () => {
           </button>
         </div>
       </div>
-      {isSimpleMethod ? (
-        <article className="space-y-6 rounded-2xl border border-dashed border-white/10 bg-[rgb(var(--surface-raised)/0.35)] p-6">
+      
+      <article className={`space-y-6 rounded-2xl border border-dashed border-white/10 bg-[rgb(var(--surface-raised)/0.35)] p-6`}>
           <header className="space-y-3">
             <div className="space-y-1">
-              <h3 className="text-2xl font-semibold">{t('rgbPattern.simple.title')}</h3>
-              <p className="theme-muted text-sm">{t('rgbPattern.simple.description')}</p>
+              <h3 className="text-2xl font-semibold">
+                  {isSimpleMethod ? t('rgbPattern.simple.title') : t('rgbPattern.equation.title')}
+              </h3>
+              <p className="theme-muted text-sm">
+                  {isSimpleMethod ? t('rgbPattern.simple.description') : t('rgbPattern.equation.description', 'Create complex patterns using mathematical equations.')}
+              </p>
             </div>
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
@@ -195,7 +249,7 @@ export const RgbPatternPage = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   className="rounded-full border border-solid border-red-400 px-4 py-2 text-sm font-medium text-red-100 transition-transform hover:scale-[1.01] disabled:opacity-50"
-                  onClick={handleSimplePatternDelete}
+                  onClick={handlePatternDelete}
                   type="button"
                   disabled={!selectedPatternName}
                 >
@@ -203,25 +257,28 @@ export const RgbPatternPage = () => {
                 </button>
                 <button
                   className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-                  onClick={handleSimplePatternSave}
+                  onClick={handlePatternSave}
                   type="button"
-                  disabled={!simplePatternState.name.trim() || !hasSimpleSteps}
+                  disabled={!canSave}
                 >
                   {t('rgbPattern.simple.storage.saveButton')}
                 </button>
               </div>
             </div>
           </header>
-          <SimpleRgbPatternPanel
-            onChange={handleSimplePatternChange}
-            value={simplePatternState}
-          />
-        </article>
-      ) : (
-        <article className="theme-panel theme-border rounded-2xl border p-6">
-          <EquationRgbPatternPanel />
-        </article>
-      )}
+          
+          {isSimpleMethod ? (
+            <SimpleRgbPatternPanel
+                onChange={handleSimplePatternChange}
+                value={simplePatternState}
+            />
+          ) : (
+            <EquationRgbPatternPanel 
+                onChange={handleEquationPatternChange}
+                pattern={equationPatternState}
+            />
+          )}
+      </article>
     </section>
   );
 };

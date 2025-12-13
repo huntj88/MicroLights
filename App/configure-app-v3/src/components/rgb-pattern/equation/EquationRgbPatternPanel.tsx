@@ -5,18 +5,25 @@ import { ColorPreview } from './ColorPreview';
 import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
 import {
-  createDefaultEquationPattern,
   type EquationPattern,
   type EquationSection,
 } from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
 
-export const EquationRgbPatternPanel = () => {
+export type EquationRgbPatternAction =
+  | { type: 'rename-pattern'; name: string }
+  | { type: 'add-section'; channel: 'red' | 'green' | 'blue'; section: EquationSection }
+  | { type: 'update-section'; channel: 'red' | 'green' | 'blue'; sectionId: string; section: EquationSection }
+  | { type: 'remove-section'; channel: 'red' | 'green' | 'blue'; sectionId: string }
+  | { type: 'move-section'; channel: 'red' | 'green' | 'blue'; fromIndex: number; toIndex: number };
+
+export interface EquationRgbPatternPanelProps {
+  pattern: EquationPattern;
+  onChange: (state: EquationPattern, action: EquationRgbPatternAction) => void;
+}
+
+export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatternPanelProps) => {
   const { t } = useTranslation();
-  const [pattern, setPattern] = useState<EquationPattern>(() => ({
-    ...createDefaultEquationPattern(),
-    name: t('rgbPattern.equation.defaultName'),
-  }));
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const requestRef = useRef<number>(0);
@@ -93,28 +100,29 @@ export const EquationRgbPatternPanel = () => {
     setCurrentTime(0);
   };
 
-  const updateChannelSections = (
-    channel: 'red' | 'green' | 'blue',
-    updater: (sections: EquationSection[]) => EquationSection[]
-  ) => {
-    setPattern(prev => ({
-      ...prev,
-      [channel]: {
-        ...prev[channel],
-        sections: updater(prev[channel].sections),
-      },
-    }));
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const nextName = event.target.value;
+    const nextPattern = { ...pattern, name: nextName };
+    onChange(nextPattern, { type: 'rename-pattern', name: nextName });
   };
 
   const addSection = (channel: 'red' | 'green' | 'blue') => {
-    updateChannelSections(channel, sections => [
-      ...sections,
-      {
-        id: crypto.randomUUID(),
-        equation: '0',
-        duration: 1000,
+    const newSection: EquationSection = {
+      id: crypto.randomUUID(),
+      equation: '0',
+      duration: 1000,
+    };
+    
+    const nextSections = [...pattern[channel].sections, newSection];
+    const nextPattern = {
+      ...pattern,
+      [channel]: {
+        ...pattern[channel],
+        sections: nextSections,
       },
-    ]);
+    };
+    
+    onChange(nextPattern, { type: 'add-section', channel, section: newSection });
   };
 
   const updateSection = (
@@ -122,13 +130,37 @@ export const EquationRgbPatternPanel = () => {
     id: string,
     updates: Partial<EquationSection>
   ) => {
-    updateChannelSections(channel, sections =>
-      sections.map(s => (s.id === id ? { ...s, ...updates } : s))
-    );
+    const sections = pattern[channel].sections;
+    const sectionIndex = sections.findIndex(s => s.id === id);
+    if (sectionIndex === -1) return;
+
+    const updatedSection = { ...sections[sectionIndex], ...updates };
+    const nextSections = [...sections];
+    nextSections[sectionIndex] = updatedSection;
+
+    const nextPattern = {
+      ...pattern,
+      [channel]: {
+        ...pattern[channel],
+        sections: nextSections,
+      },
+    };
+
+    onChange(nextPattern, { type: 'update-section', channel, sectionId: id, section: updatedSection });
   };
 
   const deleteSection = (channel: 'red' | 'green' | 'blue', id: string) => {
-    updateChannelSections(channel, sections => sections.filter(s => s.id !== id));
+    const nextSections = pattern[channel].sections.filter(s => s.id !== id);
+    
+    const nextPattern = {
+      ...pattern,
+      [channel]: {
+        ...pattern[channel],
+        sections: nextSections,
+      },
+    };
+
+    onChange(nextPattern, { type: 'remove-section', channel, sectionId: id });
   };
 
   const moveSection = (
@@ -136,24 +168,43 @@ export const EquationRgbPatternPanel = () => {
     id: string,
     direction: 'up' | 'down'
   ) => {
-    updateChannelSections(channel, sections => {
-      const index = sections.findIndex(s => s.id === id);
-      if (index === -1) return sections;
-      if (direction === 'up' && index === 0) return sections;
-      if (direction === 'down' && index === sections.length - 1) return sections;
+    const sections = pattern[channel].sections;
+    const index = sections.findIndex(s => s.id === id);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === sections.length - 1) return;
 
-      const newSections = [...sections];
-      const swapIndex = direction === 'up' ? index - 1 : index + 1;
-      [newSections[index], newSections[swapIndex]] = [newSections[swapIndex], newSections[index]];
-      return newSections;
-    });
+    const newSections = [...sections];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    [newSections[index], newSections[swapIndex]] = [newSections[swapIndex], newSections[index]];
+
+    const nextPattern = {
+      ...pattern,
+      [channel]: {
+        ...pattern[channel],
+        sections: newSections,
+      },
+    };
+
+    onChange(nextPattern, { type: 'move-section', channel, fromIndex: index, toIndex: swapIndex });
   };
 
   return (
     <div className="flex flex-col gap-6 p-4 bg-gray-900 text-gray-100 rounded-lg shadow-xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">{t('rgbPattern.equation.title')}</h2>
-        <div className="flex gap-2">
+        <div className="flex-1 mr-4">
+            <label className="flex flex-col gap-1 text-sm">
+                <span className="font-bold text-gray-400">{t('rgbPattern.equation.form.nameLabel', 'Pattern Name')}</span>
+                <input
+                    className="w-full rounded bg-gray-800 border border-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
+                    onChange={handleNameChange}
+                    placeholder={t('rgbPattern.equation.form.namePlaceholder', 'Enter pattern name')}
+                    type="text"
+                    value={pattern.name}
+                />
+            </label>
+        </div>
+        <div className="flex gap-2 self-end mb-1">
           <button
             onClick={handlePlayPause}
             className={`px-4 py-2 rounded font-bold ${
