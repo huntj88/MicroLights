@@ -6,6 +6,10 @@ import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
 import { type EquationPattern, type EquationSection } from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
+import { PatternButton } from '../common/PatternButton';
+import { PatternNameEditor } from '../common/PatternNameEditor';
+import { PatternPanelContainer } from '../common/PatternPanelContainer';
+import { PatternSection } from '../common/PatternSection';
 
 export type EquationRgbPatternAction =
   | { type: 'rename-pattern'; name: string }
@@ -128,12 +132,6 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
     setCurrentTime(0);
   };
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const nextName = event.target.value;
-    const nextPattern = { ...pattern, name: nextName };
-    onChange(nextPattern, { type: 'rename-pattern', name: nextName });
-  };
-
   const addSection = (channel: 'red' | 'green' | 'blue') => {
     const newSection: EquationSection = {
       equation: '0',
@@ -226,43 +224,16 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 bg-gray-900 text-gray-100 rounded-lg shadow-xl">
-      <div className="flex justify-between items-center">
-        <div className="flex-1 mr-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-bold text-gray-400">
-              {t('rgbPattern.equation.form.nameLabel', 'Pattern Name')}
-            </span>
-            <input
-              className="w-full rounded bg-gray-800 border border-gray-700 px-3 py-2 text-white focus:border-blue-500 focus:outline-none"
-              onChange={handleNameChange}
-              placeholder={t('rgbPattern.equation.form.namePlaceholder', 'Enter pattern name')}
-              type="text"
-              value={pattern.name}
-            />
-          </label>
-        </div>
-        <div className="flex gap-2 self-end mb-1">
-          <button
-            onClick={handlePlayPause}
-            className={`px-4 py-2 rounded font-bold ${
-              isPlaying ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-green-600 hover:bg-green-500'
-            }`}
-          >
-            {isPlaying
-              ? t('rgbPattern.equation.controls.pause')
-              : t('rgbPattern.equation.controls.play')}
-          </button>
-          <button
-            onClick={handleStop}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded font-bold"
-          >
-            {t('rgbPattern.equation.controls.stop')}
-          </button>
-        </div>
-      </div>
+    <PatternPanelContainer>
+      <PatternNameEditor
+        name={pattern.name}
+        onChange={name => {
+          const nextPattern = { ...pattern, name };
+          onChange(nextPattern, { type: 'rename-pattern', name });
+        }}
+      />
 
-      <div className="bg-gray-800/50 p-3 rounded text-sm text-gray-400 border border-gray-700">
+      <div className="bg-[rgb(var(--surface-raised)/0.5)] p-3 rounded-xl text-sm theme-muted border theme-border">
         <p>
           <strong>{t('rgbPattern.equation.help.title')}</strong>{' '}
           <Trans i18nKey="rgbPattern.equation.help.description">
@@ -279,10 +250,21 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       </div>
 
       {/* Preview Area */}
-      <div className="bg-black rounded p-4 border border-gray-700">
-        <h3 className="text-sm font-bold text-gray-400 mb-2">
-          {t('rgbPattern.equation.preview.title')}
-        </h3>
+      <PatternSection
+        title={t('rgbPattern.equation.preview.title')}
+        actions={
+          <>
+            <PatternButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
+              {isPlaying
+                ? t('rgbPattern.equation.controls.pause')
+                : t('rgbPattern.equation.controls.play')}
+            </PatternButton>
+            <PatternButton onClick={handleStop} variant="secondary">
+              {t('rgbPattern.equation.controls.stop')}
+            </PatternButton>
+          </>
+        }
+      >
         <ColorPreview
           redPoints={redPoints}
           greenPoints={greenPoints}
@@ -290,16 +272,13 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           currentTime={currentTime}
           totalDuration={totalDuration}
         />
-        <div className="mt-2 text-right text-xs text-gray-500 font-mono">
+        <div className="mt-2 text-right text-xs theme-muted font-mono">
           {(currentTime / 1000).toFixed(2)}s / {(totalDuration / 1000).toFixed(2)}s
         </div>
-      </div>
+      </PatternSection>
 
       {/* Waveform Display Area */}
-      <div className="grid grid-cols-1 gap-1 bg-black rounded p-4 border border-gray-700">
-        <h3 className="text-sm font-bold text-gray-400 mb-2">
-          {t('rgbPattern.equation.waveforms.title')}
-        </h3>
+      <PatternSection title={t('rgbPattern.equation.waveforms.title')}>
         <WaveformLane
           color="red"
           points={redPoints}
@@ -318,7 +297,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           currentTime={currentTime}
           totalDuration={totalDuration}
         />
-      </div>
+      </PatternSection>
 
       {/* Section Management Area */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -383,6 +362,6 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           }}
         />
       </div>
-    </div>
+    </PatternPanelContainer>
   );
 };

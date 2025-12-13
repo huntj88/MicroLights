@@ -36,7 +36,7 @@
         "ariaLabel": "Simple RGB pattern form",
         "nameLabel": "Pattern name",
         "nameHelper": "Give this pattern a descriptive name to recognize it later.",
-        "namePlaceholder": "Sunrise cascade",
+        "namePlaceholder": "Enter pattern name",
         "colorLabel": "Color",
         "colorHelper": "Use the color picker to choose the LED output.",
         "durationLabel": "Duration (ms)",
