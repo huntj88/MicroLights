@@ -22,8 +22,9 @@ export const PatternButton = ({
     danger: 'bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20',
     ghost:
       'hover:bg-[rgb(var(--surface-raised)/0.5)] theme-muted hover:text-[rgb(var(--surface-contrast)/1)]',
-    success: 'bg-green-600 hover:bg-green-500 text-white shadow-sm',
-    warning: 'bg-yellow-500 hover:bg-yellow-400 text-gray-900 shadow-sm',
+    success: 'bg-[rgb(var(--success)/1)] hover:bg-[rgb(var(--success)/0.9)] text-white shadow-sm',
+    warning:
+      'bg-[rgb(var(--warning)/1)] hover:bg-[rgb(var(--warning)/0.9)] text-gray-900 shadow-sm',
   };
 
   return (

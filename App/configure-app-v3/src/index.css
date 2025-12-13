@@ -14,6 +14,8 @@
   --surface-muted: 100 116 139;
   --surface-raised: 30 41 59;
   --accent: 249 115 22;
+  --success: 22 163 74;
+  --warning: 234 179 8;
 }
 
 html,
@@ -37,6 +39,8 @@ body {
   --surface-muted: 100 116 139;
   --surface-raised: 255 255 255;
   --accent: 217 119 6;
+  --success: 22 163 74;
+  --warning: 234 179 8;
 }
 
 [data-theme='dark'] {
@@ -45,6 +49,8 @@ body {
   --surface-muted: 148 163 184;
   --surface-raised: 30 41 59;
   --accent: 249 115 22;
+  --success: 22 163 74;
+  --warning: 234 179 8;
 }
 
 .theme-surface {
