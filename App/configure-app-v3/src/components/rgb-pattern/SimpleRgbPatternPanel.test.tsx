@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { SimplePattern } from '@/app/models/mode';
+import { hexColorSchema, type SimplePattern } from '@/app/models/mode';
 import {
   fireEvent,
   renderWithProviders,
@@ -18,7 +18,7 @@ const createPattern = (segments: { color: string; duration: number }[]): SimpleP
   const changeAt = segments.map(segment => {
     const entry = {
       ms: cursor,
-      output: segment.color as SimplePattern['changeAt'][number]['output'],
+      output: hexColorSchema.parse(segment.color),
     };
     cursor += segment.duration;
     return entry;
@@ -71,7 +71,7 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(200);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#ff7b00' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 0, output: hexColorSchema.parse('#ff7b00') },
     ]);
     expect(action.type).toBe('add-step');
     if (action.type === 'add-step') {
@@ -167,8 +167,8 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(300);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#202020' as SimplePattern['changeAt'][number]['output'] },
-      { ms: 200, output: '#101010' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 0, output: hexColorSchema.parse('#202020') },
+      { ms: 200, output: hexColorSchema.parse('#101010') },
     ]);
     expect(action).toEqual({ type: 'move-step', fromIndex: 0, toIndex: 1 });
   });
@@ -195,8 +195,8 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(600);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#334455' as SimplePattern['changeAt'][number]['output'] },
-      { ms: 300, output: '#334455' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 0, output: hexColorSchema.parse('#334455') },
+      { ms: 300, output: hexColorSchema.parse('#334455') },
     ]);
     expect(action.type).toBe('duplicate-step');
     if (action.type === 'duplicate-step') {
@@ -269,8 +269,8 @@ describe('SimpleRgbPatternPanel', () => {
     const [nextPattern, action] = finalCall;
     expect(nextPattern.duration).toBe(250);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#000000' as SimplePattern['changeAt'][number]['output'] },
-      { ms: 100, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 0, output: hexColorSchema.parse('#000000') },
+      { ms: 100, output: hexColorSchema.parse('#123456') },
     ]);
     expect(action.type).toBe('update-step');
     if (action.type === 'update-step') {
@@ -305,5 +305,73 @@ describe('SimpleRgbPatternPanel', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+  });
+
+  it('allows setting duration to 0 to trigger validation errors', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createPattern([{ color: '#ff0000', duration: 100 }]);
+
+    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+
+    // Select the segment
+    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+
+    // Find duration input
+    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+
+    // Change to 0
+    await user.clear(durationInput);
+    await user.type(durationInput, '0');
+
+    // Check if onChange was called with 0 duration
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        duration: 0,
+      }),
+      expect.objectContaining({
+        type: 'update-step',
+      }),
+    );
+  });
+
+  it('renders a step even if its duration is 0 (single step case)', () => {
+    const pattern: SimplePattern = {
+      type: 'simple',
+      name: 'test',
+      duration: 0,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+    };
+
+    renderWithProviders(<SimpleRgbPatternPanel onChange={vi.fn()} value={pattern} />);
+
+    expect(screen.getByRole('button', { name: /#ffffff for 0 ms/i })).toBeInTheDocument();
+  });
+
+  it('triggers validation error when duration is empty', async () => {
+    const onChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createPattern([{ color: '#ff0000', duration: 100 }]);
+
+    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+
+    // Select the segment
+    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+
+    // Find duration input
+    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+
+    // Clear input
+    await user.clear(durationInput);
+
+    // Check if onChange was called with NaN duration
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        duration: NaN,
+      }),
+      expect.objectContaining({
+        type: 'update-step',
+      }),
+    );
   });
 });

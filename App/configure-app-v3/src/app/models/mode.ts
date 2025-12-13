@@ -57,15 +57,25 @@ export const channelConfigSchema = z.object({
 
 export type ChannelConfig = z.infer<typeof channelConfigSchema>;
 
-export const equationPatternSchema = z.object({
-  type: z.literal('equation'),
-  id: z.uuid().optional(),
-  name: z.string().min(1, 'Name is required'),
-  duration: z.number().nonnegative(),
-  red: channelConfigSchema,
-  green: channelConfigSchema,
-  blue: channelConfigSchema,
-});
+export const equationPatternSchema = z
+  .object({
+    type: z.literal('equation'),
+    id: z.uuid().optional(),
+    name: z.string().min(1, 'Name is required'),
+    duration: z.number().nonnegative(),
+    red: channelConfigSchema,
+    green: channelConfigSchema,
+    blue: channelConfigSchema,
+  })
+  .refine(
+    data =>
+      data.red.sections.length > 0 ||
+      data.green.sections.length > 0 ||
+      data.blue.sections.length > 0,
+    {
+      message: 'At least one equation section is required in Red, Green, or Blue channels.',
+    },
+  );
 
 export type EquationPattern = z.infer<typeof equationPatternSchema>;
 

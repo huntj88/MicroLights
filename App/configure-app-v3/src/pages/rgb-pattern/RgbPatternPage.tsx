@@ -4,7 +4,10 @@ import { useTranslation } from 'react-i18next';
 
 import {
   createDefaultEquationPattern,
+  equationPatternSchema,
+  simplePatternSchema,
   type EquationPattern,
+  type ModePattern,
   type SimplePattern,
 } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
@@ -33,6 +36,12 @@ export const RgbPatternPage = () => {
     ...createDefaultEquationPattern(),
     name: t('rgbPattern.equation.defaultName'),
   }));
+  const [originalPattern, setOriginalPattern] = useState<ModePattern | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>(() => {
+    const initialPattern = createEmptyPattern();
+    const result = simplePatternSchema.safeParse(initialPattern);
+    return result.success ? [] : result.error.issues.map(issue => issue.message);
+  });
 
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
@@ -66,6 +75,7 @@ export const RgbPatternPage = () => {
     }
 
     setSelectedPatternName('');
+    setOriginalPattern(null);
   }, [
     availablePatternNames,
     selectedPatternName,
@@ -80,11 +90,19 @@ export const RgbPatternPage = () => {
   ) => {
     setSimplePatternState(nextPattern);
 
+    const result = simplePatternSchema.safeParse(nextPattern);
+    if (!result.success) {
+      setValidationErrors(result.error.issues.map(issue => issue.message));
+    } else {
+      setValidationErrors([]);
+    }
+
     if (action.type === 'rename-pattern') {
       if (selectedPatternName === action.name) {
         return;
       }
 
+      setOriginalPattern(null);
       setSelectedPatternName('');
     }
   };
@@ -95,10 +113,18 @@ export const RgbPatternPage = () => {
   ) => {
     setEquationPatternState(nextPattern);
 
+    const result = equationPatternSchema.safeParse(nextPattern);
+    if (!result.success) {
+      setValidationErrors(result.error.issues.map(issue => issue.message));
+    } else {
+      setValidationErrors([]);
+    }
+
     if (action.type === 'rename-pattern') {
       if (selectedPatternName === action.name) {
         return;
       }
+      setOriginalPattern(null);
       setSelectedPatternName('');
     }
   };
@@ -107,12 +133,27 @@ export const RgbPatternPage = () => {
     setActiveMethod(method);
 
     const targetState = method === 'simple' ? simplePatternState : equationPatternState;
+
+    const result =
+      method === 'simple'
+        ? simplePatternSchema.safeParse(targetState)
+        : equationPatternSchema.safeParse(targetState);
+
+    if (!result.success) {
+      setValidationErrors(result.error.issues.map(issue => issue.message));
+    } else {
+      setValidationErrors([]);
+    }
+
     const exists = patterns.some(p => p.type === method && p.name === targetState.name);
 
     if (exists) {
       setSelectedPatternName(targetState.name);
+      const stored = getPattern(targetState.name);
+      setOriginalPattern(stored ?? null);
     } else {
       setSelectedPatternName('');
+      setOriginalPattern(null);
     }
   };
 
@@ -121,13 +162,20 @@ export const RgbPatternPage = () => {
 
     if (nextName === '') {
       setSelectedPatternName('');
+      setOriginalPattern(null);
       if (activeMethod === 'simple') {
-        setSimplePatternState(createEmptyPattern());
+        const newPattern = createEmptyPattern();
+        setSimplePatternState(newPattern);
+        const result = simplePatternSchema.safeParse(newPattern);
+        setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
       } else {
-        setEquationPatternState({
+        const newPattern = {
           ...createDefaultEquationPattern(),
           name: t('rgbPattern.equation.defaultName'),
-        });
+        };
+        setEquationPatternState(newPattern);
+        const result = equationPatternSchema.safeParse(newPattern);
+        setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
       }
       return;
     }
@@ -135,21 +183,42 @@ export const RgbPatternPage = () => {
     setSelectedPatternName(nextName);
     const stored = getPattern(nextName);
     if (stored) {
+      setOriginalPattern(stored);
       if (activeMethod === 'simple' && stored.type === 'simple') {
         setSimplePatternState(stored);
+        const result = simplePatternSchema.safeParse(stored);
+        if (!result.success) {
+          setValidationErrors(result.error.issues.map(issue => issue.message));
+        } else {
+          setValidationErrors([]);
+        }
       } else if (activeMethod === 'equation' && stored.type === 'equation') {
         setEquationPatternState(stored);
+        const result = equationPatternSchema.safeParse(stored);
+        if (!result.success) {
+          setValidationErrors(result.error.issues.map(issue => issue.message));
+        } else {
+          setValidationErrors([]);
+        }
       }
     }
   };
 
   const handlePatternSave = () => {
+    setValidationErrors([]);
     const pattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
+
+    const result =
+      activeMethod === 'simple'
+        ? simplePatternSchema.safeParse(pattern)
+        : equationPatternSchema.safeParse(pattern);
+
+    if (!result.success) {
+      setValidationErrors(result.error.issues.map(issue => issue.message));
+      return;
+    }
+
     const patternName = pattern.name.trim();
-
-    if (!patternName) return;
-    if (activeMethod === 'simple' && (pattern as SimplePattern).changeAt.length === 0) return;
-
     const isOverwrite = availablePatternNames.includes(patternName);
     if (isOverwrite) {
       const shouldOverwrite = window.confirm(
@@ -161,6 +230,7 @@ export const RgbPatternPage = () => {
     }
 
     savePattern(pattern);
+    setOriginalPattern(pattern);
     setSelectedPatternName(patternName);
   };
 
@@ -177,23 +247,41 @@ export const RgbPatternPage = () => {
       return;
     }
 
+    setOriginalPattern(null);
     deletePattern(selectedPatternName);
     setSelectedPatternName('');
     if (activeMethod === 'simple') {
-      setSimplePatternState(createEmptyPattern());
+      const newPattern = createEmptyPattern();
+      setSimplePatternState(newPattern);
+      const result = simplePatternSchema.safeParse(newPattern);
+      setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
     } else {
-      setEquationPatternState({
+      const newPattern = {
         ...createDefaultEquationPattern(),
         name: t('rgbPattern.equation.defaultName'),
-      });
+      };
+      setEquationPatternState(newPattern);
+      const result = equationPatternSchema.safeParse(newPattern);
+      setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
     }
   };
 
+  const isDirty = useMemo(() => {
+    if (!selectedPatternName || !originalPattern) {
+      return true;
+    }
+
+    const currentPattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
+    return JSON.stringify(currentPattern) !== JSON.stringify(originalPattern);
+  }, [
+    selectedPatternName,
+    originalPattern,
+    activeMethod,
+    simplePatternState,
+    equationPatternState,
+  ]);
+
   const isSimpleMethod = activeMethod === 'simple';
-  const hasSimpleSteps = simplePatternState.changeAt.length > 0;
-  const canSave = isSimpleMethod
-    ? simplePatternState.name.trim() && hasSimpleSteps
-    : equationPatternState.name.trim();
 
   return (
     <section className="space-y-6">
@@ -276,13 +364,23 @@ export const RgbPatternPage = () => {
                 className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
                 onClick={handlePatternSave}
                 type="button"
-                disabled={!canSave}
+                disabled={!isDirty || validationErrors.length > 0}
               >
                 {t('rgbPattern.simple.storage.saveButton')}
               </button>
             </div>
           </div>
         </header>
+
+        {validationErrors.length > 0 && (
+          <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm text-red-200">
+            <ul className="list-inside list-disc space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {isSimpleMethod ? (
           <SimpleRgbPatternPanel onChange={handleSimplePatternChange} value={simplePatternState} />

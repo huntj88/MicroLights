@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { SimplePattern } from '../../app/models/mode';
+import { hexColorSchema, type SimplePattern } from '../../app/models/mode';
 
 export interface SimpleRgbPatternStep {
   id: string;
@@ -35,7 +35,7 @@ const createStep = (color: string, durationMs: number): SimpleRgbPatternStep => 
 });
 
 const convertPatternToSteps = (pattern: SimplePattern): SimpleRgbPatternStep[] => {
-  if (!pattern.changeAt.length || pattern.duration <= 0) {
+  if (!pattern.changeAt.length) {
     return [];
   }
 
@@ -47,13 +47,9 @@ const convertPatternToSteps = (pattern: SimplePattern): SimpleRgbPatternStep[] =
       index === pattern.changeAt.length - 1 ? pattern.duration : pattern.changeAt[index + 1].ms;
     const duration = Math.max(endMs - current.ms, 0);
 
-    if (duration === 0) {
-      continue;
-    }
-
     steps.push({
       id: `${STEP_ID_PREFIX}${current.ms.toString()}-${index.toString()}`,
-      color: current.output as string,
+      color: hexColorSchema.parse(current.output),
       durationMs: duration,
     });
   }
@@ -70,7 +66,7 @@ const createPatternFromSteps = (
   const changeAt = steps.map(step => {
     const entry = {
       ms: cursor,
-      output: step.color as SimplePattern['changeAt'][number]['output'],
+      output: hexColorSchema.parse(step.color),
     };
     cursor += step.durationMs;
     return entry;
@@ -201,11 +197,12 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
     }));
 
     if (duration === '') {
+      handleStepUpdate(stepId, { durationMs: Number.NaN });
       return;
     }
 
     const parsed = Number.parseInt(duration, 10);
-    if (!Number.isFinite(parsed) || parsed <= 0) {
+    if (!Number.isFinite(parsed) || parsed < 0) {
       return;
     }
 
@@ -309,7 +306,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   };
 
   const patternSegments = useMemo(() => {
-    if (totalDuration === 0) {
+    if (steps.length === 0) {
       return null;
     }
 
@@ -333,7 +330,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
           }}
           style={{
             backgroundColor: step.color,
-            flexGrow: step.durationMs,
+            flexGrow: totalDuration > 0 ? step.durationMs : 1,
           }}
           title={t('rgbPattern.simple.preview.segmentLabel', {
             color: step.color,
@@ -377,7 +374,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
         </header>
 
         <div className="theme-panel theme-border flex min-h-[56px] items-stretch overflow-hidden rounded-xl border">
-          {totalDuration === 0 ? (
+          {steps.length === 0 ? (
             <div className="flex flex-1 items-center justify-center text-sm">
               <span className="theme-muted">{t('rgbPattern.simple.preview.empty')}</span>
             </div>

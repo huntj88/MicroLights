@@ -1,7 +1,8 @@
+import { z } from 'zod';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-import type { ModePattern } from '../models/mode';
+import { modePatternSchema, type ModePattern } from '../models/mode';
 
 export interface PatternStoreState {
   patterns: ModePattern[];
@@ -59,6 +60,16 @@ export const usePatternStore = create<PatternStoreState>()(
       name: 'flow-art-forge-patterns',
       version: 1,
       partialize: state => ({ patterns: state.patterns }),
+      merge: (persistedState, currentState) => {
+        const schema = z.object({
+          patterns: z.array(modePatternSchema),
+        });
+        const result = schema.safeParse(persistedState);
+        if (result.success) {
+          return { ...currentState, patterns: result.data.patterns };
+        }
+        return currentState;
+      },
     },
   ),
 );
