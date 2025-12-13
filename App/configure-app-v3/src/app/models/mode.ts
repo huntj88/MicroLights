@@ -82,7 +82,7 @@ export type EquationPattern = z.infer<typeof equationPatternSchema>;
 export const createDefaultEquationPattern = (): EquationPattern => ({
   type: 'equation',
   id: crypto.randomUUID(),
-  name: 'New Equation Pattern',
+  name: '',
   duration: 1000,
   red: { sections: [], loopAfterDuration: true },
   green: { sections: [], loopAfterDuration: true },

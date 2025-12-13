@@ -131,7 +131,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
             value={Number.isNaN(section.duration) ? '' : section.duration}
             onChange={e => {
               const val = parseInt(e.target.value);
-              onUpdate({ duration: Number.isNaN(val) ? (NaN) : val });
+              onUpdate({ duration: Number.isNaN(val) ? NaN : val });
             }}
             className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-sm"
           />

@@ -47,9 +47,7 @@ describe('RgbPatternPage', () => {
     // Switch to equation method (default state is invalid because it has no sections)
     await user.click(screen.getByRole('button', { name: /equation method/i }));
 
-    expect(
-      screen.getByText(/at least one equation section is required/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
 
     // Switch back to simple method (default state is valid)
     await user.click(screen.getByRole('button', { name: /simple method/i }));
@@ -96,7 +94,9 @@ describe('RgbPatternPage', () => {
 
     const saveButton = screen.getByRole('button', { name: /save pattern/i });
     const addButton = screen.getByRole('button', { name: /add color step/i });
+    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
 
+    await user.type(nameInput, 'My Pattern');
     await user.click(addButton);
     await user.click(screen.getByRole('button', { name: /add step/i }));
     expect(saveButton).toBeEnabled();
@@ -106,7 +106,7 @@ describe('RgbPatternPage', () => {
     const chooser = screen.getByLabelText(/saved patterns/i);
     const options = within(chooser).getAllByRole('option');
     expect(options).toHaveLength(2);
-    expect(chooser).toHaveValue('Simple RGB Pattern');
+    expect(chooser).toHaveValue('My Pattern');
 
     // Make a change to trigger the overwrite prompt (otherwise save is disabled)
     await user.click(addButton);
@@ -200,9 +200,7 @@ describe('RgbPatternPage', () => {
 
     expect(chooser).toHaveValue('');
     expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(
-      'Simple RGB Pattern',
-    );
+    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
   });
 
   it('restores the selected pattern name when switching back to a method with a loaded pattern', async () => {

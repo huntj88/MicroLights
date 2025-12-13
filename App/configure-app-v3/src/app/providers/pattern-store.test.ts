@@ -12,7 +12,7 @@ const createSimplePattern = (overrides?: Partial<SimplePattern>): SimplePattern 
   name: 'Test Pattern',
   type: 'simple',
   duration: 100,
-  changeAt: [{ ms: 0, output: hexColorSchema.parse('#112233')}],
+  changeAt: [{ ms: 0, output: hexColorSchema.parse('#112233') }],
   ...overrides,
 });
 

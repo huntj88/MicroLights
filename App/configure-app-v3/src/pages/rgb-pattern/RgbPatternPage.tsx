@@ -22,7 +22,7 @@ import {
 
 const createEmptyPattern = (): SimplePattern => ({
   type: 'simple',
-  name: 'Simple RGB Pattern',
+  name: '',
   duration: 0,
   changeAt: [],
 });
@@ -32,10 +32,9 @@ export const RgbPatternPage = () => {
   const [activeMethod, setActiveMethod] = useState<'simple' | 'equation'>('simple');
   const [selectedPatternName, setSelectedPatternName] = useState('');
   const [simplePatternState, setSimplePatternState] = useState<SimplePattern>(createEmptyPattern);
-  const [equationPatternState, setEquationPatternState] = useState<EquationPattern>(() => ({
-    ...createDefaultEquationPattern(),
-    name: t('rgbPattern.equation.defaultName'),
-  }));
+  const [equationPatternState, setEquationPatternState] = useState<EquationPattern>(
+    createDefaultEquationPattern,
+  );
   const [originalPattern, setOriginalPattern] = useState<ModePattern | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>(() => {
     const initialPattern = createEmptyPattern();
@@ -169,10 +168,7 @@ export const RgbPatternPage = () => {
         const result = simplePatternSchema.safeParse(newPattern);
         setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
       } else {
-        const newPattern = {
-          ...createDefaultEquationPattern(),
-          name: t('rgbPattern.equation.defaultName'),
-        };
+        const newPattern = createDefaultEquationPattern();
         setEquationPatternState(newPattern);
         const result = equationPatternSchema.safeParse(newPattern);
         setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
@@ -256,10 +252,7 @@ export const RgbPatternPage = () => {
       const result = simplePatternSchema.safeParse(newPattern);
       setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
     } else {
-      const newPattern = {
-        ...createDefaultEquationPattern(),
-        name: t('rgbPattern.equation.defaultName'),
-      };
+      const newPattern = createDefaultEquationPattern();
       setEquationPatternState(newPattern);
       const result = equationPatternSchema.safeParse(newPattern);
       setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));

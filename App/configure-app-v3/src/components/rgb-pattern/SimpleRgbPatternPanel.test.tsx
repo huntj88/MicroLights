@@ -70,9 +70,7 @@ describe('SimpleRgbPatternPanel', () => {
     >;
 
     expect(nextPattern.duration).toBe(200);
-    expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: hexColorSchema.parse('#ff7b00') },
-    ]);
+    expect(nextPattern.changeAt).toEqual([{ ms: 0, output: hexColorSchema.parse('#ff7b00') }]);
     expect(action.type).toBe('add-step');
     if (action.type === 'add-step') {
       expect(action.step).toMatchObject({ color: '#ff7b00', durationMs: 200 });

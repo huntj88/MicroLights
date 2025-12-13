@@ -5,9 +5,7 @@ import { SectionLane } from './SectionLane';
 import type { EquationSection } from '../../../app/models/mode';
 
 describe('SectionLane', () => {
-  const mockSections: EquationSection[] = [
-    { equation: 'sin(t)', duration: 1000 },
-  ];
+  const mockSections: EquationSection[] = [{ equation: 'sin(t)', duration: 1000 }];
 
   const defaultProps = {
     color: 'red' as const,
@@ -37,13 +35,11 @@ describe('SectionLane', () => {
   });
 
   it('handles NaN duration gracefully', () => {
-    const sectionsWithNaN: EquationSection[] = [
-      { equation: 'sin(t)', duration: NaN },
-    ];
+    const sectionsWithNaN: EquationSection[] = [{ equation: 'sin(t)', duration: NaN }];
     render(<SectionLane {...defaultProps} sections={sectionsWithNaN} />);
 
     const durationInput = screen.getByRole('spinbutton');
     // When value is NaN, input should be empty
-    expect(durationInput).toHaveValue(null); 
+    expect(durationInput).toHaveValue(null);
   });
 });
