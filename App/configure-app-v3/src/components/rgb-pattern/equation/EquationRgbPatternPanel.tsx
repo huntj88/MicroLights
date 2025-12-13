@@ -4,7 +4,7 @@ import {
   createDefaultEquationPattern,
   type EquationPattern,
   type EquationSection,
-} from '../../../app/models/equation-pattern';
+} from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
 import { ColorPreview } from './ColorPreview';
 import { SectionLane } from './SectionLane';

@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ModePattern } from '../../app/models/mode';
+import type { SimplePattern } from '../../app/models/mode';
 
 export interface SimpleRgbPatternStep {
   id: string;
@@ -19,8 +19,8 @@ export type SimpleRgbPatternAction =
   | { type: 'update-step'; stepId: string; step: SimpleRgbPatternStep };
 
 export interface SimpleRgbPatternPanelProps {
-  value: ModePattern;
-  onChange: (state: ModePattern, action: SimpleRgbPatternAction) => void;
+  value: SimplePattern;
+  onChange: (state: SimplePattern, action: SimpleRgbPatternAction) => void;
 }
 
 const STEP_ID_PREFIX = 'rgb-step-';
@@ -34,7 +34,7 @@ const createStep = (color: string, durationMs: number): SimpleRgbPatternStep => 
   durationMs,
 });
 
-const convertPatternToSteps = (pattern: ModePattern): SimpleRgbPatternStep[] => {
+const convertPatternToSteps = (pattern: SimplePattern): SimpleRgbPatternStep[] => {
   if (!pattern.changeAt.length || pattern.duration <= 0) {
     return [];
   }
@@ -62,13 +62,13 @@ const convertPatternToSteps = (pattern: ModePattern): SimpleRgbPatternStep[] => 
   return steps;
 };
 
-const createPatternFromSteps = (pattern: ModePattern, steps: SimpleRgbPatternStep[]): ModePattern => {
+const createPatternFromSteps = (pattern: SimplePattern, steps: SimpleRgbPatternStep[]): SimplePattern => {
   let cursor = 0;
 
   const changeAt = steps.map(step => {
     const entry = {
       ms: cursor,
-      output: step.color as ModePattern['changeAt'][number]['output'],
+      output: step.color as SimplePattern['changeAt'][number]['output'],
     };
     cursor += step.durationMs;
     return entry;
@@ -171,7 +171,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextName = event.target.value;
-    const nextPattern: ModePattern = {
+    const nextPattern: SimplePattern = {
       ...value,
       name: nextName,
     };

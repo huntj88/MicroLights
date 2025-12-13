@@ -46,8 +46,45 @@ export const patternChangeSchema = z.union([
 
 export type PatternChange = z.infer<typeof patternChangeSchema>;
 
-export const modePatternSchema = z
+export const equationSectionSchema = z.object({
+  id: z.string().uuid(),
+  equation: z.string().min(1, 'Equation cannot be empty'),
+  duration: z.number().min(1, 'Duration must be at least 1ms'),
+});
+
+export type EquationSection = z.infer<typeof equationSectionSchema>;
+
+export const channelConfigSchema = z.object({
+  sections: z.array(equationSectionSchema),
+});
+
+export type ChannelConfig = z.infer<typeof channelConfigSchema>;
+
+export const equationPatternSchema = z.object({
+  type: z.literal('equation'),
+  id: z.string().uuid().optional(),
+  name: z.string().min(1, 'Name is required'),
+  duration: z.number().nonnegative(),
+  red: channelConfigSchema,
+  green: channelConfigSchema,
+  blue: channelConfigSchema,
+});
+
+export type EquationPattern = z.infer<typeof equationPatternSchema>;
+
+export const createDefaultEquationPattern = (): EquationPattern => ({
+  type: 'equation',
+  id: crypto.randomUUID(),
+  name: 'New Equation Pattern',
+  duration: 1000,
+  red: { sections: [] },
+  green: { sections: [] },
+  blue: { sections: [] },
+});
+
+export const simplePatternSchema = z
   .object({
+    type: z.literal('simple').default('simple'),
     name: z.string().min(1, 'Pattern name cannot be empty.'),
     duration: z
       .number()
@@ -71,6 +108,13 @@ export const modePatternSchema = z
       }),
   })
   .describe('A pattern defining how an LED output changes over time.');
+
+export type SimplePattern = z.infer<typeof simplePatternSchema>;
+
+export const modePatternSchema = z.discriminatedUnion('type', [
+  simplePatternSchema,
+  equationPatternSchema,
+]);
 
 export type ModePattern = z.infer<typeof modePatternSchema>;
 
@@ -131,10 +175,12 @@ export const parseModeDocument = (input: unknown): ModeDocument => modeDocumentS
 
 export const isBinaryPattern = (
   pattern: ModePattern,
-): pattern is ModePattern & { changeAt: BinaryPatternChange[] } =>
+): pattern is SimplePattern & { changeAt: BinaryPatternChange[] } =>
+  pattern.type === 'simple' &&
   pattern.changeAt.every((change) => change.output === 'high' || change.output === 'low');
 
 export const isColorPattern = (
   pattern: ModePattern,
-): pattern is ModePattern & { changeAt: ColorPatternChange[] } =>
+): pattern is SimplePattern & { changeAt: ColorPatternChange[] } =>
+  pattern.type === 'simple' &&
   pattern.changeAt.every((change) => change.output !== 'high' && change.output !== 'low');

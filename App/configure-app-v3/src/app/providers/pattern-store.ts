@@ -10,12 +10,22 @@ export interface PatternStoreState {
   getPattern: (name: string) => ModePattern | undefined;
 }
 
-const clonePattern = (pattern: ModePattern): ModePattern => ({
-  ...pattern,
-  changeAt: pattern.changeAt.map(change => ({
-    ...change,
-  })),
-});
+const clonePattern = (pattern: ModePattern): ModePattern => {
+  if (pattern.type === 'equation') {
+    return {
+      ...pattern,
+      red: { sections: [...pattern.red.sections.map(s => ({ ...s }))] },
+      green: { sections: [...pattern.green.sections.map(s => ({ ...s }))] },
+      blue: { sections: [...pattern.blue.sections.map(s => ({ ...s }))] },
+    };
+  }
+  return {
+    ...pattern,
+    changeAt: pattern.changeAt.map(change => ({
+      ...change,
+    })),
+  };
+};
 
 export const usePatternStore = create<PatternStoreState>()(
   persist(

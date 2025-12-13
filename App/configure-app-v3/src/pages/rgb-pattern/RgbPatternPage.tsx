@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import type { ModePattern } from '../../app/models/mode';
+import type { SimplePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
 import { EquationRgbPatternPanel } from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
 import {
@@ -10,7 +10,8 @@ import {
   SimpleRgbPatternPanel,
 } from '../../components/rgb-pattern/SimpleRgbPatternPanel';
 
-const createEmptyPattern = (): ModePattern => ({
+const createEmptyPattern = (): SimplePattern => ({
+  type: 'simple',
   name: 'Simple RGB Pattern',
   duration: 0,
   changeAt: [],
@@ -20,15 +21,19 @@ export const RgbPatternPage = () => {
   const { t } = useTranslation();
   const [activeMethod, setActiveMethod] = useState<'simple' | 'equation'>('simple');
   const [selectedPatternName, setSelectedPatternName] = useState('');
-  const [simplePatternState, setSimplePatternState] = useState<ModePattern>(createEmptyPattern);
+  const [simplePatternState, setSimplePatternState] = useState<SimplePattern>(createEmptyPattern);
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
   const deletePattern = usePatternStore(state => state.deletePattern);
   const getPattern = usePatternStore(state => state.getPattern);
 
   const availablePatternNames = useMemo(
-    () => patterns.map(pattern => pattern.name).sort((a, b) => a.localeCompare(b)),
-    [patterns],
+    () =>
+      patterns
+        .filter(p => (activeMethod === 'simple' ? p.type === 'simple' : p.type === 'equation'))
+        .map(pattern => pattern.name)
+        .sort((a, b) => a.localeCompare(b)),
+    [patterns, activeMethod],
   );
 
   useEffect(() => {
@@ -40,6 +45,7 @@ export const RgbPatternPage = () => {
       return;
     }
 
+    // If the pattern name is still the same as the state, we don't need to clear it
     if (simplePatternState.name === selectedPatternName) {
       return;
     }
@@ -47,7 +53,7 @@ export const RgbPatternPage = () => {
     setSelectedPatternName('');
   }, [availablePatternNames, selectedPatternName, simplePatternState.name]);
 
-  const handleSimplePatternChange = (nextPattern: ModePattern, action: SimpleRgbPatternAction) => {
+  const handleSimplePatternChange = (nextPattern: SimplePattern, action: SimpleRgbPatternAction) => {
     setSimplePatternState(nextPattern);
 
     if (action.type === 'rename-pattern') {
@@ -61,6 +67,7 @@ export const RgbPatternPage = () => {
 
   const handleMethodChange = (method: 'simple' | 'equation') => {
     setActiveMethod(method);
+    setSelectedPatternName(''); // Clear selection when switching methods
   };
 
   const handlePatternSelect = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -68,14 +75,19 @@ export const RgbPatternPage = () => {
 
     if (nextName === '') {
       setSelectedPatternName('');
-      setSimplePatternState(createEmptyPattern());
+      if (activeMethod === 'simple') {
+        setSimplePatternState(createEmptyPattern());
+      }
       return;
     }
 
     setSelectedPatternName(nextName);
     const stored = getPattern(nextName);
     if (stored) {
-      setSimplePatternState(stored);
+      if (activeMethod === 'simple' && stored.type === 'simple') {
+        setSimplePatternState(stored);
+      }
+      // TODO: Handle equation pattern loading
     }
   };
 

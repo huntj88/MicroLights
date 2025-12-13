@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import type { ModePattern } from '@/app/models/mode';
+import type { SimplePattern } from '@/app/models/mode';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test-utils/render-with-providers';
 
 import {
@@ -10,19 +10,20 @@ import {
   type SimpleRgbPatternPanelProps,
 } from './SimpleRgbPatternPanel';
 
-const createPattern = (segments: { color: string; duration: number }[]): ModePattern => {
+const createPattern = (segments: { color: string; duration: number }[]): SimplePattern => {
   let cursor = 0;
 
   const changeAt = segments.map(segment => {
     const entry = {
       ms: cursor,
-      output: segment.color as ModePattern['changeAt'][number]['output'],
+      output: segment.color as SimplePattern['changeAt'][number]['output'],
     };
     cursor += segment.duration;
     return entry;
   });
 
   return {
+    type: 'simple',
     name: 'test-pattern',
     duration: cursor,
     changeAt,
@@ -70,7 +71,7 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(200);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#ff7b00' as ModePattern['changeAt'][number]['output'] },
+      { ms: 0, output: '#ff7b00' as SimplePattern['changeAt'][number]['output'] },
     ]);
     expect(action.type).toBe('add-step');
     if (action.type === 'add-step') {
@@ -153,8 +154,8 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(300);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#202020' as ModePattern['changeAt'][number]['output'] },
-      { ms: 200, output: '#101010' as ModePattern['changeAt'][number]['output'] },
+      { ms: 0, output: '#202020' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 200, output: '#101010' as SimplePattern['changeAt'][number]['output'] },
     ]);
     expect(action).toEqual({ type: 'move-step', fromIndex: 0, toIndex: 1 });
   });
@@ -176,8 +177,8 @@ describe('SimpleRgbPatternPanel', () => {
 
     expect(nextPattern.duration).toBe(600);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#334455' as ModePattern['changeAt'][number]['output'] },
-      { ms: 300, output: '#334455' as ModePattern['changeAt'][number]['output'] },
+      { ms: 0, output: '#334455' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 300, output: '#334455' as SimplePattern['changeAt'][number]['output'] },
     ]);
     expect(action.type).toBe('duplicate-step');
     if (action.type === 'duplicate-step') {
@@ -242,8 +243,8 @@ describe('SimpleRgbPatternPanel', () => {
     const [nextPattern, action] = finalCall;
     expect(nextPattern.duration).toBe(350);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#123456' as ModePattern['changeAt'][number]['output'] },
-      { ms: 150, output: '#ffffff' as ModePattern['changeAt'][number]['output'] },
+      { ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 150, output: '#ffffff' as SimplePattern['changeAt'][number]['output'] },
     ]);
     expect(action.type).toBe('update-step');
     if (action.type === 'update-step') {
