@@ -2,6 +2,10 @@ import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { PatternButton } from './common/PatternButton';
+import { PatternNameEditor } from './common/PatternNameEditor';
+import { PatternPanelContainer } from './common/PatternPanelContainer';
+import { PatternSection } from './common/PatternSection';
 import { hexColorSchema, type SimplePattern } from '../../app/models/mode';
 
 export interface SimpleRgbPatternStep {
@@ -168,14 +172,13 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
     emitChange(nextSteps, { type: 'update-step', stepId, step: updatedStep });
   };
 
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextName = event.target.value;
+  const handleNameChange = (name: string) => {
     const nextPattern: SimplePattern = {
       ...value,
-      name: nextName,
+      name,
     };
 
-    onChange(nextPattern, { type: 'rename-pattern', name: nextName });
+    onChange(nextPattern, { type: 'rename-pattern', name });
   };
 
   const handleStepColorChange = (stepId: string, color: string) => {
@@ -345,35 +348,17 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
   }, [steps, t, totalDuration, selectedStepIndex]);
 
   return (
-    <div className="space-y-6">
-      <section aria-label={t('rgbPattern.simple.form.ariaLabel')} className="space-y-4">
-        <label className="flex flex-col gap-2 text-sm">
-          <span className="font-medium">{t('rgbPattern.simple.form.nameLabel')}</span>
-          <input
-            aria-describedby="simple-rgb-name-helper"
-            className="w-full rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
-            onChange={handleNameChange}
-            placeholder={t('rgbPattern.simple.form.namePlaceholder')}
-            type="text"
-            value={value.name}
-          />
-          <span className="theme-muted text-xs" id="simple-rgb-name-helper">
-            {t('rgbPattern.simple.form.nameHelper')}
-          </span>
-        </label>
-      </section>
+    <PatternPanelContainer>
+      <PatternNameEditor name={value.name} onChange={handleNameChange} />
 
-      <section aria-live="polite" className="space-y-3">
-        <header className="space-y-1">
-          <h3 className="text-lg font-semibold">{t('rgbPattern.simple.preview.title')}</h3>
-          <p className="theme-muted text-sm">
-            {totalDuration === 0
-              ? t('rgbPattern.simple.preview.empty')
-              : t('rgbPattern.simple.preview.summary', { total: totalDuration })}
-          </p>
-        </header>
+      <PatternSection title={t('rgbPattern.simple.preview.title')}>
+        <p className="theme-muted text-sm mb-2">
+          {totalDuration === 0
+            ? t('rgbPattern.simple.preview.empty')
+            : t('rgbPattern.simple.preview.summary', { total: totalDuration })}
+        </p>
 
-        <div className="theme-panel theme-border flex min-h-[56px] items-stretch overflow-hidden rounded-xl border">
+        <div className="flex min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
           {steps.length === 0 ? (
             <div className="flex flex-1 items-center justify-center text-sm">
               <span className="theme-muted">{t('rgbPattern.simple.preview.empty')}</span>
@@ -383,7 +368,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
           )}
           <button
             aria-label={t('rgbPattern.simple.form.addButton')}
-            className="flex min-w-[56px] items-center justify-center border-l border-white/10 bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+            className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
             onClick={openAddModal}
             title={t('rgbPattern.simple.form.addButton')}
             type="button"
@@ -391,17 +376,15 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             <span aria-hidden="true">＋</span>
           </button>
         </div>
-      </section>
+      </PatternSection>
 
       {selectedStepIndex !== null && steps[selectedStepIndex] && (
-        <section className="theme-panel theme-border mt-4 space-y-4 rounded-xl border p-4 animate-in fade-in slide-in-from-top-2">
-          <header className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              {t('rgbPattern.simple.steps.title')} #{selectedStepIndex + 1}
-            </h3>
+        <PatternSection
+          title={`${t('rgbPattern.simple.steps.title')} #${String(selectedStepIndex + 1)}`}
+          actions={
             <button
               aria-label={t('rgbPattern.simple.steps.closeEditor')}
-              className="rounded-full p-2 text-xl transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
+              className="rounded-full p-1 theme-muted hover:text-[rgb(var(--surface-contrast)/1)] hover:bg-[rgb(var(--surface-raised)/1)] transition-colors"
               onClick={() => {
                 setSelectedStepIndex(null);
               }}
@@ -409,27 +392,29 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             >
               ✕
             </button>
-          </header>
-
-          <div className="flex flex-wrap items-center gap-6">
-            <label className="flex items-center gap-3 text-sm font-medium">
+          }
+        >
+          <div className="flex flex-wrap items-center gap-6 mb-4">
+            <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
               <span>{t('rgbPattern.simple.form.colorLabel')}</span>
               <input
-                className="h-10 w-10 rounded-full border border-solid theme-border"
+                className="h-10 w-10 rounded-full border theme-border bg-transparent cursor-pointer"
                 onChange={event => {
                   handleStepColorChange(steps[selectedStepIndex].id, event.target.value);
                 }}
                 type="color"
                 value={steps[selectedStepIndex].color}
               />
-              <span className="font-mono uppercase">{steps[selectedStepIndex].color}</span>
+              <span className="font-mono uppercase theme-muted">
+                {steps[selectedStepIndex].color}
+              </span>
             </label>
 
-            <label className="flex items-center gap-3 text-sm font-medium">
+            <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
               <span>{t('rgbPattern.simple.form.durationLabel')}</span>
               <div className="relative">
                 <input
-                  className="w-24 rounded-lg border border-solid theme-border bg-transparent px-3 py-2 pr-8 text-sm"
+                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
                   inputMode="numeric"
                   min={1}
                   onChange={event => {
@@ -449,55 +434,48 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            <button
-              className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)] disabled:opacity-40"
+          <div className="flex flex-wrap gap-2">
+            <PatternButton
               disabled={selectedStepIndex === 0}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'up');
               }}
-              type="button"
             >
               ← {t('rgbPattern.simple.steps.moveUp')}
-            </button>
-            <button
-              className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)] disabled:opacity-40"
+            </PatternButton>
+            <PatternButton
               disabled={selectedStepIndex === steps.length - 1}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'down');
               }}
-              type="button"
             >
               {t('rgbPattern.simple.steps.moveDown')} →
-            </button>
+            </PatternButton>
             <div className="flex-1" />
-            <button
-              className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
+            <PatternButton
               onClick={() => {
                 handleDuplicate(steps[selectedStepIndex].id);
               }}
-              type="button"
             >
               {t('rgbPattern.simple.steps.duplicate')}
-            </button>
-            <button
-              className="rounded-full border border-solid theme-border bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20"
+            </PatternButton>
+            <PatternButton
+              variant="danger"
               onClick={() => {
                 handleRemove(steps[selectedStepIndex].id);
               }}
-              type="button"
             >
               {t('rgbPattern.simple.steps.remove')}
-            </button>
+            </PatternButton>
           </div>
-        </section>
+        </PatternSection>
       )}
 
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div
             aria-modal="true"
-            className="w-full max-w-sm space-y-4 rounded-2xl border border-white/20 bg-[rgb(var(--surface-raised)/0.95)] p-6 shadow-xl"
+            className="w-full max-w-sm space-y-4 rounded-2xl theme-border border bg-[rgb(var(--surface-raised)/0.95)] p-6 shadow-xl text-[rgb(var(--surface-contrast)/1)]"
             role="dialog"
           >
             <header className="space-y-1">
@@ -510,10 +488,12 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             </header>
             <div className="space-y-4">
               <label className="flex flex-col gap-2 text-sm">
-                <span className="font-medium">{t('rgbPattern.simple.form.colorLabel')}</span>
+                <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                  {t('rgbPattern.simple.form.colorLabel')}
+                </span>
                 <input
                   aria-describedby="simple-rgb-modal-color-helper"
-                  className="h-12 w-24 rounded-full border border-solid theme-border"
+                  className="h-12 w-24 rounded-full border theme-border bg-transparent cursor-pointer"
                   onChange={handleModalColorChange}
                   type="color"
                   value={modalColor}
@@ -523,10 +503,12 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
                 </span>
               </label>
               <label className="flex flex-col gap-2 text-sm">
-                <span className="font-medium">{t('rgbPattern.simple.form.durationLabel')}</span>
+                <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                  {t('rgbPattern.simple.form.durationLabel')}
+                </span>
                 <input
                   aria-describedby="simple-rgb-modal-duration-helper"
-                  className="w-full rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
+                  className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
                   inputMode="numeric"
                   min={1}
                   onChange={handleModalDurationChange}
@@ -540,25 +522,20 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
               </label>
             </div>
             <footer className="flex justify-end gap-3">
-              <button
-                className="rounded-full border border-solid theme-border px-4 py-2 text-sm font-medium transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
-                onClick={handleModalCancel}
-                type="button"
-              >
+              <PatternButton variant="ghost" onClick={handleModalCancel}>
                 {t('rgbPattern.simple.addModal.cancel')}
-              </button>
-              <button
-                className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition hover:scale-[1.01] disabled:opacity-50"
+              </PatternButton>
+              <PatternButton
+                variant="primary"
                 disabled={!canConfirmModal}
                 onClick={handleModalConfirm}
-                type="button"
               >
                 {t('rgbPattern.simple.addModal.confirm')}
-              </button>
+              </PatternButton>
             </footer>
           </div>
         </div>
       )}
-    </div>
+    </PatternPanelContainer>
   );
 };

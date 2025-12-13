@@ -120,7 +120,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       value.entries.map(entry => (
         <li
           key={entry.id}
-          className="flex flex-col gap-1 border-b border-dashed border-white/5 pb-2 last:border-none last:pb-0"
+          className="flex flex-col gap-1 border-b border-dashed theme-border pb-2 last:border-none last:pb-0"
         >
           <span className="font-mono text-xs theme-muted">
             {timestampFormatter.format(new Date(entry.timestamp))} ·{' '}

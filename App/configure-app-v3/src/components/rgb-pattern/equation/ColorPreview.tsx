@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 
+import { useTheme } from '../../../app/providers/theme-context';
+
 interface ColorPreviewProps {
   redPoints: number[];
   greenPoints: number[];
@@ -16,6 +18,7 @@ export const ColorPreview = ({
   totalDuration,
 }: ColorPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { resolved: theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,6 +29,10 @@ export const ColorPreview = ({
 
     const width = canvas.width;
     const height = canvas.height;
+
+    // Get theme colors
+    const style = getComputedStyle(canvas);
+    const surfaceContrast = style.getPropertyValue('--surface-contrast').trim();
 
     ctx.clearRect(0, 0, width, height);
 
@@ -60,10 +67,10 @@ export const ColorPreview = ({
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, height);
-    ctx.strokeStyle = 'white';
+    ctx.strokeStyle = `rgb(${surfaceContrast})`;
     ctx.lineWidth = 2;
     ctx.stroke();
-  }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration]);
+  }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration, theme]);
 
   // Calculate current color for a swatch
   const currentIndex = Math.floor((currentTime / totalDuration) * Math.max(redPoints.length, 1));
@@ -75,12 +82,12 @@ export const ColorPreview = ({
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-4">
         <div
-          className="w-16 h-16 rounded border border-gray-600 shadow-sm"
+          className="w-16 h-16 rounded border theme-border shadow-sm"
           style={{
             backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})`,
           }}
         />
-        <div className="flex-1 h-16 bg-gray-900 rounded overflow-hidden relative">
+        <div className="flex-1 h-16 bg-[rgb(var(--surface-raised))] rounded overflow-hidden relative border theme-border">
           <canvas ref={canvasRef} width={800} height={64} className="w-full h-full" />
         </div>
       </div>

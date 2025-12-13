@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
+import { useTheme } from '../../../app/providers/theme-context';
+
 interface WaveformLaneProps {
   color: 'red' | 'green' | 'blue';
   points: number[];
@@ -17,6 +19,7 @@ export const WaveformLane = ({
   height = 100,
 }: WaveformLaneProps) => {
   const { t } = useTranslation();
+  const { resolved: theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const strokeColor = {
@@ -41,10 +44,15 @@ export const WaveformLane = ({
     const width = canvas.width;
     const h = canvas.height;
 
+    // Get theme colors
+    const style = getComputedStyle(canvas);
+    const surfaceContrast = style.getPropertyValue('--surface-contrast').trim();
+    const surfaceMuted = style.getPropertyValue('--surface-muted').trim();
+
     ctx.clearRect(0, 0, width, h);
 
     // Draw grid/axis
-    ctx.strokeStyle = '#374151'; // gray-700
+    ctx.strokeStyle = `rgba(${surfaceMuted}, 0.3)`;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, h);
@@ -78,15 +86,16 @@ export const WaveformLane = ({
     ctx.beginPath();
     ctx.moveTo(playheadX, 0);
     ctx.lineTo(playheadX, h);
-    ctx.strokeStyle = 'white';
+
+    ctx.strokeStyle = `rgb(${surfaceContrast})`;
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [points, currentTime, totalDuration, strokeColor, fillColor]);
+  }, [points, currentTime, totalDuration, strokeColor, fillColor, theme]);
 
   return (
-    <div className="relative bg-gray-900 rounded border border-gray-700 overflow-hidden">
+    <div className="relative bg-[rgb(var(--surface-raised))] rounded border theme-border overflow-hidden">
       <div
         className="absolute top-1 left-2 text-xs font-bold uppercase opacity-50"
         style={{ color: strokeColor }}
