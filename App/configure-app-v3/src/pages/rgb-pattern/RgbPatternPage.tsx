@@ -227,7 +227,7 @@ export const RgbPatternPage = () => {
                   {isSimpleMethod ? t('rgbPattern.simple.title') : t('rgbPattern.equation.title')}
               </h3>
               <p className="theme-muted text-sm">
-                  {isSimpleMethod ? t('rgbPattern.simple.description') : t('rgbPattern.equation.description', 'Create complex patterns using mathematical equations.')}
+                  {isSimpleMethod ? t('rgbPattern.simple.description') : t('rgbPattern.equation.description')}
               </p>
             </div>
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">

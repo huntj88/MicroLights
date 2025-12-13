@@ -66,8 +66,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
     setCurrentTime(prev => {
       const next = prev + deltaTime;
       if (next >= totalDuration) {
-        // Loop or stop? Let's loop for now or stop.
-        // User usually wants loop for patterns.
+        // Loop or stop? loop for now in the preview.
         return 0; 
       }
       return next;

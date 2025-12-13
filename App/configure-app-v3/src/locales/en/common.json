@@ -78,6 +78,7 @@
     },
     "equation": {
       "title": "Equation RGB Pattern Editor",
+      "description": "Create complex patterns using mathematical equations.",
       "defaultName": "New Equation Pattern",
       "controls": {
         "play": "Play",
