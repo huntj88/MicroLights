@@ -89,6 +89,10 @@ describe('SimpleRgbPatternPanel', () => {
       value: pattern,
     });
 
+    // Select the segment first
+    await user.click(screen.getByLabelText(/#112233 for 150 ms/i));
+
+    // Now click remove
     await user.click(screen.getByRole('button', { name: /remove step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -146,8 +150,11 @@ describe('SimpleRgbPatternPanel', () => {
       value: pattern,
     });
 
-    const moveDownButtons = screen.getAllByRole('button', { name: /move down/i });
-    await user.click(moveDownButtons[0]);
+    // Select the first segment
+    await user.click(screen.getByLabelText(/#101010 for 100 ms/i));
+
+    const moveDownButton = screen.getByRole('button', { name: /move down/i });
+    await user.click(moveDownButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<SimpleRgbPatternPanelProps['onChange']>;
@@ -169,6 +176,9 @@ describe('SimpleRgbPatternPanel', () => {
       onChange: handleChange,
       value: pattern,
     });
+
+    // Select the segment
+    await user.click(screen.getByLabelText(/#334455 for 300 ms/i));
 
     await user.click(screen.getByRole('button', { name: /duplicate step/i }));
 
@@ -201,8 +211,9 @@ describe('SimpleRgbPatternPanel', () => {
     expect(durationInput).toHaveValue(1);
   });
 
-  it('updates an existing step when editing color and duration', () => {
+  it('updates an existing step when editing color and duration', async () => {
     const handleChange = vi.fn();
+    const user = userEvent.setup();
     const pattern = createPattern([
       { color: '#000000', duration: 100 },
       { color: '#ffffff', duration: 200 },
@@ -223,11 +234,16 @@ describe('SimpleRgbPatternPanel', () => {
 
     renderWithProviders(<Harness />);
 
-    const colorInput = screen.getByLabelText(/color for step 1/i);
+    // Select the second segment (index 1)
+    await user.click(screen.getByLabelText(/#ffffff for 200 ms/i));
+
+    const colorInput = screen.getByLabelText(/^color/i);
+    // Use fireEvent for color input as userEvent.type doesn't work well with color inputs
     fireEvent.input(colorInput, { target: { value: '#123456' } });
 
-    const durationInput = screen.getByLabelText(/duration for step 1/i);
-    fireEvent.change(durationInput, { target: { value: '150' } });
+    const durationInput = screen.getByLabelText(/duration/i);
+    await user.clear(durationInput);
+    await user.type(durationInput, '150');
     expect(durationInput).toHaveValue(150);
 
     const updateCalls = handleChange.mock.calls.filter((call): call is Parameters<SimpleRgbPatternPanelProps['onChange']> => {
@@ -241,10 +257,10 @@ describe('SimpleRgbPatternPanel', () => {
     }
 
     const [nextPattern, action] = finalCall;
-    expect(nextPattern.duration).toBe(350);
+    expect(nextPattern.duration).toBe(250);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
-      { ms: 150, output: '#ffffff' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 0, output: '#000000' as SimplePattern['changeAt'][number]['output'] },
+      { ms: 100, output: '#123456' as SimplePattern['changeAt'][number]['output'] },
     ]);
     expect(action.type).toBe('update-step');
     if (action.type === 'update-step') {
@@ -264,8 +280,6 @@ describe('SimpleRgbPatternPanel', () => {
     expect(screen.getByText(/total duration 500 ms/i)).toBeInTheDocument();
     const segments = screen.getAllByLabelText(/for \d+ ms/i);
     expect(segments).toHaveLength(2);
-    const swatches = screen.getAllByTestId('rgb-step-color');
-    expect(swatches).toHaveLength(2);
   });
 
   it('closes the modal when cancelling', async () => {

@@ -72,7 +72,8 @@
         "moveUp": "Move up",
         "moveDown": "Move down",
         "duplicate": "Duplicate step",
-        "remove": "Remove step"
+        "remove": "Remove step",
+        "closeEditor": "Close step editor"
       }
     },
     "equation": {
