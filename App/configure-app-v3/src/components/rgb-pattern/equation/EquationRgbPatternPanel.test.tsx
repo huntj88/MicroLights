@@ -92,7 +92,7 @@ describe('EquationRgbPatternPanel', () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
     const pattern = createDefaultEquationPattern();
-    pattern.red.sections = [{ id: 's1', equation: '0', duration: 1000 }];
+    pattern.red.sections = [{ equation: '0', duration: 1000 }];
 
     const Harness = () => {
       const [p, setP] = useState(pattern);
@@ -124,7 +124,7 @@ describe('EquationRgbPatternPanel', () => {
     expect(nextPattern.red.sections[0].equation).toBe('sin(t)');
     expect(action.type).toBe('update-section');
     if (action.type === 'update-section') {
-      expect(action.sectionId).toBe('s1');
+      expect(action.index).toBe(0);
       expect(action.section.equation).toBe('sin(t)');
     }
   });
@@ -133,7 +133,7 @@ describe('EquationRgbPatternPanel', () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
     const pattern = createDefaultEquationPattern();
-    pattern.red.sections = [{ id: 's1', equation: '0', duration: 1000 }];
+    pattern.red.sections = [{ equation: '0', duration: 1000 }];
 
     renderComponent({ onChange: handleChange, pattern });
 
@@ -144,7 +144,7 @@ describe('EquationRgbPatternPanel', () => {
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
 
     expect(nextPattern.red.sections).toHaveLength(0);
-    expect(action).toEqual({ type: 'remove-section', channel: 'red', sectionId: 's1' });
+    expect(action).toEqual({ type: 'remove-section', channel: 'red', index: 0 });
   });
 
   it('moves a section up', async () => {
@@ -152,8 +152,8 @@ describe('EquationRgbPatternPanel', () => {
     const user = userEvent.setup();
     const pattern = createDefaultEquationPattern();
     pattern.red.sections = [
-      { id: 's1', equation: '1', duration: 1000 },
-      { id: 's2', equation: '2', duration: 1000 },
+      { equation: '1', duration: 1000 },
+      { equation: '2', duration: 1000 },
     ];
 
     renderComponent({ onChange: handleChange, pattern });
@@ -167,8 +167,8 @@ describe('EquationRgbPatternPanel', () => {
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
 
-    expect(nextPattern.red.sections[0].id).toBe('s2');
-    expect(nextPattern.red.sections[1].id).toBe('s1');
+    expect(nextPattern.red.sections[0].equation).toBe('2');
+    expect(nextPattern.red.sections[1].equation).toBe('1');
     expect(action).toEqual({ type: 'move-section', channel: 'red', fromIndex: 1, toIndex: 0 });
   });
 

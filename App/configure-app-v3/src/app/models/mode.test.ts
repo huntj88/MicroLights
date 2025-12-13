@@ -203,4 +203,50 @@ describe('modeDocumentSchema', () => {
       );
     }
   });
+
+  it('parses a mode with equation patterns', () => {
+    const result = parseModeDocument({
+      mode: {
+        name: 'equation mode',
+        front: {
+          pattern: {
+            type: 'equation',
+            name: 'sine wave',
+            duration: 1000,
+            red: {
+              sections: [
+                {
+                  equation: '127 + 127 * sin(2 * PI * t / 1000)',
+                  duration: 1000,
+                },
+              ],
+              loopAfterDuration: true,
+            },
+            green: {
+              sections: [],
+              loopAfterDuration: true,
+            },
+            blue: {
+              sections: [],
+              loopAfterDuration: true,
+            },
+          },
+        },
+        case: {
+          pattern: {
+            type: 'simple',
+            name: 'simple case',
+            duration: 100,
+            changeAt: [{ ms: 0, output: '#000000' }],
+          },
+        },
+      },
+    });
+
+    expect(result.mode.front.pattern.type).toBe('equation');
+    if (result.mode.front.pattern.type === 'equation') {
+      expect(result.mode.front.pattern.red.sections).toHaveLength(1);
+      expect(result.mode.front.pattern.red.sections[0].equation).toContain('sin');
+    }
+  });
 });

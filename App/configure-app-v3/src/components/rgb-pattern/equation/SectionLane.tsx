@@ -8,9 +8,9 @@ interface SectionLaneProps {
   loopAfterDuration: boolean;
   onToggleLoop: (loop: boolean) => void;
   onAddSection: () => void;
-  onUpdateSection: (id: string, updates: Partial<EquationSection>) => void;
-  onDeleteSection: (id: string) => void;
-  onMoveSection: (id: string, direction: 'up' | 'down') => void;
+  onUpdateSection: (index: number, updates: Partial<EquationSection>) => void;
+  onDeleteSection: (index: number) => void;
+  onMoveSection: (index: number, direction: 'up' | 'down') => void;
 }
 
 export const SectionLane = ({
@@ -60,18 +60,18 @@ export const SectionLane = ({
       <div className="flex flex-col gap-2">
         {sections.map((section, index) => (
           <SectionItem
-            key={section.id}
+            key={index}
             section={section}
             index={index}
             total={sections.length}
             onUpdate={updates => {
-              onUpdateSection(section.id, updates);
+              onUpdateSection(index, updates);
             }}
             onDelete={() => {
-              onDeleteSection(section.id);
+              onDeleteSection(index);
             }}
             onMove={dir => {
-              onMoveSection(section.id, dir);
+              onMoveSection(index, dir);
             }}
           />
         ))}

@@ -63,9 +63,6 @@ export const ColorPreview = ({
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.stroke();
-
-    // Draw current color swatch overlay or border?
-    // Maybe just a small indicator
     
   }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration]);
 

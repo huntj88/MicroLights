@@ -47,7 +47,6 @@ export const patternChangeSchema = z.union([
 export type PatternChange = z.infer<typeof patternChangeSchema>;
 
 export const equationSectionSchema = z.object({
-  id: z.uuid(),
   equation: z.string().min(1, 'Equation cannot be empty'),
   duration: z.number().min(1, 'Duration must be at least 1ms'),
 });

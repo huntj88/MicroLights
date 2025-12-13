@@ -13,8 +13,8 @@ import { generateWaveformPoints } from '../../../utils/equation-evaluator';
 export type EquationRgbPatternAction =
   | { type: 'rename-pattern'; name: string }
   | { type: 'add-section'; channel: 'red' | 'green' | 'blue'; section: EquationSection }
-  | { type: 'update-section'; channel: 'red' | 'green' | 'blue'; sectionId: string; section: EquationSection }
-  | { type: 'remove-section'; channel: 'red' | 'green' | 'blue'; sectionId: string }
+  | { type: 'update-section'; channel: 'red' | 'green' | 'blue'; index: number; section: EquationSection }
+  | { type: 'remove-section'; channel: 'red' | 'green' | 'blue'; index: number }
   | { type: 'move-section'; channel: 'red' | 'green' | 'blue'; fromIndex: number; toIndex: number }
   | { type: 'update-channel-config'; channel: 'red' | 'green' | 'blue'; loopAfterDuration: boolean };
 
@@ -109,7 +109,6 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
 
   const addSection = (channel: 'red' | 'green' | 'blue') => {
     const newSection: EquationSection = {
-      id: crypto.randomUUID(),
       equation: '0',
       duration: 1000,
     };
@@ -128,16 +127,15 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
 
   const updateSection = (
     channel: 'red' | 'green' | 'blue',
-    id: string,
+    index: number,
     updates: Partial<EquationSection>
   ) => {
     const sections = pattern[channel].sections;
-    const sectionIndex = sections.findIndex(s => s.id === id);
-    if (sectionIndex === -1) return;
+    if (index < 0 || index >= sections.length) return;
 
-    const updatedSection = { ...sections[sectionIndex], ...updates };
+    const updatedSection = { ...sections[index], ...updates };
     const nextSections = [...sections];
-    nextSections[sectionIndex] = updatedSection;
+    nextSections[index] = updatedSection;
 
     const nextPattern = {
       ...pattern,
@@ -147,11 +145,11 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       },
     };
 
-    onChange(nextPattern, { type: 'update-section', channel, sectionId: id, section: updatedSection });
+    onChange(nextPattern, { type: 'update-section', channel, index, section: updatedSection });
   };
 
-  const deleteSection = (channel: 'red' | 'green' | 'blue', id: string) => {
-    const nextSections = pattern[channel].sections.filter(s => s.id !== id);
+  const deleteSection = (channel: 'red' | 'green' | 'blue', index: number) => {
+    const nextSections = pattern[channel].sections.filter((_, i) => i !== index);
     
     const nextPattern = {
       ...pattern,
@@ -161,17 +159,16 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       },
     };
 
-    onChange(nextPattern, { type: 'remove-section', channel, sectionId: id });
+    onChange(nextPattern, { type: 'remove-section', channel, index });
   };
 
   const moveSection = (
     channel: 'red' | 'green' | 'blue',
-    id: string,
+    index: number,
     direction: 'up' | 'down'
   ) => {
     const sections = pattern[channel].sections;
-    const index = sections.findIndex(s => s.id === id);
-    if (index === -1) return;
+    if (index < 0 || index >= sections.length) return;
     if (direction === 'up' && index === 0) return;
     if (direction === 'down' && index === sections.length - 1) return;
 
@@ -301,9 +298,9 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           loopAfterDuration={pattern.red.loopAfterDuration}
           onToggleLoop={loop => { updateChannelLoop('red', loop); }}
           onAddSection={() => { addSection('red'); }}
-          onUpdateSection={(id, u) => { updateSection('red', id, u); }}
-          onDeleteSection={id => { deleteSection('red', id); }}
-          onMoveSection={(id, dir) => { moveSection('red', id, dir); }}
+          onUpdateSection={(index, u) => { updateSection('red', index, u); }}
+          onDeleteSection={index => { deleteSection('red', index); }}
+          onMoveSection={(index, dir) => { moveSection('red', index, dir); }}
         />
         <SectionLane
           color="green"
@@ -311,9 +308,9 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           loopAfterDuration={pattern.green.loopAfterDuration}
           onToggleLoop={loop => { updateChannelLoop('green', loop); }}
           onAddSection={() => { addSection('green'); }}
-          onUpdateSection={(id, u) => { updateSection('green', id, u); }}
-          onDeleteSection={id => { deleteSection('green', id); }}
-          onMoveSection={(id, dir) => { moveSection('green', id, dir); }}
+          onUpdateSection={(index, u) => { updateSection('green', index, u); }}
+          onDeleteSection={index => { deleteSection('green', index); }}
+          onMoveSection={(index, dir) => { moveSection('green', index, dir); }}
         />
         <SectionLane
           color="blue"
@@ -321,9 +318,9 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           loopAfterDuration={pattern.blue.loopAfterDuration}
           onToggleLoop={loop => { updateChannelLoop('blue', loop); }}
           onAddSection={() => { addSection('blue'); }}
-          onUpdateSection={(id, u) => { updateSection('blue', id, u); }}
-          onDeleteSection={id => { deleteSection('blue', id); }}
-          onMoveSection={(id, dir) => { moveSection('blue', id, dir); }}
+          onUpdateSection={(index, u) => { updateSection('blue', index, u); }}
+          onDeleteSection={index => { deleteSection('blue', index); }}
+          onMoveSection={(index, dir) => { moveSection('blue', index, dir); }}
         />
       </div>
     </div>
