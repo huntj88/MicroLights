@@ -15,7 +15,8 @@ export type EquationRgbPatternAction =
   | { type: 'add-section'; channel: 'red' | 'green' | 'blue'; section: EquationSection }
   | { type: 'update-section'; channel: 'red' | 'green' | 'blue'; sectionId: string; section: EquationSection }
   | { type: 'remove-section'; channel: 'red' | 'green' | 'blue'; sectionId: string }
-  | { type: 'move-section'; channel: 'red' | 'green' | 'blue'; fromIndex: number; toIndex: number };
+  | { type: 'move-section'; channel: 'red' | 'green' | 'blue'; fromIndex: number; toIndex: number }
+  | { type: 'update-channel-config'; channel: 'red' | 'green' | 'blue'; loopAfterDuration: boolean };
 
 export interface EquationRgbPatternPanelProps {
   pattern: EquationPattern;
@@ -42,16 +43,16 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   // We generate points for the entire duration.
   // Sample rate 10ms is fine for display.
   const redPoints = useMemo(
-    () => generateWaveformPoints(pattern.red.sections),
-    [pattern.red.sections]
+    () => generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration ?? true),
+    [pattern.red.sections, totalDuration, pattern.red.loopAfterDuration]
   );
   const greenPoints = useMemo(
-    () => generateWaveformPoints(pattern.green.sections),
-    [pattern.green.sections]
+    () => generateWaveformPoints(pattern.green.sections, totalDuration, pattern.green.loopAfterDuration ?? true),
+    [pattern.green.sections, totalDuration, pattern.green.loopAfterDuration]
   );
   const bluePoints = useMemo(
-    () => generateWaveformPoints(pattern.blue.sections),
-    [pattern.blue.sections]
+    () => generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration ?? true),
+    [pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration]
   );
 
   const animate = useCallback((time: number) => {
@@ -189,6 +190,17 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
     onChange(nextPattern, { type: 'move-section', channel, fromIndex: index, toIndex: swapIndex });
   };
 
+  const updateChannelLoop = (channel: 'red' | 'green' | 'blue', loop: boolean) => {
+    const nextPattern = {
+      ...pattern,
+      [channel]: {
+        ...pattern[channel],
+        loopAfterDuration: loop,
+      },
+    };
+    onChange(nextPattern, { type: 'update-channel-config', channel, loopAfterDuration: loop });
+  };
+
   return (
     <div className="flex flex-col gap-6 p-4 bg-gray-900 text-gray-100 rounded-lg shadow-xl">
       <div className="flex justify-between items-center">
@@ -286,6 +298,8 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         <SectionLane
           color="red"
           sections={pattern.red.sections}
+          loopAfterDuration={pattern.red.loopAfterDuration}
+          onToggleLoop={loop => { updateChannelLoop('red', loop); }}
           onAddSection={() => { addSection('red'); }}
           onUpdateSection={(id, u) => { updateSection('red', id, u); }}
           onDeleteSection={id => { deleteSection('red', id); }}
@@ -294,6 +308,8 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         <SectionLane
           color="green"
           sections={pattern.green.sections}
+          loopAfterDuration={pattern.green.loopAfterDuration}
+          onToggleLoop={loop => { updateChannelLoop('green', loop); }}
           onAddSection={() => { addSection('green'); }}
           onUpdateSection={(id, u) => { updateSection('green', id, u); }}
           onDeleteSection={id => { deleteSection('green', id); }}
@@ -302,6 +318,8 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         <SectionLane
           color="blue"
           sections={pattern.blue.sections}
+          loopAfterDuration={pattern.blue.loopAfterDuration}
+          onToggleLoop={loop => { updateChannelLoop('blue', loop); }}
           onAddSection={() => { addSection('blue'); }}
           onUpdateSection={(id, u) => { updateSection('blue', id, u); }}
           onDeleteSection={id => { deleteSection('blue', id); }}

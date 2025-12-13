@@ -208,4 +208,27 @@ describe('EquationRgbPatternPanel', () => {
     expect(nextPattern.red.sections[1].id).toBe('s1');
     expect(action).toEqual({ type: 'move-section', channel: 'red', fromIndex: 1, toIndex: 0 });
   });
+
+  it('toggles loop option for a channel', async () => {
+    const handleChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createDefaultEquationPattern();
+    // Default is true
+    expect(pattern.red.loopAfterDuration).toBe(true);
+
+    renderComponent({ onChange: handleChange, pattern });
+
+    const redSectionHeader = screen.getByText(/red sections/i);
+    const redContainer = redSectionHeader.closest('div')?.parentElement;
+    if (!redContainer) throw new Error('Red container not found');
+
+    const loopCheckbox = within(redContainer).getByRole('checkbox', { name: /loop/i });
+    await user.click(loopCheckbox);
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<EquationRgbPatternPanelProps['onChange']>;
+
+    expect(nextPattern.red.loopAfterDuration).toBe(false);
+    expect(action).toEqual({ type: 'update-channel-config', channel: 'red', loopAfterDuration: false });
+  });
 });

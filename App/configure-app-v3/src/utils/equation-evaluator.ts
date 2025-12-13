@@ -32,19 +32,59 @@ export const evaluateEquation = (equation: string, t: number, duration: number):
 
 export const generateWaveformPoints = (
   sections: { equation: string; duration: number }[],
+  totalDurationMs: number,
+  loop: boolean,
   sampleRateMs = 10
 ): number[] => {
   const points: number[] = [];
-  for (const section of sections) {
-    const steps = Math.floor(section.duration / sampleRateMs);
-    for (let i = 0; i < steps; i++) {
+  const channelDurationMs = sections.reduce((acc, s) => acc + s.duration, 0);
+  const steps = Math.floor(totalDurationMs / sampleRateMs);
 
-      // 't' is relative to the start of the section.
-      const t = i * (sampleRateMs / 1000); // t in seconds usually
-      
-      const val = evaluateEquation(section.equation, t, section.duration / 1000);
-      points.push(val);
+  if (channelDurationMs === 0) {
+    return new Array(steps).fill(0);
+  }
+
+  for (let i = 0; i < steps; i++) {
+    const globalTMs = i * sampleRateMs;
+    let tMs = globalTMs;
+
+    if (loop) {
+      tMs = tMs % channelDurationMs;
     }
+
+    // Find active section
+    let activeSection = sections[sections.length - 1];
+    let sectionStartTime = channelDurationMs - activeSection.duration;
+    let found = false;
+
+    let accumulated = 0;
+    for (const section of sections) {
+      if (tMs < accumulated + section.duration) {
+        activeSection = section;
+        sectionStartTime = accumulated;
+        found = true;
+        break;
+      }
+      accumulated += section.duration;
+    }
+
+    // Calculate t relative to the section start (in seconds)
+    // If not found (and not looping), we are extending the last section.
+    // tMs is the global time (because we didn't modulo it if !loop).
+    // But wait, if !loop, tMs is globalTMs.
+    // If we didn't find it in the loop, it means tMs >= channelDurationMs.
+    // So we use the last section.
+    // The last section started at `channelDurationMs - lastSection.duration`.
+    // So local time is `tMs - sectionStartTime`.
+    
+    // If found, tMs is within the section (or modulo'd time).
+    // local time is `tMs - sectionStartTime`.
+    
+    const tSec = (tMs - sectionStartTime) / 1000;
+    const durationSec = activeSection.duration / 1000;
+
+    const val = evaluateEquation(activeSection.equation, tSec, durationSec);
+    points.push(val);
   }
   return points;
 };

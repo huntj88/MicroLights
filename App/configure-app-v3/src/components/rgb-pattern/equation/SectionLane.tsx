@@ -5,6 +5,8 @@ import type { EquationSection } from '../../../app/models/mode';
 interface SectionLaneProps {
   color: 'red' | 'green' | 'blue';
   sections: EquationSection[];
+  loopAfterDuration: boolean;
+  onToggleLoop: (loop: boolean) => void;
   onAddSection: () => void;
   onUpdateSection: (id: string, updates: Partial<EquationSection>) => void;
   onDeleteSection: (id: string) => void;
@@ -14,6 +16,8 @@ interface SectionLaneProps {
 export const SectionLane = ({
   color,
   sections,
+  loopAfterDuration,
+  onToggleLoop,
   onAddSection,
   onUpdateSection,
   onDeleteSection,
@@ -34,12 +38,23 @@ export const SectionLane = ({
             color: t(`rgbPattern.equation.colors.${color}`),
           })}
         </h3>
-        <button
-          onClick={onAddSection}
-          className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-white"
-        >
-          {t('rgbPattern.equation.sections.add')}
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-1 text-xs text-gray-400 cursor-pointer" title={t('rgbPattern.equation.sections.loopTooltip', 'Loop back to first section after last section finishes')}>
+            <input
+              type="checkbox"
+              checked={loopAfterDuration}
+              onChange={e => { onToggleLoop(e.target.checked); }}
+              className="rounded bg-gray-700 border-gray-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+            />
+            {t('rgbPattern.equation.sections.loop', 'Loop')}
+          </label>
+          <button
+            onClick={onAddSection}
+            className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-white"
+          >
+            {t('rgbPattern.equation.sections.add')}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col gap-2">

@@ -56,6 +56,7 @@ export type EquationSection = z.infer<typeof equationSectionSchema>;
 
 export const channelConfigSchema = z.object({
   sections: z.array(equationSectionSchema),
+  loopAfterDuration: z.boolean().default(true),
 });
 
 export type ChannelConfig = z.infer<typeof channelConfigSchema>;
@@ -77,9 +78,9 @@ export const createDefaultEquationPattern = (): EquationPattern => ({
   id: crypto.randomUUID(),
   name: 'New Equation Pattern',
   duration: 1000,
-  red: { sections: [] },
-  green: { sections: [] },
-  blue: { sections: [] },
+  red: { sections: [], loopAfterDuration: true },
+  green: { sections: [], loopAfterDuration: true },
+  blue: { sections: [], loopAfterDuration: true },
 });
 
 export const simplePatternSchema = z

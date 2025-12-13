@@ -14,9 +14,9 @@ const clonePattern = (pattern: ModePattern): ModePattern => {
   if (pattern.type === 'equation') {
     return {
       ...pattern,
-      red: { sections: [...pattern.red.sections.map(s => ({ ...s }))] },
-      green: { sections: [...pattern.green.sections.map(s => ({ ...s }))] },
-      blue: { sections: [...pattern.blue.sections.map(s => ({ ...s }))] },
+      red: { ...pattern.red, sections: [...pattern.red.sections.map(s => ({ ...s }))] },
+      green: { ...pattern.green, sections: [...pattern.green.sections.map(s => ({ ...s }))] },
+      blue: { ...pattern.blue, sections: [...pattern.blue.sections.map(s => ({ ...s }))] },
     };
   }
   return {
