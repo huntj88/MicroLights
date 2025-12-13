@@ -386,6 +386,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
                       </span>
                       <input
                         aria-label={t('rgbPattern.simple.steps.colorEditLabel', { index: index + 1 })}
+                        data-testid="rgb-step-color"
                         className="h-10 w-10 rounded-full border border-solid theme-border"
                         onChange={(event) => {
                           handleStepColorChange(step.id, event.target.value);

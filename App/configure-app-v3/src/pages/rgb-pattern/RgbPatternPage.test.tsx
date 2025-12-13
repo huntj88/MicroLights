@@ -32,7 +32,7 @@ describe('RgbPatternPage', () => {
 
     await user.click(screen.getByRole('button', { name: /equation method/i }));
 
-    expect(screen.getByRole('heading', { level: 3, name: /equation method/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: /equation rgb pattern editor/i })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { level: 3, name: /simple method/i })).not.toBeInTheDocument();
   });
 
@@ -45,6 +45,7 @@ describe('RgbPatternPage', () => {
     expect(saveButton).toBeDisabled();
 
     await user.click(addButton);
+    await user.click(screen.getByRole('button', { name: /add step/i }));
     expect(saveButton).toBeEnabled();
 
     await user.click(saveButton);
@@ -65,6 +66,7 @@ describe('RgbPatternPage', () => {
   it('deletes the selected pattern after confirmation', async () => {
     const { user } = setup();
     const storedPattern: ModePattern = {
+      type: 'simple',
       name: 'Stored Pattern',
       duration: 100,
       changeAt: [
@@ -96,6 +98,7 @@ describe('RgbPatternPage', () => {
 
     const addButton = screen.getByRole('button', { name: /add color step/i });
     await user.click(addButton);
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     expect(screen.getByRole('heading', { name: /pattern steps/i })).toBeInTheDocument();
 

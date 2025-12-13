@@ -14,6 +14,7 @@ describe('modeDocumentSchema', () => {
         name: 'accel Pattern',
         front: {
           pattern: {
+            type: 'simple',
             name: 'front binary pattern',
             duration: 3,
             changeAt: [
@@ -24,6 +25,7 @@ describe('modeDocumentSchema', () => {
         },
         case: {
           pattern: {
+            type: 'simple',
             name: 'case color pattern',
             duration: 3,
             changeAt: [
@@ -38,6 +40,7 @@ describe('modeDocumentSchema', () => {
               threshold: 2,
               front: {
                 pattern: {
+                  type: 'simple',
                   name: 'fullOn',
                   duration: 1,
                   changeAt: [{ ms: 0, output: 'high' }],
@@ -45,6 +48,7 @@ describe('modeDocumentSchema', () => {
               },
               case: {
                 pattern: {
+                  type: 'simple',
                   name: 'flash white',
                   duration: 3,
                   changeAt: [
@@ -71,6 +75,7 @@ describe('modeDocumentSchema', () => {
         name: 'has rgb patterns for both',
         front: {
           pattern: {
+            type: 'simple',
             name: 'front color pattern',
             duration: 3,
             changeAt: [
@@ -81,6 +86,7 @@ describe('modeDocumentSchema', () => {
         },
         case: {
           pattern: {
+            type: 'simple',
             name: 'case color pattern',
             duration: 3,
             changeAt: [
@@ -102,6 +108,7 @@ describe('modeDocumentSchema', () => {
         name: 'bad color',
         front: {
           pattern: {
+            type: 'simple',
             name: 'bad front',
             duration: 1,
             changeAt: [{ ms: 0, output: '#fff' }],
@@ -109,6 +116,7 @@ describe('modeDocumentSchema', () => {
         },
         case: {
           pattern: {
+            type: 'simple',
             name: 'case',
             duration: 1,
             changeAt: [{ ms: 0, output: '#ffaa00' }],
@@ -129,6 +137,7 @@ describe('modeDocumentSchema', () => {
         name: 'duplicate timestamps',
         front: {
           pattern: {
+            type: 'simple',
             name: 'front pattern',
             duration: 2,
             changeAt: [
@@ -139,6 +148,7 @@ describe('modeDocumentSchema', () => {
         },
         case: {
           pattern: {
+            type: 'simple',
             name: 'case pattern',
             duration: 2,
             changeAt: [
@@ -162,6 +172,7 @@ describe('modeDocumentSchema', () => {
         name: 'invalid accel trigger',
         front: {
           pattern: {
+            type: 'simple',
             name: 'front pattern',
             duration: 1,
             changeAt: [{ ms: 0, output: 'high' }],
@@ -169,6 +180,7 @@ describe('modeDocumentSchema', () => {
         },
         case: {
           pattern: {
+            type: 'simple',
             name: 'case pattern',
             duration: 1,
             changeAt: [{ ms: 0, output: '#ffaa00' }],
