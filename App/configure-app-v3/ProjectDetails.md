@@ -265,3 +265,8 @@ This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT TH
 - Integrated the equation editor into the `RgbPatternPage`, enabling switching between Simple and Equation methods with state persistence.
 - Added `SectionLane`, `WaveformLane`, and `ColorPreview` components to support the equation editor UI.
 - Validated the equation logic and components with comprehensive unit tests.
+
+## 2025-12-13
+
+- Surface validation errors to user, disabling the save button until all requirements (name, duration, valid steps/sections) are met.
+- Removed default pattern names to encourage descriptive naming; new patterns now start with an empty name field.
