@@ -76,8 +76,42 @@
       }
     },
     "equation": {
-      "title": "Equation method",
-      "todo": "TODO · Define the equation-driven workflow for procedural color generation."
+      "title": "Equation RGB Pattern Editor",
+      "defaultName": "New Equation Pattern",
+      "controls": {
+        "play": "Play",
+        "pause": "Pause",
+        "stop": "Stop",
+        "exportVideo": "Export Video",
+        "notImplemented": "Not implemented yet"
+      },
+      "help": {
+        "title": "Equation Help:",
+        "description": "Use 't' for time (seconds) and 'Duration' for section duration (seconds). Standard Math functions are available (e.g., sin(t), cos(t), exp(t), abs(t)). Output is clamped to 0-255.",
+        "examples": "Examples:"
+      },
+      "preview": {
+        "title": "Combined Output Preview"
+      },
+      "waveforms": {
+        "title": "Waveforms"
+      },
+      "colors": {
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue"
+      },
+      "sections": {
+        "title": "{{color}} Sections",
+        "add": "+ Add Section",
+        "empty": "No sections defined.",
+        "equationLabel": "Equation (t = time in sec)",
+        "equationPlaceholder": "e.g. 255 * sin(t)",
+        "durationLabel": "Duration (ms)",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "delete": "Delete"
+      }
     }
   },
   "bulbPattern": {
@@ -134,6 +168,17 @@
           "description": "Low-light friendly interface with subtle contrast."
         }
       }
+    }
+  },
+  "validation": {
+    "equation": {
+      "required": "Equation cannot be empty"
+    },
+    "duration": {
+      "min": "Duration must be at least 1ms"
+    },
+    "name": {
+      "required": "Name is required"
     }
   }
 }

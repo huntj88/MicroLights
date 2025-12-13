@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   createDefaultEquationPattern,
   type EquationPattern,
@@ -10,7 +11,11 @@ import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
 
 export const EquationRgbPatternPanel = () => {
-  const [pattern, setPattern] = useState<EquationPattern>(createDefaultEquationPattern());
+  const { t } = useTranslation();
+  const [pattern, setPattern] = useState<EquationPattern>(() => ({
+    ...createDefaultEquationPattern(),
+    name: t('rgbPattern.equation.defaultName'),
+  }));
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const requestRef = useRef<number>(0);
@@ -146,7 +151,7 @@ export const EquationRgbPatternPanel = () => {
   return (
     <div className="flex flex-col gap-6 p-4 bg-gray-900 text-gray-100 rounded-lg shadow-xl">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Equation RGB Pattern Editor</h2>
+        <h2 className="text-xl font-bold">{t('rgbPattern.equation.title')}</h2>
         <div className="flex gap-2">
           <button
             onClick={handlePlayPause}
@@ -154,25 +159,39 @@ export const EquationRgbPatternPanel = () => {
               isPlaying ? 'bg-yellow-600 hover:bg-yellow-500' : 'bg-green-600 hover:bg-green-500'
             }`}
           >
-            {isPlaying ? 'Pause' : 'Play'}
+            {isPlaying ? t('rgbPattern.equation.controls.pause') : t('rgbPattern.equation.controls.play')}
           </button>
           <button
             onClick={handleStop}
             className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded font-bold"
           >
-            Stop
+            {t('rgbPattern.equation.controls.stop')}
           </button>
         </div>
       </div>
 
       <div className="bg-gray-800/50 p-3 rounded text-sm text-gray-400 border border-gray-700">
-        <p><strong>Equation Help:</strong> Use <code>t</code> for time (seconds) and <code>Duration</code> for section duration (seconds). Standard Math functions are available (e.g., <code>sin(t)</code>, <code>cos(t)</code>, <code>exp(t)</code>, <code>abs(t)</code>). Output is clamped to 0-255.</p>
-        <p className="mt-1 text-xs">Examples: <code>255 * abs(sin(t))</code>, <code>255 * (t / Duration)</code>, <code>255 * exp(-t)</code></p>
+        <p>
+          <strong>{t('rgbPattern.equation.help.title')}</strong>{' '}
+          <Trans i18nKey="rgbPattern.equation.help.description">
+            Use <code>t</code> for time (seconds) and <code>Duration</code> for section duration
+            (seconds). Standard Math functions are available (e.g., <code>sin(t)</code>,{' '}
+            <code>cos(t)</code>, <code>exp(t)</code>, <code>abs(t)</code>). Output is clamped to
+            0-255.
+          </Trans>
+        </p>
+        <p className="mt-1 text-xs">
+          {t('rgbPattern.equation.help.examples')}{' '}
+          <code>255 * abs(sin(t))</code>, <code>255 * (t / Duration)</code>,{' '}
+          <code>255 * exp(-t)</code>
+        </p>
       </div>
 
       {/* Preview Area */}
       <div className="bg-black rounded p-4 border border-gray-700">
-        <h3 className="text-sm font-bold text-gray-400 mb-2">Combined Output Preview</h3>
+        <h3 className="text-sm font-bold text-gray-400 mb-2">
+          {t('rgbPattern.equation.preview.title')}
+        </h3>
         <ColorPreview
           redPoints={redPoints}
           greenPoints={greenPoints}
@@ -187,7 +206,9 @@ export const EquationRgbPatternPanel = () => {
 
       {/* Waveform Display Area */}
       <div className="grid grid-cols-1 gap-1 bg-black rounded p-4 border border-gray-700">
-        <h3 className="text-sm font-bold text-gray-400 mb-2">Waveforms</h3>
+        <h3 className="text-sm font-bold text-gray-400 mb-2">
+          {t('rgbPattern.equation.waveforms.title')}
+        </h3>
         <WaveformLane
           color="red"
           points={redPoints}

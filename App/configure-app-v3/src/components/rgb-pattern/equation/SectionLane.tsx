@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next';
+
 import type { EquationSection } from '../../../app/models/equation-pattern';
 
 interface SectionLaneProps {
@@ -17,6 +19,7 @@ export const SectionLane = ({
   onDeleteSection,
   onMoveSection,
 }: SectionLaneProps) => {
+  const { t } = useTranslation();
   const borderColor = {
     red: 'border-red-500/50',
     green: 'border-green-500/50',
@@ -26,12 +29,16 @@ export const SectionLane = ({
   return (
     <div className={`flex flex-col gap-2 p-2 rounded border ${borderColor} bg-gray-800/30`}>
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-bold uppercase text-gray-400">{color} Sections</h3>
+        <h3 className="text-sm font-bold uppercase text-gray-400">
+          {t('rgbPattern.equation.sections.title', {
+            color: t(`rgbPattern.equation.colors.${color}`),
+          })}
+        </h3>
         <button
           onClick={onAddSection}
           className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded text-white"
         >
-          + Add Section
+          {t('rgbPattern.equation.sections.add')}
         </button>
       </div>
 
@@ -42,14 +49,20 @@ export const SectionLane = ({
             section={section}
             index={index}
             total={sections.length}
-            onUpdate={updates => { onUpdateSection(section.id, updates); }}
-            onDelete={() => { onDeleteSection(section.id); }}
-            onMove={dir => { onMoveSection(section.id, dir); }}
+            onUpdate={updates => {
+              onUpdateSection(section.id, updates);
+            }}
+            onDelete={() => {
+              onDeleteSection(section.id);
+            }}
+            onMove={dir => {
+              onMoveSection(section.id, dir);
+            }}
           />
         ))}
         {sections.length === 0 && (
           <div className="text-center py-4 text-gray-500 text-xs italic">
-            No sections defined.
+            {t('rgbPattern.equation.sections.empty')}
           </div>
         )}
       </div>
@@ -67,44 +80,58 @@ interface SectionItemProps {
 }
 
 const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: SectionItemProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="bg-gray-700 rounded p-2 flex flex-col gap-2">
       <div className="flex justify-between items-start gap-2">
         <div className="flex-1 flex flex-col gap-1">
-          <label className="text-xs text-gray-400">Equation (t = time in sec)</label>
+          <label className="text-xs text-gray-400">
+            {t('rgbPattern.equation.sections.equationLabel')}
+          </label>
           <input
             type="text"
             value={section.equation}
-            onChange={e => { onUpdate({ equation: e.target.value }); }}
+            onChange={e => {
+              onUpdate({ equation: e.target.value });
+            }}
             className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-sm font-mono text-green-400"
-            placeholder="e.g. 255 * sin(t)"
+            placeholder={t('rgbPattern.equation.sections.equationPlaceholder')}
           />
         </div>
         <div className="flex flex-col gap-1 w-24">
-          <label className="text-xs text-gray-400">Duration (ms)</label>
+          <label className="text-xs text-gray-400">
+            {t('rgbPattern.equation.sections.durationLabel')}
+          </label>
           <input
             type="number"
             value={section.duration}
-            onChange={e => { onUpdate({ duration: parseInt(e.target.value) || 0 }); }}
+            onChange={e => {
+              onUpdate({ duration: parseInt(e.target.value) || 0 });
+            }}
             className="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-sm"
           />
         </div>
       </div>
-      
+
       <div className="flex justify-end gap-2 mt-1">
         <button
-          onClick={() => { onMove('up'); }}
+          onClick={() => {
+            onMove('up');
+          }}
           disabled={index === 0}
           className="text-gray-400 hover:text-white disabled:opacity-30"
-          title="Move Up"
+          title={t('rgbPattern.equation.sections.moveUp')}
         >
           ↑
         </button>
         <button
-          onClick={() => { onMove('down'); }}
+          onClick={() => {
+            onMove('down');
+          }}
           disabled={index === total - 1}
           className="text-gray-400 hover:text-white disabled:opacity-30"
-          title="Move Down"
+          title={t('rgbPattern.equation.sections.moveDown')}
         >
           ↓
         </button>
@@ -113,7 +140,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           onClick={onDelete}
           className="text-red-400 hover:text-red-300 text-xs"
         >
-          Delete
+          {t('rgbPattern.equation.sections.delete')}
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface WaveformLaneProps {
   color: 'red' | 'green' | 'blue';
@@ -15,6 +16,7 @@ export const WaveformLane = ({
   totalDuration,
   height = 100,
 }: WaveformLaneProps) => {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const strokeColor = {
@@ -87,7 +89,7 @@ export const WaveformLane = ({
   return (
     <div className="relative bg-gray-900 rounded border border-gray-700 overflow-hidden">
       <div className="absolute top-1 left-2 text-xs font-bold uppercase opacity-50" style={{ color: strokeColor }}>
-        {color}
+        {t(`rgbPattern.equation.colors.${color}`)}
       </div>
       <canvas
         ref={canvasRef}
