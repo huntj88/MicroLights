@@ -100,7 +100,7 @@ export const BulbPatternPage = () => {
     if (existing && existing.name !== selectedPatternName) {
       if (
         !window.confirm(
-          t('rgbPattern.simple.storage.overwriteConfirm', { name: patternState.name }),
+          t('patternEditor.storage.overwriteConfirm', { name: patternState.name }),
         )
       ) {
         return;
@@ -117,7 +117,7 @@ export const BulbPatternPage = () => {
     }
 
     if (
-      !window.confirm(t('rgbPattern.simple.storage.deleteConfirm', { name: selectedPatternName }))
+      !window.confirm(t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }))
     ) {
       return;
     }
@@ -148,14 +148,14 @@ export const BulbPatternPage = () => {
           <div className="flex flex-1 flex-wrap items-end gap-4">
             <label className="flex flex-col gap-1.5">
               <span className="text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
-                {t('rgbPattern.simple.storage.selectLabel')}
+                {t('patternEditor.storage.selectLabel')}
               </span>
               <select
                 className="h-10 rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)] px-3 text-sm text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
                 onChange={handlePatternSelect}
                 value={selectedPatternName}
               >
-                <option value="">{t('rgbPattern.simple.storage.selectPlaceholder')}</option>
+                <option value="">{t('patternEditor.storage.selectPlaceholder')}</option>
                 {availablePatternNames.map(name => (
                   <option key={name} value={name}>
                     {name}
@@ -171,7 +171,7 @@ export const BulbPatternPage = () => {
                 onClick={handlePatternDelete}
                 type="button"
               >
-                {t('rgbPattern.simple.storage.deleteButton')}
+                {t('patternEditor.storage.deleteButton')}
               </button>
               <button
                 className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
@@ -179,7 +179,7 @@ export const BulbPatternPage = () => {
                 onClick={handlePatternSave}
                 type="button"
               >
-                {t('rgbPattern.simple.storage.saveButton')}
+                {t('patternEditor.storage.saveButton')}
               </button>
             </div>
           </div>

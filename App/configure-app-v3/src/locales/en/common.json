@@ -37,6 +37,9 @@
       "remove": "Remove step"
     },
     "form": {
+      "nameLabel": "Pattern name",
+      "nameHelper": "Give this pattern a descriptive name to recognize it later.",
+      "namePlaceholder": "Enter pattern name",
       "durationLabel": "Duration (ms)",
       "durationHelper": "How long the step should last.",
       "addButton": "Add step"
@@ -45,6 +48,14 @@
       "title": "Add step",
       "cancel": "Cancel",
       "confirm": "Add step"
+    },
+    "storage": {
+      "selectLabel": "Saved patterns",
+      "selectPlaceholder": "New pattern",
+      "deleteButton": "Delete pattern",
+      "saveButton": "Save pattern",
+      "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
+      "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
     }
   },
   "rgbPattern": {
@@ -59,19 +70,8 @@
       "description": "Build a pattern by stacking color segments and choosing how long each should shine.",
       "form": {
         "ariaLabel": "Simple RGB pattern form",
-        "nameLabel": "Pattern name",
-        "nameHelper": "Give this pattern a descriptive name to recognize it later.",
-        "namePlaceholder": "Enter pattern name",
         "colorLabel": "Color",
         "colorHelper": "Use the color picker to choose the LED output."
-      },
-      "storage": {
-        "selectLabel": "Saved patterns",
-        "selectPlaceholder": "New pattern",
-        "deleteButton": "Delete pattern",
-        "saveButton": "Save pattern",
-        "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
-        "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
       }
     },
     "equation": {
