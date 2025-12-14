@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { SimpleBulbPatternPanel, type SimpleBulbPatternPanelProps } from './SimpleBulbPatternPanel';
 import { type SimplePattern } from '../../app/models/mode';
 import {
   renderWithProviders,
@@ -9,8 +10,6 @@ import {
   waitFor,
   within,
 } from '../../test-utils/render-with-providers';
-
-import { SimpleBulbPatternPanel, type SimpleBulbPatternPanelProps } from './SimpleBulbPatternPanel';
 
 const createPattern = (segments: { output: 'high' | 'low'; duration: number }[]): SimplePattern => {
   let cursor = 0;
@@ -102,7 +101,10 @@ describe('SimpleBulbPatternPanel', () => {
 
     expect(nextPattern.changeAt).toEqual([]);
     expect(nextPattern.duration).toBe(0);
-    expect(action).toEqual({ type: 'remove-step', stepId: expect.stringMatching(/^step-/) });
+    expect(action.type).toBe('remove-step');
+    if (action.type === 'remove-step') {
+      expect(action.stepId).toMatch(/^step-/);
+    }
   });
 
   it('emits rename-pattern when updating the pattern name', async () => {
@@ -132,7 +134,8 @@ describe('SimpleBulbPatternPanel', () => {
       | Parameters<SimpleBulbPatternPanelProps['onChange']>
       | undefined;
     expect(lastCall).toBeDefined();
-    const [nextPattern, action] = lastCall!;
+    if (!lastCall) throw new Error('Expected call');
+    const [nextPattern, action] = lastCall;
 
     expect(nextPattern.name).toBe('Blinking Light');
     expect(action).toEqual({ type: 'rename-pattern', name: 'Blinking Light' });
@@ -245,8 +248,9 @@ describe('SimpleBulbPatternPanel', () => {
 
     const finalCall = updateCalls.at(-1);
     expect(finalCall).toBeDefined();
+    if (!finalCall) throw new Error('Expected call');
 
-    const [nextPattern, action] = finalCall!;
+    const [nextPattern, action] = finalCall;
     expect(nextPattern.duration).toBe(250);
     expect(nextPattern.changeAt).toEqual([
       { ms: 0, output: 'low' },

@@ -279,6 +279,8 @@ describe('RgbPatternPage', () => {
     expect(within(chooser).getByRole('option', { name: 'Color Pattern' })).toBeInTheDocument();
 
     // Check that Binary Pattern is NOT an option
-    expect(within(chooser).queryByRole('option', { name: 'Binary Pattern' })).not.toBeInTheDocument();
+    expect(
+      within(chooser).queryByRole('option', { name: 'Binary Pattern' }),
+    ).not.toBeInTheDocument();
   });
 });

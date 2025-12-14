@@ -20,7 +20,9 @@ describe('BulbPatternPage', () => {
     setup();
     renderWithProviders(<BulbPatternPage />);
 
-    expect(screen.getByRole('heading', { level: 2, name: /bulb pattern studio/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 2, name: /bulb pattern studio/i }),
+    ).toBeInTheDocument();
   });
 
   it('filters out color patterns from the saved patterns list', () => {
@@ -49,7 +51,9 @@ describe('BulbPatternPage', () => {
     expect(within(chooser).getByRole('option', { name: 'Binary Pattern' })).toBeInTheDocument();
 
     // Check that Color Pattern is NOT an option
-    expect(within(chooser).queryByRole('option', { name: 'Color Pattern' })).not.toBeInTheDocument();
+    expect(
+      within(chooser).queryByRole('option', { name: 'Color Pattern' }),
+    ).not.toBeInTheDocument();
   });
 
   it('disables save button on initial load due to invalid default pattern', () => {
@@ -116,16 +120,16 @@ describe('BulbPatternPage', () => {
     // The logic in BulbPatternPage is:
     // const existing = patterns.find(p => p.name === patternState.name);
     // if (existing && existing.name !== selectedPatternName) { ... confirm ... }
-    
-    // So if we are editing "My Pattern" (selectedPatternName="My Pattern") and saving as "My Pattern", 
+
+    // So if we are editing "My Pattern" (selectedPatternName="My Pattern") and saving as "My Pattern",
     // it just saves without confirm.
-    
-    // To trigger confirm, we must be in "New Pattern" mode (selectedPatternName="") 
+
+    // To trigger confirm, we must be in "New Pattern" mode (selectedPatternName="")
     // OR have a different pattern selected, but try to save with a name that already exists.
-    
+
     // Let's switch to "New Pattern" mode but keep the name "My Pattern"
     await user.selectOptions(chooser, '');
-    
+
     // When we switch to "New Pattern", the state is reset to empty.
     // We need to re-enter the name "My Pattern" and add a step to make it valid and conflicting.
     await user.type(nameInput, 'My Pattern');
