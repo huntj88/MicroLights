@@ -25,33 +25,39 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
       valueSchema={binaryOutputSchema}
       defaultValue={DEFAULT_VALUE}
       renderInput={({ value, onChange }) => (
-        <div className="flex items-center gap-2">
-          <button
-            className={`rounded-md border px-3 py-1 transition-colors ${
-              value === 'high'
-                ? 'border-white bg-white text-black'
-                : 'border-gray-600 bg-transparent text-white hover:bg-white/10'
+        <div className="flex items-center gap-3">
+          <span
+            className={`text-sm font-medium transition-colors ${
+              value === 'low' ? 'text-[rgb(var(--surface-contrast))]' : 'theme-muted'
             }`}
-            onClick={() => {
-              onChange('high');
-            }}
-            type="button"
-          >
-            {t('bulbPattern.high')}
-          </button>
-          <button
-            className={`rounded-md border px-3 py-1 transition-colors ${
-              value === 'low'
-                ? 'border-white bg-black text-white'
-                : 'border-gray-600 bg-transparent text-white hover:bg-white/10'
-            }`}
-            onClick={() => {
-              onChange('low');
-            }}
-            type="button"
           >
             {t('bulbPattern.low')}
+          </span>
+          <button
+            aria-checked={value === 'high'}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))] focus:ring-offset-2 ${
+              value === 'high' ? 'bg-[rgb(var(--accent))]' : 'bg-[rgb(var(--surface-muted))]'
+            }`}
+            onClick={() => {
+              onChange(value === 'high' ? 'low' : 'high');
+            }}
+            role="switch"
+            type="button"
+          >
+            <span className="sr-only">{t('bulbPattern.form.stateLabel')}</span>
+            <span
+              className={`${
+                value === 'high' ? 'translate-x-6' : 'translate-x-1'
+              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+            />
           </button>
+          <span
+            className={`text-sm font-medium transition-colors ${
+              value === 'high' ? 'text-[rgb(var(--surface-contrast))]' : 'theme-muted'
+            }`}
+          >
+            {t('bulbPattern.high')}
+          </span>
         </div>
       )}
       renderPreview={({ value, durationMs, isSelected, onClick, totalDuration }) => (
@@ -65,7 +71,11 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
             isSelected
               ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
               : ''
-          } ${value === 'high' ? 'bg-white text-black' : 'bg-black text-white'}`}
+          } ${
+            value === 'high'
+              ? 'bg-[color-mix(in_srgb,rgb(var(--accent)),white_60%)] text-black'
+              : 'bg-black text-white'
+          }`}
           onClick={onClick}
           style={{
             flexGrow: totalDuration > 0 ? durationMs : 1,
@@ -76,7 +86,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
           })}
           type="button"
         >
-          <span className="px-2 py-1 mix-blend-difference">{durationMs}ms</span>
+          <span className="px-2 py-1">{durationMs}ms</span>
         </button>
       )}
       labels={{

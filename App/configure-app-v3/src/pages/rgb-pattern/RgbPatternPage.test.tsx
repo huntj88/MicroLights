@@ -252,4 +252,33 @@ describe('RgbPatternPage', () => {
 
     expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
   });
+
+  it('filters out binary patterns from the saved patterns list', () => {
+    setup();
+    const binaryPattern: SimplePattern = {
+      type: 'simple',
+      name: 'Binary Pattern',
+      duration: 100,
+      changeAt: [{ ms: 0, output: 'high' }],
+    };
+    const colorPattern: SimplePattern = {
+      type: 'simple',
+      name: 'Color Pattern',
+      duration: 100,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+    };
+
+    usePatternStore.getState().savePattern(binaryPattern);
+    usePatternStore.getState().savePattern(colorPattern);
+
+    renderWithProviders(<RgbPatternPage />);
+
+    const chooser = screen.getByLabelText(/saved patterns/i);
+
+    // Check that Color Pattern is an option
+    expect(within(chooser).getByRole('option', { name: 'Color Pattern' })).toBeInTheDocument();
+
+    // Check that Binary Pattern is NOT an option
+    expect(within(chooser).queryByRole('option', { name: 'Binary Pattern' })).not.toBeInTheDocument();
+  });
 });

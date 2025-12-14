@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   createDefaultEquationPattern,
   equationPatternSchema,
+  isColorPattern,
   simplePatternSchema,
   type EquationPattern,
   type ModePattern,
@@ -51,7 +52,7 @@ export const RgbPatternPage = () => {
   const availablePatternNames = useMemo(
     () =>
       patterns
-        .filter(p => (activeMethod === 'simple' ? p.type === 'simple' : p.type === 'equation'))
+        .filter(p => (activeMethod === 'simple' ? isColorPattern(p) : p.type === 'equation'))
         .map(pattern => pattern.name)
         .sort((a, b) => a.localeCompare(b)),
     [patterns, activeMethod],
@@ -181,7 +182,7 @@ export const RgbPatternPage = () => {
     const stored = getPattern(nextName);
     if (stored) {
       setOriginalPattern(stored);
-      if (activeMethod === 'simple' && stored.type === 'simple') {
+      if (activeMethod === 'simple' && isColorPattern(stored)) {
         setSimplePatternState(stored);
         const result = simplePatternSchema.safeParse(stored);
         if (!result.success) {

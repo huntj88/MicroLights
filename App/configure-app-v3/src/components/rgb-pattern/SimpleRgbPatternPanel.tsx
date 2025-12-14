@@ -87,7 +87,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             duration: durationMs,
           })}
           aria-pressed={isSelected}
-          className={`flex flex-1 items-center justify-center text-xs font-medium text-[rgb(var(--surface-contrast)/1)] transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/1)] focus:ring-inset ${
+          className={`flex flex-1 items-center justify-center text-xs font-medium text-white transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/1)] focus:ring-inset ${
             isSelected
               ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
               : ''
