@@ -88,7 +88,7 @@ describe('RgbPatternPage', () => {
     expect(saveButton).toBeDisabled();
   });
 
-  it('prompts before overwriting an existing pattern when saving', async () => {
+  it('does not prompt when updating the currently selected pattern', async () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
@@ -120,7 +120,47 @@ describe('RgbPatternPage', () => {
 
     await user.click(saveButton);
 
-    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching(/replace it/i));
+    expect(confirmSpy).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
+
+  it('prompts before overwriting a different existing pattern', async () => {
+    const { user } = setup();
+    const patternA: SimplePattern = {
+      type: 'simple',
+      name: 'Pattern A',
+      duration: 100,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+    };
+    const patternB: SimplePattern = {
+      type: 'simple',
+      name: 'Pattern B',
+      duration: 100,
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#000000') }],
+    };
+    usePatternStore.getState().savePattern(patternA);
+    usePatternStore.getState().savePattern(patternB);
+
+    renderWithProviders(<RgbPatternPage />);
+
+    // Select Pattern B
+    const chooser = screen.getByLabelText(/saved patterns/i);
+    await user.selectOptions(chooser, 'Pattern B');
+
+    // Rename to Pattern A
+    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Pattern A');
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
+
+    await user.click(saveButton);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/A pattern named "Pattern A" already exists/i),
+    );
     confirmSpy.mockRestore();
   });
 

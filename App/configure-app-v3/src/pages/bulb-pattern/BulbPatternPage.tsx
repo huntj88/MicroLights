@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { isBinaryPattern, simplePatternSchema, type SimplePattern } from '../../app/models/mode';
@@ -8,6 +8,7 @@ import {
   type SimpleBulbPatternAction,
   SimpleBulbPatternPanel,
 } from '../../components/pattern/bulb/SimpleBulbPatternPanel';
+import { useEntityEditor } from '../../hooks/useEntityEditor';
 import { getLocalizedError } from '../../utils/localization';
 
 const createEmptyPattern = (): SimplePattern => ({
@@ -17,19 +18,18 @@ const createEmptyPattern = (): SimplePattern => ({
   changeAt: [],
 });
 
+const validate = (pattern: SimplePattern) => {
+  const result = simplePatternSchema.safeParse(pattern);
+  return result.success ? [] : result.error.issues.map(issue => issue.message);
+};
+
 export const BulbPatternPage = () => {
   const { t } = useTranslation();
-  const [selectedPatternName, setSelectedPatternName] = useState('');
-  const [patternState, setPatternState] = useState<SimplePattern>(createEmptyPattern);
-  const [validationErrors, setValidationErrors] = useState<string[]>(() => {
-    const initialPattern = createEmptyPattern();
-    const result = simplePatternSchema.safeParse(initialPattern);
-    return result.success ? [] : result.error.issues.map(issue => issue.message);
-  });
 
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
   const deletePattern = usePatternStore(state => state.deletePattern);
+  const getPattern = usePatternStore(state => state.getPattern);
 
   const availablePatternNames = useMemo(
     () =>
@@ -40,97 +40,49 @@ export const BulbPatternPage = () => {
     [patterns],
   );
 
-  useEffect(() => {
-    if (!selectedPatternName) {
-      return;
-    }
+  const readItem = useCallback(
+    (name: string) => {
+      const p = getPattern(name);
+      if (!p) return undefined;
+      return isBinaryPattern(p) ? p : undefined;
+    },
+    [getPattern],
+  );
 
-    if (availablePatternNames.includes(selectedPatternName)) {
-      return;
-    }
+  const confirmOverwrite = useCallback(
+    (name: string) => confirm(t('patternEditor.storage.overwriteConfirm', { name })),
+    [t],
+  );
 
-    if (patternState.name === selectedPatternName) {
-      return;
-    }
+  const confirmDelete = useCallback(
+    (name: string) => confirm(t('patternEditor.storage.deleteConfirm', { name })),
+    [t],
+  );
 
-    setSelectedPatternName('');
-  }, [availablePatternNames, selectedPatternName, patternState.name]);
+  const {
+    selectedName,
+    editingItem,
+    validationErrors,
+    isDirty,
+    setSelectedName,
+    setEditingItem: handleUpdate,
+    save: handleSave,
+    remove: handleDelete,
+  } = useEntityEditor<SimplePattern>({
+    availableNames: availablePatternNames,
+    readItem,
+    saveItem: savePattern,
+    deleteItem: deletePattern,
+    createDefault: createEmptyPattern,
+    validate,
+    confirmOverwrite,
+    confirmDelete,
+  });
 
   const handlePatternChange = (nextPattern: SimplePattern, action: SimpleBulbPatternAction) => {
-    setPatternState(nextPattern);
-
-    const result = simplePatternSchema.safeParse(nextPattern);
-    if (!result.success) {
-      setValidationErrors(result.error.issues.map(issue => issue.message));
-    } else {
-      setValidationErrors([]);
-    }
-
-    if (action.type === 'rename-pattern') {
-      if (selectedPatternName === action.name) {
-        return;
-      }
-      setSelectedPatternName('');
-    }
+    console.log(action, nextPattern);
+    handleUpdate(nextPattern);
   };
-
-  const handlePatternSelect = (name: string) => {
-    setSelectedPatternName(name);
-
-    if (!name) {
-      setPatternState(createEmptyPattern());
-      setValidationErrors([]);
-      return;
-    }
-
-    const pattern = patterns.find(p => p.name === name);
-    if (pattern && isBinaryPattern(pattern)) {
-      setPatternState(pattern);
-      setValidationErrors([]);
-    }
-  };
-
-  const handlePatternSave = () => {
-    const result = simplePatternSchema.safeParse(patternState);
-    if (!result.success) {
-      return;
-    }
-
-    const existing = patterns.find(p => p.name === patternState.name);
-    if (existing && existing.name !== selectedPatternName) {
-      if (
-        !window.confirm(t('patternEditor.storage.overwriteConfirm', { name: patternState.name }))
-      ) {
-        return;
-      }
-    }
-
-    savePattern(patternState);
-    setSelectedPatternName(patternState.name);
-  };
-
-  const handlePatternDelete = () => {
-    if (!selectedPatternName) {
-      return;
-    }
-
-    if (!window.confirm(t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }))) {
-      return;
-    }
-
-    deletePattern(selectedPatternName);
-    setSelectedPatternName('');
-    setPatternState(createEmptyPattern());
-  };
-
-  const isDirty = useMemo(() => {
-    if (!selectedPatternName) {
-      return patternState.changeAt.length > 0 || patternState.name.length > 0;
-    }
-
-    const original = patterns.find(p => p.name === selectedPatternName);
-    return JSON.stringify(original) !== JSON.stringify(patternState);
-  }, [patternState, selectedPatternName, patterns]);
 
   return (
     <section className="space-y-6">
@@ -142,12 +94,12 @@ export const BulbPatternPage = () => {
       <article className="space-y-6 rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-6">
         <StorageControls
           items={availablePatternNames}
-          selectedItem={selectedPatternName}
-          onSelect={handlePatternSelect}
+          selectedItem={selectedName}
+          onSelect={setSelectedName}
           selectLabel={t('patternEditor.storage.selectLabel')}
           selectPlaceholder={t('patternEditor.storage.selectPlaceholder')}
-          onSave={handlePatternSave}
-          onDelete={handlePatternDelete}
+          onSave={handleSave}
+          onDelete={handleDelete}
           isDirty={isDirty}
           isValid={validationErrors.length === 0}
           saveLabel={t('patternEditor.storage.saveButton')}
@@ -164,7 +116,7 @@ export const BulbPatternPage = () => {
           </div>
         )}
 
-        <SimpleBulbPatternPanel onChange={handlePatternChange} value={patternState} />
+        <SimpleBulbPatternPanel onChange={handlePatternChange} value={editingItem} />
       </article>
     </section>
   );

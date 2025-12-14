@@ -87,7 +87,7 @@ describe('BulbPatternPage', () => {
     expect(saveButton).toBeDisabled();
   });
 
-  it('prompts before overwriting an existing pattern when saving', async () => {
+  it('does not prompt when updating the currently selected pattern', async () => {
     const { user } = setup();
     renderWithProviders(<BulbPatternPage />);
 
@@ -115,33 +115,51 @@ describe('BulbPatternPage', () => {
     dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
-    // We need to select "New Pattern" or change the name to trigger overwrite logic for a *different* pattern name
-    // But here we are saving "My Pattern" again.
-    // The logic in BulbPatternPage is:
-    // const existing = patterns.find(p => p.name === patternState.name);
-    // if (existing && existing.name !== selectedPatternName) { ... confirm ... }
+    const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
-    // So if we are editing "My Pattern" (selectedPatternName="My Pattern") and saving as "My Pattern",
-    // it just saves without confirm.
+    await user.click(saveButton);
 
-    // To trigger confirm, we must be in "New Pattern" mode (selectedPatternName="")
-    // OR have a different pattern selected, but try to save with a name that already exists.
+    expect(confirmSpy).not.toHaveBeenCalled();
+    confirmSpy.mockRestore();
+  });
 
-    // Let's switch to "New Pattern" mode but keep the name "My Pattern"
-    await user.selectOptions(chooser, '');
+  it('prompts before overwriting a different existing pattern', async () => {
+    const { user } = setup();
+    const patternA: SimplePattern = {
+      type: 'simple',
+      name: 'Pattern A',
+      duration: 100,
+      changeAt: [{ ms: 0, output: 'high' }],
+    };
+    const patternB: SimplePattern = {
+      type: 'simple',
+      name: 'Pattern B',
+      duration: 100,
+      changeAt: [{ ms: 0, output: 'low' }],
+    };
+    usePatternStore.getState().savePattern(patternA);
+    usePatternStore.getState().savePattern(patternB);
 
-    // When we switch to "New Pattern", the state is reset to empty.
-    // We need to re-enter the name "My Pattern" and add a step to make it valid and conflicting.
-    await user.type(nameInput, 'My Pattern');
-    await user.click(addButton);
-    dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
+    renderWithProviders(<BulbPatternPage />);
+
+    // Select Pattern B
+    const chooser = screen.getByLabelText(/saved patterns/i);
+    await user.selectOptions(chooser, 'Pattern B');
+
+    // Rename to Pattern A
+    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    await user.clear(nameInput);
+    await user.type(nameInput, 'Pattern A');
+
+    const saveButton = screen.getByRole('button', { name: /save pattern/i });
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
     await user.click(saveButton);
 
-    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching(/replace it/i));
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringMatching(/A pattern named "Pattern A" already exists/i),
+    );
     confirmSpy.mockRestore();
   });
 

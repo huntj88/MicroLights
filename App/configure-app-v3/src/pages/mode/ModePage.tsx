@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { type Mode, modeSchema } from '../../app/models/mode';
@@ -6,6 +6,7 @@ import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
 import { StorageControls } from '../../components/common/StorageControls';
 import { type ModeAction, ModeEditor } from '../../components/mode/ModeEditor';
+import { useEntityEditor } from '../../hooks/useEntityEditor';
 import { getLocalizedError } from '../../utils/localization';
 
 const createDefaultMode = (): Mode => ({
@@ -22,79 +23,43 @@ export const ModePage = () => {
   const getMode = useModeStore(state => state.getMode);
   const patterns = usePatternStore(state => state.patterns);
 
-  const [selectedModeName, setSelectedModeName] = useState('');
-  const [editingMode, setEditingMode] = useState<Mode>(createDefaultMode());
-  const [originalMode, setOriginalMode] = useState<Mode | null>(null);
-  const [validationErrors, setValidationErrors] = useState<string[]>(() => {
-    const initial = createDefaultMode();
-    const result = modeSchema.safeParse(initial);
-    return result.success ? [] : result.error.issues.map(i => i.message);
-  });
-
   const availableModeNames = useMemo(
     () => modes.map(m => m.name).sort((a, b) => a.localeCompare(b)),
     [modes],
   );
 
-  // Load mode when selection changes
-  useEffect(() => {
-    if (selectedModeName) {
-      const mode = getMode(selectedModeName);
-      if (mode) {
-        setEditingMode(mode);
-        setOriginalMode(mode);
-        setValidationErrors([]);
-      }
-    } else {
-      const newMode = createDefaultMode();
-      setEditingMode(newMode);
-      setOriginalMode(null);
-      const result = modeSchema.safeParse(newMode);
-      setValidationErrors(result.success ? [] : result.error.issues.map(i => i.message));
-    }
-  }, [selectedModeName, getMode]);
+  const {
+    selectedName: selectedModeName,
+    setSelectedName: setSelectedModeName,
+    editingItem: editingMode,
+    setEditingItem: setEditingMode,
+    validationErrors,
+    isDirty,
+    isValid,
+    save: handleSave,
+    remove: handleDelete,
+  } = useEntityEditor<Mode>({
+    availableNames: availableModeNames,
+    readItem: getMode,
+    saveItem: saveMode,
+    deleteItem: deleteMode,
+    createDefault: createDefaultMode,
+    validate: mode => {
+      const result = modeSchema.safeParse(mode);
+      return result.success ? [] : result.error.issues.map(i => i.message);
+    },
+    confirmOverwrite: name => confirm(t('modeEditor.storage.overwriteConfirm', { name })),
+    confirmDelete: () => confirm(t('modeEditor.storage.confirmDelete')),
+  });
 
   const handleModeChange = (newMode: Mode, action: ModeAction) => {
     console.log('Mode changed:', action);
     setEditingMode(newMode);
-
-    const result = modeSchema.safeParse(newMode);
-    setValidationErrors(result.success ? [] : result.error.issues.map(i => i.message));
-  };
-
-  const handleSave = () => {
-    if (
-      editingMode.name !== selectedModeName &&
-      availableModeNames.includes(editingMode.name) &&
-      !confirm(t('modeEditor.storage.overwriteConfirm', { name: editingMode.name }))
-    ) {
-      return;
-    }
-    saveMode(editingMode);
-    setSelectedModeName(editingMode.name);
-    setOriginalMode(editingMode);
-  };
-
-  const handleDelete = () => {
-    if (!selectedModeName) return;
-    if (confirm(t('modeEditor.storage.confirmDelete'))) {
-      deleteMode(selectedModeName);
-      setSelectedModeName('');
-    }
   };
 
   const handleLoad = (name: string) => {
     setSelectedModeName(name);
   };
-
-  const isValid = validationErrors.length === 0;
-
-  const isDirty = useMemo(() => {
-    if (!selectedModeName || !originalMode) {
-      return true;
-    }
-    return JSON.stringify(editingMode) !== JSON.stringify(originalMode);
-  }, [selectedModeName, originalMode, editingMode]);
 
   return (
     <section className="space-y-6">
