@@ -522,7 +522,7 @@ export const SimplePatternEditor = <T,>({
               <span>{t('patternEditor.form.durationLabel')}</span>
               <div className="relative">
                 <input
-                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
+                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border pl-3 pr-8 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
                   inputMode="numeric"
                   min={1}
                   onChange={event => {
