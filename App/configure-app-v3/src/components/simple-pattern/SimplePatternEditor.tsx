@@ -5,7 +5,7 @@ import { z } from 'zod';
 import type { PatternChange, SimplePattern } from '../../app/models/mode';
 import { PanelContainer } from '../common/PanelContainer';
 import { Section } from '../common/Section';
-import { PatternButton } from '../rgb-pattern/common/PatternButton';
+import { StyledButton } from '../common/StyledButton';
 import { PatternNameEditor } from '../rgb-pattern/common/PatternNameEditor';
 
 export interface SimplePatternStep<T> {
@@ -450,38 +450,38 @@ export const SimplePatternEditor = <T,>({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <PatternButton
+            <StyledButton
               disabled={selectedStepIndex === 0}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'up');
               }}
             >
               ← {t('patternEditor.steps.moveUp')}
-            </PatternButton>
-            <PatternButton
+            </StyledButton>
+            <StyledButton
               disabled={selectedStepIndex === steps.length - 1}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'down');
               }}
             >
               {t('patternEditor.steps.moveDown')} →
-            </PatternButton>
+            </StyledButton>
             <div className="flex-1" />
-            <PatternButton
+            <StyledButton
               onClick={() => {
                 handleDuplicate(steps[selectedStepIndex].id);
               }}
             >
               {t('patternEditor.steps.duplicate')}
-            </PatternButton>
-            <PatternButton
+            </StyledButton>
+            <StyledButton
               variant="danger"
               onClick={() => {
                 handleRemove(steps[selectedStepIndex].id);
               }}
             >
               {t('patternEditor.steps.remove')}
-            </PatternButton>
+            </StyledButton>
           </div>
         </Section>
       )}
@@ -537,16 +537,16 @@ export const SimplePatternEditor = <T,>({
               </label>
             </div>
             <footer className="flex justify-end gap-3">
-              <PatternButton variant="ghost" onClick={handleModalCancel}>
+              <StyledButton variant="ghost" onClick={handleModalCancel}>
                 {t('patternEditor.addModal.cancel')}
-              </PatternButton>
-              <PatternButton
+              </StyledButton>
+              <StyledButton
                 variant="primary"
                 disabled={!canConfirmModal}
                 onClick={handleModalConfirm}
               >
                 {t('patternEditor.addModal.confirm')}
-              </PatternButton>
+              </StyledButton>
             </footer>
           </div>
         </div>

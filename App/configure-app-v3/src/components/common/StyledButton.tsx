@@ -1,16 +1,16 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-interface PatternButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface StyledButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success' | 'warning';
 }
 
-export const PatternButton = ({
+export const StyledButton = ({
   children,
   variant = 'secondary',
   className = '',
   ...props
-}: PatternButtonProps) => {
+}: StyledButtonProps) => {
   const baseStyles =
     'px-4 py-2 rounded-full font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm';
 

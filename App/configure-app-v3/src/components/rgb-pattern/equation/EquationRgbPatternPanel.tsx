@@ -8,7 +8,7 @@ import { type EquationPattern, type EquationSection } from '../../../app/models/
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
 import { PanelContainer } from '../../common/PanelContainer';
 import { Section } from '../../common/Section';
-import { PatternButton } from '../common/PatternButton';
+import { StyledButton } from '../../common/StyledButton';
 import { PatternNameEditor } from '../common/PatternNameEditor';
 
 export type EquationRgbPatternAction =
@@ -254,14 +254,14 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         title={t('rgbPattern.equation.preview.title')}
         actions={
           <>
-            <PatternButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
+            <StyledButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
               {isPlaying
                 ? t('rgbPattern.equation.controls.pause')
                 : t('rgbPattern.equation.controls.play')}
-            </PatternButton>
-            <PatternButton onClick={handleStop} variant="secondary">
+            </StyledButton>
+            <StyledButton onClick={handleStop} variant="secondary">
               {t('rgbPattern.equation.controls.stop')}
-            </PatternButton>
+            </StyledButton>
           </>
         }
       >

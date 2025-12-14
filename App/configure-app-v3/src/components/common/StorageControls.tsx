@@ -1,5 +1,7 @@
 import { type ChangeEvent } from 'react';
 
+import { StyledButton } from './StyledButton';
+
 interface Props {
   // Selection
   items: string[];
@@ -60,22 +62,12 @@ export const StorageControls = ({
         </label>
 
         <div className="flex gap-2">
-          <button
-            className="rounded-full px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/10 disabled:opacity-50"
-            disabled={!selectedItem}
-            onClick={onDelete}
-            type="button"
-          >
+          <StyledButton variant="danger" disabled={!selectedItem} onClick={onDelete}>
             {deleteLabel}
-          </button>
-          <button
-            className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-            disabled={!isValid || !isDirty}
-            onClick={onSave}
-            type="button"
-          >
+          </StyledButton>
+          <StyledButton variant="primary" disabled={!isValid || !isDirty} onClick={onSave}>
             {saveLabel}
-          </button>
+          </StyledButton>
         </div>
       </div>
     </div>
