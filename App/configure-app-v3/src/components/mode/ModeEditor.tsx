@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { AccelTriggerEditor } from './AccelTriggerEditor';
 import { PatternSelector } from './PatternSelector';
 import {
-  isBinaryPattern,
   isColorPattern,
   type Mode,
   type ModeAccelTrigger,
@@ -64,7 +63,6 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
     );
   };
 
-  const binaryPatterns = patterns.filter(isBinaryPattern);
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
@@ -83,7 +81,7 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
             label={t('modeEditor.frontLabel')}
             value={mode.front?.pattern.name}
             onChange={handleFrontPatternChange}
-            patterns={binaryPatterns}
+            patterns={patterns}
           />
           <PatternSelector
             label={t('modeEditor.caseLabel')}

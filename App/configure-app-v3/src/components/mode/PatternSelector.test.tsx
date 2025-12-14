@@ -32,8 +32,8 @@ describe('PatternSelector', () => {
       />,
     );
 
-    expect(screen.getByText('Pattern 1')).toBeInTheDocument();
-    expect(screen.getByText('Pattern 2')).toBeInTheDocument();
+    expect(screen.getByText('Pattern 1 (Bulb)')).toBeInTheDocument();
+    expect(screen.getByText('Pattern 2 (RGB)')).toBeInTheDocument();
   });
 
   it('renders only provided patterns', () => {
@@ -48,8 +48,8 @@ describe('PatternSelector', () => {
       />,
     );
 
-    expect(screen.getByText('Pattern 1')).toBeInTheDocument();
-    expect(screen.queryByText('Pattern 2')).not.toBeInTheDocument();
+    expect(screen.getByText('Pattern 1 (Bulb)')).toBeInTheDocument();
+    expect(screen.queryByText('Pattern 2 (RGB)')).not.toBeInTheDocument();
   });
 
   it('calls onChange when selected', () => {

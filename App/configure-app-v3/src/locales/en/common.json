@@ -138,6 +138,10 @@
     "frontOverride": "Front Override",
     "caseOverride": "Case Override",
     "noTriggers": "No accelerometer triggers defined.",
+    "patternTypes": {
+      "bulb": "Bulb",
+      "rgb": "RGB"
+    },
     "storage": {
       "save": "Save Mode",
       "load": "Load Mode",

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { PatternPreview } from './previews/PatternPreview';
-import { type ModePattern } from '../../app/models/mode';
+import { isBinaryPattern, type ModePattern } from '../../app/models/mode';
 
 interface Props {
   value?: string;
@@ -25,11 +25,16 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
         }}
       >
         <option value="">{t('modeEditor.storage.selectPattern')}</option>
-        {patterns.map(pattern => (
-          <option key={pattern.name} value={pattern.name}>
-            {pattern.name}
-          </option>
-        ))}
+        {patterns.map(pattern => {
+          const typeLabel = isBinaryPattern(pattern)
+            ? t('modeEditor.patternTypes.bulb')
+            : t('modeEditor.patternTypes.rgb');
+          return (
+            <option key={pattern.name} value={pattern.name}>
+              {pattern.name} ({typeLabel})
+            </option>
+          );
+        })}
       </select>
       {selectedPattern && (
         <div className="mt-2">

@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { type ModeAction, ModeEditor } from './ModeEditor';
@@ -101,5 +101,20 @@ describe('ModeEditor', () => {
     if (action.type === 'update-front-pattern') {
       expect(action.pattern).toBeUndefined();
     }
+  });
+
+  it('filters patterns for Case LED selector to only allow RGB patterns', () => {
+    renderWithProviders(
+      <ModeEditor mode={defaultMode} onChange={vi.fn()} patterns={mockPatterns} />,
+    );
+
+    const selects = screen.getAllByRole('combobox');
+    const caseSelect = selects[1]; // Second selector is Case LED
+
+    // "Front Pattern" is a bulb pattern (high/low), should not be in Case selector
+    expect(within(caseSelect).queryByText(/Front Pattern/)).not.toBeInTheDocument();
+
+    // "Case Pattern" is an RGB pattern (hex color), should be in Case selector
+    expect(within(caseSelect).getByText(/Case Pattern/)).toBeInTheDocument();
   });
 });
