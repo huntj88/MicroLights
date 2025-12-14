@@ -29,7 +29,6 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
           </option>
         ))}
       </select>
-      {!value && <p className="text-xs text-red-500">{t('modeEditor.noPattern')}</p>}
     </div>
   );
 };

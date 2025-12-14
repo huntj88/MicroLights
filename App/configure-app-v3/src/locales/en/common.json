@@ -139,7 +139,6 @@
     "frontOverride": "Front Override",
     "caseOverride": "Case Override",
     "noTriggers": "No accelerometer triggers defined.",
-    "noPattern": "No pattern selected",
     "storage": {
       "save": "Save Mode",
       "load": "Load Mode",

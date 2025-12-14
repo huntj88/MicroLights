@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { hexColorSchema, type Mode } from '../../app/models/mode';
+import { hexColorSchema, type Mode, modeSchema } from '../../app/models/mode';
 import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
 import { StorageControls } from '../../components/common/StorageControls';
 import { type ModeAction, ModeEditor } from '../../components/mode/ModeEditor';
+import { getLocalizedError } from '../../utils/localization';
 
 const createDefaultMode = (): Mode => ({
   name: '',
@@ -37,6 +38,12 @@ export const ModePage = () => {
 
   const [selectedModeName, setSelectedModeName] = useState('');
   const [editingMode, setEditingMode] = useState<Mode>(createDefaultMode());
+  const [originalMode, setOriginalMode] = useState<Mode | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>(() => {
+    const initial = createDefaultMode();
+    const result = modeSchema.safeParse(initial);
+    return result.success ? [] : result.error.issues.map(i => i.message);
+  });
 
   const availableModeNames = useMemo(
     () => modes.map(m => m.name).sort((a, b) => a.localeCompare(b)),
@@ -49,15 +56,24 @@ export const ModePage = () => {
       const mode = getMode(selectedModeName);
       if (mode) {
         setEditingMode(mode);
+        setOriginalMode(mode);
+        setValidationErrors([]);
       }
     } else {
-      setEditingMode(createDefaultMode());
+      const newMode = createDefaultMode();
+      setEditingMode(newMode);
+      setOriginalMode(null);
+      const result = modeSchema.safeParse(newMode);
+      setValidationErrors(result.success ? [] : result.error.issues.map(i => i.message));
     }
   }, [selectedModeName, getMode]);
 
   const handleModeChange = (newMode: Mode, action: ModeAction) => {
     console.log('Mode changed:', action);
     setEditingMode(newMode);
+
+    const result = modeSchema.safeParse(newMode);
+    setValidationErrors(result.success ? [] : result.error.issues.map(i => i.message));
   };
 
   const handleSave = () => {
@@ -70,6 +86,7 @@ export const ModePage = () => {
     }
     saveMode(editingMode);
     setSelectedModeName(editingMode.name);
+    setOriginalMode(editingMode);
   };
 
   const handleDelete = () => {
@@ -84,10 +101,14 @@ export const ModePage = () => {
     setSelectedModeName(name);
   };
 
-  const isValid =
-    editingMode.name.trim().length > 0 &&
-    editingMode.front.pattern.name.length > 0 &&
-    editingMode.case.pattern.name.length > 0;
+  const isValid = validationErrors.length === 0;
+
+  const isDirty = useMemo(() => {
+    if (!selectedModeName || !originalMode) {
+      return true;
+    }
+    return JSON.stringify(editingMode) !== JSON.stringify(originalMode);
+  }, [selectedModeName, originalMode, editingMode]);
 
   return (
     <section className="space-y-6">
@@ -105,10 +126,21 @@ export const ModePage = () => {
           selectPlaceholder={t('modeEditor.storage.selectPlaceholder')}
           onSave={handleSave}
           onDelete={handleDelete}
+          isDirty={isDirty}
           isValid={isValid}
           saveLabel={t('modeEditor.storage.save')}
           deleteLabel={t('modeEditor.storage.delete')}
         />
+
+        {validationErrors.length > 0 && (
+          <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm text-red-500">
+            <ul className="list-inside list-disc space-y-1">
+              {validationErrors.map((error, index) => (
+                <li key={index}>{getLocalizedError(error, t)}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <ModeEditor mode={editingMode} onChange={handleModeChange} patterns={patterns} />
       </div>

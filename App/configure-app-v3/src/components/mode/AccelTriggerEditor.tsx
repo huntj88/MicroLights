@@ -42,6 +42,16 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
   };
 
   const updatePattern = (index: number, component: 'front' | 'case', patternName: string) => {
+    if (!patternName) {
+      const next = [...triggers];
+      next[index] = {
+        ...next[index],
+        [component]: undefined,
+      };
+      onChange(next);
+      return;
+    }
+
     const pattern = patterns.find(p => p.name === patternName);
     if (!pattern) return;
 
