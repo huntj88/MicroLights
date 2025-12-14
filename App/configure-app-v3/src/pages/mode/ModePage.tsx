@@ -53,7 +53,7 @@ export const ModePage = () => {
   });
 
   const handleModeChange = (newMode: Mode, action: ModeAction) => {
-    console.log('Mode changed:', action);
+    console.log('Mode changed:', action, newMode);
     setEditingMode(newMode);
   };
 

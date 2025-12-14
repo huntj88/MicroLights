@@ -124,7 +124,7 @@ export const RgbPatternPage = () => {
     nextPattern: SimplePattern,
     action: SimpleRgbPatternAction,
   ) => {
-    console.log(action, nextPattern);
+    console.log('RGB simple pattern change:', action, nextPattern);
     simpleEditor.setEditingItem(nextPattern);
   };
 
@@ -132,7 +132,7 @@ export const RgbPatternPage = () => {
     nextPattern: EquationPattern,
     action: EquationRgbPatternAction,
   ) => {
-    console.log(action, nextPattern);
+    console.log('RGB equation pattern change:', action, nextPattern);
     equationEditor.setEditingItem(nextPattern);
   };
 

@@ -80,7 +80,7 @@ export const BulbPatternPage = () => {
   });
 
   const handlePatternChange = (nextPattern: SimplePattern, action: SimpleBulbPatternAction) => {
-    console.log(action, nextPattern);
+    console.log('Bulb pattern change:', action, nextPattern);
     handleUpdate(nextPattern);
   };
 
