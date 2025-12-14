@@ -74,11 +74,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
             isSelected
               ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
               : ''
-          } ${
-            value === 'high'
-              ? 'bg-[rgb(var(--accent))] text-black'
-              : 'bg-black text-white'
-          }`}
+          } ${value === 'high' ? 'bg-[rgb(var(--accent))] text-black' : 'bg-black text-white'}`}
           onClick={onClick}
           style={{
             flexGrow: totalDuration > 0 ? durationMs : 1,
