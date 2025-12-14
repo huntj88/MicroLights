@@ -41,6 +41,7 @@ export const SimplePatternPreview = ({ pattern, className = '' }: Props) => {
       {segments.map(seg => (
         <div
           key={seg.key}
+          data-testid="pattern-segment"
           style={{ width: seg.width, backgroundColor: seg.backgroundColor }}
           className="h-full"
         />

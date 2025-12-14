@@ -1,4 +1,3 @@
-
 import { EquationPatternPreview } from './EquationPatternPreview';
 import { SimplePatternPreview } from './SimplePatternPreview';
 import { type ModePattern } from '../../../app/models/mode';
