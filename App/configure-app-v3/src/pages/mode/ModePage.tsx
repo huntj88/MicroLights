@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { hexColorSchema, type Mode, modeSchema } from '../../app/models/mode';
+import { type Mode, modeSchema } from '../../app/models/mode';
 import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
 import { StorageControls } from '../../components/common/StorageControls';
@@ -10,22 +10,8 @@ import { getLocalizedError } from '../../utils/localization';
 
 const createDefaultMode = (): Mode => ({
   name: '',
-  front: {
-    pattern: {
-      type: 'simple',
-      name: 'default-front',
-      duration: 1000,
-      changeAt: [{ ms: 0, output: 'low' }],
-    },
-  },
-  case: {
-    pattern: {
-      type: 'simple',
-      name: 'default-case',
-      duration: 1000,
-      changeAt: [{ ms: 0, output: hexColorSchema.parse('#000000') }],
-    },
-  },
+  front: undefined,
+  case: undefined,
 });
 
 export const ModePage = () => {

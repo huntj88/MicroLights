@@ -129,6 +129,7 @@
     "nameLabel": "Mode Name",
     "nameHelper": "Give this mode a descriptive name to recognize it later.",
     "namePlaceholder": "Enter mode name",
+    "patternsTitle": "Patterns",
     "frontLabel": "Front LED Pattern",
     "caseLabel": "Case LED Pattern",
     "accelTitle": "Accelerometer Triggers",
@@ -226,7 +227,8 @@
       "componentRequired": "Accelerometer triggers must configure at least one LED component."
     },
     "mode": {
-      "nameEmpty": "Mode name cannot be empty."
+      "nameEmpty": "Mode name cannot be empty.",
+      "patternRequired": "At least one pattern (Front or Case) is required."
     }
   }
 }

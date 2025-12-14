@@ -15,8 +15,8 @@ import { Section } from '../common/Section';
 
 export type ModeAction =
   | { type: 'update-name'; name: string }
-  | { type: 'update-front-pattern'; pattern: ModePattern }
-  | { type: 'update-case-pattern'; pattern: ModePattern }
+  | { type: 'update-front-pattern'; pattern: ModePattern | undefined }
+  | { type: 'update-case-pattern'; pattern: ModePattern | undefined }
   | { type: 'update-triggers'; triggers: ModeAccelTrigger[] };
 
 interface Props {
@@ -33,6 +33,10 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
   };
 
   const handleFrontPatternChange = (name: string) => {
+    if (!name) {
+      onChange({ ...mode, front: undefined }, { type: 'update-front-pattern', pattern: undefined });
+      return;
+    }
     const pattern = patterns.find(p => p.name === name);
     if (pattern) {
       onChange({ ...mode, front: { pattern } }, { type: 'update-front-pattern', pattern });
@@ -40,6 +44,10 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
   };
 
   const handleCasePatternChange = (name: string) => {
+    if (!name) {
+      onChange({ ...mode, case: undefined }, { type: 'update-case-pattern', pattern: undefined });
+      return;
+    }
     const pattern = patterns.find(p => p.name === name);
     if (pattern) {
       onChange({ ...mode, case: { pattern } }, { type: 'update-case-pattern', pattern });
@@ -73,13 +81,13 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PatternSelector
             label={t('modeEditor.frontLabel')}
-            value={mode.front.pattern.name}
+            value={mode.front?.pattern.name}
             onChange={handleFrontPatternChange}
             patterns={binaryPatterns}
           />
           <PatternSelector
             label={t('modeEditor.caseLabel')}
-            value={mode.case.pattern.name}
+            value={mode.case?.pattern.name}
             onChange={handleCasePatternChange}
             patterns={colorPatterns}
           />
