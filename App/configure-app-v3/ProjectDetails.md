@@ -212,7 +212,8 @@ Each component should be themed.
 
 ### Bulb pattern creation page
 
-- TODO
+- Create patterns by defining a sequence of binary (high/low) states and durations.
+- Save, load, and delete patterns with overwrite protection.
 
 ### Mode creation page
 
@@ -234,39 +235,3 @@ Each component should be themed.
   - clear button
   - autoscroll toggle
 - let you send custom payloads
-
-This file should be updated with each change. DO NOT MAKE ASSUMPTIONS ON WHAT THE UI SHOULD LOOK LIKE FOR THINGS MARKED 'TODO'
-
-## 2025-10-26
-
-- Bootstrapped the Vite + React 19 + TypeScript workspace with Tailwind CSS v4, strict ESLint/Prettier, Vitest, and shared testing utilities.
-- Added a global theme provider backed by zustand persistence, automatic system theme detection, and a Tailwind-powered layout with HashRouter navigation.
-- Implemented translated placeholder pages for RGB patterns, bulb patterns, and mode composition while leaving TODO experiences untouched per guidance.
-- Delivered a Settings page using a stateless `ThemePreferenceSelector` component that exposes value + action callbacks for switching between system, light, and dark themes.
-- Built a Serial Log page featuring the stateless `SerialLogPanel` (autoscroll toggle, timestamped log view, clear button, outbound payload entry) with full localization coverage.
-- Added Vitest suites for layout and component behavior to enforce the stateless contract and i18n wiring.
-- Codified zod-backed data models for mode definitions (binary and RGB patterns, accelerometer triggers) with unit tests validating the documented JSON examples and failure modes.
-- Delivered the simple RGB pattern creation flow with localized color/duration inputs, proportional preview visualization, removal controls, and dedicated component tests.
-- Enhanced the simple RGB pattern flow with move, reorder, and duplicate controls plus expanded tests to validate the new interactions and maintain stateless behavior.
-- Added inline color swatches beside each simple RGB step so the hex values are visually reinforced, along with tests ensuring every segment renders a preview chip.
-- Reworked the simple RGB pattern panel to accept canonical `ModePattern` data, own draft form inputs locally, and emit schema-valid patterns with refreshed unit coverage.
-- Introduced a persisted pattern library powered by zustand on the RGB Pattern page, including a method switcher UI, load/save controls, and overwrite protection when reusing names.
-- Added a delete control for saved RGB patterns with confirmation prompts, plus expanded Vitest coverage for the page-level interactions and persistence store.
-- Updated the simple RGB editor to default the segment duration to 250ms, restrict inputs to integers, and prevent saving patterns without at least one step, supported by refreshed unit tests.
-- Refined the RGB pattern picker so selecting "New pattern" clears the editor, saving auto-selects the new entry, and accompanying tests ensure the dropdown mirrors the persisted library.
-- Simplified the saved pattern workflow by removing the explicit load button—selections now hydrate the editor immediately, with updated tests confirming the auto-load flow.
-- Redesigned the simple RGB step list with inline color and duration editors, wired through the new update-step action and validated by expanded unit coverage.
-
-## 2025-12-12
-
-- Implemented the Equation RGB pattern creation flow, allowing users to define patterns using mathematical formulas for Red, Green, and Blue channels.
-- Added `EquationRgbPatternPanel` with interactive waveform visualization, playback controls, and section management (add, remove, reorder).
-- Created `equation-evaluator` utility to safely evaluate user-defined mathematical expressions (e.g., `sin(t)`, `exp(t)`) for pattern generation.
-- Integrated the equation editor into the `RgbPatternPage`, enabling switching between Simple and Equation methods with state persistence.
-- Added `SectionLane`, `WaveformLane`, and `ColorPreview` components to support the equation editor UI.
-- Validated the equation logic and components with comprehensive unit tests.
-
-## 2025-12-13
-
-- Surface validation errors to user, disabling the save button until all requirements (name, duration, valid steps/sections) are met.
-- Removed default pattern names to encourage descriptive naming; new patterns now start with an empty name field.
