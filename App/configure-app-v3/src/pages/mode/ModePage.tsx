@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { hexColorSchema, type Mode } from '../../app/models/mode';
 import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { StorageControls } from '../../components/common/StorageControls';
 import { type ModeAction, ModeEditor } from '../../components/mode/ModeEditor';
 
 const createDefaultMode = (): Mode => ({
@@ -95,46 +96,21 @@ export const ModePage = () => {
         <p className="theme-muted">{t('mode.subtitle')}</p>
       </header>
 
-      <div className="theme-panel theme-border rounded-xl border p-6 space-y-4">
-        <div className="flex items-end gap-4">
-          <div className="flex-1 space-y-1">
-            <label className="text-sm font-medium">{t('modeEditor.storage.selectLabel')}</label>
-            <select
-              className="theme-input w-full rounded-md border px-3 py-2"
-              value={selectedModeName}
-              onChange={e => {
-                handleLoad(e.target.value);
-              }}
-            >
-              <option value="">{t('modeEditor.storage.selectPlaceholder')}</option>
-              {availableModeNames.map(name => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </div>
-          {selectedModeName && (
-            <button
-              onClick={handleDelete}
-              className="theme-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
-            >
-              {t('modeEditor.storage.delete')}
-            </button>
-          )}
-        </div>
-      </div>
+      <div className="space-y-6 rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-6">
+        <StorageControls
+          items={availableModeNames}
+          selectedItem={selectedModeName}
+          onSelect={handleLoad}
+          selectLabel={t('modeEditor.storage.selectLabel')}
+          selectPlaceholder={t('modeEditor.storage.selectPlaceholder')}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          isValid={isValid}
+          saveLabel={t('modeEditor.storage.save')}
+          deleteLabel={t('modeEditor.storage.delete')}
+        />
 
-      <ModeEditor mode={editingMode} onChange={handleModeChange} patterns={patterns} />
-
-      <div className="flex justify-end">
-        <button
-          onClick={handleSave}
-          disabled={!isValid}
-          className="theme-button theme-button-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {t('modeEditor.storage.save')}
-        </button>
+        <ModeEditor mode={editingMode} onChange={handleModeChange} patterns={patterns} />
       </div>
     </section>
   );

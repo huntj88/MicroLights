@@ -1,4 +1,3 @@
-import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -12,6 +11,7 @@ import {
   type SimplePattern,
 } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { StorageControls } from '../../components/common/StorageControls';
 import {
   type EquationRgbPatternAction,
   EquationRgbPatternPanel,
@@ -158,9 +158,7 @@ export const RgbPatternPage = () => {
     }
   };
 
-  const handlePatternSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextName = event.target.value;
-
+  const handlePatternSelect = (nextName: string) => {
     if (nextName === '') {
       setSelectedPatternName('');
       setOriginalPattern(null);
@@ -329,41 +327,19 @@ export const RgbPatternPage = () => {
                 : t('rgbPattern.equation.description')}
             </p>
           </div>
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
-              <span className="font-medium">{t('patternEditor.storage.selectLabel')}</span>
-              <select
-                className="rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
-                onChange={handlePatternSelect}
-                value={selectedPatternName}
-              >
-                <option value="">{t('patternEditor.storage.selectPlaceholder')}</option>
-                {availablePatternNames.map(name => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                className="rounded-full border border-solid border-red-500/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-transform hover:scale-[1.01] disabled:opacity-50"
-                onClick={handlePatternDelete}
-                type="button"
-                disabled={!selectedPatternName}
-              >
-                {t('patternEditor.storage.deleteButton')}
-              </button>
-              <button
-                className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-                onClick={handlePatternSave}
-                type="button"
-                disabled={!isDirty || validationErrors.length > 0}
-              >
-                {t('patternEditor.storage.saveButton')}
-              </button>
-            </div>
-          </div>
+          <StorageControls
+            items={availablePatternNames}
+            selectedItem={selectedPatternName}
+            onSelect={handlePatternSelect}
+            selectLabel={t('patternEditor.storage.selectLabel')}
+            selectPlaceholder={t('patternEditor.storage.selectPlaceholder')}
+            onSave={handlePatternSave}
+            onDelete={handlePatternDelete}
+            isDirty={isDirty}
+            isValid={validationErrors.length === 0}
+            saveLabel={t('patternEditor.storage.saveButton')}
+            deleteLabel={t('patternEditor.storage.deleteButton')}
+          />
         </header>
 
         {validationErrors.length > 0 && (
