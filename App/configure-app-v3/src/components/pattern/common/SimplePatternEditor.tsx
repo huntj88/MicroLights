@@ -1,4 +1,12 @@
-import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
@@ -29,6 +37,7 @@ export interface SimplePatternEditorProps<T> {
   // Configuration
   valueSchema: z.ZodType<T>;
   defaultValue: T;
+  emptyValue: T;
   idPrefix?: string;
 
   // UI Components
@@ -40,6 +49,7 @@ export interface SimplePatternEditorProps<T> {
     onClick: () => void;
     totalDuration: number;
   }) => ReactNode;
+  renderSwatch: (props: { value: T }) => ReactNode;
 
   // Labels
   labels: {
@@ -112,9 +122,11 @@ export const SimplePatternEditor = <T,>({
   onChange,
   valueSchema,
   defaultValue,
+  emptyValue,
   idPrefix = STEP_ID_PREFIX,
   renderInput,
   renderPreview,
+  renderSwatch,
   labels,
 }: SimplePatternEditorProps<T>) => {
   const { t } = useTranslation();
@@ -128,6 +140,74 @@ export const SimplePatternEditor = <T,>({
   const [modalValue, setModalValue] = useState<T>(defaultValue);
   const [modalDurationMs, setModalDurationMs] = useState(DEFAULT_DURATION_MS);
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
+
+  // Animation state
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const requestRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
+
+  const totalDuration = useMemo(
+    () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
+    [steps],
+  );
+
+  const animate = useCallback(
+    (time: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = time;
+      }
+      const deltaTime = time - lastTimeRef.current;
+      lastTimeRef.current = time;
+
+      setCurrentTime(prev => {
+        const next = prev + deltaTime;
+        if (totalDuration > 0 && next >= totalDuration) {
+          return 0;
+        }
+        return next;
+      });
+      requestRef.current = requestAnimationFrame(animate);
+    },
+    [totalDuration],
+  );
+
+  useEffect(() => {
+    if (isPlaying) {
+      lastTimeRef.current = 0;
+      requestRef.current = requestAnimationFrame(animate);
+    } else {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    }
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, [animate, isPlaying, totalDuration]);
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleStop = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const currentValue = useMemo(() => {
+    if (steps.length === 0) return emptyValue;
+    let elapsed = 0;
+    for (const step of steps) {
+      if (currentTime >= elapsed && currentTime < elapsed + step.durationMs) {
+        return step.value;
+      }
+      elapsed += step.durationMs;
+    }
+    return steps[steps.length - 1].value;
+  }, [steps, emptyValue, currentTime]);
 
   useEffect(() => {
     setStepDurationDrafts(previous => {
@@ -187,11 +267,6 @@ export const SimplePatternEditor = <T,>({
   const parsedModalDuration = Number.parseInt(modalDurationMs, 10);
   const canConfirmModal =
     modalDurationMs !== '' && Number.isFinite(parsedModalDuration) && parsedModalDuration > 0;
-
-  const totalDuration = useMemo(
-    () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
-    [steps],
-  );
 
   const emitChange = (nextSteps: SimplePatternStep<T>[], action: SimplePatternAction<T>) => {
     const nextPattern = createPatternFromSteps(value, nextSteps);
@@ -371,30 +446,48 @@ export const SimplePatternEditor = <T,>({
     <PanelContainer>
       <PatternNameEditor name={value.name} onChange={handleNameChange} />
 
-      <Section title={t('patternEditor.preview.title')}>
+      <Section
+        title={t('patternEditor.preview.title')}
+        actions={
+          <>
+            <StyledButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
+              {isPlaying ? t('patternEditor.controls.pause') : t('patternEditor.controls.play')}
+            </StyledButton>
+            <StyledButton onClick={handleStop} variant="secondary">
+              {t('patternEditor.controls.stop')}
+            </StyledButton>
+          </>
+        }
+      >
         <p className="theme-muted text-sm mb-2">
           {totalDuration === 0
             ? t('patternEditor.preview.empty')
             : t('patternEditor.preview.summary', { total: totalDuration })}
         </p>
 
-        <div className="flex min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
-          {steps.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center text-sm">
-              <span className="theme-muted">{t('patternEditor.preview.empty')}</span>
-            </div>
-          ) : (
-            patternSegments
-          )}
-          <button
-            aria-label={t('patternEditor.form.addButton')}
-            className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
-            onClick={openAddModal}
-            title={t('patternEditor.form.addButton')}
-            type="button"
-          >
-            <span aria-hidden="true">＋</span>
-          </button>
+        <div className="flex gap-4">
+          <div className="w-16 h-[56px] rounded border theme-border shadow-sm flex-shrink-0 overflow-hidden flex items-center justify-center bg-[rgb(var(--surface-raised))]">
+            {renderSwatch({ value: currentValue })}
+          </div>
+
+          <div className="flex flex-1 min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
+            {steps.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center text-sm">
+                <span className="theme-muted">{t('patternEditor.preview.empty')}</span>
+              </div>
+            ) : (
+              patternSegments
+            )}
+            <button
+              aria-label={t('patternEditor.form.addButton')}
+              className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+              onClick={openAddModal}
+              title={t('patternEditor.form.addButton')}
+              type="button"
+            >
+              <span aria-hidden="true">＋</span>
+            </button>
+          </div>
         </div>
       </Section>
 

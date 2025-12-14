@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
+import { PatternPreview } from './previews/PatternPreview';
 import { type ModePattern } from '../../app/models/mode';
 
 interface Props {
@@ -11,6 +12,7 @@ interface Props {
 
 export const PatternSelector = ({ value, onChange, patterns, label }: Props) => {
   const { t } = useTranslation();
+  const selectedPattern = patterns.find(p => p.name === value);
 
   return (
     <div className="space-y-1">
@@ -29,6 +31,11 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
           </option>
         ))}
       </select>
+      {selectedPattern && (
+        <div className="mt-2">
+          <PatternPreview pattern={selectedPattern} />
+        </div>
+      )}
     </div>
   );
 };

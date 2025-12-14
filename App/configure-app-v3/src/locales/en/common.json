@@ -28,6 +28,11 @@
       "summary": "Total duration {{total}} ms.",
       "segmentLabel": "{{value}} for {{duration}} ms"
     },
+    "controls": {
+      "play": "Play",
+      "pause": "Pause",
+      "stop": "Stop"
+    },
     "steps": {
       "title": "Pattern steps",
       "closeEditor": "Close step editor",
@@ -77,13 +82,6 @@
     "equation": {
       "title": "Equation RGB Pattern Editor",
       "description": "Create complex patterns using mathematical equations.",
-      "controls": {
-        "play": "Play",
-        "pause": "Pause",
-        "stop": "Stop",
-        "exportVideo": "Export Video",
-        "notImplemented": "Not implemented yet"
-      },
       "help": {
         "title": "Equation Help:",
         "description": "Use 't' for time (seconds) and 'Duration' for section duration (seconds). Standard Math functions are available (e.g., sin(t), cos(t), exp(t), abs(t)). Output is clamped to 0-255.",

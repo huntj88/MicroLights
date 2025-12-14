@@ -46,6 +46,12 @@ describe('SimpleBulbPatternPanel', () => {
     expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
   });
 
+  it('shows black swatch when pattern is empty', () => {
+    renderComponent({ value: createPattern([]) });
+    const swatch = screen.getByTestId('current-state-swatch');
+    expect(swatch).toHaveClass('bg-black');
+  });
+
   it('emits an add-step action with the new segment when confirming the modal', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();

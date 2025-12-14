@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 
 import { ColorPreview } from './ColorPreview';
 import { SectionLane } from './SectionLane';
+import { useEquationWaveforms } from './useEquationWaveforms';
 import { WaveformLane } from './WaveformLane';
 import { type EquationPattern, type EquationSection } from '../../../../app/models/mode';
-import { generateWaveformPoints } from '../../../../utils/equation-evaluator';
 import { PanelContainer } from '../../../common/PanelContainer';
 import { Section } from '../../../common/Section';
 import { StyledButton } from '../../../common/StyledButton';
@@ -40,49 +40,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   const requestRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
 
-  const calculateChannelDuration = (sections: EquationSection[]) =>
-    sections.reduce(
-      (acc, section) => acc + (Number.isNaN(section.duration) ? 0 : section.duration),
-      0,
-    );
-
-  const redDuration = useMemo(
-    () => calculateChannelDuration(pattern.red.sections),
-    [pattern.red.sections],
-  );
-  const greenDuration = useMemo(
-    () => calculateChannelDuration(pattern.green.sections),
-    [pattern.green.sections],
-  );
-  const blueDuration = useMemo(
-    () => calculateChannelDuration(pattern.blue.sections),
-    [pattern.blue.sections],
-  );
-
-  const totalDuration = Math.max(redDuration, greenDuration, blueDuration, 1000); // Min 1s for display
-
-  // Generate waveforms
-  // We generate points for the entire duration.
-  // Sample rate 10ms is fine for display.
-  const redPoints = useMemo(
-    () =>
-      generateWaveformPoints(pattern.red.sections, totalDuration, pattern.red.loopAfterDuration),
-    [pattern.red.sections, totalDuration, pattern.red.loopAfterDuration],
-  );
-  const greenPoints = useMemo(
-    () =>
-      generateWaveformPoints(
-        pattern.green.sections,
-        totalDuration,
-        pattern.green.loopAfterDuration,
-      ),
-    [pattern.green.sections, totalDuration, pattern.green.loopAfterDuration],
-  );
-  const bluePoints = useMemo(
-    () =>
-      generateWaveformPoints(pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration),
-    [pattern.blue.sections, totalDuration, pattern.blue.loopAfterDuration],
-  );
+  const { redPoints, greenPoints, bluePoints, totalDuration } = useEquationWaveforms(pattern);
 
   const animate = useCallback(
     (time: number) => {
@@ -255,12 +213,10 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         actions={
           <>
             <StyledButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
-              {isPlaying
-                ? t('rgbPattern.equation.controls.pause')
-                : t('rgbPattern.equation.controls.play')}
+              {isPlaying ? t('patternEditor.controls.pause') : t('patternEditor.controls.play')}
             </StyledButton>
             <StyledButton onClick={handleStop} variant="secondary">
-              {t('rgbPattern.equation.controls.stop')}
+              {t('patternEditor.controls.stop')}
             </StyledButton>
           </>
         }

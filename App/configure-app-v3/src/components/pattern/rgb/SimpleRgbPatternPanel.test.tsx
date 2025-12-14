@@ -48,6 +48,13 @@ describe('SimpleRgbPatternPanel', () => {
     expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
   });
 
+  it('shows black swatch when pattern is empty', () => {
+    renderComponent({ value: createPattern([]) });
+    const swatch = screen.getByTestId('current-color-swatch');
+    // hex #000000 is rgb(0, 0, 0)
+    expect(swatch).toHaveStyle({ backgroundColor: 'rgb(0, 0, 0)' });
+  });
+
   it('emits an add-step action with the new segment when confirming the modal', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();

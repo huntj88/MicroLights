@@ -15,6 +15,7 @@ export interface SimpleBulbPatternPanelProps {
 }
 
 const DEFAULT_VALUE: BinaryOutput = 'high';
+const EMPTY_VALUE: BinaryOutput = 'low';
 
 export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPanelProps) => {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
       onChange={onChange}
       valueSchema={binaryOutputSchema}
       defaultValue={DEFAULT_VALUE}
+      emptyValue={EMPTY_VALUE}
       renderInput={({ value, onChange }) => (
         <div className="flex items-center gap-3">
           <span
@@ -89,6 +91,12 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
         >
           <span className="px-2 py-1">{durationMs}ms</span>
         </button>
+      )}
+      renderSwatch={({ value }) => (
+        <div
+          className={`w-full h-full ${value === 'high' ? 'bg-[rgb(var(--accent))]' : 'bg-black'}`}
+          data-testid="current-state-swatch"
+        />
       )}
       labels={{
         valueLabel: t('bulbPattern.form.stateLabel'),
