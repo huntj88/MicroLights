@@ -33,4 +33,3 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
     </div>
   );
 };
-

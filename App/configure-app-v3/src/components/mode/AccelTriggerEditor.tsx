@@ -7,7 +7,7 @@ import {
   type ModeAccelTrigger,
   type ModePattern,
 } from '../../app/models/mode';
-import { PatternSection } from '../rgb-pattern/common/PatternSection';
+import { Section } from '../common/Section';
 
 interface Props {
   triggers: ModeAccelTrigger[];
@@ -59,7 +59,7 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
-    <PatternSection
+    <Section
       title={t('modeEditor.accelTitle')}
       actions={
         <button
@@ -126,6 +126,6 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
           </div>
         ))}
       </div>
-    </PatternSection>
+    </Section>
   );
 };

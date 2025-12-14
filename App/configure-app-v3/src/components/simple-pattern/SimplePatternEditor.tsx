@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import type { PatternChange, SimplePattern } from '../../app/models/mode';
+import { PanelContainer } from '../common/PanelContainer';
+import { Section } from '../common/Section';
 import { PatternButton } from '../rgb-pattern/common/PatternButton';
 import { PatternNameEditor } from '../rgb-pattern/common/PatternNameEditor';
-import { PatternPanelContainer } from '../rgb-pattern/common/PatternPanelContainer';
-import { PatternSection } from '../rgb-pattern/common/PatternSection';
 
 export interface SimplePatternStep<T> {
   id: string;
@@ -368,10 +368,10 @@ export const SimplePatternEditor = <T,>({
   }, [steps, totalDuration, selectedStepIndex, renderPreview]);
 
   return (
-    <PatternPanelContainer>
+    <PanelContainer>
       <PatternNameEditor name={value.name} onChange={handleNameChange} />
 
-      <PatternSection title={t('patternEditor.preview.title')}>
+      <Section title={t('patternEditor.preview.title')}>
         <p className="theme-muted text-sm mb-2">
           {totalDuration === 0
             ? t('patternEditor.preview.empty')
@@ -396,10 +396,10 @@ export const SimplePatternEditor = <T,>({
             <span aria-hidden="true">＋</span>
           </button>
         </div>
-      </PatternSection>
+      </Section>
 
       {selectedStepIndex !== null && steps[selectedStepIndex] && (
-        <PatternSection
+        <Section
           title={`${t('patternEditor.steps.title')} #${String(selectedStepIndex + 1)}`}
           actions={
             <button
@@ -483,7 +483,7 @@ export const SimplePatternEditor = <T,>({
               {t('patternEditor.steps.remove')}
             </PatternButton>
           </div>
-        </PatternSection>
+        </Section>
       )}
 
       {isAddModalOpen && (
@@ -551,6 +551,6 @@ export const SimplePatternEditor = <T,>({
           </div>
         </div>
       )}
-    </PatternPanelContainer>
+    </PanelContainer>
   );
 };

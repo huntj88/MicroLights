@@ -7,10 +7,7 @@ interface PatternNameEditorProps {
   onChange: (name: string) => void;
 }
 
-export const PatternNameEditor = ({
-  name,
-  onChange,
-}: PatternNameEditorProps) => {
+export const PatternNameEditor = ({ name, onChange }: PatternNameEditorProps) => {
   return (
     <NameEditor
       name={name}

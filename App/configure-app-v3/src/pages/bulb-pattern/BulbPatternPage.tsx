@@ -99,9 +99,7 @@ export const BulbPatternPage = () => {
     const existing = patterns.find(p => p.name === patternState.name);
     if (existing && existing.name !== selectedPatternName) {
       if (
-        !window.confirm(
-          t('patternEditor.storage.overwriteConfirm', { name: patternState.name }),
-        )
+        !window.confirm(t('patternEditor.storage.overwriteConfirm', { name: patternState.name }))
       ) {
         return;
       }
@@ -116,9 +114,7 @@ export const BulbPatternPage = () => {
       return;
     }
 
-    if (
-      !window.confirm(t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }))
-    ) {
+    if (!window.confirm(t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }))) {
       return;
     }
 

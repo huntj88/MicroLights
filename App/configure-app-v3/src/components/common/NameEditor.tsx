@@ -8,13 +8,7 @@ interface NameEditorProps {
   helperText: string;
 }
 
-export const NameEditor = ({
-  name,
-  onChange,
-  label,
-  placeholder,
-  helperText,
-}: NameEditorProps) => {
+export const NameEditor = ({ name, onChange, label, placeholder, helperText }: NameEditorProps) => {
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };

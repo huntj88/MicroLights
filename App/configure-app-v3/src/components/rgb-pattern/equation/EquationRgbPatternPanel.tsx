@@ -6,10 +6,10 @@ import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
 import { type EquationPattern, type EquationSection } from '../../../app/models/mode';
 import { generateWaveformPoints } from '../../../utils/equation-evaluator';
+import { PanelContainer } from '../../common/PanelContainer';
+import { Section } from '../../common/Section';
 import { PatternButton } from '../common/PatternButton';
 import { PatternNameEditor } from '../common/PatternNameEditor';
-import { PatternPanelContainer } from '../common/PatternPanelContainer';
-import { PatternSection } from '../common/PatternSection';
 
 export type EquationRgbPatternAction =
   | { type: 'rename-pattern'; name: string }
@@ -224,7 +224,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
   };
 
   return (
-    <PatternPanelContainer>
+    <PanelContainer>
       <PatternNameEditor
         name={pattern.name}
         onChange={name => {
@@ -250,7 +250,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       </div>
 
       {/* Preview Area */}
-      <PatternSection
+      <Section
         title={t('rgbPattern.equation.preview.title')}
         actions={
           <>
@@ -275,10 +275,10 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         <div className="mt-2 text-right text-xs theme-muted font-mono">
           {(currentTime / 1000).toFixed(2)}s / {(totalDuration / 1000).toFixed(2)}s
         </div>
-      </PatternSection>
+      </Section>
 
       {/* Waveform Display Area */}
-      <PatternSection title={t('rgbPattern.equation.waveforms.title')}>
+      <Section title={t('rgbPattern.equation.waveforms.title')}>
         <WaveformLane
           color="red"
           points={redPoints}
@@ -297,7 +297,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           currentTime={currentTime}
           totalDuration={totalDuration}
         />
-      </PatternSection>
+      </Section>
 
       {/* Section Management Area */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -362,6 +362,6 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
           }}
         />
       </div>
-    </PatternPanelContainer>
+    </PanelContainer>
   );
 };

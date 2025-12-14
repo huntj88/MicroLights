@@ -10,8 +10,8 @@ import {
   type ModePattern,
 } from '../../app/models/mode';
 import { NameEditor } from '../common/NameEditor';
-import { PatternPanelContainer } from '../rgb-pattern/common/PatternPanelContainer';
-import { PatternSection } from '../rgb-pattern/common/PatternSection';
+import { PanelContainer } from '../common/PanelContainer';
+import { Section } from '../common/Section';
 
 export type ModeAction =
   | { type: 'update-name'; name: string }
@@ -60,7 +60,7 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
-    <PatternPanelContainer>
+    <PanelContainer>
       <NameEditor
         name={mode.name}
         onChange={handleNameChange}
@@ -69,7 +69,7 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
         helperText={t('modeEditor.nameHelper') || ' '}
       />
 
-      <PatternSection title={t('modeEditor.patternsTitle') || 'Patterns'}>
+      <Section title={t('modeEditor.patternsTitle') || 'Patterns'}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PatternSelector
             label={t('modeEditor.frontLabel')}
@@ -84,13 +84,13 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
             patterns={colorPatterns}
           />
         </div>
-      </PatternSection>
+      </Section>
 
       <AccelTriggerEditor
         triggers={mode.accel?.triggers ?? []}
         onChange={handleTriggersChange}
         patterns={patterns}
       />
-    </PatternPanelContainer>
+    </PanelContainer>
   );
 };
