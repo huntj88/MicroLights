@@ -2,11 +2,11 @@ import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from '
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import type { PatternChange, SimplePattern } from '../../app/models/mode';
-import { PanelContainer } from '../common/PanelContainer';
-import { Section } from '../common/Section';
-import { StyledButton } from '../common/StyledButton';
-import { PatternNameEditor } from '../rgb-pattern/common/PatternNameEditor';
+import { PatternNameEditor } from './PatternNameEditor';
+import type { PatternChange, SimplePattern } from '../../../app/models/mode';
+import { PanelContainer } from '../../common/PanelContainer';
+import { Section } from '../../common/Section';
+import { StyledButton } from '../../common/StyledButton';
 
 export interface SimplePatternStep<T> {
   id: string;

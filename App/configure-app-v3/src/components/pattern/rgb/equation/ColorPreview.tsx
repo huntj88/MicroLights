@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { useTheme } from '../../../app/providers/theme-context';
+import { useTheme } from '../../../../app/providers/theme-context';
 
 interface ColorPreviewProps {
   redPoints: number[];

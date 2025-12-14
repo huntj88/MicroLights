@@ -3,13 +3,13 @@ import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { SimpleBulbPatternPanel, type SimpleBulbPatternPanelProps } from './SimpleBulbPatternPanel';
-import { type SimplePattern } from '../../app/models/mode';
+import { type SimplePattern } from '../../../app/models/mode';
 import {
   renderWithProviders,
   screen,
   waitFor,
   within,
-} from '../../test-utils/render-with-providers';
+} from '../../../test-utils/render-with-providers';
 
 const createPattern = (segments: { output: 'high' | 'low'; duration: number }[]): SimplePattern => {
   let cursor = 0;

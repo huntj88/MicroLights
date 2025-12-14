@@ -15,11 +15,11 @@ import { StorageControls } from '../../components/common/StorageControls';
 import {
   type EquationRgbPatternAction,
   EquationRgbPatternPanel,
-} from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
+} from '../../components/pattern/rgb/equation/EquationRgbPatternPanel';
 import {
   type SimpleRgbPatternAction,
   SimpleRgbPatternPanel,
-} from '../../components/rgb-pattern/SimpleRgbPatternPanel';
+} from '../../components/pattern/rgb/SimpleRgbPatternPanel';
 import { getLocalizedError } from '../../utils/localization';
 
 const createEmptyPattern = (): SimplePattern => ({

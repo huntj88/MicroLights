@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import type { EquationSection } from '../../../app/models/mode';
+import type { EquationSection } from '../../../../app/models/mode';
 
 interface SectionLaneProps {
   color: 'red' | 'green' | 'blue';

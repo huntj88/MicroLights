@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 
 import { isBinaryPattern, simplePatternSchema, type SimplePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { StorageControls } from '../../components/common/StorageControls';
 import {
   type SimpleBulbPatternAction,
   SimpleBulbPatternPanel,
-} from '../../components/bulb-pattern/SimpleBulbPatternPanel';
-import { StorageControls } from '../../components/common/StorageControls';
+} from '../../components/pattern/bulb/SimpleBulbPatternPanel';
 import { getLocalizedError } from '../../utils/localization';
 
 const createEmptyPattern = (): SimplePattern => ({

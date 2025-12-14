@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { useTheme } from '../../../app/providers/theme-context';
+import { useTheme } from '../../../../app/providers/theme-context';
 
 interface WaveformLaneProps {
   color: 'red' | 'green' | 'blue';

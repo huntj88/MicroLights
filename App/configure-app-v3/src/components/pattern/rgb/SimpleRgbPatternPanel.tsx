@@ -1,11 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import { hexColorSchema, type HexColor, type SimplePattern } from '../../app/models/mode';
-import {
-  type SimplePatternAction,
-  SimplePatternEditor,
-} from '../simple-pattern/SimplePatternEditor';
+import { hexColorSchema, type HexColor, type SimplePattern } from '../../../app/models/mode';
+import { type SimplePatternAction, SimplePatternEditor } from '../common/SimplePatternEditor';
 
 export interface SimpleRgbPatternStep {
   id: string;

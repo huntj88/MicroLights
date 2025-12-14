@@ -4,12 +4,12 @@ import { Trans, useTranslation } from 'react-i18next';
 import { ColorPreview } from './ColorPreview';
 import { SectionLane } from './SectionLane';
 import { WaveformLane } from './WaveformLane';
-import { type EquationPattern, type EquationSection } from '../../../app/models/mode';
-import { generateWaveformPoints } from '../../../utils/equation-evaluator';
-import { PanelContainer } from '../../common/PanelContainer';
-import { Section } from '../../common/Section';
-import { StyledButton } from '../../common/StyledButton';
-import { PatternNameEditor } from '../common/PatternNameEditor';
+import { type EquationPattern, type EquationSection } from '../../../../app/models/mode';
+import { generateWaveformPoints } from '../../../../utils/equation-evaluator';
+import { PanelContainer } from '../../../common/PanelContainer';
+import { Section } from '../../../common/Section';
+import { StyledButton } from '../../../common/StyledButton';
+import { PatternNameEditor } from '../../common/PatternNameEditor';
 
 export type EquationRgbPatternAction =
   | { type: 'rename-pattern'; name: string }

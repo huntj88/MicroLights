@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
 import { SectionLane } from './SectionLane';
-import type { EquationSection } from '../../../app/models/mode';
+import type { EquationSection } from '../../../../app/models/mode';
 
 describe('SectionLane', () => {
   const mockSections: EquationSection[] = [{ equation: 'sin(t)', duration: 1000 }];

@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
-import { binaryOutputSchema, type BinaryOutput, type SimplePattern } from '../../app/models/mode';
 import {
-  type SimplePatternAction,
-  SimplePatternEditor,
-} from '../simple-pattern/SimplePatternEditor';
+  binaryOutputSchema,
+  type BinaryOutput,
+  type SimplePattern,
+} from '../../../app/models/mode';
+import { type SimplePatternAction, SimplePatternEditor } from '../common/SimplePatternEditor';
 
 export type SimpleBulbPatternAction = SimplePatternAction<BinaryOutput>;
 
