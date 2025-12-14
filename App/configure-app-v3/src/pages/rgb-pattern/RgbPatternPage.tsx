@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   createDefaultEquationPattern,
   equationPatternSchema,
+  isColorPattern,
   simplePatternSchema,
   type EquationPattern,
   type ModePattern,
@@ -51,7 +52,7 @@ export const RgbPatternPage = () => {
   const availablePatternNames = useMemo(
     () =>
       patterns
-        .filter(p => (activeMethod === 'simple' ? p.type === 'simple' : p.type === 'equation'))
+        .filter(p => (activeMethod === 'simple' ? isColorPattern(p) : p.type === 'equation'))
         .map(pattern => pattern.name)
         .sort((a, b) => a.localeCompare(b)),
     [patterns, activeMethod],
@@ -181,7 +182,7 @@ export const RgbPatternPage = () => {
     const stored = getPattern(nextName);
     if (stored) {
       setOriginalPattern(stored);
-      if (activeMethod === 'simple' && stored.type === 'simple') {
+      if (activeMethod === 'simple' && isColorPattern(stored)) {
         setSimplePatternState(stored);
         const result = simplePatternSchema.safeParse(stored);
         if (!result.success) {
@@ -218,7 +219,7 @@ export const RgbPatternPage = () => {
     const isOverwrite = availablePatternNames.includes(patternName);
     if (isOverwrite) {
       const shouldOverwrite = window.confirm(
-        t('rgbPattern.simple.storage.overwriteConfirm', { name: patternName }),
+        t('patternEditor.storage.overwriteConfirm', { name: patternName }),
       );
       if (!shouldOverwrite) {
         return;
@@ -236,7 +237,7 @@ export const RgbPatternPage = () => {
     }
 
     const shouldDelete = window.confirm(
-      t('rgbPattern.simple.storage.deleteConfirm', { name: selectedPatternName }),
+      t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }),
     );
 
     if (!shouldDelete) {
@@ -296,7 +297,7 @@ export const RgbPatternPage = () => {
             }}
             type="button"
           >
-            {t('rgbPattern.methodSwitcher.simple')}
+            {t('rgbPattern.simple.title')}
           </button>
           <button
             className={`px-4 py-2 text-sm transition-colors ${
@@ -330,13 +331,13 @@ export const RgbPatternPage = () => {
           </div>
           <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
-              <span className="font-medium">{t('rgbPattern.simple.storage.selectLabel')}</span>
+              <span className="font-medium">{t('patternEditor.storage.selectLabel')}</span>
               <select
                 className="rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
                 onChange={handlePatternSelect}
                 value={selectedPatternName}
               >
-                <option value="">{t('rgbPattern.simple.storage.selectPlaceholder')}</option>
+                <option value="">{t('patternEditor.storage.selectPlaceholder')}</option>
                 {availablePatternNames.map(name => (
                   <option key={name} value={name}>
                     {name}
@@ -351,7 +352,7 @@ export const RgbPatternPage = () => {
                 type="button"
                 disabled={!selectedPatternName}
               >
-                {t('rgbPattern.simple.storage.deleteButton')}
+                {t('patternEditor.storage.deleteButton')}
               </button>
               <button
                 className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
@@ -359,7 +360,7 @@ export const RgbPatternPage = () => {
                 type="button"
                 disabled={!isDirty || validationErrors.length > 0}
               >
-                {t('rgbPattern.simple.storage.saveButton')}
+                {t('patternEditor.storage.saveButton')}
               </button>
             </div>
           </div>

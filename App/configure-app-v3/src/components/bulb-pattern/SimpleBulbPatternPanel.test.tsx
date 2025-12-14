@@ -2,24 +2,23 @@ import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-import { hexColorSchema, type SimplePattern } from '@/app/models/mode';
+import { type SimplePattern } from '../../app/models/mode';
 import {
-  fireEvent,
   renderWithProviders,
   screen,
   waitFor,
   within,
-} from '@/test-utils/render-with-providers';
+} from '../../test-utils/render-with-providers';
 
-import { SimpleRgbPatternPanel, type SimpleRgbPatternPanelProps } from './SimpleRgbPatternPanel';
+import { SimpleBulbPatternPanel, type SimpleBulbPatternPanelProps } from './SimpleBulbPatternPanel';
 
-const createPattern = (segments: { color: string; duration: number }[]): SimplePattern => {
+const createPattern = (segments: { output: 'high' | 'low'; duration: number }[]): SimplePattern => {
   let cursor = 0;
 
   const changeAt = segments.map(segment => {
     const entry = {
       ms: cursor,
-      output: hexColorSchema.parse(segment.color),
+      output: segment.output,
     };
     cursor += segment.duration;
     return entry;
@@ -33,12 +32,12 @@ const createPattern = (segments: { color: string; duration: number }[]): SimpleP
   };
 };
 
-const renderComponent = (props?: Partial<SimpleRgbPatternPanelProps>) =>
+const renderComponent = (props?: Partial<SimpleBulbPatternPanelProps>) =>
   renderWithProviders(
-    <SimpleRgbPatternPanel onChange={vi.fn()} value={createPattern([])} {...props} />,
+    <SimpleBulbPatternPanel onChange={vi.fn()} value={createPattern([])} {...props} />,
   );
 
-describe('SimpleRgbPatternPanel', () => {
+describe('SimpleBulbPatternPanel', () => {
   it('shows empty preview when no steps are defined', () => {
     renderComponent({ value: createPattern([]) });
 
@@ -63,26 +62,27 @@ describe('SimpleRgbPatternPanel', () => {
     await user.clear(modalDurationInput);
     await user.type(modalDurationInput, '200');
 
+    // Default value is 'high'
     const dialog = screen.getByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
-      SimpleRgbPatternPanelProps['onChange']
+      SimpleBulbPatternPanelProps['onChange']
     >;
 
     expect(nextPattern.duration).toBe(200);
-    expect(nextPattern.changeAt).toEqual([{ ms: 0, output: hexColorSchema.parse('#ff7b00') }]);
+    expect(nextPattern.changeAt).toEqual([{ ms: 0, output: 'high' }]);
     expect(action.type).toBe('add-step');
     if (action.type === 'add-step') {
-      expect(action.step).toMatchObject({ color: '#ff7b00', durationMs: 200 });
+      expect(action.step).toMatchObject({ value: 'high', durationMs: 200 });
     }
   });
 
   it('emits remove-step when removing a segment', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    const pattern = createPattern([{ color: '#112233', duration: 150 }]);
+    const pattern = createPattern([{ output: 'low', duration: 150 }]);
 
     renderComponent({
       onChange: handleChange,
@@ -90,19 +90,19 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the segment first
-    await user.click(screen.getByLabelText(/#112233 for 150 ms/i));
+    await user.click(screen.getByLabelText(/low for 150 ms/i));
 
     // Now click remove
     await user.click(screen.getByRole('button', { name: /remove step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
-      SimpleRgbPatternPanelProps['onChange']
+      SimpleBulbPatternPanelProps['onChange']
     >;
 
     expect(nextPattern.changeAt).toEqual([]);
     expect(nextPattern.duration).toBe(0);
-    expect(action).toEqual({ type: 'remove-step', stepId: 'rgb-step-0-0' });
+    expect(action).toEqual({ type: 'remove-step', stepId: expect.stringMatching(/^step-/) });
   });
 
   it('emits rename-pattern when updating the pattern name', async () => {
@@ -111,7 +111,7 @@ describe('SimpleRgbPatternPanel', () => {
     const Harness = () => {
       const [pattern, setPattern] = useState(createPattern([]));
       return (
-        <SimpleRgbPatternPanel
+        <SimpleBulbPatternPanel
           onChange={(nextPattern, action) => {
             setPattern(nextPattern);
             handleChange(nextPattern, action);
@@ -125,28 +125,25 @@ describe('SimpleRgbPatternPanel', () => {
 
     const nameInput = screen.getByLabelText(/pattern name/i);
     await user.clear(nameInput);
-    await user.type(nameInput, 'Evening Breeze');
+    await user.type(nameInput, 'Blinking Light');
 
     expect(handleChange).toHaveBeenCalled();
     const lastCall = handleChange.mock.calls.at(-1) as
-      | Parameters<SimpleRgbPatternPanelProps['onChange']>
+      | Parameters<SimpleBulbPatternPanelProps['onChange']>
       | undefined;
     expect(lastCall).toBeDefined();
-    if (!lastCall) {
-      throw new Error('Expected handleChange to be called when renaming');
-    }
-    const [nextPattern, action] = lastCall;
+    const [nextPattern, action] = lastCall!;
 
-    expect(nextPattern.name).toBe('Evening Breeze');
-    expect(action).toEqual({ type: 'rename-pattern', name: 'Evening Breeze' });
+    expect(nextPattern.name).toBe('Blinking Light');
+    expect(action).toEqual({ type: 'rename-pattern', name: 'Blinking Light' });
   });
 
   it('moves a step when reordering', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
     const pattern = createPattern([
-      { color: '#101010', duration: 100 },
-      { color: '#202020', duration: 200 },
+      { output: 'high', duration: 100 },
+      { output: 'low', duration: 200 },
     ]);
 
     renderComponent({
@@ -155,20 +152,20 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the first segment
-    await user.click(screen.getByLabelText(/#101010 for 100 ms/i));
+    await user.click(screen.getByLabelText(/high for 100 ms/i));
 
     const moveDownButton = screen.getByRole('button', { name: /move down/i });
     await user.click(moveDownButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
-      SimpleRgbPatternPanelProps['onChange']
+      SimpleBulbPatternPanelProps['onChange']
     >;
 
     expect(nextPattern.duration).toBe(300);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: hexColorSchema.parse('#202020') },
-      { ms: 200, output: hexColorSchema.parse('#101010') },
+      { ms: 0, output: 'low' },
+      { ms: 200, output: 'high' },
     ]);
     expect(action).toEqual({ type: 'move-step', fromIndex: 0, toIndex: 1 });
   });
@@ -176,7 +173,7 @@ describe('SimpleRgbPatternPanel', () => {
   it('duplicates a step directly after the source', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
-    const pattern = createPattern([{ color: '#334455', duration: 300 }]);
+    const pattern = createPattern([{ output: 'high', duration: 300 }]);
 
     renderComponent({
       onChange: handleChange,
@@ -184,26 +181,95 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the segment
-    await user.click(screen.getByLabelText(/#334455 for 300 ms/i));
+    await user.click(screen.getByLabelText(/high for 300 ms/i));
 
     await user.click(screen.getByRole('button', { name: /duplicate step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
-      SimpleRgbPatternPanelProps['onChange']
+      SimpleBulbPatternPanelProps['onChange']
     >;
 
     expect(nextPattern.duration).toBe(600);
     expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: hexColorSchema.parse('#334455') },
-      { ms: 300, output: hexColorSchema.parse('#334455') },
+      { ms: 0, output: 'high' },
+      { ms: 300, output: 'high' },
     ]);
     expect(action.type).toBe('duplicate-step');
     if (action.type === 'duplicate-step') {
-      expect(action.sourceId).toBe('rgb-step-0-0');
-      expect(action.newStep.color).toBe('#334455');
+      expect(action.newStep.value).toBe('high');
       expect(action.newStep.durationMs).toBe(300);
     }
+  });
+
+  it('updates an existing step when editing state and duration', async () => {
+    const handleChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createPattern([
+      { output: 'low', duration: 100 },
+      { output: 'high', duration: 200 },
+    ]);
+
+    const Harness = () => {
+      const [value, setValue] = useState(pattern);
+      return (
+        <SimpleBulbPatternPanel
+          onChange={(nextPattern, action) => {
+            setValue(nextPattern);
+            handleChange(nextPattern, action);
+          }}
+          value={value}
+        />
+      );
+    };
+
+    renderWithProviders(<Harness />);
+
+    // Select the second segment (index 1)
+    await user.click(screen.getByLabelText(/high for 200 ms/i));
+
+    // Toggle the switch
+    const switchButton = screen.getByRole('switch', { name: /state/i });
+    await user.click(switchButton);
+
+    const durationInput = screen.getByLabelText(/duration/i);
+    await user.clear(durationInput);
+    await user.type(durationInput, '150');
+
+    const updateCalls = handleChange.mock.calls.filter(
+      (call): call is Parameters<SimpleBulbPatternPanelProps['onChange']> => {
+        const [, action] = call as Parameters<SimpleBulbPatternPanelProps['onChange']>;
+        return action.type === 'update-step';
+      },
+    );
+
+    const finalCall = updateCalls.at(-1);
+    expect(finalCall).toBeDefined();
+
+    const [nextPattern, action] = finalCall!;
+    expect(nextPattern.duration).toBe(250);
+    expect(nextPattern.changeAt).toEqual([
+      { ms: 0, output: 'low' },
+      { ms: 100, output: 'low' },
+    ]);
+    expect(action.type).toBe('update-step');
+    if (action.type === 'update-step') {
+      expect(action.step.value).toBe('low');
+      expect(action.step.durationMs).toBe(150);
+    }
+  });
+
+  it('summarizes the total duration when steps exist', () => {
+    renderComponent({
+      value: createPattern([
+        { output: 'low', duration: 100 },
+        { output: 'high', duration: 400 },
+      ]),
+    });
+
+    expect(screen.getByText(/total duration 500 ms/i)).toBeInTheDocument();
+    const segments = screen.getAllByLabelText(/for \d+ ms/i);
+    expect(segments).toHaveLength(2);
   });
 
   it('ignores non-integer duration input characters', async () => {
@@ -217,79 +283,6 @@ describe('SimpleRgbPatternPanel', () => {
     await user.type(durationInput, '1.5');
 
     expect(durationInput).toHaveValue(1);
-  });
-
-  it('updates an existing step when editing color and duration', async () => {
-    const handleChange = vi.fn();
-    const user = userEvent.setup();
-    const pattern = createPattern([
-      { color: '#000000', duration: 100 },
-      { color: '#ffffff', duration: 200 },
-    ]);
-
-    const Harness = () => {
-      const [value, setValue] = useState(pattern);
-      return (
-        <SimpleRgbPatternPanel
-          onChange={(nextPattern, action) => {
-            setValue(nextPattern);
-            handleChange(nextPattern, action);
-          }}
-          value={value}
-        />
-      );
-    };
-
-    renderWithProviders(<Harness />);
-
-    // Select the second segment (index 1)
-    await user.click(screen.getByLabelText(/#ffffff for 200 ms/i));
-
-    const colorInput = screen.getByLabelText(/^color/i);
-    // Use fireEvent for color input as userEvent.type doesn't work well with color inputs
-    fireEvent.input(colorInput, { target: { value: '#123456' } });
-
-    const durationInput = screen.getByLabelText(/duration/i);
-    await user.clear(durationInput);
-    await user.type(durationInput, '150');
-    expect(durationInput).toHaveValue(150);
-
-    const updateCalls = handleChange.mock.calls.filter(
-      (call): call is Parameters<SimpleRgbPatternPanelProps['onChange']> => {
-        const [, action] = call as Parameters<SimpleRgbPatternPanelProps['onChange']>;
-        return action.type === 'update-step';
-      },
-    );
-
-    const finalCall = updateCalls.at(-1);
-    if (!finalCall) {
-      throw new Error('Expected an update-step action when editing a step');
-    }
-
-    const [nextPattern, action] = finalCall;
-    expect(nextPattern.duration).toBe(250);
-    expect(nextPattern.changeAt).toEqual([
-      { ms: 0, output: hexColorSchema.parse('#000000') },
-      { ms: 100, output: hexColorSchema.parse('#123456') },
-    ]);
-    expect(action.type).toBe('update-step');
-    if (action.type === 'update-step') {
-      expect(action.step.color).toBe('#123456');
-      expect(action.step.durationMs).toBe(150);
-    }
-  });
-
-  it('summarizes the total duration when steps exist', () => {
-    renderComponent({
-      value: createPattern([
-        { color: '#000000', duration: 100 },
-        { color: '#ffffff', duration: 400 },
-      ]),
-    });
-
-    expect(screen.getByText(/total duration 500 ms/i)).toBeInTheDocument();
-    const segments = screen.getAllByLabelText(/for \d+ ms/i);
-    expect(segments).toHaveLength(2);
   });
 
   it('closes the modal when cancelling', async () => {
@@ -310,12 +303,12 @@ describe('SimpleRgbPatternPanel', () => {
   it('allows setting duration to 0 to trigger validation errors', async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
-    const pattern = createPattern([{ color: '#ff0000', duration: 100 }]);
+    const pattern = createPattern([{ output: 'high', duration: 100 }]);
 
-    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+    renderWithProviders(<SimpleBulbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the segment
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    await user.click(screen.getByRole('button', { name: /high for 100 ms/i }));
 
     // Find duration input
     const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
@@ -340,23 +333,23 @@ describe('SimpleRgbPatternPanel', () => {
       type: 'simple',
       name: 'test',
       duration: 0,
-      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ffffff') }],
+      changeAt: [{ ms: 0, output: 'high' }],
     };
 
-    renderWithProviders(<SimpleRgbPatternPanel onChange={vi.fn()} value={pattern} />);
+    renderWithProviders(<SimpleBulbPatternPanel onChange={vi.fn()} value={pattern} />);
 
-    expect(screen.getByRole('button', { name: /#ffffff for 0 ms/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /high for 0 ms/i })).toBeInTheDocument();
   });
 
   it('triggers validation error when duration is empty', async () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
-    const pattern = createPattern([{ color: '#ff0000', duration: 100 }]);
+    const pattern = createPattern([{ output: 'high', duration: 100 }]);
 
-    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+    renderWithProviders(<SimpleBulbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the segment
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    await user.click(screen.getByRole('button', { name: /high for 100 ms/i }));
 
     // Find duration input
     const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
@@ -379,14 +372,14 @@ describe('SimpleRgbPatternPanel', () => {
     const onChange = vi.fn();
     const user = userEvent.setup();
     const pattern = createPattern([
-      { color: '#ff0000', duration: 100 },
-      { color: '#00ff00', duration: 100 },
+      { output: 'high', duration: 100 },
+      { output: 'low', duration: 100 },
     ]);
 
-    renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
+    renderWithProviders(<SimpleBulbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the first step
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    await user.click(screen.getByRole('button', { name: /high for 100 ms/i }));
 
     // Find the duration input
     const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
@@ -395,6 +388,6 @@ describe('SimpleRgbPatternPanel', () => {
     await user.clear(durationInput);
 
     // Verify the second step still exists and has valid duration in the UI
-    expect(screen.getByRole('button', { name: /#00ff00 for 100 ms/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /low for 100 ms/i })).toBeInTheDocument();
   });
 });

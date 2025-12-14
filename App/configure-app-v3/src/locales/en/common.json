@@ -21,12 +21,48 @@
     "subtitle": "Design synchronized LED patterns, build responsive modes, and fine-tune device behavior before flashing it to your boards.",
     "description": "Use the navigation to create reusable RGB color patterns, sculpt bulb animations, assemble complete modes with accelerometer triggers, fine-tune appearance, and monitor serial traffic while testing on hardware."
   },
+  "patternEditor": {
+    "preview": {
+      "title": "Pattern preview",
+      "empty": "No steps have been added yet.",
+      "summary": "Total duration {{total}} ms.",
+      "segmentLabel": "{{value}} for {{duration}} ms"
+    },
+    "steps": {
+      "title": "Pattern steps",
+      "closeEditor": "Close step editor",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "duplicate": "Duplicate step",
+      "remove": "Remove step"
+    },
+    "form": {
+      "nameLabel": "Pattern name",
+      "nameHelper": "Give this pattern a descriptive name to recognize it later.",
+      "namePlaceholder": "Enter pattern name",
+      "durationLabel": "Duration (ms)",
+      "durationHelper": "How long the step should last.",
+      "addButton": "Add step"
+    },
+    "addModal": {
+      "title": "Add step",
+      "cancel": "Cancel",
+      "confirm": "Add step"
+    },
+    "storage": {
+      "selectLabel": "Saved patterns",
+      "selectPlaceholder": "New pattern",
+      "deleteButton": "Delete pattern",
+      "saveButton": "Save pattern",
+      "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
+      "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
+    }
+  },
   "rgbPattern": {
     "title": "RGB Pattern Workshop",
     "subtitle": "Author precise multi-color animations for the case LEDs.",
     "methodSwitcher": {
       "label": "Pattern builder",
-      "simple": "Simple method",
       "equation": "Equation method"
     },
     "simple": {
@@ -34,46 +70,8 @@
       "description": "Build a pattern by stacking color segments and choosing how long each should shine.",
       "form": {
         "ariaLabel": "Simple RGB pattern form",
-        "nameLabel": "Pattern name",
-        "nameHelper": "Give this pattern a descriptive name to recognize it later.",
-        "namePlaceholder": "Enter pattern name",
         "colorLabel": "Color",
-        "colorHelper": "Use the color picker to choose the LED output.",
-        "durationLabel": "Duration (ms)",
-        "durationHelper": "How long the LED should display this color.",
-        "addButton": "Add color step"
-      },
-      "storage": {
-        "selectLabel": "Saved patterns",
-        "selectPlaceholder": "New pattern",
-        "deleteButton": "Delete pattern",
-        "saveButton": "Save pattern",
-        "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
-        "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
-      },
-      "preview": {
-        "title": "Pattern preview",
-        "empty": "No colors have been added yet.",
-        "summary": "Total duration {{total}} ms.",
-        "segmentLabel": "{{color}} for {{duration}} ms"
-      },
-      "addModal": {
-        "title": "Add color step",
-        "cancel": "Cancel",
-        "confirm": "Add step"
-      },
-      "steps": {
-        "title": "Pattern steps",
-        "subtitle": "Adjust or remove segments as needed.",
-        "entryLabel": "{{color}} · {{duration}} ms",
-        "duration": "{{duration}} milliseconds",
-        "colorEditLabel": "Color for step {{index}}",
-        "durationEditLabel": "Duration for step {{index}} (ms)",
-        "moveUp": "Move up",
-        "moveDown": "Move down",
-        "duplicate": "Duplicate step",
-        "remove": "Remove step",
-        "closeEditor": "Close step editor"
+        "colorHelper": "Use the color picker to choose the LED output."
       }
     },
     "equation": {
@@ -108,9 +106,6 @@
         "empty": "No sections defined.",
         "equationLabel": "Equation (t = time in sec)",
         "equationPlaceholder": "e.g. 255 * sin(t)",
-        "durationLabel": "Duration (ms)",
-        "moveUp": "Move Up",
-        "moveDown": "Move Down",
         "delete": "Delete"
       }
     }
@@ -118,7 +113,12 @@
   "bulbPattern": {
     "title": "Bulb Pattern Studio",
     "subtitle": "Design intensity patterns for binary or single-channel bulbs.",
-    "todo": "TODO · Define transitions for bulb brightness and timing."
+    "high": "High",
+    "low": "Low",
+    "form": {
+      "stateLabel": "State",
+      "stateHelper": "Choose whether the bulb is on (High) or off (Low)."
+    }
   },
   "mode": {
     "title": "Mode Composer",
