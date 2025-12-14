@@ -73,7 +73,7 @@ export const ModePage = () => {
 
   const handleDelete = () => {
     if (!selectedModeName) return;
-    if (confirm(t('modeEditor.confirmDelete'))) {
+    if (confirm(t('modeEditor.storage.confirmDelete'))) {
       deleteMode(selectedModeName);
       setSelectedModeName('');
     }
@@ -119,7 +119,7 @@ export const ModePage = () => {
               onClick={handleDelete}
               className="theme-button bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md"
             >
-              {t('modeEditor.delete')}
+              {t('modeEditor.storage.delete')}
             </button>
           )}
         </div>
@@ -133,7 +133,7 @@ export const ModePage = () => {
           disabled={!isValid}
           className="theme-button theme-button-primary px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {t('modeEditor.save')}
+          {t('modeEditor.storage.save')}
         </button>
       </div>
     </section>

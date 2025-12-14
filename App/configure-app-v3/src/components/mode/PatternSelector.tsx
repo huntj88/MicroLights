@@ -22,7 +22,7 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
           onChange(e.target.value);
         }}
       >
-        <option value="">{t('modeEditor.selectPattern')}</option>
+        <option value="">{t('modeEditor.storage.selectPattern')}</option>
         {patterns.map(pattern => (
           <option key={pattern.name} value={pattern.name}>
             {pattern.name}

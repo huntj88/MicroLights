@@ -138,13 +138,13 @@
     "frontOverride": "Front Override",
     "caseOverride": "Case Override",
     "noTriggers": "No accelerometer triggers defined.",
-    "save": "Save Mode",
-    "load": "Load Mode",
-    "delete": "Delete Mode",
-    "confirmDelete": "Are you sure you want to delete this mode?",
-    "selectPattern": "Select a pattern",
     "noPattern": "No pattern selected",
     "storage": {
+      "save": "Save Mode",
+      "load": "Load Mode",
+      "delete": "Delete Mode",
+      "confirmDelete": "Are you sure you want to delete this mode?",
+      "selectPattern": "Select a pattern",
       "selectLabel": "Saved modes",
       "selectPlaceholder": "New mode",
       "overwriteConfirm": "A mode named \"{{name}}\" already exists. Replace it?"
