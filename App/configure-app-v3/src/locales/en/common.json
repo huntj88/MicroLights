@@ -28,6 +28,11 @@
       "summary": "Total duration {{total}} ms.",
       "segmentLabel": "{{value}} for {{duration}} ms"
     },
+    "controls": {
+      "play": "Play",
+      "pause": "Pause",
+      "stop": "Stop"
+    },
     "steps": {
       "title": "Pattern steps",
       "closeEditor": "Close step editor",
@@ -77,13 +82,6 @@
     "equation": {
       "title": "Equation RGB Pattern Editor",
       "description": "Create complex patterns using mathematical equations.",
-      "controls": {
-        "play": "Play",
-        "pause": "Pause",
-        "stop": "Stop",
-        "exportVideo": "Export Video",
-        "notImplemented": "Not implemented yet"
-      },
       "help": {
         "title": "Equation Help:",
         "description": "Use 't' for time (seconds) and 'Duration' for section duration (seconds). Standard Math functions are available (e.g., sin(t), cos(t), exp(t), abs(t)). Output is clamped to 0-255.",
@@ -122,8 +120,38 @@
   },
   "mode": {
     "title": "Mode Composer",
-    "subtitle": "Combine front and case patterns, attach accelerometer triggers, and manage presets.",
-    "todo": "TODO · Link saved patterns to build a mode, configure trigger thresholds, and save your preset."
+    "subtitle": "Combine front and case patterns, attach accelerometer triggers, and manage presets."
+  },
+  "modeEditor": {
+    "title": "Mode Editor",
+    "nameLabel": "Mode Name",
+    "nameHelper": "Give this mode a descriptive name to recognize it later.",
+    "namePlaceholder": "Enter mode name",
+    "patternsTitle": "Patterns",
+    "frontLabel": "Front LED Pattern",
+    "caseLabel": "Case LED Pattern",
+    "accelTitle": "Accelerometer Triggers",
+    "addTrigger": "Add Trigger",
+    "deleteTrigger": "Delete",
+    "thresholdLabel": "Threshold",
+    "thresholdHelper": "Acceleration threshold to trigger this override.",
+    "frontOverride": "Front Override",
+    "caseOverride": "Case Override",
+    "noTriggers": "No accelerometer triggers defined.",
+    "patternTypes": {
+      "bulb": "Bulb",
+      "rgb": "RGB"
+    },
+    "storage": {
+      "save": "Save Mode",
+      "load": "Load Mode",
+      "delete": "Delete Mode",
+      "confirmDelete": "Are you sure you want to delete this mode?",
+      "selectPattern": "Select a pattern",
+      "selectLabel": "Saved modes",
+      "selectPlaceholder": "New mode",
+      "overwriteConfirm": "A mode named \"{{name}}\" already exists. Replace it?"
+    }
   },
   "serialLog": {
     "title": "Serial Console",
@@ -201,7 +229,8 @@
       "componentRequired": "Accelerometer triggers must configure at least one LED component."
     },
     "mode": {
-      "nameEmpty": "Mode name cannot be empty."
+      "nameEmpty": "Mode name cannot be empty.",
+      "patternRequired": "At least one pattern (Front or Case) is required."
     }
   }
 }

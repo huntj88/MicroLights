@@ -1,12 +1,20 @@
-import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  type ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import type { PatternChange, SimplePattern } from '../../app/models/mode';
-import { PatternButton } from '../rgb-pattern/common/PatternButton';
-import { PatternNameEditor } from '../rgb-pattern/common/PatternNameEditor';
-import { PatternPanelContainer } from '../rgb-pattern/common/PatternPanelContainer';
-import { PatternSection } from '../rgb-pattern/common/PatternSection';
+import { PatternNameEditor } from './PatternNameEditor';
+import type { PatternChange, SimplePattern } from '../../../app/models/mode';
+import { PanelContainer } from '../../common/PanelContainer';
+import { Section } from '../../common/Section';
+import { StyledButton } from '../../common/StyledButton';
 
 export interface SimplePatternStep<T> {
   id: string;
@@ -29,6 +37,7 @@ export interface SimplePatternEditorProps<T> {
   // Configuration
   valueSchema: z.ZodType<T>;
   defaultValue: T;
+  emptyValue: T;
   idPrefix?: string;
 
   // UI Components
@@ -40,6 +49,7 @@ export interface SimplePatternEditorProps<T> {
     onClick: () => void;
     totalDuration: number;
   }) => ReactNode;
+  renderSwatch: (props: { value: T }) => ReactNode;
 
   // Labels
   labels: {
@@ -112,9 +122,11 @@ export const SimplePatternEditor = <T,>({
   onChange,
   valueSchema,
   defaultValue,
+  emptyValue,
   idPrefix = STEP_ID_PREFIX,
   renderInput,
   renderPreview,
+  renderSwatch,
   labels,
 }: SimplePatternEditorProps<T>) => {
   const { t } = useTranslation();
@@ -128,6 +140,74 @@ export const SimplePatternEditor = <T,>({
   const [modalValue, setModalValue] = useState<T>(defaultValue);
   const [modalDurationMs, setModalDurationMs] = useState(DEFAULT_DURATION_MS);
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
+
+  // Animation state
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const requestRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
+
+  const totalDuration = useMemo(
+    () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
+    [steps],
+  );
+
+  const animate = useCallback(
+    (time: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = time;
+      }
+      const deltaTime = time - lastTimeRef.current;
+      lastTimeRef.current = time;
+
+      setCurrentTime(prev => {
+        const next = prev + deltaTime;
+        if (totalDuration > 0 && next >= totalDuration) {
+          return 0;
+        }
+        return next;
+      });
+      requestRef.current = requestAnimationFrame(animate);
+    },
+    [totalDuration],
+  );
+
+  useEffect(() => {
+    if (isPlaying) {
+      lastTimeRef.current = 0;
+      requestRef.current = requestAnimationFrame(animate);
+    } else {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    }
+    return () => {
+      if (requestRef.current) {
+        cancelAnimationFrame(requestRef.current);
+      }
+    };
+  }, [animate, isPlaying]);
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleStop = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+  };
+
+  const currentValue = useMemo(() => {
+    if (steps.length === 0) return emptyValue;
+    let elapsed = 0;
+    for (const step of steps) {
+      if (currentTime >= elapsed && currentTime < elapsed + step.durationMs) {
+        return step.value;
+      }
+      elapsed += step.durationMs;
+    }
+    return steps[steps.length - 1].value;
+  }, [steps, emptyValue, currentTime]);
 
   useEffect(() => {
     setStepDurationDrafts(previous => {
@@ -187,11 +267,6 @@ export const SimplePatternEditor = <T,>({
   const parsedModalDuration = Number.parseInt(modalDurationMs, 10);
   const canConfirmModal =
     modalDurationMs !== '' && Number.isFinite(parsedModalDuration) && parsedModalDuration > 0;
-
-  const totalDuration = useMemo(
-    () => steps.reduce((accumulator, step) => accumulator + step.durationMs, 0),
-    [steps],
-  );
 
   const emitChange = (nextSteps: SimplePatternStep<T>[], action: SimplePatternAction<T>) => {
     const nextPattern = createPatternFromSteps(value, nextSteps);
@@ -368,38 +443,56 @@ export const SimplePatternEditor = <T,>({
   }, [steps, totalDuration, selectedStepIndex, renderPreview]);
 
   return (
-    <PatternPanelContainer>
+    <PanelContainer>
       <PatternNameEditor name={value.name} onChange={handleNameChange} />
 
-      <PatternSection title={t('patternEditor.preview.title')}>
+      <Section
+        title={t('patternEditor.preview.title')}
+        actions={
+          <>
+            <StyledButton onClick={handlePlayPause} variant={isPlaying ? 'warning' : 'success'}>
+              {isPlaying ? t('patternEditor.controls.pause') : t('patternEditor.controls.play')}
+            </StyledButton>
+            <StyledButton onClick={handleStop} variant="secondary">
+              {t('patternEditor.controls.stop')}
+            </StyledButton>
+          </>
+        }
+      >
         <p className="theme-muted text-sm mb-2">
           {totalDuration === 0
             ? t('patternEditor.preview.empty')
             : t('patternEditor.preview.summary', { total: totalDuration })}
         </p>
 
-        <div className="flex min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
-          {steps.length === 0 ? (
-            <div className="flex flex-1 items-center justify-center text-sm">
-              <span className="theme-muted">{t('patternEditor.preview.empty')}</span>
-            </div>
-          ) : (
-            patternSegments
-          )}
-          <button
-            aria-label={t('patternEditor.form.addButton')}
-            className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
-            onClick={openAddModal}
-            title={t('patternEditor.form.addButton')}
-            type="button"
-          >
-            <span aria-hidden="true">＋</span>
-          </button>
+        <div className="flex gap-4">
+          <div className="w-16 h-[56px] rounded border theme-border shadow-sm flex-shrink-0 overflow-hidden flex items-center justify-center bg-[rgb(var(--surface-raised))]">
+            {renderSwatch({ value: currentValue })}
+          </div>
+
+          <div className="flex flex-1 min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
+            {steps.length === 0 ? (
+              <div className="flex flex-1 items-center justify-center text-sm">
+                <span className="theme-muted">{t('patternEditor.preview.empty')}</span>
+              </div>
+            ) : (
+              patternSegments
+            )}
+            <button
+              aria-label={t('patternEditor.form.addButton')}
+              className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+              onClick={openAddModal}
+              title={t('patternEditor.form.addButton')}
+              type="button"
+            >
+              <span aria-hidden="true">＋</span>
+            </button>
+          </div>
         </div>
-      </PatternSection>
+      </Section>
 
       {selectedStepIndex !== null && steps[selectedStepIndex] && (
-        <PatternSection
+        <Section
           title={`${t('patternEditor.steps.title')} #${String(selectedStepIndex + 1)}`}
           actions={
             <button
@@ -429,7 +522,7 @@ export const SimplePatternEditor = <T,>({
               <span>{t('patternEditor.form.durationLabel')}</span>
               <div className="relative">
                 <input
-                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
+                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border pl-3 pr-8 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
                   inputMode="numeric"
                   min={1}
                   onChange={event => {
@@ -450,40 +543,40 @@ export const SimplePatternEditor = <T,>({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <PatternButton
+            <StyledButton
               disabled={selectedStepIndex === 0}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'up');
               }}
             >
               ← {t('patternEditor.steps.moveUp')}
-            </PatternButton>
-            <PatternButton
+            </StyledButton>
+            <StyledButton
               disabled={selectedStepIndex === steps.length - 1}
               onClick={() => {
                 handleMove(steps[selectedStepIndex].id, 'down');
               }}
             >
               {t('patternEditor.steps.moveDown')} →
-            </PatternButton>
+            </StyledButton>
             <div className="flex-1" />
-            <PatternButton
+            <StyledButton
               onClick={() => {
                 handleDuplicate(steps[selectedStepIndex].id);
               }}
             >
               {t('patternEditor.steps.duplicate')}
-            </PatternButton>
-            <PatternButton
+            </StyledButton>
+            <StyledButton
               variant="danger"
               onClick={() => {
                 handleRemove(steps[selectedStepIndex].id);
               }}
             >
               {t('patternEditor.steps.remove')}
-            </PatternButton>
+            </StyledButton>
           </div>
-        </PatternSection>
+        </Section>
       )}
 
       {isAddModalOpen && (
@@ -537,20 +630,20 @@ export const SimplePatternEditor = <T,>({
               </label>
             </div>
             <footer className="flex justify-end gap-3">
-              <PatternButton variant="ghost" onClick={handleModalCancel}>
+              <StyledButton variant="ghost" onClick={handleModalCancel}>
                 {t('patternEditor.addModal.cancel')}
-              </PatternButton>
-              <PatternButton
+              </StyledButton>
+              <StyledButton
                 variant="primary"
                 disabled={!canConfirmModal}
                 onClick={handleModalConfirm}
               >
                 {t('patternEditor.addModal.confirm')}
-              </PatternButton>
+              </StyledButton>
             </footer>
           </div>
         </div>
       )}
-    </PatternPanelContainer>
+    </PanelContainer>
   );
 };

@@ -1,11 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
-import { hexColorSchema, type HexColor, type SimplePattern } from '../../app/models/mode';
-import {
-  type SimplePatternAction,
-  SimplePatternEditor,
-} from '../simple-pattern/SimplePatternEditor';
+import { hexColorSchema, type HexColor, type SimplePattern } from '../../../app/models/mode';
+import { type SimplePatternAction, SimplePatternEditor } from '../common/SimplePatternEditor';
 
 export interface SimpleRgbPatternStep {
   id: string;
@@ -27,6 +24,7 @@ export interface SimpleRgbPatternPanelProps {
 }
 
 const DEFAULT_COLOR: HexColor = hexColorSchema.parse('#ff7b00');
+const EMPTY_COLOR: HexColor = hexColorSchema.parse('#000000');
 
 export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanelProps) => {
   const { t } = useTranslation();
@@ -66,6 +64,7 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
       // Double cast required: ZodBranded types don't strictly satisfy the generic ZodType constraint in TS
       valueSchema={hexColorSchema as unknown as z.ZodType<HexColor>}
       defaultValue={DEFAULT_COLOR}
+      emptyValue={EMPTY_COLOR}
       idPrefix="rgb-step-"
       renderInput={({ value, onChange }) => (
         <>
@@ -105,6 +104,13 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
         >
           <span className="px-2 py-1 mix-blend-difference">{durationMs}ms</span>
         </button>
+      )}
+      renderSwatch={({ value }) => (
+        <div
+          className="w-full h-full"
+          style={{ backgroundColor: value }}
+          data-testid="current-color-swatch"
+        />
       )}
       labels={{
         valueLabel: t('rgbPattern.simple.form.colorLabel'),

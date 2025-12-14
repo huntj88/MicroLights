@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react';
 
-interface PatternSectionProps {
+interface SectionProps {
   title?: string;
   actions?: ReactNode;
   children: ReactNode;
 }
 
-export const PatternSection = ({ title, actions, children }: PatternSectionProps) => {
+export const Section = ({ title, actions, children }: SectionProps) => {
   return (
     <section className={`bg-[rgb(var(--surface-raised)/0.3)] rounded-xl p-4 border theme-border`}>
       {(title ?? actions) && (

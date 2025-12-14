@@ -1,10 +1,11 @@
 import { useTranslation } from 'react-i18next';
 
-import { binaryOutputSchema, type BinaryOutput, type SimplePattern } from '../../app/models/mode';
 import {
-  type SimplePatternAction,
-  SimplePatternEditor,
-} from '../simple-pattern/SimplePatternEditor';
+  binaryOutputSchema,
+  type BinaryOutput,
+  type SimplePattern,
+} from '../../../app/models/mode';
+import { type SimplePatternAction, SimplePatternEditor } from '../common/SimplePatternEditor';
 
 export type SimpleBulbPatternAction = SimplePatternAction<BinaryOutput>;
 
@@ -14,6 +15,7 @@ export interface SimpleBulbPatternPanelProps {
 }
 
 const DEFAULT_VALUE: BinaryOutput = 'high';
+const EMPTY_VALUE: BinaryOutput = 'low';
 
 export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPanelProps) => {
   const { t } = useTranslation();
@@ -24,6 +26,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
       onChange={onChange}
       valueSchema={binaryOutputSchema}
       defaultValue={DEFAULT_VALUE}
+      emptyValue={EMPTY_VALUE}
       renderInput={({ value, onChange }) => (
         <div className="flex items-center gap-3">
           <span
@@ -71,11 +74,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
             isSelected
               ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
               : ''
-          } ${
-            value === 'high'
-              ? 'bg-[color-mix(in_srgb,rgb(var(--accent)),white_60%)] text-black'
-              : 'bg-black text-white'
-          }`}
+          } ${value === 'high' ? 'bg-[rgb(var(--accent))] text-black' : 'bg-black text-white'}`}
           onClick={onClick}
           style={{
             flexGrow: totalDuration > 0 ? durationMs : 1,
@@ -88,6 +87,12 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
         >
           <span className="px-2 py-1">{durationMs}ms</span>
         </button>
+      )}
+      renderSwatch={({ value }) => (
+        <div
+          className={`w-full h-full ${value === 'high' ? 'bg-[rgb(var(--accent))]' : 'bg-black'}`}
+          data-testid="current-state-swatch"
+        />
       )}
       labels={{
         valueLabel: t('bulbPattern.form.stateLabel'),

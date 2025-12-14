@@ -178,9 +178,13 @@ export type ModeAccel = z.infer<typeof modeAccelSchema>;
 export const modeSchema = z
   .object({
     name: z.string().min(1, 'validation.mode.nameEmpty'),
-    front: modeComponentSchema,
-    case: modeComponentSchema,
+    front: modeComponentSchema.optional(),
+    case: modeComponentSchema.optional(),
     accel: modeAccelSchema.optional(),
+  })
+  .refine(data => data.front ?? data.case, {
+    message: 'validation.mode.patternRequired',
+    path: ['front', 'case'],
   })
   .describe('Complete mode description including optional accelerometer triggers.');
 

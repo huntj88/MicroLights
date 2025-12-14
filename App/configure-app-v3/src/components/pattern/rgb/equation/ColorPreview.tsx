@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-import { useTheme } from '../../../app/providers/theme-context';
+import { useTheme } from '../../../../app/providers/theme-context';
 
 interface ColorPreviewProps {
   redPoints: number[];
@@ -8,6 +8,7 @@ interface ColorPreviewProps {
   bluePoints: number[];
   currentTime: number; // in ms
   totalDuration: number; // in ms
+  showSwatch?: boolean;
 }
 
 export const ColorPreview = ({
@@ -16,6 +17,7 @@ export const ColorPreview = ({
   bluePoints,
   currentTime,
   totalDuration,
+  showSwatch = true,
 }: ColorPreviewProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolved: theme } = useTheme();
@@ -81,12 +83,14 @@ export const ColorPreview = ({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-4">
-        <div
-          className="w-16 h-16 rounded border theme-border shadow-sm"
-          style={{
-            backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})`,
-          }}
-        />
+        {showSwatch && (
+          <div
+            className="w-16 h-16 rounded border theme-border shadow-sm"
+            style={{
+              backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})`,
+            }}
+          />
+        )}
         <div className="flex-1 h-16 bg-[rgb(var(--surface-raised))] rounded overflow-hidden relative border theme-border">
           <canvas ref={canvasRef} width={800} height={64} className="w-full h-full" />
         </div>

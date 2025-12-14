@@ -101,8 +101,12 @@ describe('modeDocumentSchema', () => {
     });
 
     expect(result.mode.name).toBe('accel Pattern');
-    expect(isBinaryPattern(result.mode.front.pattern)).toBe(true);
-    expect(isColorPattern(result.mode.case.pattern)).toBe(true);
+    expect(result.mode.front).toBeDefined();
+    expect(result.mode.case).toBeDefined();
+    if (result.mode.front && result.mode.case) {
+      expect(isBinaryPattern(result.mode.front.pattern)).toBe(true);
+      expect(isColorPattern(result.mode.case.pattern)).toBe(true);
+    }
     expect(result.mode.accel?.triggers).toHaveLength(1);
   });
 
@@ -135,8 +139,12 @@ describe('modeDocumentSchema', () => {
       },
     });
 
-    expect(isColorPattern(mode.front.pattern)).toBe(true);
-    expect(isColorPattern(mode.case.pattern)).toBe(true);
+    expect(mode.front).toBeDefined();
+    expect(mode.case).toBeDefined();
+    if (mode.front && mode.case) {
+      expect(isColorPattern(mode.front.pattern)).toBe(true);
+      expect(isColorPattern(mode.case.pattern)).toBe(true);
+    }
   });
 
   it('rejects invalid hex colors', () => {
@@ -284,10 +292,13 @@ describe('modeDocumentSchema', () => {
       },
     });
 
-    expect(result.mode.front.pattern.type).toBe('equation');
-    if (result.mode.front.pattern.type === 'equation') {
-      expect(result.mode.front.pattern.red.sections).toHaveLength(1);
-      expect(result.mode.front.pattern.red.sections[0].equation).toContain('sin');
+    expect(result.mode.front).toBeDefined();
+    if (result.mode.front) {
+      expect(result.mode.front.pattern.type).toBe('equation');
+      if (result.mode.front.pattern.type === 'equation') {
+        expect(result.mode.front.pattern.red.sections).toHaveLength(1);
+        expect(result.mode.front.pattern.red.sections[0].equation).toContain('sin');
+      }
     }
   });
 });

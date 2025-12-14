@@ -1,5 +1,4 @@
-import type { ChangeEvent } from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -8,18 +7,19 @@ import {
   isColorPattern,
   simplePatternSchema,
   type EquationPattern,
-  type ModePattern,
   type SimplePattern,
 } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { StorageControls } from '../../components/common/StorageControls';
 import {
   type EquationRgbPatternAction,
   EquationRgbPatternPanel,
-} from '../../components/rgb-pattern/equation/EquationRgbPatternPanel';
+} from '../../components/pattern/rgb/equation/EquationRgbPatternPanel';
 import {
   type SimpleRgbPatternAction,
   SimpleRgbPatternPanel,
-} from '../../components/rgb-pattern/SimpleRgbPatternPanel';
+} from '../../components/pattern/rgb/SimpleRgbPatternPanel';
+import { useEntityEditor } from '../../hooks/useEntityEditor';
 import { getLocalizedError } from '../../utils/localization';
 
 const createEmptyPattern = (): SimplePattern => ({
@@ -29,251 +29,112 @@ const createEmptyPattern = (): SimplePattern => ({
   changeAt: [],
 });
 
+const validateSimple = (pattern: SimplePattern) => {
+  const result = simplePatternSchema.safeParse(pattern);
+  return result.success ? [] : result.error.issues.map(issue => issue.message);
+};
+
+const validateEquation = (pattern: EquationPattern) => {
+  const result = equationPatternSchema.safeParse(pattern);
+  return result.success ? [] : result.error.issues.map(issue => issue.message);
+};
+
 export const RgbPatternPage = () => {
   const { t } = useTranslation();
   const [activeMethod, setActiveMethod] = useState<'simple' | 'equation'>('simple');
-  const [selectedPatternName, setSelectedPatternName] = useState('');
-  const [simplePatternState, setSimplePatternState] = useState<SimplePattern>(createEmptyPattern);
-  const [equationPatternState, setEquationPatternState] = useState<EquationPattern>(
-    createDefaultEquationPattern,
-  );
-  const [originalPattern, setOriginalPattern] = useState<ModePattern | null>(null);
-  const [validationErrors, setValidationErrors] = useState<string[]>(() => {
-    const initialPattern = createEmptyPattern();
-    const result = simplePatternSchema.safeParse(initialPattern);
-    return result.success ? [] : result.error.issues.map(issue => issue.message);
-  });
 
   const patterns = usePatternStore(state => state.patterns);
   const savePattern = usePatternStore(state => state.savePattern);
   const deletePattern = usePatternStore(state => state.deletePattern);
   const getPattern = usePatternStore(state => state.getPattern);
 
-  const availablePatternNames = useMemo(
+  const simplePatternNames = useMemo(
     () =>
       patterns
-        .filter(p => (activeMethod === 'simple' ? isColorPattern(p) : p.type === 'equation'))
-        .map(pattern => pattern.name)
+        .filter(isColorPattern)
+        .map(p => p.name)
         .sort((a, b) => a.localeCompare(b)),
-    [patterns, activeMethod],
+    [patterns],
   );
 
-  useEffect(() => {
-    if (!selectedPatternName) {
-      return;
-    }
+  const equationPatternNames = useMemo(
+    () =>
+      patterns
+        .filter(p => p.type === 'equation')
+        .map(p => p.name)
+        .sort((a, b) => a.localeCompare(b)),
+    [patterns],
+  );
 
-    if (availablePatternNames.includes(selectedPatternName)) {
-      return;
-    }
+  const readSimpleItem = useCallback(
+    (name: string) => {
+      const p = getPattern(name);
+      if (!p) return undefined;
+      return isColorPattern(p) ? p : undefined;
+    },
+    [getPattern],
+  );
 
-    const currentPatternName =
-      activeMethod === 'simple' ? simplePatternState.name : equationPatternState.name;
+  const readEquationItem = useCallback(
+    (name: string) => {
+      const p = getPattern(name);
+      if (!p) return undefined;
+      return p.type === 'equation' ? p : undefined;
+    },
+    [getPattern],
+  );
 
-    // If the pattern name is still the same as the state, we don't need to clear it
-    if (currentPatternName === selectedPatternName) {
-      return;
-    }
+  const confirmOverwrite = useCallback(
+    (name: string) => confirm(t('patternEditor.storage.overwriteConfirm', { name })),
+    [t],
+  );
 
-    setSelectedPatternName('');
-    setOriginalPattern(null);
-  }, [
-    availablePatternNames,
-    selectedPatternName,
-    simplePatternState.name,
-    equationPatternState.name,
-    activeMethod,
-  ]);
+  const confirmDelete = useCallback(
+    (name: string) => confirm(t('patternEditor.storage.deleteConfirm', { name })),
+    [t],
+  );
+
+  const simpleEditor = useEntityEditor<SimplePattern>({
+    availableNames: simplePatternNames,
+    readItem: readSimpleItem,
+    saveItem: savePattern,
+    deleteItem: deletePattern,
+    createDefault: createEmptyPattern,
+    validate: validateSimple,
+    confirmOverwrite,
+    confirmDelete,
+  });
+
+  const equationEditor = useEntityEditor<EquationPattern>({
+    availableNames: equationPatternNames,
+    readItem: readEquationItem,
+    saveItem: savePattern,
+    deleteItem: deletePattern,
+    createDefault: createDefaultEquationPattern,
+    validate: validateEquation,
+    confirmOverwrite,
+    confirmDelete,
+  });
+
+  const currentEditor = activeMethod === 'simple' ? simpleEditor : equationEditor;
+  const currentAvailableNames =
+    activeMethod === 'simple' ? simplePatternNames : equationPatternNames;
 
   const handleSimplePatternChange = (
     nextPattern: SimplePattern,
     action: SimpleRgbPatternAction,
   ) => {
-    setSimplePatternState(nextPattern);
-
-    const result = simplePatternSchema.safeParse(nextPattern);
-    if (!result.success) {
-      setValidationErrors(result.error.issues.map(issue => issue.message));
-    } else {
-      setValidationErrors([]);
-    }
-
-    if (action.type === 'rename-pattern') {
-      if (selectedPatternName === action.name) {
-        return;
-      }
-
-      setOriginalPattern(null);
-      setSelectedPatternName('');
-    }
+    console.log('RGB simple pattern change:', action, nextPattern);
+    simpleEditor.setEditingItem(nextPattern);
   };
 
   const handleEquationPatternChange = (
     nextPattern: EquationPattern,
     action: EquationRgbPatternAction,
   ) => {
-    setEquationPatternState(nextPattern);
-
-    const result = equationPatternSchema.safeParse(nextPattern);
-    if (!result.success) {
-      setValidationErrors(result.error.issues.map(issue => issue.message));
-    } else {
-      setValidationErrors([]);
-    }
-
-    if (action.type === 'rename-pattern') {
-      if (selectedPatternName === action.name) {
-        return;
-      }
-      setOriginalPattern(null);
-      setSelectedPatternName('');
-    }
+    console.log('RGB equation pattern change:', action, nextPattern);
+    equationEditor.setEditingItem(nextPattern);
   };
-
-  const handleMethodChange = (method: 'simple' | 'equation') => {
-    setActiveMethod(method);
-
-    const targetState = method === 'simple' ? simplePatternState : equationPatternState;
-
-    const result =
-      method === 'simple'
-        ? simplePatternSchema.safeParse(targetState)
-        : equationPatternSchema.safeParse(targetState);
-
-    if (!result.success) {
-      setValidationErrors(result.error.issues.map(issue => issue.message));
-    } else {
-      setValidationErrors([]);
-    }
-
-    const exists = patterns.some(p => p.type === method && p.name === targetState.name);
-
-    if (exists) {
-      setSelectedPatternName(targetState.name);
-      const stored = getPattern(targetState.name);
-      setOriginalPattern(stored ?? null);
-    } else {
-      setSelectedPatternName('');
-      setOriginalPattern(null);
-    }
-  };
-
-  const handlePatternSelect = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextName = event.target.value;
-
-    if (nextName === '') {
-      setSelectedPatternName('');
-      setOriginalPattern(null);
-      if (activeMethod === 'simple') {
-        const newPattern = createEmptyPattern();
-        setSimplePatternState(newPattern);
-        const result = simplePatternSchema.safeParse(newPattern);
-        setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
-      } else {
-        const newPattern = createDefaultEquationPattern();
-        setEquationPatternState(newPattern);
-        const result = equationPatternSchema.safeParse(newPattern);
-        setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
-      }
-      return;
-    }
-
-    setSelectedPatternName(nextName);
-    const stored = getPattern(nextName);
-    if (stored) {
-      setOriginalPattern(stored);
-      if (activeMethod === 'simple' && isColorPattern(stored)) {
-        setSimplePatternState(stored);
-        const result = simplePatternSchema.safeParse(stored);
-        if (!result.success) {
-          setValidationErrors(result.error.issues.map(issue => issue.message));
-        } else {
-          setValidationErrors([]);
-        }
-      } else if (activeMethod === 'equation' && stored.type === 'equation') {
-        setEquationPatternState(stored);
-        const result = equationPatternSchema.safeParse(stored);
-        if (!result.success) {
-          setValidationErrors(result.error.issues.map(issue => issue.message));
-        } else {
-          setValidationErrors([]);
-        }
-      }
-    }
-  };
-
-  const handlePatternSave = () => {
-    const pattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
-
-    const result =
-      activeMethod === 'simple'
-        ? simplePatternSchema.safeParse(pattern)
-        : equationPatternSchema.safeParse(pattern);
-
-    if (!result.success) {
-      setValidationErrors(result.error.issues.map(issue => issue.message));
-      return;
-    }
-
-    const patternName = pattern.name.trim();
-    const isOverwrite = availablePatternNames.includes(patternName);
-    if (isOverwrite) {
-      const shouldOverwrite = window.confirm(
-        t('patternEditor.storage.overwriteConfirm', { name: patternName }),
-      );
-      if (!shouldOverwrite) {
-        return;
-      }
-    }
-
-    savePattern(pattern);
-    setOriginalPattern(pattern);
-    setSelectedPatternName(patternName);
-  };
-
-  const handlePatternDelete = () => {
-    if (!selectedPatternName) {
-      return;
-    }
-
-    const shouldDelete = window.confirm(
-      t('patternEditor.storage.deleteConfirm', { name: selectedPatternName }),
-    );
-
-    if (!shouldDelete) {
-      return;
-    }
-
-    setOriginalPattern(null);
-    deletePattern(selectedPatternName);
-    setSelectedPatternName('');
-    if (activeMethod === 'simple') {
-      const newPattern = createEmptyPattern();
-      setSimplePatternState(newPattern);
-      const result = simplePatternSchema.safeParse(newPattern);
-      setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
-    } else {
-      const newPattern = createDefaultEquationPattern();
-      setEquationPatternState(newPattern);
-      const result = equationPatternSchema.safeParse(newPattern);
-      setValidationErrors(result.success ? [] : result.error.issues.map(issue => issue.message));
-    }
-  };
-
-  const isDirty = useMemo(() => {
-    if (!selectedPatternName || !originalPattern) {
-      return true;
-    }
-
-    const currentPattern = activeMethod === 'simple' ? simplePatternState : equationPatternState;
-    return JSON.stringify(currentPattern) !== JSON.stringify(originalPattern);
-  }, [
-    selectedPatternName,
-    originalPattern,
-    activeMethod,
-    simplePatternState,
-    equationPatternState,
-  ]);
 
   const isSimpleMethod = activeMethod === 'simple';
 
@@ -293,7 +154,7 @@ export const RgbPatternPage = () => {
                 : 'theme-muted hover:bg-[rgb(var(--surface-raised)/0.5)]'
             }`}
             onClick={() => {
-              handleMethodChange('simple');
+              setActiveMethod('simple');
             }}
             type="button"
           >
@@ -306,7 +167,7 @@ export const RgbPatternPage = () => {
                 : 'theme-muted hover:bg-[rgb(var(--surface-raised)/0.5)]'
             }`}
             onClick={() => {
-              handleMethodChange('equation');
+              setActiveMethod('equation');
             }}
             type="button"
           >
@@ -329,47 +190,25 @@ export const RgbPatternPage = () => {
                 : t('rgbPattern.equation.description')}
             </p>
           </div>
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <label className="flex w-full max-w-sm flex-col gap-2 text-sm">
-              <span className="font-medium">{t('patternEditor.storage.selectLabel')}</span>
-              <select
-                className="rounded-xl border border-solid theme-border bg-transparent px-3 py-2"
-                onChange={handlePatternSelect}
-                value={selectedPatternName}
-              >
-                <option value="">{t('patternEditor.storage.selectPlaceholder')}</option>
-                {availablePatternNames.map(name => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                className="rounded-full border border-solid border-red-500/50 px-4 py-2 text-sm font-medium text-red-500 hover:bg-red-500/10 transition-transform hover:scale-[1.01] disabled:opacity-50"
-                onClick={handlePatternDelete}
-                type="button"
-                disabled={!selectedPatternName}
-              >
-                {t('patternEditor.storage.deleteButton')}
-              </button>
-              <button
-                className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01] disabled:opacity-50"
-                onClick={handlePatternSave}
-                type="button"
-                disabled={!isDirty || validationErrors.length > 0}
-              >
-                {t('patternEditor.storage.saveButton')}
-              </button>
-            </div>
-          </div>
+          <StorageControls
+            items={currentAvailableNames}
+            selectedItem={currentEditor.selectedName}
+            onSelect={currentEditor.setSelectedName}
+            selectLabel={t('patternEditor.storage.selectLabel')}
+            selectPlaceholder={t('patternEditor.storage.selectPlaceholder')}
+            onSave={currentEditor.save}
+            onDelete={currentEditor.remove}
+            isDirty={currentEditor.isDirty}
+            isValid={currentEditor.isValid}
+            saveLabel={t('patternEditor.storage.saveButton')}
+            deleteLabel={t('patternEditor.storage.deleteButton')}
+          />
         </header>
 
-        {validationErrors.length > 0 && (
+        {currentEditor.validationErrors.length > 0 && (
           <div className="rounded-xl border border-red-500/50 bg-red-500/10 p-4 text-sm text-red-500">
             <ul className="list-inside list-disc space-y-1">
-              {validationErrors.map((error, index) => (
+              {currentEditor.validationErrors.map((error, index) => (
                 <li key={index}>{getLocalizedError(error, t)}</li>
               ))}
             </ul>
@@ -377,11 +216,14 @@ export const RgbPatternPage = () => {
         )}
 
         {isSimpleMethod ? (
-          <SimpleRgbPatternPanel onChange={handleSimplePatternChange} value={simplePatternState} />
+          <SimpleRgbPatternPanel
+            value={simpleEditor.editingItem}
+            onChange={handleSimplePatternChange}
+          />
         ) : (
           <EquationRgbPatternPanel
+            pattern={equationEditor.editingItem}
             onChange={handleEquationPatternChange}
-            pattern={equationPatternState}
           />
         )}
       </article>
