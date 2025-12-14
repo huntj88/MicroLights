@@ -55,6 +55,8 @@ describe('useModeStore', () => {
       result.current.saveMode(mode);
     });
 
+    if (!mode.front) throw new Error('front is undefined');
+
     const updatedMode = {
       ...mode,
       front: {
@@ -68,7 +70,7 @@ describe('useModeStore', () => {
     });
 
     expect(result.current.modes).toHaveLength(1);
-    expect(result.current.modes[0].front.pattern.duration).toBe(2000);
+    expect(result.current.modes[0].front?.pattern.duration).toBe(2000);
   });
 
   it('deletes a mode', () => {
