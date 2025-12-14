@@ -186,7 +186,7 @@ export const SimplePatternEditor = <T,>({
         cancelAnimationFrame(requestRef.current);
       }
     };
-  }, [animate, isPlaying, totalDuration]);
+  }, [animate, isPlaying]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
