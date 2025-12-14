@@ -76,7 +76,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
               : ''
           } ${
             value === 'high'
-              ? 'bg-[color-mix(in_srgb,rgb(var(--accent)),white_60%)] text-black'
+              ? 'bg-[rgb(var(--accent))] text-black'
               : 'bg-black text-white'
           }`}
           onClick={onClick}
