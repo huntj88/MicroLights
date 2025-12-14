@@ -8,6 +8,7 @@ import {
   renderWithProviders,
   screen,
   waitFor,
+  within,
 } from '@/test-utils/render-with-providers';
 
 import { SimpleRgbPatternPanel, type SimpleRgbPatternPanelProps } from './SimpleRgbPatternPanel';
@@ -41,8 +42,8 @@ describe('SimpleRgbPatternPanel', () => {
   it('shows empty preview when no steps are defined', () => {
     renderComponent({ value: createPattern([]) });
 
-    expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
-    const addButton = screen.getByRole('button', { name: /add color step/i });
+    expect(screen.getAllByText(/no steps have been added yet/i)).toHaveLength(2);
+    const addButton = screen.getByRole('button', { name: /add step/i });
     expect(addButton).toBeEnabled();
     expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
   });
@@ -56,13 +57,14 @@ describe('SimpleRgbPatternPanel', () => {
       value: createPattern([]),
     });
 
-    await user.click(screen.getByRole('button', { name: /add color step/i }));
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     const modalDurationInput = await screen.findByLabelText(/duration/i);
     await user.clear(modalDurationInput);
     await user.type(modalDurationInput, '200');
 
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -208,7 +210,7 @@ describe('SimpleRgbPatternPanel', () => {
     const user = userEvent.setup();
     renderComponent({ value: createPattern([]) });
 
-    await user.click(screen.getByRole('button', { name: /add color step/i }));
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     const durationInput = await screen.findByLabelText(/duration/i);
     await user.clear(durationInput);
@@ -294,7 +296,7 @@ describe('SimpleRgbPatternPanel', () => {
     const user = userEvent.setup();
     renderComponent({ value: createPattern([]) });
 
-    await user.click(screen.getByRole('button', { name: /add color step/i }));
+    await user.click(screen.getByRole('button', { name: /add step/i }));
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 

@@ -93,12 +93,14 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     const saveButton = screen.getByRole('button', { name: /save pattern/i });
-    const addButton = screen.getByRole('button', { name: /add color step/i });
+    const addButton = screen.getByRole('button', { name: /add step/i });
     const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
 
     await user.type(nameInput, 'My Pattern');
     await user.click(addButton);
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    
+    let dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
     expect(saveButton).toBeEnabled();
 
     await user.click(saveButton);
@@ -110,7 +112,9 @@ describe('RgbPatternPage', () => {
 
     // Make a change to trigger the overwrite prompt (otherwise save is disabled)
     await user.click(addButton);
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    
+    dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
@@ -189,9 +193,11 @@ describe('RgbPatternPage', () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
-    const addButton = screen.getByRole('button', { name: /add color step/i });
+    const addButton = screen.getByRole('button', { name: /add step/i });
     await user.click(addButton);
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
     expect(screen.getByRole('heading', { name: /pattern steps/i })).toBeInTheDocument();
 
@@ -199,7 +205,7 @@ describe('RgbPatternPage', () => {
     await user.selectOptions(chooser, '');
 
     expect(chooser).toHaveValue('');
-    expect(screen.getAllByText(/no colors have been added yet/i)).toHaveLength(2);
+    expect(screen.getAllByText(/no steps have been added yet/i)).toHaveLength(2);
     expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
   });
 
