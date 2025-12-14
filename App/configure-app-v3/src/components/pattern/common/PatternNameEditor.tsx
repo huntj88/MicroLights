@@ -1,4 +1,4 @@
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import { NameEditor } from '../../common/NameEditor';
 
@@ -8,6 +8,7 @@ interface PatternNameEditorProps {
 }
 
 export const PatternNameEditor = ({ name, onChange }: PatternNameEditorProps) => {
+  const { t } = useTranslation();
   return (
     <NameEditor
       name={name}
