@@ -2,7 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 
 import { hexColorSchema, type HexColor, type SimplePattern } from '../../app/models/mode';
-import { type SimplePatternAction, SimplePatternEditor } from '../simple-pattern/SimplePatternEditor';
+import {
+  type SimplePatternAction,
+  SimplePatternEditor,
+} from '../simple-pattern/SimplePatternEditor';
 
 export interface SimpleRgbPatternStep {
   id: string;
@@ -68,7 +71,9 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
         <>
           <input
             className="h-10 w-10 rounded-full border theme-border cursor-pointer"
-            onChange={event => { onChange(event.target.value as HexColor); }}
+            onChange={event => {
+              onChange(event.target.value as HexColor);
+            }}
             type="color"
             value={value}
           />
@@ -77,8 +82,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
       )}
       renderPreview={({ value, durationMs, isSelected, onClick, totalDuration }) => (
         <button
-          aria-label={t('rgbPattern.simple.preview.segmentLabel', {
-            color: value,
+          aria-label={t('patternEditor.preview.segmentLabel', {
+            value,
             duration: durationMs,
           })}
           aria-pressed={isSelected}
@@ -92,8 +97,8 @@ export const SimpleRgbPatternPanel = ({ value, onChange }: SimpleRgbPatternPanel
             backgroundColor: value,
             flexGrow: totalDuration > 0 ? durationMs : 1,
           }}
-          title={t('rgbPattern.simple.preview.segmentLabel', {
-            color: value,
+          title={t('patternEditor.preview.segmentLabel', {
+            value,
             duration: durationMs,
           })}
           type="button"

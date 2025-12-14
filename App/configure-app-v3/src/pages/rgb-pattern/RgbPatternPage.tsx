@@ -296,7 +296,7 @@ export const RgbPatternPage = () => {
             }}
             type="button"
           >
-            {t('rgbPattern.methodSwitcher.simple')}
+            {t('rgbPattern.simple.title')}
           </button>
           <button
             className={`px-4 py-2 text-sm transition-colors ${

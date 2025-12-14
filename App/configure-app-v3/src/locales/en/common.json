@@ -25,7 +25,8 @@
     "preview": {
       "title": "Pattern preview",
       "empty": "No steps have been added yet.",
-      "summary": "Total duration {{total}} ms."
+      "summary": "Total duration {{total}} ms.",
+      "segmentLabel": "{{value}} for {{duration}} ms"
     },
     "steps": {
       "title": "Pattern steps",
@@ -51,7 +52,6 @@
     "subtitle": "Author precise multi-color animations for the case LEDs.",
     "methodSwitcher": {
       "label": "Pattern builder",
-      "simple": "Simple method",
       "equation": "Equation method"
     },
     "simple": {
@@ -63,10 +63,7 @@
         "nameHelper": "Give this pattern a descriptive name to recognize it later.",
         "namePlaceholder": "Enter pattern name",
         "colorLabel": "Color",
-        "colorHelper": "Use the color picker to choose the LED output.",
-        "durationLabel": "Duration (ms)",
-        "durationHelper": "How long the LED should display this color.",
-        "addButton": "Add color step"
+        "colorHelper": "Use the color picker to choose the LED output."
       },
       "storage": {
         "selectLabel": "Saved patterns",
@@ -75,30 +72,6 @@
         "saveButton": "Save pattern",
         "overwriteConfirm": "A pattern named \"{{name}}\" already exists. Replace it?",
         "deleteConfirm": "Delete the pattern \"{{name}}\"? This action cannot be undone."
-      },
-      "preview": {
-        "title": "Pattern preview",
-        "empty": "No colors have been added yet.",
-        "summary": "Total duration {{total}} ms.",
-        "segmentLabel": "{{color}} for {{duration}} ms"
-      },
-      "addModal": {
-        "title": "Add color step",
-        "cancel": "Cancel",
-        "confirm": "Add step"
-      },
-      "steps": {
-        "title": "Pattern steps",
-        "subtitle": "Adjust or remove segments as needed.",
-        "entryLabel": "{{color}} · {{duration}} ms",
-        "duration": "{{duration}} milliseconds",
-        "colorEditLabel": "Color for step {{index}}",
-        "durationEditLabel": "Duration for step {{index}} (ms)",
-        "moveUp": "Move up",
-        "moveDown": "Move down",
-        "duplicate": "Duplicate step",
-        "remove": "Remove step",
-        "closeEditor": "Close step editor"
       }
     },
     "equation": {
@@ -133,9 +106,6 @@
         "empty": "No sections defined.",
         "equationLabel": "Equation (t = time in sec)",
         "equationPlaceholder": "e.g. 255 * sin(t)",
-        "durationLabel": "Duration (ms)",
-        "moveUp": "Move Up",
-        "moveDown": "Move Down",
         "delete": "Delete"
       }
     }
@@ -147,29 +117,7 @@
     "low": "Low",
     "form": {
       "stateLabel": "State",
-      "stateHelper": "Choose whether the bulb is on (High) or off (Low).",
-      "durationLabel": "Duration (ms)",
-      "durationHelper": "How long the bulb should stay in this state.",
-      "addButton": "Add step"
-    },
-    "preview": {
-      "title": "Pattern preview",
-      "empty": "No steps have been added yet.",
-      "summary": "Total duration {{total}} ms.",
-      "segmentLabel": "{{state}} for {{duration}} ms"
-    },
-    "addModal": {
-      "title": "Add step",
-      "cancel": "Cancel",
-      "confirm": "Add step"
-    },
-    "steps": {
-      "title": "Pattern steps",
-      "moveUp": "Move up",
-      "moveDown": "Move down",
-      "duplicate": "Duplicate step",
-      "remove": "Remove step",
-      "closeEditor": "Close step editor"
+      "stateHelper": "Choose whether the bulb is on (High) or off (Low)."
     }
   },
   "mode": {

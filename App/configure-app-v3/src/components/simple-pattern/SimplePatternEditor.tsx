@@ -25,16 +25,22 @@ export type SimplePatternAction<T> =
 export interface SimplePatternEditorProps<T> {
   value: SimplePattern;
   onChange: (state: SimplePattern, action: SimplePatternAction<T>) => void;
-  
+
   // Configuration
   valueSchema: z.ZodType<T>;
   defaultValue: T;
   idPrefix?: string;
-  
+
   // UI Components
   renderInput: (props: { value: T; onChange: (value: T) => void; id?: string }) => ReactNode;
-  renderPreview: (props: { value: T; durationMs: number; isSelected: boolean; onClick: () => void; totalDuration: number }) => ReactNode;
-  
+  renderPreview: (props: {
+    value: T;
+    durationMs: number;
+    isSelected: boolean;
+    onClick: () => void;
+    totalDuration: number;
+  }) => ReactNode;
+
   // Labels
   labels: {
     valueLabel: string;
@@ -52,7 +58,11 @@ const createStep = <T,>(value: T, durationMs: number, prefix: string): SimplePat
   durationMs,
 });
 
-const convertPatternToSteps = <T,>(pattern: SimplePattern, schema: z.ZodType<T>, prefix: string): SimplePatternStep<T>[] => {
+const convertPatternToSteps = <T,>(
+  pattern: SimplePattern,
+  schema: z.ZodType<T>,
+  prefix: string,
+): SimplePatternStep<T>[] => {
   if (!pattern.changeAt.length) {
     return [];
   }
@@ -84,7 +94,7 @@ const createPatternFromSteps = <T,>(
   const changeAt = steps.map(step => {
     const entry = {
       ms: cursor,
-      output: step.value as PatternChange["output"], // We assume T is compatible with SimplePattern output
+      output: step.value as PatternChange['output'], // We assume T is compatible with SimplePattern output
     };
     cursor += Number.isNaN(step.durationMs) ? 0 : step.durationMs;
     return entry;
@@ -97,19 +107,22 @@ const createPatternFromSteps = <T,>(
   };
 };
 
-export const SimplePatternEditor = <T,>({ 
-  value, 
+export const SimplePatternEditor = <T,>({
+  value,
   onChange,
   valueSchema,
   defaultValue,
   idPrefix = STEP_ID_PREFIX,
   renderInput,
   renderPreview,
-  labels
+  labels,
 }: SimplePatternEditorProps<T>) => {
   const { t } = useTranslation();
 
-  const steps = useMemo(() => convertPatternToSteps(value, valueSchema, idPrefix), [value, valueSchema, idPrefix]);
+  const steps = useMemo(
+    () => convertPatternToSteps(value, valueSchema, idPrefix),
+    [value, valueSchema, idPrefix],
+  );
   const [stepDurationDrafts, setStepDurationDrafts] = useState<Record<string, string>>({});
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalValue, setModalValue] = useState<T>(defaultValue);
@@ -344,7 +357,9 @@ export const SimplePatternEditor = <T,>({
             value: step.value,
             durationMs: step.durationMs,
             isSelected,
-            onClick: () => { setSelectedStepIndex(index); },
+            onClick: () => {
+              setSelectedStepIndex(index);
+            },
             totalDuration,
           })}
         </div>
@@ -385,7 +400,7 @@ export const SimplePatternEditor = <T,>({
 
       {selectedStepIndex !== null && steps[selectedStepIndex] && (
         <PatternSection
-          title={`${t('patternEditor.steps.title')} #${selectedStepIndex + 1}`}
+          title={`${t('patternEditor.steps.title')} #${String(selectedStepIndex + 1)}`}
           actions={
             <button
               aria-label={t('patternEditor.steps.closeEditor')}
@@ -404,7 +419,9 @@ export const SimplePatternEditor = <T,>({
               <span>{labels.valueLabel}</span>
               {renderInput({
                 value: steps[selectedStepIndex].value,
-                onChange: (newValue) => { handleStepValueChange(steps[selectedStepIndex].id, newValue); }
+                onChange: newValue => {
+                  handleStepValueChange(steps[selectedStepIndex].id, newValue);
+                },
               })}
             </label>
 
@@ -479,7 +496,9 @@ export const SimplePatternEditor = <T,>({
             <header className="space-y-1">
               <h4 className="text-lg font-semibold">{t('patternEditor.addModal.title')}</h4>
               <p className="theme-muted text-sm">
-                {t('patternEditor.preview.summary', { total: totalDuration + (canConfirmModal ? parsedModalDuration : 0) })}
+                {t('patternEditor.preview.summary', {
+                  total: totalDuration + (canConfirmModal ? parsedModalDuration : 0),
+                })}
               </p>
             </header>
             <div className="space-y-4">
@@ -490,7 +509,7 @@ export const SimplePatternEditor = <T,>({
                 {renderInput({
                   value: modalValue,
                   onChange: handleModalValueChange,
-                  id: "simple-pattern-modal-value"
+                  id: 'simple-pattern-modal-value',
                 })}
                 {labels.valueHelper && (
                   <span className="theme-muted text-xs" id="simple-pattern-modal-value-helper">

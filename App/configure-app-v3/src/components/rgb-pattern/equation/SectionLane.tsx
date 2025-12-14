@@ -125,9 +125,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           />
         </div>
         <div className="flex flex-col gap-1 w-24">
-          <label className="text-xs theme-muted">
-            {t('rgbPattern.equation.sections.durationLabel')}
-          </label>
+          <label className="text-xs theme-muted">{t('patternEditor.form.durationLabel')}</label>
           <input
             type="number"
             value={Number.isNaN(section.duration) ? '' : section.duration}
@@ -147,7 +145,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           }}
           disabled={index === 0}
           className="theme-muted hover:text-[rgb(var(--surface-contrast)/1)] disabled:opacity-30 transition-colors"
-          title={t('rgbPattern.equation.sections.moveUp')}
+          title={t('patternEditor.steps.moveUp')}
         >
           ↑
         </button>
@@ -157,7 +155,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
           }}
           disabled={index === total - 1}
           className="theme-muted hover:text-[rgb(var(--surface-contrast)/1)] disabled:opacity-30 transition-colors"
-          title={t('rgbPattern.equation.sections.moveDown')}
+          title={t('patternEditor.steps.moveDown')}
         >
           ↓
         </button>

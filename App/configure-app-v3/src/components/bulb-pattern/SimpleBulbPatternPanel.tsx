@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
 import { binaryOutputSchema, type BinaryOutput, type SimplePattern } from '../../app/models/mode';
-import { type SimplePatternAction, SimplePatternEditor } from '../simple-pattern/SimplePatternEditor';
+import {
+  type SimplePatternAction,
+  SimplePatternEditor,
+} from '../simple-pattern/SimplePatternEditor';
 
 export type SimpleBulbPatternAction = SimplePatternAction<BinaryOutput>;
 
@@ -53,8 +56,8 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
       )}
       renderPreview={({ value, durationMs, isSelected, onClick, totalDuration }) => (
         <button
-          aria-label={t('bulbPattern.preview.segmentLabel', {
-            state: value,
+          aria-label={t('patternEditor.preview.segmentLabel', {
+            value,
             duration: durationMs,
           })}
           aria-pressed={isSelected}
@@ -67,8 +70,8 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
           style={{
             flexGrow: totalDuration > 0 ? durationMs : 1,
           }}
-          title={t('bulbPattern.preview.segmentLabel', {
-            state: value,
+          title={t('patternEditor.preview.segmentLabel', {
+            value,
             duration: durationMs,
           })}
           type="button"

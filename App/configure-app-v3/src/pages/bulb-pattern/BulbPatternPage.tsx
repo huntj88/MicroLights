@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import {
-  isBinaryPattern,
-  simplePatternSchema,
-  type SimplePattern,
-} from '../../app/models/mode';
+import { isBinaryPattern, simplePatternSchema, type SimplePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
 import {
   type SimpleBulbPatternAction,
@@ -59,10 +55,7 @@ export const BulbPatternPage = () => {
     setSelectedPatternName('');
   }, [availablePatternNames, selectedPatternName, patternState.name]);
 
-  const handlePatternChange = (
-    nextPattern: SimplePattern,
-    action: SimpleBulbPatternAction,
-  ) => {
+  const handlePatternChange = (nextPattern: SimplePattern, action: SimpleBulbPatternAction) => {
     setPatternState(nextPattern);
 
     const result = simplePatternSchema.safeParse(nextPattern);
@@ -124,9 +117,7 @@ export const BulbPatternPage = () => {
     }
 
     if (
-      !window.confirm(
-        t('rgbPattern.simple.storage.deleteConfirm', { name: selectedPatternName }),
-      )
+      !window.confirm(t('rgbPattern.simple.storage.deleteConfirm', { name: selectedPatternName }))
     ) {
       return;
     }

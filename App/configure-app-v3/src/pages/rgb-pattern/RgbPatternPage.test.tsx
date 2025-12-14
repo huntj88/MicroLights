@@ -98,7 +98,7 @@ describe('RgbPatternPage', () => {
 
     await user.type(nameInput, 'My Pattern');
     await user.click(addButton);
-    
+
     let dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /add step/i }));
     expect(saveButton).toBeEnabled();
@@ -112,7 +112,7 @@ describe('RgbPatternPage', () => {
 
     // Make a change to trigger the overwrite prompt (otherwise save is disabled)
     await user.click(addButton);
-    
+
     dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
@@ -195,7 +195,7 @@ describe('RgbPatternPage', () => {
 
     const addButton = screen.getByRole('button', { name: /add step/i });
     await user.click(addButton);
-    
+
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: /add step/i }));
 
