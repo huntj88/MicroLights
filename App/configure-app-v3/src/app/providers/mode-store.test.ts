@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { useModeStore } from './mode-store';
-import { type Mode } from '../models/mode';
+import { hexColorSchema, type Mode } from '../models/mode';
 
 const createMockMode = (name: string): Mode => ({
   name,
@@ -19,7 +19,7 @@ const createMockMode = (name: string): Mode => ({
       type: 'simple',
       name: 'case-pattern',
       duration: 1000,
-      changeAt: [{ ms: 0, output: '#ff0000' }],
+      changeAt: [{ ms: 0, output: hexColorSchema.parse('#ff0000') }],
     },
   },
 });

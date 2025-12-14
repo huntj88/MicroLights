@@ -7,6 +7,7 @@ import {
   type ModeAccelTrigger,
   type ModePattern,
 } from '../../app/models/mode';
+import { PatternSection } from '../rgb-pattern/common/PatternSection';
 
 interface Props {
   triggers: ModeAccelTrigger[];
@@ -58,24 +59,27 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium">{t('modeEditor.accelTitle')}</h3>
+    <PatternSection
+      title={t('modeEditor.accelTitle')}
+      actions={
         <button
           onClick={addTrigger}
           className="theme-button theme-button-primary px-3 py-1 text-sm"
         >
           {t('modeEditor.addTrigger')}
         </button>
-      </div>
-
+      }
+    >
       {triggers.length === 0 && (
         <p className="theme-muted text-sm italic">{t('modeEditor.noTriggers')}</p>
       )}
 
       <div className="space-y-4">
         {triggers.map((trigger, index) => (
-          <div key={index} className="theme-panel theme-border rounded-lg border p-4 space-y-4">
+          <div
+            key={index}
+            className="bg-[rgb(var(--surface-raised)/0.5)] theme-border rounded-lg border p-4 space-y-4"
+          >
             <div className="flex justify-between items-start">
               <div className="w-1/3">
                 <label className="text-sm font-medium">{t('modeEditor.thresholdLabel')}</label>
@@ -122,6 +126,6 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
           </div>
         ))}
       </div>
-    </div>
+    </PatternSection>
   );
 };

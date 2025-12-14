@@ -127,6 +127,7 @@
   "modeEditor": {
     "title": "Mode Editor",
     "nameLabel": "Mode Name",
+    "nameHelper": "Give this mode a descriptive name to recognize it later.",
     "namePlaceholder": "Enter mode name",
     "frontLabel": "Front LED Pattern",
     "caseLabel": "Case LED Pattern",

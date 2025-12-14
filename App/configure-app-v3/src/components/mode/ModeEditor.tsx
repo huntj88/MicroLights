@@ -9,6 +9,9 @@ import {
   type ModeAccelTrigger,
   type ModePattern,
 } from '../../app/models/mode';
+import { NameEditor } from '../common/NameEditor';
+import { PatternPanelContainer } from '../rgb-pattern/common/PatternPanelContainer';
+import { PatternSection } from '../rgb-pattern/common/PatternSection';
 
 export type ModeAction =
   | { type: 'update-name'; name: string }
@@ -57,21 +60,16 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-4 theme-panel theme-border rounded-xl border p-6">
-        <div className="space-y-1">
-          <label className="text-sm font-medium">{t('modeEditor.nameLabel')}</label>
-          <input
-            type="text"
-            className="theme-input w-full rounded-md border px-3 py-2"
-            placeholder={t('modeEditor.namePlaceholder')}
-            value={mode.name}
-            onChange={e => {
-              handleNameChange(e.target.value);
-            }}
-          />
-        </div>
+    <PatternPanelContainer>
+      <NameEditor
+        name={mode.name}
+        onChange={handleNameChange}
+        label={t('modeEditor.nameLabel')}
+        placeholder={t('modeEditor.namePlaceholder')}
+        helperText={t('modeEditor.nameHelper') || ' '}
+      />
 
+      <PatternSection title={t('modeEditor.patternsTitle') || 'Patterns'}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <PatternSelector
             label={t('modeEditor.frontLabel')}
@@ -86,15 +84,13 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
             patterns={colorPatterns}
           />
         </div>
-      </div>
+      </PatternSection>
 
-      <div className="theme-panel theme-border rounded-xl border p-6">
-        <AccelTriggerEditor
-          triggers={mode.accel?.triggers ?? []}
-          onChange={handleTriggersChange}
-          patterns={patterns}
-        />
-      </div>
-    </div>
+      <AccelTriggerEditor
+        triggers={mode.accel?.triggers ?? []}
+        onChange={handleTriggersChange}
+        patterns={patterns}
+      />
+    </PatternPanelContainer>
   );
 };
