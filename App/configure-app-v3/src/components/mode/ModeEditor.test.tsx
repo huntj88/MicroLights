@@ -76,10 +76,30 @@ describe('ModeEditor', () => {
     expect(onChange).toHaveBeenCalledTimes(1);
     const [newMode, action] = onChange.mock.calls[0] as [Mode, ModeAction];
 
-    expect(newMode.front.pattern.name).toBe('Front Pattern');
+    expect(newMode.front?.pattern.name).toBe('Front Pattern');
     expect(action.type).toBe('update-front-pattern');
     if (action.type === 'update-front-pattern') {
-      expect(action.pattern.name).toBe('Front Pattern');
+      expect(action.pattern?.name).toBe('Front Pattern');
+    }
+  });
+
+  it('calls onChange when pattern is cleared', () => {
+    const onChange = vi.fn();
+    renderWithProviders(
+      <ModeEditor mode={defaultMode} onChange={onChange} patterns={mockPatterns} />,
+    );
+
+    const selects = screen.getAllByRole('combobox');
+    // Front pattern
+    fireEvent.change(selects[0], { target: { value: '' } });
+
+    expect(onChange).toHaveBeenCalledTimes(1);
+    const [newMode, action] = onChange.mock.calls[0] as [Mode, ModeAction];
+
+    expect(newMode.front).toBeUndefined();
+    expect(action.type).toBe('update-front-pattern');
+    if (action.type === 'update-front-pattern') {
+      expect(action.pattern).toBeUndefined();
     }
   });
 });

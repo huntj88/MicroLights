@@ -109,4 +109,35 @@ describe('AccelTriggerEditor', () => {
     expect(newTriggers).toHaveLength(1);
     expect(newTriggers[0].front?.pattern.name).toBe('Binary Pattern');
   });
+
+  it('clears pattern override', () => {
+    const triggers: ModeAccelTrigger[] = [
+      {
+        threshold: 2.5,
+        front: {
+          pattern: {
+            type: 'simple',
+            name: 'Binary Pattern',
+            duration: 1000,
+            changeAt: [{ ms: 0, output: 'high' }],
+          },
+        },
+        case: undefined,
+      },
+    ];
+    const onChange = vi.fn();
+    renderWithProviders(
+      <AccelTriggerEditor triggers={triggers} onChange={onChange} patterns={mockPatterns} />,
+    );
+
+    const selects = screen.getAllByRole('combobox');
+    // First select is front override
+    fireEvent.change(selects[0], { target: { value: '' } });
+
+    expect(onChange).toHaveBeenCalledWith([
+      expect.objectContaining({
+        front: undefined,
+      }),
+    ]);
+  });
 });
