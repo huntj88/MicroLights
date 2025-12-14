@@ -57,10 +57,6 @@ export const ModePage = () => {
     setEditingMode(newMode);
   };
 
-  const handleLoad = (name: string) => {
-    setSelectedModeName(name);
-  };
-
   return (
     <section className="space-y-6">
       <header className="space-y-2">
@@ -72,7 +68,7 @@ export const ModePage = () => {
         <StorageControls
           items={availableModeNames}
           selectedItem={selectedModeName}
-          onSelect={handleLoad}
+          onSelect={setSelectedModeName}
           selectLabel={t('modeEditor.storage.selectLabel')}
           selectPlaceholder={t('modeEditor.storage.selectPlaceholder')}
           onSave={handleSave}

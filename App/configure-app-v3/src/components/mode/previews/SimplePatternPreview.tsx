@@ -18,7 +18,7 @@ export const SimplePatternPreview = ({ pattern, className = '' }: Props) => {
       const duration = nextMs - current.ms;
       const widthPercent = (duration / pattern.duration) * 100;
 
-      let backgroundColor = 'transparent';
+      let backgroundColor;
       if (current.output === 'high') {
         backgroundColor = 'rgb(var(--accent))'; // Use theme accent for high
       } else if (current.output === 'low') {

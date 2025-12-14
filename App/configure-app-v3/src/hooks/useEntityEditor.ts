@@ -96,9 +96,9 @@ export function useEntityEditor<T extends { name: string }>({
 
     if (confirmed) {
       deleteItem(selectedName);
-      setSelectedName('');
+      handleSelect('');
     }
-  }, [selectedName, deleteItem, confirmDelete]);
+  }, [selectedName, confirmDelete, deleteItem, handleSelect]);
 
   const isDirty = useMemo(() => {
     if (!selectedName || !originalItem) {

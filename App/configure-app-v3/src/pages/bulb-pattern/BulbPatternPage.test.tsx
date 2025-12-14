@@ -226,6 +226,7 @@ describe('BulbPatternPage', () => {
 
     expect(usePatternStore.getState().patterns).toHaveLength(0);
     expect(chooser).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
   });
 
   it('resets the builder when switching back to the new pattern option', async () => {
