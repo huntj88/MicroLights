@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { type Mode, type ModePattern } from '@/app/models/mode';
 import { useSerialStore } from '@/app/providers/serial-store';
 
+import { StyledButton } from './StyledButton';
+
 interface SerialTestButtonProps {
   data: Mode | ModePattern;
   type: 'mode' | 'pattern';
@@ -43,11 +45,8 @@ export const SerialTestButton = ({ data, type, patternTarget }: SerialTestButton
   if (status !== 'connected') return null;
 
   return (
-    <button
-      onClick={() => void handleTest()}
-      className="rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 transition-colors hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300"
-    >
+    <StyledButton onClick={() => void handleTest()} variant="secondary">
       {t('common.actions.test')}
-    </button>
+    </StyledButton>
   );
 };

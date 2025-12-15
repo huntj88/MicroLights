@@ -32,17 +32,19 @@ describe('SerialButtons', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Default to connected state
-    (useSerialStore as unknown as Mock).mockImplementation((selector?: (state: unknown) => unknown) => {
-      const state = {
-        status: 'connected',
-        isConnected: true,
-        isConnecting: false,
-        send: mockSend,
-        connect: mockConnect,
-        disconnect: mockDisconnect,
-      };
-      return selector ? selector(state) : state;
-    });
+    (useSerialStore as unknown as Mock).mockImplementation(
+      (selector?: (state: unknown) => unknown) => {
+        const state = {
+          status: 'connected',
+          isConnected: true,
+          isConnecting: false,
+          send: mockSend,
+          connect: mockConnect,
+          disconnect: mockDisconnect,
+        };
+        return selector ? selector(state) : state;
+      },
+    );
   });
 
   describe('SerialTestButton', () => {
@@ -59,16 +61,18 @@ describe('SerialButtons', () => {
     });
 
     it('does not render when not connected', () => {
-      (useSerialStore as unknown as Mock).mockImplementation((selector?: (state: unknown) => unknown) => {
-        const state = {
-          status: 'disconnected',
-          isConnected: false,
-          isConnecting: false,
-          send: mockSend,
-        };
-        return selector ? selector(state) : state;
-      });
-      
+      (useSerialStore as unknown as Mock).mockImplementation(
+        (selector?: (state: unknown) => unknown) => {
+          const state = {
+            status: 'disconnected',
+            isConnected: false,
+            isConnecting: false,
+            send: mockSend,
+          };
+          return selector ? selector(state) : state;
+        },
+      );
+
       render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
       expect(screen.queryByRole('button', { name: /test on device/i })).not.toBeInTheDocument();
     });
@@ -127,15 +131,17 @@ describe('SerialButtons', () => {
     });
 
     it('does not render when not connected', () => {
-      (useSerialStore as unknown as Mock).mockImplementation((selector?: (state: unknown) => unknown) => {
-        const state = {
-          status: 'disconnected',
-          isConnected: false,
-          isConnecting: false,
-          send: mockSend,
-        };
-        return selector ? selector(state) : state;
-      });
+      (useSerialStore as unknown as Mock).mockImplementation(
+        (selector?: (state: unknown) => unknown) => {
+          const state = {
+            status: 'disconnected',
+            isConnected: false,
+            isConnecting: false,
+            send: mockSend,
+          };
+          return selector ? selector(state) : state;
+        },
+      );
       render(<SerialFlashButton mode={mockMode} />);
       expect(screen.queryByRole('button', { name: /flash to device/i })).not.toBeInTheDocument();
     });
