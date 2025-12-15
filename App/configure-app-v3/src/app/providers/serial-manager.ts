@@ -164,9 +164,8 @@ class WebSerialManager {
       navigator.serial.addEventListener('disconnect', this.handleDisconnect);
     } catch (err) {
       if (this.port?.readable) {
-        await this.port.close().catch(() => {
-          this.writer?.releaseLock();
-        });
+        this.writer?.releaseLock();
+        await this.port.close();
       }
       throw err;
     }
