@@ -10,6 +10,7 @@ import {
   type SimplePattern,
 } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { SerialConnectButton } from '../../components/common/SerialConnectButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import {
   type EquationRgbPatternAction,
@@ -140,9 +141,12 @@ export const RgbPatternPage = () => {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-2">
-        <h2 className="text-3xl font-semibold">{t('rgbPattern.title')}</h2>
-        <p className="theme-muted">{t('rgbPattern.subtitle')}</p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h2 className="text-3xl font-semibold">{t('rgbPattern.title')}</h2>
+          <p className="theme-muted">{t('rgbPattern.subtitle')}</p>
+        </div>
+        <SerialConnectButton />
       </header>
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-sm font-medium">{t('rgbPattern.methodSwitcher.label')}</span>

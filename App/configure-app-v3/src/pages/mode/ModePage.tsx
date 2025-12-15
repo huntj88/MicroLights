@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { type Mode, modeSchema } from '../../app/models/mode';
 import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { SerialConnectButton } from '../../components/common/SerialConnectButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import { type ModeAction, ModeEditor } from '../../components/mode/ModeEditor';
 import { useEntityEditor } from '../../hooks/useEntityEditor';
@@ -59,9 +60,12 @@ export const ModePage = () => {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-2">
-        <h2 className="text-3xl font-semibold">{t('mode.title')}</h2>
-        <p className="theme-muted">{t('mode.subtitle')}</p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h2 className="text-3xl font-semibold">{t('mode.title')}</h2>
+          <p className="theme-muted">{t('mode.subtitle')}</p>
+        </div>
+        <SerialConnectButton />
       </header>
 
       <div className="space-y-6 rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-6">
