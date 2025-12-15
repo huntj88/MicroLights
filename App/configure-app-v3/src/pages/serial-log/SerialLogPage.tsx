@@ -64,7 +64,11 @@ export const SerialLogPage = () => {
               ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]'
               : status === 'connecting'
                 ? 'bg-yellow-500 animate-pulse'
-                : 'bg-gray-300 dark:bg-gray-600'
+                : status === 'disconnecting'
+                  ? 'bg-yellow-400 animate-pulse'
+                  : status === 'error'
+                    ? 'bg-red-500'
+                    : 'bg-gray-300 dark:bg-gray-600'
           }`}
         />
         <span className="capitalize">{status}</span>
