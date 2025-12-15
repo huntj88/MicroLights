@@ -132,4 +132,75 @@ describe('SerialLogPanel', () => {
       type: 'clear',
     });
   });
+
+  it('renders incoming messages', () => {
+    const entries: SerialLogState['entries'] = [
+      {
+        id: '1',
+        timestamp: new Date().toISOString(),
+        direction: 'inbound',
+        payload: 'System ready',
+      },
+    ];
+
+    renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={{ ...baseState, entries }} />);
+
+    expect(screen.getByText('System ready')).toBeInTheDocument();
+    expect(screen.getByText(/incoming/i)).toBeInTheDocument();
+  });
+
+  it('autoscrolls to bottom when new message arrives', () => {
+    const { rerender } = renderWithProviders(
+      <SerialLogPanel onChange={vi.fn()} value={baseState} />,
+    );
+
+    const viewport = screen.getByRole('log');
+    // Mock scrollTo which is not implemented in JSDOM
+    viewport.scrollTo = vi.fn();
+    // Mock scrollHeight
+    Object.defineProperty(viewport, 'scrollHeight', { value: 500, configurable: true });
+
+    const entries: SerialLogState['entries'] = [
+      {
+        id: '1',
+        timestamp: new Date().toISOString(),
+        direction: 'inbound',
+        payload: 'New data',
+      },
+    ];
+
+    rerender(<SerialLogPanel onChange={vi.fn()} value={{ ...baseState, entries }} />);
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(viewport.scrollTo).toHaveBeenCalledWith({
+      top: 500,
+      behavior: 'smooth',
+    });
+  });
+
+  it('does not autoscroll when disabled', () => {
+    const { rerender } = renderWithProviders(
+      <SerialLogPanel onChange={vi.fn()} value={{ ...baseState, autoscroll: false }} />,
+    );
+
+    const viewport = screen.getByRole('log');
+    viewport.scrollTo = vi.fn();
+    Object.defineProperty(viewport, 'scrollHeight', { value: 500, configurable: true });
+
+    const entries: SerialLogState['entries'] = [
+      {
+        id: '1',
+        timestamp: new Date().toISOString(),
+        direction: 'inbound',
+        payload: 'New data',
+      },
+    ];
+
+    rerender(
+      <SerialLogPanel onChange={vi.fn()} value={{ ...baseState, autoscroll: false, entries }} />,
+    );
+
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    expect(viewport.scrollTo).not.toHaveBeenCalled();
+  });
 });
