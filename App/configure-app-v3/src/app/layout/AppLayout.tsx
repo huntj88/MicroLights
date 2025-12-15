@@ -15,8 +15,13 @@ export const AppLayout = () => {
 
   useEffect(() => {
     return serialManager.on('data', line => {
-      if (line.toLowerCase().includes('error')) {
-        toast.error(line);
+      try {
+        const json: unknown = JSON.parse(line);
+        if (json && typeof json === 'object' && 'error' in json) {
+          toast.error(line);
+        }
+      } catch {
+        // ignore
       }
     });
   }, []);

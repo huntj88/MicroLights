@@ -35,8 +35,9 @@ describe('AppLayout', () => {
 
     const listener = dataListenerCall?.[1] as (line: string) => void;
 
-    listener('Something went wrong error code 123');
-    expect(toast.error).toHaveBeenCalledWith('Something went wrong error code 123');
+    const errorMsg = JSON.stringify({ error: 'Something went wrong error code 123' });
+    listener(errorMsg);
+    expect(toast.error).toHaveBeenCalledWith(errorMsg);
 
     listener('Just a normal message');
     expect(toast.error).not.toHaveBeenCalledWith('Just a normal message');
