@@ -23,14 +23,13 @@ export const useEquationWaveforms = (pattern: EquationPattern, sampleRate = 10) 
     [pattern.blue.sections],
   );
 
-  // If pattern has an explicit duration, use it. Otherwise calculate max channel duration.
-  // For preview purposes, we often want the max channel duration if pattern.duration is 0 (infinite/loop).
-  // However, the EquationRgbPatternPanel logic used Math.max(..., 1000).
-  // Let's stick to the logic that covers the whole pattern cycle.
-  const totalDuration =
-    pattern.duration > 0
-      ? pattern.duration
-      : Math.max(redDuration, greenDuration, blueDuration, 1000);
+  const totalDuration = Math.max(
+    pattern.duration,
+    redDuration,
+    greenDuration,
+    blueDuration,
+    1000,
+  );
 
   const redPoints = useMemo(
     () =>
