@@ -42,7 +42,11 @@ export const SerialConnectButton = () => {
   return (
     <StyledButton
       onClick={() => {
-        void (status === 'connected' ? disconnect() : connect());
+        if (status === 'connected') {
+          void disconnect();
+        } else {
+          void connect();
+        }
       }}
       variant={buttonVariant}
       disabled={isTransitioning}
