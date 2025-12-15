@@ -85,7 +85,7 @@ class WebSerialManager {
     if (!this.isSupported()) {
       throw new Error('Web Serial not supported');
     }
-    if (this._status === 'connected') return;
+    if (this._status === 'connected' || this._status === 'connecting') return;
 
     this.setStatus('connecting');
 
