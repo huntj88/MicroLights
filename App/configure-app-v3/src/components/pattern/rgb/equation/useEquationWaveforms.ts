@@ -23,13 +23,7 @@ export const useEquationWaveforms = (pattern: EquationPattern, sampleRate = 10) 
     [pattern.blue.sections],
   );
 
-  const totalDuration = Math.max(
-    pattern.duration,
-    redDuration,
-    greenDuration,
-    blueDuration,
-    1000,
-  );
+  const totalDuration = Math.max(pattern.duration, redDuration, greenDuration, blueDuration, 1000);
 
   const redPoints = useMemo(
     () =>

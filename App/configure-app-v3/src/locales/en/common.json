@@ -158,7 +158,10 @@
     "subtitle": "Inspect inbound messages, send payloads, and keep an eye on runtime behavior.",
     "todo": "TODO · Integrate serial connection to stream device messages.",
     "empty": "No serial messages yet.",
+    "notSupported": "Web Serial API is not supported in this browser.",
     "actions": {
+      "connect": "Connect",
+      "disconnect": "Disconnect",
       "autoscrollOn": "Autoscroll • on",
       "autoscrollOff": "Autoscroll • off",
       "clear": "Clear log",
