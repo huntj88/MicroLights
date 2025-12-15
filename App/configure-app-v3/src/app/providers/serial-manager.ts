@@ -8,7 +8,7 @@ import { type SerialLogEntry } from '@/components/serial-log/SerialLogPanel';
 
 export type SerialEventType = 'connection-status' | 'data' | 'log';
 
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
+export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
 
 export interface SerialEvents {
   'connection-status': (status: ConnectionStatus, error?: unknown) => void;
@@ -100,6 +100,11 @@ class WebSerialManager {
       const baudRate = options?.baudRate ?? 115200;
       await port.open({ baudRate });
 
+      if (this._status !== 'connecting') {
+        await port.close();
+        throw new Error('Connection aborted');
+      }
+
       const writer = port.writable?.getWriter();
       if (!writer) {
         throw new Error('Unable to acquire writable stream');
@@ -127,19 +132,20 @@ class WebSerialManager {
       this.abortCtl = new AbortController();
       const signal = this.abortCtl.signal;
 
-      let buffer = '';
-      const lineSplitter = new TransformStream<string, string>({
-        transform(chunk, controller) {
-          const data = buffer + chunk;
+      class LineSplitterTransformer implements Transformer<string, string> {
+        private buffer = '';
+        transform(chunk: string, controller: TransformStreamDefaultController<string>) {
+          const data = this.buffer + chunk;
           const parts = data.split(/\r?\n/);
           for (let i = 0; i < parts.length - 1; i++) controller.enqueue(parts[i]);
-          buffer = parts[parts.length - 1] ?? '';
-        },
-        flush(controller) {
-          if (buffer.length) controller.enqueue(buffer);
-          buffer = '';
-        },
-      });
+          this.buffer = parts[parts.length - 1] ?? '';
+        }
+        flush(controller: TransformStreamDefaultController<string>) {
+          if (this.buffer.length) controller.enqueue(this.buffer);
+          this.buffer = '';
+        }
+      }
+      const lineSplitter = new TransformStream<string, string>(new LineSplitterTransformer());
 
       const reader = readable.pipeThrough(decoderStream).pipeThrough(lineSplitter).getReader();
 
@@ -161,7 +167,7 @@ class WebSerialManager {
     } catch (err) {
       if (this.port?.readable) {
         await this.port.close().catch(() => {
-          /* ignore */
+          this.writer?.releaseLock();
         });
       }
       throw err;
@@ -216,7 +222,9 @@ class WebSerialManager {
   }
 
   async disconnect(): Promise<void> {
-    if (this._status === 'disconnected') return;
+    if (this._status === 'disconnected' || this._status === 'disconnecting') return;
+
+    this.setStatus('disconnecting');
 
     navigator.serial.removeEventListener('disconnect', this.handleDisconnect);
 

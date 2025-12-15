@@ -153,4 +153,49 @@ describe('WebSerialManager', () => {
     expect(mockPort.close).toHaveBeenCalled();
     expect(serialManager.getStatus()).toBe('disconnected');
   });
+
+  it('aborts connection if disconnected while opening', async () => {
+    let resolveOpen: ((value: void | PromiseLike<void>) => void) | undefined;
+    mockPort.open.mockImplementation(
+      () =>
+        new Promise<void>(res => {
+          resolveOpen = res;
+        }),
+    );
+
+    const connectPromise = serialManager.connect();
+
+    // Allow requestPort to resolve and enter openWithPort
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(serialManager.getStatus()).toBe('connecting');
+
+    // Call disconnect
+    const disconnectPromise = serialManager.disconnect();
+    expect(serialManager.getStatus()).toBe('disconnecting');
+
+    // Finish open
+    if (resolveOpen) resolveOpen();
+
+    await expect(connectPromise).rejects.toThrow('Connection aborted');
+    await disconnectPromise;
+
+    expect(mockPort.close).toHaveBeenCalled();
+    expect(serialManager.getStatus()).toBe('disconnected');
+  });
+
+  it('handles concurrent disconnect calls safely', async () => {
+    await serialManager.connect();
+
+    // Mock close to take some time so we can overlap calls
+    mockPort.close.mockImplementation(() => new Promise(res => setTimeout(res, 10)));
+
+    const p1 = serialManager.disconnect();
+    const p2 = serialManager.disconnect();
+
+    await Promise.all([p1, p2]);
+
+    expect(mockPort.close).toHaveBeenCalledTimes(1);
+    expect(serialManager.getStatus()).toBe('disconnected');
+  });
 });

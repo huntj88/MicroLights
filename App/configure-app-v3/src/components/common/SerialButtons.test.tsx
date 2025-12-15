@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 
+import { SerialConnectButton } from './SerialConnectButton';
 import { SerialFlashButton } from './SerialFlashButton';
 import { SerialTestButton } from './SerialTestButton';
 import type { Mode, ModePattern, HexColor } from '../../app/models/mode';
@@ -18,6 +19,9 @@ vi.mock('react-i18next', () => ({
       const translations: Record<string, string> = {
         'common.actions.test': 'Test on Device',
         'common.actions.flash': 'Flash to Device',
+        'serialLog.notSupported': 'Web Serial not supported',
+        'serialLog.actions.connect': 'Connect',
+        'serialLog.actions.disconnect': 'Disconnect',
       };
       return translations[key] || key;
     },
@@ -38,6 +42,7 @@ describe('SerialButtons', () => {
           status: 'connected',
           isConnected: true,
           isConnecting: false,
+          isSupported: true,
           send: mockSend,
           connect: mockConnect,
           disconnect: mockDisconnect,
@@ -45,6 +50,75 @@ describe('SerialButtons', () => {
         return selector ? selector(state) : state;
       },
     );
+  });
+
+  describe('SerialConnectButton', () => {
+    it('renders not supported message when Web Serial is not supported', () => {
+      (useSerialStore as unknown as Mock).mockImplementation(
+        (selector?: (state: unknown) => unknown) => {
+          const state = {
+            isSupported: false,
+            status: 'disconnected',
+          };
+          return selector ? selector(state) : state;
+        },
+      );
+
+      render(<SerialConnectButton />);
+      expect(screen.getByText('Web Serial not supported')).toBeInTheDocument();
+    });
+
+    it('renders connect button when disconnected', () => {
+      (useSerialStore as unknown as Mock).mockImplementation(
+        (selector?: (state: unknown) => unknown) => {
+          const state = {
+            isSupported: true,
+            status: 'disconnected',
+            connect: mockConnect,
+            disconnect: mockDisconnect,
+          };
+          return selector ? selector(state) : state;
+        },
+      );
+
+      render(<SerialConnectButton />);
+      const button = screen.getByRole('button', { name: /connect/i });
+      expect(button).toBeInTheDocument();
+      expect(button).toHaveTextContent('Connect');
+    });
+
+    it('calls connect when clicked while disconnected', () => {
+      (useSerialStore as unknown as Mock).mockImplementation(
+        (selector?: (state: unknown) => unknown) => {
+          const state = {
+            isSupported: true,
+            status: 'disconnected',
+            connect: mockConnect,
+            disconnect: mockDisconnect,
+          };
+          return selector ? selector(state) : state;
+        },
+      );
+
+      render(<SerialConnectButton />);
+      fireEvent.click(screen.getByRole('button', { name: /connect/i }));
+      expect(mockConnect).toHaveBeenCalled();
+    });
+
+    it('renders disconnect button when connected', () => {
+      // Default mock is connected
+      render(<SerialConnectButton />);
+      const button = screen.getByRole('button', { name: /disconnect/i });
+      expect(button).toBeInTheDocument();
+      expect(button).toHaveTextContent('Disconnect');
+    });
+
+    it('calls disconnect when clicked while connected', () => {
+      // Default mock is connected
+      render(<SerialConnectButton />);
+      fireEvent.click(screen.getByRole('button', { name: /disconnect/i }));
+      expect(mockDisconnect).toHaveBeenCalled();
+    });
   });
 
   describe('SerialTestButton', () => {
