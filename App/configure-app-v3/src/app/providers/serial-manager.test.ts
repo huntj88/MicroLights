@@ -62,27 +62,6 @@ describe('WebSerialManager', () => {
       value: mockSerial,
       configurable: true,
     });
-
-    // Mock TextEncoder/Decoder if not present in jsdom (usually they are)
-    if (!(globalThis as unknown as { TextEncoder: unknown }).TextEncoder) {
-      vi.stubGlobal(
-        'TextEncoder',
-        class {
-          encode = vi.fn().mockReturnValue(new Uint8Array());
-        },
-      );
-    }
-
-    // Mock TransformStream
-    if (!(globalThis as unknown as { TransformStream: unknown }).TransformStream) {
-      vi.stubGlobal(
-        'TransformStream',
-        class {
-          readable = {};
-          writable = {};
-        },
-      );
-    }
   });
 
   afterEach(async () => {

@@ -8,7 +8,12 @@ import { type SerialLogEntry } from '@/components/serial-log/SerialLogPanel';
 
 export type SerialEventType = 'connection-status' | 'data' | 'log';
 
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'disconnecting' | 'error';
+export type ConnectionStatus =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'disconnecting'
+  | 'error';
 
 export interface SerialEvents {
   'connection-status': (status: ConnectionStatus, error?: unknown) => void;
@@ -111,17 +116,7 @@ class WebSerialManager {
       }
 
       // Prepare reader pipeline: Binary -> Text -> Lines
-      const decoder = new TextDecoder();
-      const decoderStream = new TransformStream<Uint8Array, string>({
-        transform(chunk, controller) {
-          const text = decoder.decode(chunk, { stream: true });
-          if (text.length) controller.enqueue(text);
-        },
-        flush(controller) {
-          const tail = decoder.decode();
-          if (tail.length) controller.enqueue(tail);
-        },
-      });
+      const decoderStream = new TextDecoderStream();
 
       const readable = port.readable;
       if (!readable) {
@@ -147,7 +142,10 @@ class WebSerialManager {
       }
       const lineSplitter = new TransformStream<string, string>(new LineSplitterTransformer());
 
-      const reader = readable.pipeThrough(decoderStream).pipeThrough(lineSplitter).getReader();
+      const reader = readable
+        .pipeThrough(decoderStream as unknown as ReadableWritablePair<string, Uint8Array>)
+        .pipeThrough(lineSplitter)
+        .getReader();
 
       this.port = port;
       this.writer = writer;
