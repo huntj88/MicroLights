@@ -19,14 +19,35 @@ export const SerialConnectButton = () => {
     );
   }
 
+  // Determine button state
+  const isTransitioning = status === 'connecting' || status === 'disconnecting';
+  let buttonText: string;
+  if (status === 'connecting') {
+    buttonText = t('serialLog.actions.connecting');
+  } else if (status === 'disconnecting') {
+    buttonText = t('serialLog.actions.disconnecting');
+  } else if (status === 'connected') {
+    buttonText = t('serialLog.actions.disconnect');
+  } else {
+    buttonText = t('serialLog.actions.connect');
+  }
+
+  let buttonVariant: 'primary' | 'danger' | 'secondary' = 'primary';
+  if (status === 'connected') {
+    buttonVariant = 'danger';
+  } else if (isTransitioning) {
+    buttonVariant = 'secondary';
+  }
+
   return (
     <StyledButton
       onClick={() => {
         void (status === 'connected' ? disconnect() : connect());
       }}
-      variant={status === 'connected' ? 'danger' : 'primary'}
+      variant={buttonVariant}
+      disabled={isTransitioning}
     >
-      {status === 'connected' ? t('serialLog.actions.disconnect') : t('serialLog.actions.connect')}
+      {buttonText}
     </StyledButton>
   );
 };
