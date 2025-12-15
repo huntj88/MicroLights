@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router-dom';
 
+import { serialManager } from '../providers/serial-manager';
 import { ROUTES, routeOrder } from '../router/constants';
 
 const resolvePath = (key: keyof typeof ROUTES) =>
@@ -10,8 +13,26 @@ export const AppLayout = () => {
   const { t } = useTranslation();
   const currentYear = new Date().getFullYear();
 
+  useEffect(() => {
+    return serialManager.on('data', line => {
+      if (line.toLowerCase().includes('error')) {
+        toast.error(line);
+      }
+    });
+  }, []);
+
   return (
     <div className="theme-surface flex min-h-screen flex-col">
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          className: 'theme-surface theme-border border text-[rgb(var(--surface-contrast)/1)]',
+          style: {
+            background: 'rgb(var(--surface-raised)/1)',
+            color: 'rgb(var(--surface-contrast)/1)',
+          },
+        }}
+      />
       <a className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4" href="#main">
         {t('layout.skipToContent')}
       </a>

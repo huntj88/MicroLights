@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
 import { type Mode, type ModePattern } from '@/app/models/mode';
@@ -37,8 +38,10 @@ export const SerialTestButton = ({ data, type, patternTarget }: SerialTestButton
 
     try {
       await send(payload);
+      toast.success(t('common.actions.testSuccess'));
     } catch (err) {
       console.error('Failed to send test data', err);
+      toast.error(t('common.actions.testError'));
     }
   };
 

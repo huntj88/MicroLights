@@ -20,6 +20,7 @@
     "mathjs": "^15.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hot-toast": "^2.6.0",
     "react-i18next": "^16.2.0",
     "react-router-dom": "^7.9.4",
     "tailwindcss": "^4.0.0",

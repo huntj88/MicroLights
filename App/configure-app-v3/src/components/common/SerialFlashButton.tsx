@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
 import { type Mode } from '@/app/models/mode';
@@ -19,8 +20,10 @@ export const SerialFlashButton = ({ mode }: SerialFlashButtonProps) => {
 
     try {
       await send(mode);
+      toast.success(t('common.actions.flashSuccess'));
     } catch (err) {
       console.error('Failed to flash mode', err);
+      toast.error(t('common.actions.flashError'));
     }
   };
 

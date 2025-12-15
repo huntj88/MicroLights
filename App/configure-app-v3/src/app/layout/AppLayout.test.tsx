@@ -1,9 +1,13 @@
+import toast from 'react-hot-toast';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
 
 import { AppLayout } from './AppLayout';
+import { serialManager } from '../providers/serial-manager';
+
+vi.mock('react-hot-toast');
 
 describe('AppLayout', () => {
   it('renders navigation links with localized labels', () => {
@@ -15,5 +19,26 @@ describe('AppLayout', () => {
 
     expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+  });
+
+  it('shows error toast when serial data contains "error"', () => {
+    const onSpy = vi.spyOn(serialManager, 'on');
+
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/']}>
+        <AppLayout />
+      </MemoryRouter>,
+    );
+
+    const dataListenerCall = onSpy.mock.calls.find(args => args[0] === 'data');
+    expect(dataListenerCall).toBeDefined();
+
+    const listener = dataListenerCall?.[1] as (line: string) => void;
+
+    listener('Something went wrong error code 123');
+    expect(toast.error).toHaveBeenCalledWith('Something went wrong error code 123');
+
+    listener('Just a normal message');
+    expect(toast.error).not.toHaveBeenCalledWith('Just a normal message');
   });
 });

@@ -1,4 +1,5 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import toast from 'react-hot-toast';
 import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 
 import { SerialConnectButton } from './SerialConnectButton';
@@ -18,7 +19,11 @@ vi.mock('react-i18next', () => ({
     t: (key: string) => {
       const translations: Record<string, string> = {
         'common.actions.test': 'Test on Device',
+        'common.actions.testSuccess': 'Test pattern sent to device',
+        'common.actions.testError': 'Failed to send test pattern',
         'common.actions.flash': 'Flash to Device',
+        'common.actions.flashSuccess': 'Mode flashed to device',
+        'common.actions.flashError': 'Failed to flash mode',
         'serialLog.notSupported': 'Web Serial not supported',
         'serialLog.actions.connect': 'Connect',
         'serialLog.actions.disconnect': 'Disconnect',
@@ -26,6 +31,14 @@ vi.mock('react-i18next', () => ({
       return translations[key] || key;
     },
   }),
+}));
+
+// Mock react-hot-toast
+vi.mock('react-hot-toast', () => ({
+  default: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
 }));
 
 describe('SerialButtons', () => {
@@ -151,27 +164,42 @@ describe('SerialButtons', () => {
       expect(screen.queryByRole('button', { name: /test on device/i })).not.toBeInTheDocument();
     });
 
-    it('sends wrapped pattern for RGB type', () => {
+    it('sends wrapped pattern for RGB type', async () => {
       render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
       fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
 
-      expect(mockSend).toHaveBeenCalledWith({
-        name: 'transientTest',
-        front: { pattern: mockPattern },
+      await waitFor(() => {
+        expect(mockSend).toHaveBeenCalledWith({
+          name: 'transientTest',
+          front: { pattern: mockPattern },
+        });
+        expect(toast.success).toHaveBeenCalledWith('Test pattern sent to device');
       });
     });
 
-    it('sends wrapped pattern for Bulb type', () => {
+    it('shows error toast on failure', async () => {
+      mockSend.mockRejectedValueOnce(new Error('Failed'));
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
+      fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Failed to send test pattern');
+      });
+    });
+
+    it('sends wrapped pattern for Bulb type', async () => {
       render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="case" />);
       fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
 
-      expect(mockSend).toHaveBeenCalledWith({
-        name: 'transientTest',
-        case: { pattern: mockPattern },
+      await waitFor(() => {
+        expect(mockSend).toHaveBeenCalledWith({
+          name: 'transientTest',
+          case: { pattern: mockPattern },
+        });
       });
     });
 
-    it('sends wrapped mode for Mode type', () => {
+    it('sends wrapped mode for Mode type', async () => {
       const mockMode: Mode = {
         name: 'Test Mode',
         front: { pattern: mockPattern },
@@ -179,9 +207,11 @@ describe('SerialButtons', () => {
       render(<SerialTestButton data={mockMode} type="mode" />);
       fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
 
-      expect(mockSend).toHaveBeenCalledWith({
-        ...mockMode,
-        name: 'transientTest',
+      await waitFor(() => {
+        expect(mockSend).toHaveBeenCalledWith({
+          ...mockMode,
+          name: 'transientTest',
+        });
       });
     });
   });
@@ -220,11 +250,24 @@ describe('SerialButtons', () => {
       expect(screen.queryByRole('button', { name: /flash to device/i })).not.toBeInTheDocument();
     });
 
-    it('sends raw mode data', () => {
+    it('sends raw mode data', async () => {
       render(<SerialFlashButton mode={mockMode} />);
       fireEvent.click(screen.getByRole('button', { name: /flash to device/i }));
 
-      expect(mockSend).toHaveBeenCalledWith(mockMode);
+      await waitFor(() => {
+        expect(mockSend).toHaveBeenCalledWith(mockMode);
+        expect(toast.success).toHaveBeenCalledWith('Mode flashed to device');
+      });
+    });
+
+    it('shows error toast on failure', async () => {
+      mockSend.mockRejectedValueOnce(new Error('Failed'));
+      render(<SerialFlashButton mode={mockMode} />);
+      fireEvent.click(screen.getByRole('button', { name: /flash to device/i }));
+
+      await waitFor(() => {
+        expect(toast.error).toHaveBeenCalledWith('Failed to flash mode');
+      });
     });
   });
 });
