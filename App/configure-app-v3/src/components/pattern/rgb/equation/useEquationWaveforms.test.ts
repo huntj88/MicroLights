@@ -8,7 +8,7 @@ describe('useEquationWaveforms', () => {
   it('calculates totalDuration based on the maximum of pattern duration and channel durations where channels are longer', () => {
     const pattern = createDefaultEquationPattern();
     pattern.duration = 500; // Short pattern duration
-    
+
     // Add a long section to red channel
     pattern.red.sections = [{ equation: '1', duration: 2000 }];
     pattern.green.sections = [{ equation: '1', duration: 100 }];
@@ -24,7 +24,7 @@ describe('useEquationWaveforms', () => {
     const pattern = createDefaultEquationPattern();
     pattern.duration = 500;
     pattern.red.sections = [{ equation: '1', duration: 100 }];
-    
+
     const { result } = renderHook(() => useEquationWaveforms(pattern));
 
     // Should be max(500, 100, 0, 0, 1000) = 1000
@@ -35,7 +35,7 @@ describe('useEquationWaveforms', () => {
     const pattern = createDefaultEquationPattern();
     pattern.duration = 5000;
     pattern.red.sections = [{ equation: '1', duration: 2000 }];
-    
+
     const { result } = renderHook(() => useEquationWaveforms(pattern));
 
     expect(result.current.totalDuration).toBe(5000);

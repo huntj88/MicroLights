@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 import { isBinaryPattern, simplePatternSchema, type SimplePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { SerialConnectButton } from '../../components/common/SerialConnectButton';
+import { SerialTestButton } from '../../components/common/SerialTestButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import {
   type SimpleBulbPatternAction,
@@ -86,9 +88,15 @@ export const BulbPatternPage = () => {
 
   return (
     <section className="space-y-6">
-      <header className="space-y-2">
-        <h2 className="text-3xl font-semibold">{t('bulbPattern.title')}</h2>
-        <p className="theme-muted">{t('bulbPattern.subtitle')}</p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-2">
+          <h2 className="text-3xl font-semibold">{t('bulbPattern.title')}</h2>
+          <p className="theme-muted">{t('bulbPattern.subtitle')}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <SerialTestButton data={editingItem} type="pattern" patternTarget="case" />
+          <SerialConnectButton />
+        </div>
       </header>
 
       <article className="space-y-6 rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-6">

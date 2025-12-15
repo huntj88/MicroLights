@@ -1,4 +1,18 @@
 {
+  "common": {
+    "actions": {
+      "save": "Save",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "test": "Test on Device",
+      "testSuccess": "Test pattern sent to device",
+      "testError": "Failed to send test pattern",
+      "flash": "Flash to Device",
+      "flashSuccess": "Mode flashed to device",
+      "flashError": "Failed to flash mode"
+    }
+  },
   "app": {
     "name": "Flow Art Forge",
     "tagline": "Configure LED modes and patterns"
@@ -158,7 +172,10 @@
     "subtitle": "Inspect inbound messages, send payloads, and keep an eye on runtime behavior.",
     "todo": "TODO · Integrate serial connection to stream device messages.",
     "empty": "No serial messages yet.",
+    "notSupported": "Web Serial API is not supported in this browser.",
     "actions": {
+      "connect": "Connect",
+      "disconnect": "Disconnect",
       "autoscrollOn": "Autoscroll • on",
       "autoscrollOff": "Autoscroll • off",
       "clear": "Clear log",
