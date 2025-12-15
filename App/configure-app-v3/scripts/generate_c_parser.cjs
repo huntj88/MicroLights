@@ -227,6 +227,7 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
                     out += `        while (child != NULL && out->${cName}_count < ${fieldDef.max}) {\n`;
                     out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t*)child, &out->${cName}[out->${cName}_count])) {\n`;
                     out += `                valid = false;\n`;
+                    out += `                break;\n`;
                     out += `            }\n`;
                     out += `            out->${cName}_count++;\n`;
                     out += `            child = child->next;\n`;
