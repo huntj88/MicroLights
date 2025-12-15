@@ -1,4 +1,14 @@
 {
+  "common": {
+    "actions": {
+      "save": "Save",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "test": "Test on Device",
+      "flash": "Flash to Device"
+    }
+  },
   "app": {
     "name": "Flow Art Forge",
     "tagline": "Configure LED modes and patterns"
