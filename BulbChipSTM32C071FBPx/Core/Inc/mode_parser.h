@@ -199,6 +199,6 @@ struct Mode {
     bool has_accel;
 };
 
-ModeParserError parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);
+bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);
 
 #endif // MODE_PARSER_H

@@ -51,80 +51,78 @@ static bool isValidPatternOutput(const char *s) {
     return false;
 }
 
-static ModeParserError parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx);
-static ModeParserError parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx);
-static ModeParserError parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx);
-static ModeParserError parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelConfig *out, ModeErrorContext *ctx);
-static ModeParserError parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx);
-static ModeParserError parseModePattern(lwjson_t *lwjson, lwjson_token_t *token, ModePattern *out, ModeErrorContext *ctx);
-static ModeParserError parseModeComponent(lwjson_t *lwjson, lwjson_token_t *token, ModeComponent *out, ModeErrorContext *ctx);
-static ModeParserError parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeAccelTrigger *out, ModeErrorContext *ctx);
-static ModeParserError parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *out, ModeErrorContext *ctx);
+static bool parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx);
+static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx);
+static bool parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx);
+static bool parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelConfig *out, ModeErrorContext *ctx);
+static bool parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx);
+static bool parseModePattern(lwjson_t *lwjson, lwjson_token_t *token, ModePattern *out, ModeErrorContext *ctx);
+static bool parseModeComponent(lwjson_t *lwjson, lwjson_token_t *token, ModeComponent *out, ModeErrorContext *ctx);
+static bool parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeAccelTrigger *out, ModeErrorContext *ctx);
+static bool parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *out, ModeErrorContext *ctx);
 
-static ModeParserError parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx) {
+static bool parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     if ((t = lwjson_find_ex(lwjson, token, "ms")) != NULL) {
         out->ms = (uint32_t)t->u.num_int;
         if (out->ms < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "ms");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "ms");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "output")) != NULL) {
         copyString(out->output, t, 7);
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "output");
-        return ctx->error;
+        return false;
     }
     if (!(isValidPatternOutput(out->output))) {
         ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
         strcpy(ctx->path, "output");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx) {
+static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     out->changeAt_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
         copyString(out->name, t, 31);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "name");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "name");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
         out->duration = (uint32_t)t->u.num_int;
         if (out->duration < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "changeAt")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->changeAt_count < 64) {
-            if ((err = parsePatternChange(lwjson, (lwjson_token_t*)child, &out->changeAt[out->changeAt_count], ctx)) != MODE_PARSER_OK) {
+            if (!parsePatternChange(lwjson, (lwjson_token_t*)child, &out->changeAt[out->changeAt_count], ctx)) {
                 prependContext(ctx, "changeAt", out->changeAt_count);
-                return err;
+                return false;
             }
             out->changeAt_count++;
             child = child->next;
@@ -132,56 +130,54 @@ static ModeParserError parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *toke
         if (out->changeAt_count < 1) {
             ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;
             strcpy(ctx->path, "changeAt");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "changeAt");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx) {
+static bool parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     if ((t = lwjson_find_ex(lwjson, token, "equation")) != NULL) {
         copyString(out->equation, t, 63);
         if (strlen(out->equation) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "equation");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "equation");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
         out->duration = (uint32_t)t->u.num_int;
         if (out->duration < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelConfig *out, ModeErrorContext *ctx) {
+static bool parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelConfig *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     out->sections_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "sections")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->sections_count < 8) {
-            if ((err = parseEquationSection(lwjson, (lwjson_token_t*)child, &out->sections[out->sections_count], ctx)) != MODE_PARSER_OK) {
+            if (!parseEquationSection(lwjson, (lwjson_token_t*)child, &out->sections[out->sections_count], ctx)) {
                 prependContext(ctx, "sections", out->sections_count);
-                return err;
+                return false;
             }
             out->sections_count++;
             child = child->next;
@@ -189,7 +185,7 @@ static ModeParserError parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *toke
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "sections");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "loopAfterDuration")) != NULL) {
         out->loopAfterDuration = t->u.num_int != 0; // lwjson parses bools as ints often, or check type
@@ -198,122 +194,118 @@ static ModeParserError parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *toke
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "loopAfterDuration");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx) {
+static bool parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
         copyString(out->name, t, 31);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "name");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "name");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
         out->duration = (uint32_t)t->u.num_int;
         if (out->duration < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "red")) != NULL) {
-        if ((err = parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->red, ctx)) != MODE_PARSER_OK) {
+        if (!parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->red, ctx)) {
             prependContext(ctx, "red", -1);
-            return err;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "red");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "green")) != NULL) {
-        if ((err = parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->green, ctx)) != MODE_PARSER_OK) {
+        if (!parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->green, ctx)) {
             prependContext(ctx, "green", -1);
-            return err;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "green");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "blue")) != NULL) {
-        if ((err = parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->blue, ctx)) != MODE_PARSER_OK) {
+        if (!parseChannelConfig(lwjson, (lwjson_token_t*)t, &out->blue, ctx)) {
             prependContext(ctx, "blue", -1);
-            return err;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "blue");
-        return ctx->error;
+        return false;
     }
     if (!(out->red.sections_count > 0 || out->green.sections_count > 0 || out->blue.sections_count > 0)) {
         ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
         strcpy(ctx->path, "red");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseModePattern(lwjson_t *lwjson, lwjson_token_t *token, ModePattern *out, ModeErrorContext *ctx) {
+static bool parseModePattern(lwjson_t *lwjson, lwjson_token_t *token, ModePattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     if ((t = lwjson_find_ex(lwjson, token, "type")) != NULL) {
         char typeStr[32];
         copyString(typeStr, t, 31);
         if (strcmp(typeStr, "simple") == 0) {
             out->type = PATTERN_TYPE_SIMPLE;
-            if ((err = parseSimplePattern(lwjson, token, &out->data.simple, ctx)) != MODE_PARSER_OK) return err;
+            if (!parseSimplePattern(lwjson, token, &out->data.simple, ctx)) return false;
         }
         else if (strcmp(typeStr, "equation") == 0) {
             out->type = PATTERN_TYPE_EQUATION;
-            if ((err = parseEquationPattern(lwjson, token, &out->data.equation, ctx)) != MODE_PARSER_OK) return err;
+            if (!parseEquationPattern(lwjson, token, &out->data.equation, ctx)) return false;
         }
         else {
             ctx->error = MODE_PARSER_ERR_INVALID_VARIANT;
             strcpy(ctx->path, "type");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "type");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseModeComponent(lwjson_t *lwjson, lwjson_token_t *token, ModeComponent *out, ModeErrorContext *ctx) {
+static bool parseModeComponent(lwjson_t *lwjson, lwjson_token_t *token, ModeComponent *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     if ((t = lwjson_find_ex(lwjson, token, "pattern")) != NULL) {
-        if ((err = parseModePattern(lwjson, (lwjson_token_t*)t, &out->pattern, ctx)) != MODE_PARSER_OK) {
+        if (!parseModePattern(lwjson, (lwjson_token_t*)t, &out->pattern, ctx)) {
             prependContext(ctx, "pattern", -1);
-            return err;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "pattern");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeAccelTrigger *out, ModeErrorContext *ctx) {
+static bool parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeAccelTrigger *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     out->has_front = false;
     out->has_case_comp = false;
     if ((t = lwjson_find_ex(lwjson, token, "threshold")) != NULL) {
@@ -321,45 +313,44 @@ static ModeParserError parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *t
         if (out->threshold < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "threshold");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "threshold");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "front")) != NULL) {
-        if ((err = parseModeComponent(lwjson, (lwjson_token_t*)t, &out->front, ctx)) != MODE_PARSER_OK) {
+        if (!parseModeComponent(lwjson, (lwjson_token_t*)t, &out->front, ctx)) {
             prependContext(ctx, "front", -1);
-            return err;
+            return false;
         }
         out->has_front = true;
     }
     if ((t = lwjson_find_ex(lwjson, token, "case")) != NULL) {
-        if ((err = parseModeComponent(lwjson, (lwjson_token_t*)t, &out->case_comp, ctx)) != MODE_PARSER_OK) {
+        if (!parseModeComponent(lwjson, (lwjson_token_t*)t, &out->case_comp, ctx)) {
             prependContext(ctx, "case", -1);
-            return err;
+            return false;
         }
         out->has_case_comp = true;
     }
     if (!(out->has_front || out->has_case_comp)) {
         ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
         strcpy(ctx->path, "front");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-static ModeParserError parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *out, ModeErrorContext *ctx) {
+static bool parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     out->triggers_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "triggers")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->triggers_count < 8) {
-            if ((err = parseModeAccelTrigger(lwjson, (lwjson_token_t*)child, &out->triggers[out->triggers_count], ctx)) != MODE_PARSER_OK) {
+            if (!parseModeAccelTrigger(lwjson, (lwjson_token_t*)child, &out->triggers[out->triggers_count], ctx)) {
                 prependContext(ctx, "triggers", out->triggers_count);
-                return err;
+                return false;
             }
             out->triggers_count++;
             child = child->next;
@@ -367,19 +358,18 @@ static ModeParserError parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, M
         if (out->triggers_count < 1) {
             ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;
             strcpy(ctx->path, "triggers");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "triggers");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 
-ModeParserError parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx) {
+bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    ModeParserError err = MODE_PARSER_OK;
     out->has_front = false;
     out->has_case_comp = false;
     out->has_accel = false;
@@ -388,39 +378,39 @@ ModeParserError parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, Mo
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "name");
-            return ctx->error;
+            return false;
         }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "name");
-        return ctx->error;
+        return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "front")) != NULL) {
-        if ((err = parseModeComponent(lwjson, (lwjson_token_t*)t, &out->front, ctx)) != MODE_PARSER_OK) {
+        if (!parseModeComponent(lwjson, (lwjson_token_t*)t, &out->front, ctx)) {
             prependContext(ctx, "front", -1);
-            return err;
+            return false;
         }
         out->has_front = true;
     }
     if ((t = lwjson_find_ex(lwjson, token, "case")) != NULL) {
-        if ((err = parseModeComponent(lwjson, (lwjson_token_t*)t, &out->case_comp, ctx)) != MODE_PARSER_OK) {
+        if (!parseModeComponent(lwjson, (lwjson_token_t*)t, &out->case_comp, ctx)) {
             prependContext(ctx, "case", -1);
-            return err;
+            return false;
         }
         out->has_case_comp = true;
     }
     if ((t = lwjson_find_ex(lwjson, token, "accel")) != NULL) {
-        if ((err = parseModeAccel(lwjson, (lwjson_token_t*)t, &out->accel, ctx)) != MODE_PARSER_OK) {
+        if (!parseModeAccel(lwjson, (lwjson_token_t*)t, &out->accel, ctx)) {
             prependContext(ctx, "accel", -1);
-            return err;
+            return false;
         }
         out->has_accel = true;
     }
     if (!(out->has_front || out->has_case_comp)) {
         ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
         strcpy(ctx->path, "front");
-        return ctx->error;
+        return false;
     }
-    return MODE_PARSER_OK;
+    return true;
 }
 

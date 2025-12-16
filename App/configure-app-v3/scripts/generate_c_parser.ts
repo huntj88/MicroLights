@@ -360,7 +360,7 @@ typedef enum {
     out += `};\n\n`;
   }
 
-  out += `ModeParserError parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);\n`;
+  out += `bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);\n`;
   out += `\n#endif // MODE_PARSER_H\n`;
   return out;
 }
@@ -427,15 +427,14 @@ static bool isValidPatternOutput(const char *s) {
 
   for (const name of Object.keys(schema)) {
     if (name === 'Mode') continue;
-    out += `static ModeParserError parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx);\n`;
+    out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx);\n`;
   }
   out += '\n';
 
   for (const [name, def] of Object.entries(schema)) {
     const prefix = name === 'Mode' ? '' : 'static ';
-    out += `${prefix}ModeParserError parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx) {\n`;
+    out += `${prefix}bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx) {\n`;
     out += `    const lwjson_token_t *t;\n`;
-    out += `    ModeParserError err = MODE_PARSER_OK;\n`;
 
     if (def.type === 'struct') {
       // Initialize optional flags
@@ -460,7 +459,7 @@ static bool isValidPatternOutput(const char *s) {
             out += `        if (strlen(out->${cName}) < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return ctx->error;\n`;
+            out += `            return false;\n`;
             out += `        }\n`;
           }
         } else if (fieldDef.type === 'uint32') {
@@ -469,7 +468,7 @@ static bool isValidPatternOutput(const char *s) {
             out += `        if (out->${cName} < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return ctx->error;\n`;
+            out += `            return false;\n`;
             out += `        }\n`;
           }
         } else if (fieldDef.type === 'boolean') {
@@ -479,9 +478,9 @@ static bool isValidPatternOutput(const char *s) {
         } else if (fieldDef.type === 'array') {
           out += `        const lwjson_token_t *child = lwjson_get_first_child(t);\n`;
           out += `        while (child != NULL && out->${cName}_count < ${String(fieldDef.max)}) {\n`;
-          out += `            if ((err = parse${fieldDef.item}(lwjson, (lwjson_token_t*)child, &out->${cName}[out->${cName}_count], ctx)) != MODE_PARSER_OK) {\n`;
+          out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t*)child, &out->${cName}[out->${cName}_count], ctx)) {\n`;
           out += `                prependContext(ctx, "${fieldName}", out->${cName}_count);\n`;
-          out += `                return err;\n`;
+          out += `                return false;\n`;
           out += `            }\n`;
           out += `            out->${cName}_count++;\n`;
           out += `            child = child->next;\n`;
@@ -490,14 +489,14 @@ static bool isValidPatternOutput(const char *s) {
             out += `        if (out->${cName}_count < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return ctx->error;\n`;
+            out += `            return false;\n`;
             out += `        }\n`;
           }
         } else {
           // Struct type
-          out += `        if ((err = parse${fieldDef.type}(lwjson, (lwjson_token_t*)t, &out->${cName}, ctx)) != MODE_PARSER_OK) {\n`;
+          out += `        if (!parse${fieldDef.type}(lwjson, (lwjson_token_t*)t, &out->${cName}, ctx)) {\n`;
           out += `            prependContext(ctx, "${fieldName}", -1);\n`;
-          out += `            return err;\n`;
+          out += `            return false;\n`;
           out += `        }\n`;
         }
 
@@ -510,7 +509,7 @@ static bool isValidPatternOutput(const char *s) {
           out += ` else {\n`;
           out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
           out += `        strcpy(ctx->path, "${fieldName}");\n`;
-          out += `        return ctx->error;\n`;
+          out += `        return false;\n`;
           out += `    }\n`;
         } else {
           out += `\n`;
@@ -529,7 +528,7 @@ static bool isValidPatternOutput(const char *s) {
         } else {
           out += `        ctx->path[0] = '\\0';\n`;
         }
-        out += `        return ctx->error;\n`;
+        out += `        return false;\n`;
         out += `    }\n`;
       }
 
@@ -543,23 +542,23 @@ static bool isValidPatternOutput(const char *s) {
       for (const [key, typeName] of Object.entries(def.variants)) {
         out += `        ${first ? '' : 'else '}if (strcmp(typeStr, "${key}") == 0) {\n`;
         out += `            out->type = PATTERN_TYPE_${key.toUpperCase()};\n`;
-        out += `            if ((err = parse${typeName}(lwjson, token, &out->data.${key}, ctx)) != MODE_PARSER_OK) return err;\n`;
+        out += `            if (!parse${typeName}(lwjson, token, &out->data.${key}, ctx)) return false;\n`;
         out += `        }\n`;
         first = false;
       }
       out += `        else {\n`;
       out += `            ctx->error = MODE_PARSER_ERR_INVALID_VARIANT;\n`;
       out += `            strcpy(ctx->path, "${def.discriminator}");\n`;
-      out += `            return ctx->error;\n`;
+      out += `            return false;\n`;
       out += `        }\n`;
       out += `    } else {\n`;
       out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
       out += `        strcpy(ctx->path, "${def.discriminator}");\n`;
-      out += `        return ctx->error;\n`;
+      out += `        return false;\n`;
       out += `    }\n`;
     }
 
-    out += `    return MODE_PARSER_OK;\n`;
+    out += `    return true;\n`;
     out += `}\n\n`;
   }
 
