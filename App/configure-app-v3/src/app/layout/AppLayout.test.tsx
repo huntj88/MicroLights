@@ -17,8 +17,8 @@ describe('AppLayout', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('link', { name: /overview/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /settings/i })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'nav.home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'nav.settings' })).toBeInTheDocument();
   });
 
   it('shows error toast when serial data contains "error"', () => {

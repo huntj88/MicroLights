@@ -38,7 +38,7 @@ describe('SerialLogPanel', () => {
   it('renders empty state when there are no messages', () => {
     renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={baseState} />);
 
-    expect(screen.getByText(/no serial messages yet/i)).toBeInTheDocument();
+    expect(screen.getByText('serialLog.empty')).toBeInTheDocument();
   });
 
   it('emits updated payload when typing', async () => {
@@ -84,7 +84,7 @@ describe('SerialLogPanel', () => {
       <SerialLogPanel onChange={handleChange} value={{ ...baseState, pendingPayload: 'ping' }} />,
     );
 
-    await user.click(screen.getByRole('button', { name: /send payload/i }));
+    await user.click(screen.getByRole('button', { name: 'serialLog.actions.send' }));
 
     expect(handleChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -126,7 +126,7 @@ describe('SerialLogPanel', () => {
 
     renderWithProviders(<SerialLogPanel onChange={handleChange} value={populatedState} />);
 
-    await user.click(screen.getByRole('button', { name: /clear log/i }));
+    await user.click(screen.getByRole('button', { name: 'serialLog.actions.clear' }));
 
     expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ entries: [] }), {
       type: 'clear',
@@ -146,7 +146,7 @@ describe('SerialLogPanel', () => {
     renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={{ ...baseState, entries }} />);
 
     expect(screen.getByText('System ready')).toBeInTheDocument();
-    expect(screen.getByText(/incoming/i)).toBeInTheDocument();
+    expect(screen.getByText(/serialLog.direction.inbound/)).toBeInTheDocument();
   });
 
   it('autoscrolls to bottom when new message arrives', () => {

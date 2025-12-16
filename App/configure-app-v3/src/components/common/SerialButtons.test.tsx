@@ -13,26 +13,6 @@ vi.mock('../../app/providers/serial-store', () => ({
   useSerialStore: vi.fn(),
 }));
 
-// Mock react-i18next
-vi.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'common.actions.test': 'Test on Device',
-        'common.actions.testSuccess': 'Test pattern sent to device',
-        'common.actions.testError': 'Failed to send test pattern',
-        'common.actions.flash': 'Flash to Device',
-        'common.actions.flashSuccess': 'Mode flashed to device',
-        'common.actions.flashError': 'Failed to flash mode',
-        'serialLog.notSupported': 'Web Serial not supported',
-        'serialLog.actions.connect': 'Connect',
-        'serialLog.actions.disconnect': 'Disconnect',
-      };
-      return translations[key] || key;
-    },
-  }),
-}));
-
 // Mock react-hot-toast
 vi.mock('react-hot-toast', () => ({
   default: {
@@ -78,7 +58,7 @@ describe('SerialButtons', () => {
       );
 
       render(<SerialConnectButton />);
-      expect(screen.getByText('Web Serial not supported')).toBeInTheDocument();
+      expect(screen.getByText('serialLog.notSupported')).toBeInTheDocument();
     });
 
     it('renders connect button when disconnected', () => {
@@ -95,9 +75,9 @@ describe('SerialButtons', () => {
       );
 
       render(<SerialConnectButton />);
-      const button = screen.getByRole('button', { name: /connect/i });
+      const button = screen.getByRole('button', { name: /serialLog.actions.connect/i });
       expect(button).toBeInTheDocument();
-      expect(button).toHaveTextContent('Connect');
+      expect(button).toHaveTextContent('serialLog.actions.connect');
     });
 
     it('calls connect when clicked while disconnected', () => {
@@ -114,22 +94,22 @@ describe('SerialButtons', () => {
       );
 
       render(<SerialConnectButton />);
-      fireEvent.click(screen.getByRole('button', { name: /connect/i }));
+      fireEvent.click(screen.getByRole('button', { name: /serialLog.actions.connect/i }));
       expect(mockConnect).toHaveBeenCalled();
     });
 
     it('renders disconnect button when connected', () => {
       // Default mock is connected
       render(<SerialConnectButton />);
-      const button = screen.getByRole('button', { name: /disconnect/i });
+      const button = screen.getByRole('button', { name: /serialLog.actions.disconnect/i });
       expect(button).toBeInTheDocument();
-      expect(button).toHaveTextContent('Disconnect');
+      expect(button).toHaveTextContent('serialLog.actions.disconnect');
     });
 
     it('calls disconnect when clicked while connected', () => {
       // Default mock is connected
       render(<SerialConnectButton />);
-      fireEvent.click(screen.getByRole('button', { name: /disconnect/i }));
+      fireEvent.click(screen.getByRole('button', { name: /serialLog.actions.disconnect/i }));
       expect(mockDisconnect).toHaveBeenCalled();
     });
   });
@@ -143,8 +123,8 @@ describe('SerialButtons', () => {
     };
 
     it('renders correctly when connected', () => {
-      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
-      expect(screen.getByRole('button', { name: /test on device/i })).toBeInTheDocument();
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />);
+      expect(screen.getByRole('button', { name: /common.actions.test/i })).toBeInTheDocument();
     });
 
     it('does not render when not connected', () => {
@@ -160,36 +140,36 @@ describe('SerialButtons', () => {
         },
       );
 
-      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
-      expect(screen.queryByRole('button', { name: /test on device/i })).not.toBeInTheDocument();
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />);
+      expect(screen.queryByRole('button', { name: /common.actions.test/i })).not.toBeInTheDocument();
     });
 
     it('sends wrapped pattern for RGB type', async () => {
-      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
-      fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />);
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.test/i }));
 
       await waitFor(() => {
         expect(mockSend).toHaveBeenCalledWith({
           name: 'transientTest',
           front: { pattern: mockPattern },
         });
-        expect(toast.success).toHaveBeenCalledWith('Test pattern sent to device');
+        expect(toast.success).toHaveBeenCalledWith('common.actions.testSuccess');
       });
     });
 
     it('shows error toast on failure', async () => {
       mockSend.mockRejectedValueOnce(new Error('Failed'));
-      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" />);
-      fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />);
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.test/i }));
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Failed to send test pattern');
+        expect(toast.error).toHaveBeenCalledWith('common.actions.testError');
       });
     });
 
     it('sends wrapped pattern for Bulb type', async () => {
-      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="case" />);
-      fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
+      render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="case" disabled={false} />);
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.test/i }));
 
       await waitFor(() => {
         expect(mockSend).toHaveBeenCalledWith({
@@ -204,8 +184,8 @@ describe('SerialButtons', () => {
         name: 'Test Mode',
         front: { pattern: mockPattern },
       };
-      render(<SerialTestButton data={mockMode} type="mode" />);
-      fireEvent.click(screen.getByRole('button', { name: /test on device/i }));
+      render(<SerialTestButton data={mockMode} type="mode" disabled={false} />);
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.test/i }));
 
       await waitFor(() => {
         expect(mockSend).toHaveBeenCalledWith({
@@ -230,8 +210,8 @@ describe('SerialButtons', () => {
     };
 
     it('renders correctly when connected', () => {
-      render(<SerialFlashButton mode={mockMode} />);
-      expect(screen.getByRole('button', { name: /flash to device/i })).toBeInTheDocument();
+      render(<SerialFlashButton mode={mockMode} disabled={false} />);
+      expect(screen.getByRole('button', { name: /common.actions.flash/i })).toBeInTheDocument();
     });
 
     it('does not render when not connected', () => {
@@ -246,27 +226,49 @@ describe('SerialButtons', () => {
           return selector ? selector(state) : state;
         },
       );
-      render(<SerialFlashButton mode={mockMode} />);
-      expect(screen.queryByRole('button', { name: /flash to device/i })).not.toBeInTheDocument();
+      render(<SerialFlashButton mode={mockMode} disabled={false} />);
+      expect(screen.queryByRole('button', { name: /common.actions.flash/i })).not.toBeInTheDocument();
     });
 
-    it('sends raw mode data', async () => {
-      render(<SerialFlashButton mode={mockMode} />);
-      fireEvent.click(screen.getByRole('button', { name: /flash to device/i }));
+    it('sends flash command when index selected', async () => {
+      render(<SerialFlashButton mode={mockMode} disabled={false} />);
+      
+      // Open modal
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.flash/i }));
+      
+      // Select index 1
+      fireEvent.click(screen.getByText('1'));
+
+      // Click confirm
+      const flashButtons = screen.getAllByText('common.actions.flash');
+      fireEvent.click(flashButtons[flashButtons.length - 1]);
 
       await waitFor(() => {
-        expect(mockSend).toHaveBeenCalledWith(mockMode);
-        expect(toast.success).toHaveBeenCalledWith('Mode flashed to device');
+        expect(mockSend).toHaveBeenCalledWith({
+          command: 'writeMode',
+          index: 0,
+          mode: mockMode,
+        });
+        expect(toast.success).toHaveBeenCalledWith('common.actions.flashSuccess');
       });
     });
 
     it('shows error toast on failure', async () => {
       mockSend.mockRejectedValueOnce(new Error('Failed'));
-      render(<SerialFlashButton mode={mockMode} />);
-      fireEvent.click(screen.getByRole('button', { name: /flash to device/i }));
+      render(<SerialFlashButton mode={mockMode} disabled={false} />);
+      
+      // Open modal
+      fireEvent.click(screen.getByRole('button', { name: /common.actions.flash/i }));
+      
+      // Select index 1
+      fireEvent.click(screen.getByText('1'));
+
+      // Click confirm
+      const flashButtons = screen.getAllByText('common.actions.flash');
+      fireEvent.click(flashButtons[flashButtons.length - 1]);
 
       await waitFor(() => {
-        expect(toast.error).toHaveBeenCalledWith('Failed to flash mode');
+        expect(toast.error).toHaveBeenCalledWith('common.actions.flashError');
       });
     });
   });

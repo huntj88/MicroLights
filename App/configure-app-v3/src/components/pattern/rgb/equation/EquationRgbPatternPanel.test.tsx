@@ -22,7 +22,7 @@ const renderComponent = (props?: Partial<EquationRgbPatternPanelProps>) => {
 describe('EquationRgbPatternPanel', () => {
   it('renders the pattern name input', () => {
     renderComponent();
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('Test Pattern');
+    expect(screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ })).toHaveValue('Test Pattern');
   });
 
   it('emits rename-pattern action when name is changed', async () => {
@@ -48,7 +48,7 @@ describe('EquationRgbPatternPanel', () => {
 
     renderWithProviders(<Harness />);
 
-    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    const nameInput = screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ });
     await user.clear(nameInput);
     await user.type(nameInput, 'New Name');
 
@@ -68,11 +68,11 @@ describe('EquationRgbPatternPanel', () => {
 
     renderComponent({ onChange: handleChange });
 
-    const redSectionHeader = screen.getByText(/red sections/i);
+    const redSectionHeader = screen.getAllByText('rgbPattern.equation.sections.title')[0];
     const redContainer = redSectionHeader.closest('div')?.parentElement;
     if (!redContainer) throw new Error('Red container not found');
 
-    const addButton = within(redContainer).getByRole('button', { name: /\+ add section/i });
+    const addButton = within(redContainer).getByRole('button', { name: 'rgbPattern.equation.sections.add' });
     await user.click(addButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -108,7 +108,7 @@ describe('EquationRgbPatternPanel', () => {
 
     renderWithProviders(<Harness />);
 
-    const redSectionHeader = screen.getByText(/red sections/i);
+    const redSectionHeader = screen.getAllByText('rgbPattern.equation.sections.title')[0];
     const redContainer = redSectionHeader.closest('div')?.parentElement;
     if (!redContainer) throw new Error('Red container not found');
 
@@ -138,7 +138,7 @@ describe('EquationRgbPatternPanel', () => {
 
     renderComponent({ onChange: handleChange, pattern });
 
-    const deleteButton = screen.getByRole('button', { name: /delete/i });
+    const deleteButton = screen.getByRole('button', { name: 'rgbPattern.equation.sections.delete' });
     await user.click(deleteButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -161,7 +161,7 @@ describe('EquationRgbPatternPanel', () => {
 
     renderComponent({ onChange: handleChange, pattern });
 
-    const moveUpButtons = screen.getAllByTitle(/move up/i);
+    const moveUpButtons = screen.getAllByTitle('patternEditor.steps.moveUp');
     // The first section's move up should be disabled or not present.
     // We want to click the second one (index 1).
 
@@ -186,11 +186,11 @@ describe('EquationRgbPatternPanel', () => {
 
     renderComponent({ onChange: handleChange, pattern });
 
-    const redSectionHeader = screen.getByText(/red sections/i);
+    const redSectionHeader = screen.getAllByText('rgbPattern.equation.sections.title')[0];
     const redContainer = redSectionHeader.closest('div')?.parentElement;
     if (!redContainer) throw new Error('Red container not found');
 
-    const loopCheckbox = within(redContainer).getByRole('checkbox', { name: /loop/i });
+    const loopCheckbox = within(redContainer).getByRole('checkbox', { name: 'rgbPattern.equation.sections.loop' });
     await user.click(loopCheckbox);
 
     expect(handleChange).toHaveBeenCalledTimes(1);

@@ -42,10 +42,10 @@ describe('SimpleRgbPatternPanel', () => {
   it('shows empty preview when no steps are defined', () => {
     renderComponent({ value: createPattern([]) });
 
-    expect(screen.getAllByText(/no steps have been added yet/i)).toHaveLength(2);
-    const addButton = screen.getByRole('button', { name: /add step/i });
+    expect(screen.getAllByText('patternEditor.preview.empty')).toHaveLength(2);
+    const addButton = screen.getByRole('button', { name: 'patternEditor.form.addButton' });
     expect(addButton).toBeEnabled();
-    expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^patternEditor.form.durationLabel/)).not.toBeInTheDocument();
   });
 
   it('shows black swatch when pattern is empty', () => {
@@ -61,16 +61,16 @@ describe('SimpleRgbPatternPanel', () => {
       value: createPattern([{ color: '#ff0000', duration: 1000 }]),
     });
 
-    const playButton = screen.getByRole('button', { name: /play/i });
+    const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
     await user.click(playButton);
 
-    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /play/i })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'patternEditor.controls.pause' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'patternEditor.controls.play' })).not.toBeInTheDocument();
 
-    const pauseButton = screen.getByRole('button', { name: /pause/i });
+    const pauseButton = screen.getByRole('button', { name: 'patternEditor.controls.pause' });
     await user.click(pauseButton);
 
-    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'patternEditor.controls.play' })).toBeInTheDocument();
   });
 
   it('resets playback when clicking stop', async () => {
@@ -79,14 +79,14 @@ describe('SimpleRgbPatternPanel', () => {
       value: createPattern([{ color: '#ff0000', duration: 1000 }]),
     });
 
-    const playButton = screen.getByRole('button', { name: /play/i });
+    const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
     await user.click(playButton);
-    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'patternEditor.controls.pause' })).toBeInTheDocument();
 
-    const stopButton = screen.getByRole('button', { name: /stop/i });
+    const stopButton = screen.getByRole('button', { name: 'patternEditor.controls.stop' });
     await user.click(stopButton);
 
-    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'patternEditor.controls.play' })).toBeInTheDocument();
   });
 
   it('emits an add-step action with the new segment when confirming the modal', async () => {
@@ -98,14 +98,14 @@ describe('SimpleRgbPatternPanel', () => {
       value: createPattern([]),
     });
 
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.form.addButton' }));
 
-    const modalDurationInput = await screen.findByLabelText(/duration/i);
+    const modalDurationInput = await screen.findByLabelText(/^patternEditor.form.durationLabel/);
     await user.clear(modalDurationInput);
     await user.type(modalDurationInput, '200');
 
     const dialog = screen.getByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
+    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -131,10 +131,10 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the segment first
-    await user.click(screen.getByLabelText(/#112233 for 150 ms/i));
+    await user.click(screen.getByLabelText('patternEditor.preview.segmentLabel'));
 
     // Now click remove
-    await user.click(screen.getByRole('button', { name: /remove step/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.steps.remove' }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -164,7 +164,7 @@ describe('SimpleRgbPatternPanel', () => {
 
     renderWithProviders(<Harness />);
 
-    const nameInput = screen.getByLabelText(/pattern name/i);
+    const nameInput = screen.getByLabelText(/^patternEditor.form.nameLabel/);
     await user.clear(nameInput);
     await user.type(nameInput, 'Evening Breeze');
 
@@ -196,9 +196,10 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the first segment
-    await user.click(screen.getByLabelText(/#101010 for 100 ms/i));
+    const segments = screen.getAllByLabelText('patternEditor.preview.segmentLabel');
+    await user.click(segments[0]);
 
-    const moveDownButton = screen.getByRole('button', { name: /move down/i });
+    const moveDownButton = screen.getByRole('button', { name: /patternEditor.steps.moveDown/ });
     await user.click(moveDownButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -225,9 +226,9 @@ describe('SimpleRgbPatternPanel', () => {
     });
 
     // Select the segment
-    await user.click(screen.getByLabelText(/#334455 for 300 ms/i));
+    await user.click(screen.getByLabelText('patternEditor.preview.segmentLabel'));
 
-    await user.click(screen.getByRole('button', { name: /duplicate step/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.steps.duplicate' }));
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -251,9 +252,9 @@ describe('SimpleRgbPatternPanel', () => {
     const user = userEvent.setup();
     renderComponent({ value: createPattern([]) });
 
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.form.addButton' }));
 
-    const durationInput = await screen.findByLabelText(/duration/i);
+    const durationInput = await screen.findByLabelText(/^patternEditor.form.durationLabel/);
     await user.clear(durationInput);
     await user.type(durationInput, '1.5');
 
@@ -284,13 +285,14 @@ describe('SimpleRgbPatternPanel', () => {
     renderWithProviders(<Harness />);
 
     // Select the second segment (index 1)
-    await user.click(screen.getByLabelText(/#ffffff for 200 ms/i));
+    const segments = screen.getAllByLabelText('patternEditor.preview.segmentLabel');
+    await user.click(segments[1]);
 
-    const colorInput = screen.getByLabelText(/^color/i);
+    const colorInput = screen.getByLabelText(/^rgbPattern.simple.form.colorLabel/);
     // Use fireEvent for color input as userEvent.type doesn't work well with color inputs
     fireEvent.input(colorInput, { target: { value: '#123456' } });
 
-    const durationInput = screen.getByLabelText(/duration/i);
+    const durationInput = screen.getByLabelText(/^patternEditor.form.durationLabel/);
     await user.clear(durationInput);
     await user.type(durationInput, '150');
     expect(durationInput).toHaveValue(150);
@@ -328,8 +330,8 @@ describe('SimpleRgbPatternPanel', () => {
       ]),
     });
 
-    expect(screen.getByText(/total duration 500 ms/i)).toBeInTheDocument();
-    const segments = screen.getAllByLabelText(/for \d+ ms/i);
+    expect(screen.getByText('patternEditor.preview.summary')).toBeInTheDocument();
+    const segments = screen.getAllByLabelText('patternEditor.preview.segmentLabel');
     expect(segments).toHaveLength(2);
   });
 
@@ -337,11 +339,11 @@ describe('SimpleRgbPatternPanel', () => {
     const user = userEvent.setup();
     renderComponent({ value: createPattern([]) });
 
-    await user.click(screen.getByRole('button', { name: /add step/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.form.addButton' }));
 
     expect(await screen.findByRole('dialog')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: /cancel/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.addModal.cancel' }));
 
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -356,10 +358,10 @@ describe('SimpleRgbPatternPanel', () => {
     renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the segment
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
 
     // Change to 0
     await user.clear(durationInput);
@@ -386,7 +388,7 @@ describe('SimpleRgbPatternPanel', () => {
 
     renderWithProviders(<SimpleRgbPatternPanel onChange={vi.fn()} value={pattern} />);
 
-    expect(screen.getByRole('button', { name: /#ffffff for 0 ms/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' })).toBeInTheDocument();
   });
 
   it('triggers validation error when duration is empty', async () => {
@@ -397,10 +399,10 @@ describe('SimpleRgbPatternPanel', () => {
     renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the segment
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
 
     // Clear input
     await user.clear(durationInput);
@@ -427,15 +429,18 @@ describe('SimpleRgbPatternPanel', () => {
     renderWithProviders(<SimpleRgbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the first step
-    await user.click(screen.getByRole('button', { name: /#ff0000 for 100 ms/i }));
+    const segments = screen.getAllByLabelText('patternEditor.preview.segmentLabel');
+    await user.click(segments[0]);
 
     // Find the duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /duration/i });
+    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
 
     // Clear the input
     await user.clear(durationInput);
 
     // Verify the second step still exists and has valid duration in the UI
-    expect(screen.getByRole('button', { name: /#00ff00 for 100 ms/i })).toBeInTheDocument();
+    // Note: The second step will also have the same label 'patternEditor.preview.segmentLabel'
+    // We can check that we still have 2 segments
+    expect(screen.getAllByLabelText('patternEditor.preview.segmentLabel')).toHaveLength(2);
   });
 });
