@@ -12,7 +12,8 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,css,md,json}\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:c_parser": "npx vite-node scripts/generate_c_parser.ts"
   },
   "dependencies": {
     "i18next": "^25.6.0",

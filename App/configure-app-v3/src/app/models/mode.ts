@@ -54,7 +54,7 @@ export type EquationSection = z.infer<typeof equationSectionSchema>;
 
 export const channelConfigSchema = z.object({
   sections: z.array(equationSectionSchema),
-  loopAfterDuration: z.boolean().default(true),
+  loopAfterDuration: z.boolean()
 });
 
 export type ChannelConfig = z.infer<typeof channelConfigSchema>;
@@ -91,7 +91,7 @@ export const createDefaultEquationPattern = (): EquationPattern => ({
 
 export const simplePatternSchema = z
   .object({
-    type: z.literal('simple').default('simple'),
+    type: z.literal('simple'),
     name: z.string().min(1, 'validation.pattern.name.required'),
     duration: z
       .number()
