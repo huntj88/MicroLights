@@ -182,12 +182,14 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
     // Since C requires definition before use (or forward decl), let's forward declare all parse functions.
     
     for (const name of Object.keys(schema)) {
+        if (name === 'Mode') continue;
         out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out);\n`;
     }
     out += '\n';
 
     for (const [name, def] of Object.entries(schema)) {
-        out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out) {\n`;
+        const prefix = name === 'Mode' ? '' : 'static ';
+        out += `${prefix}bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out) {\n`;
         out += `    const lwjson_token_t *t;\n`;
         out += `    bool valid = true;\n`;
         
