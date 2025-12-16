@@ -21,16 +21,18 @@ export const FlashModal = ({ isOpen, onClose, onConfirm }: FlashModalProps) => {
         <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
           {t('common.actions.flash')}
         </h2>
-        
+
         <div className="mb-6">
           <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
             {t('common.labels.index')}
           </label>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
+            {[0, 1, 2, 3, 4, 5].map(i => (
               <StyledButton
                 key={i}
-                onClick={() => { setIndex(i); }}
+                onClick={() => {
+                  setIndex(i);
+                }}
                 variant={index === i ? 'primary' : 'secondary'}
                 className="w-full justify-center"
               >
@@ -47,7 +49,12 @@ export const FlashModal = ({ isOpen, onClose, onConfirm }: FlashModalProps) => {
           <StyledButton onClick={onClose} variant="secondary">
             {t('common.actions.cancel')}
           </StyledButton>
-          <StyledButton onClick={() => { onConfirm(index); }} variant="primary">
+          <StyledButton
+            onClick={() => {
+              onConfirm(index);
+            }}
+            variant="primary"
+          >
             {t('common.actions.flash')}
           </StyledButton>
         </div>

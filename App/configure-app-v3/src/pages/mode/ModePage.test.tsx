@@ -144,9 +144,7 @@ describe('ModePage', () => {
 
     // Initially empty, should show errors
     expect(screen.getByText('validation.mode.nameEmpty')).toBeInTheDocument();
-    expect(
-      screen.getByText('validation.mode.patternRequired'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('validation.mode.patternRequired')).toBeInTheDocument();
 
     // Save button should be disabled
     expect(screen.getByText('modeEditor.storage.save')).toBeDisabled();
@@ -175,9 +173,7 @@ describe('ModePage', () => {
     // Fix pattern error
     const selects = screen.getAllByRole('combobox');
     fireEvent.change(selects[1], { target: { value: 'Front Pattern' } });
-    expect(
-      screen.queryByText('validation.mode.patternRequired'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('validation.mode.patternRequired')).not.toBeInTheDocument();
 
     // Save button should be enabled
     expect(screen.getByText('modeEditor.storage.save')).toBeEnabled();
@@ -244,18 +240,14 @@ describe('ModePage', () => {
     // Add trigger - initially invalid
     fireEvent.click(screen.getByText('modeEditor.addTrigger'));
 
-    expect(
-      screen.getByText('validation.accel.componentRequired'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('validation.accel.componentRequired')).toBeInTheDocument();
     expect(screen.getByText('modeEditor.storage.save')).toBeDisabled();
 
     // Fix trigger
     const triggerSelects = screen.getAllByRole('combobox');
     fireEvent.change(triggerSelects[3], { target: { value: 'Front Pattern' } });
 
-    expect(
-      screen.queryByText('validation.accel.componentRequired'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('validation.accel.componentRequired')).not.toBeInTheDocument();
     expect(screen.getByText('modeEditor.storage.save')).toBeEnabled();
   });
 });

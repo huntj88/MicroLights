@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { SerialFlashButton } from './SerialFlashButton';
 import { type Mode } from '../../app/models/mode';
-import { useSerialStore } from '../../app/providers/serial-store';
+import { useSerialStore, type SerialStoreState } from '../../app/providers/serial-store';
 
 // Mock the store
 vi.mock('../../app/providers/serial-store', () => ({
@@ -30,20 +30,24 @@ describe('SerialFlashButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: any) => any) => {
-      const state = {
-        status: 'connected',
-        send: mockSend,
-      };
-      return selector(state);
-    });
+    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      <T,>(selector: (state: SerialStoreState) => T) => {
+        const state = {
+          status: 'connected',
+          send: mockSend,
+        } as unknown as SerialStoreState;
+        return selector(state);
+      },
+    );
   });
 
   it('should render nothing when not connected', () => {
-    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: any) => any) => {
-      const state = { status: 'disconnected', send: mockSend };
-      return selector(state);
-    });
+    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      <T,>(selector: (state: SerialStoreState) => T) => {
+        const state = { status: 'disconnected', send: mockSend } as unknown as SerialStoreState;
+        return selector(state);
+      },
+    );
 
     render(<SerialFlashButton mode={mockMode} disabled={false} />);
     expect(screen.queryByText('common.actions.flash')).not.toBeInTheDocument();
@@ -67,10 +71,10 @@ describe('SerialFlashButton', () => {
 
   it('should send flash command when index selected and confirmed', async () => {
     render(<SerialFlashButton mode={mockMode} disabled={false} />);
-    
+
     // Open modal
     fireEvent.click(screen.getByText('common.actions.flash'));
-    
+
     // Click index 1
     fireEvent.click(screen.getByText('1'));
 
@@ -89,14 +93,14 @@ describe('SerialFlashButton', () => {
 
   it('should close modal on cancel', async () => {
     render(<SerialFlashButton mode={mockMode} disabled={false} />);
-    
+
     // Open modal
     fireEvent.click(screen.getByText('common.actions.flash'));
     expect(screen.getByText('common.labels.index')).toBeInTheDocument();
 
     // Click Cancel
     fireEvent.click(screen.getByText('common.actions.cancel'));
-    
+
     await waitFor(() => {
       expect(screen.queryByText('common.labels.index')).not.toBeInTheDocument();
     });
@@ -105,10 +109,10 @@ describe('SerialFlashButton', () => {
   it('should show error toast on failure', async () => {
     mockSend.mockRejectedValueOnce(new Error('Failed'));
     render(<SerialFlashButton mode={mockMode} disabled={false} />);
-    
+
     // Open modal
     fireEvent.click(screen.getByText('common.actions.flash'));
-    
+
     // Click index 1
     fireEvent.click(screen.getByText('1'));
 

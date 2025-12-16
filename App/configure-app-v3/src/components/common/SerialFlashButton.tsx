@@ -22,10 +22,10 @@ export const SerialFlashButton = ({ mode, disabled }: SerialFlashButtonProps) =>
   const handleFlash = async (index: number) => {
     if (status !== 'connected' || disabled) return;
     const flashCommand = {
-      "command": "writeMode",
-      "index": index,
+      command: 'writeMode',
+      index: index,
       mode,
-    }
+    };
 
     try {
       await send(flashCommand);
@@ -41,8 +41,10 @@ export const SerialFlashButton = ({ mode, disabled }: SerialFlashButtonProps) =>
 
   return (
     <>
-      <StyledButton 
-        onClick={() => { setIsModalOpen(true); }} 
+      <StyledButton
+        onClick={() => {
+          setIsModalOpen(true);
+        }}
         variant="primary"
         disabled={disabled}
         title={t('common.hints.fixValidationErrors')}
@@ -51,8 +53,10 @@ export const SerialFlashButton = ({ mode, disabled }: SerialFlashButtonProps) =>
       </StyledButton>
       <FlashModal
         isOpen={isModalOpen}
-        onClose={() => { setIsModalOpen(false); }}
-        onConfirm={(index) => void handleFlash(index)}
+        onClose={() => {
+          setIsModalOpen(false);
+        }}
+        onConfirm={index => void handleFlash(index)}
       />
     </>
   );

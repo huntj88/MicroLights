@@ -103,7 +103,9 @@ describe('SimpleBulbPatternPanel', () => {
 
     // Default value is 'high'
     const dialog = screen.getByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -355,7 +357,9 @@ describe('SimpleBulbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Change to 0
     await user.clear(durationInput);
@@ -382,7 +386,9 @@ describe('SimpleBulbPatternPanel', () => {
 
     renderWithProviders(<SimpleBulbPatternPanel onChange={vi.fn()} value={pattern} />);
 
-    expect(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }),
+    ).toBeInTheDocument();
   });
 
   it('triggers validation error when duration is empty', async () => {
@@ -396,7 +402,9 @@ describe('SimpleBulbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Clear input
     await user.clear(durationInput);
@@ -423,15 +431,21 @@ describe('SimpleBulbPatternPanel', () => {
     renderWithProviders(<SimpleBulbPatternPanel onChange={onChange} value={pattern} />);
 
     // Select the first step
-    await user.click(screen.getAllByRole('button', { name: 'patternEditor.preview.segmentLabel' })[0]);
+    await user.click(
+      screen.getAllByRole('button', { name: 'patternEditor.preview.segmentLabel' })[0],
+    );
 
     // Find the duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Clear the input
     await user.clear(durationInput);
 
     // Verify the second step still exists and has valid duration in the UI
-    expect(screen.getAllByRole('button', { name: 'patternEditor.preview.segmentLabel' })[1]).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('button', { name: 'patternEditor.preview.segmentLabel' })[1],
+    ).toBeInTheDocument();
   });
 });

@@ -26,7 +26,7 @@ describe('FlashModal', () => {
 
   it('should call onConfirm with selected index when flash button is clicked', () => {
     render(<FlashModal isOpen={true} onClose={mockOnClose} onConfirm={mockOnConfirm} />);
-    
+
     // Default index is 0
     fireEvent.click(screen.getAllByText('common.actions.flash')[1]); // The second one is the button
     expect(mockOnConfirm).toHaveBeenCalledWith(0);
@@ -34,10 +34,10 @@ describe('FlashModal', () => {
 
   it('should allow selecting a different index', () => {
     render(<FlashModal isOpen={true} onClose={mockOnClose} onConfirm={mockOnConfirm} />);
-    
+
     // Click button "3" (index 2)
     fireEvent.click(screen.getByText('3'));
-    
+
     fireEvent.click(screen.getAllByText('common.actions.flash')[1]);
     expect(mockOnConfirm).toHaveBeenCalledWith(2);
   });

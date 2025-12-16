@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 import { SerialTestButton } from './SerialTestButton';
 import { type Mode, type ModePattern, type HexColor } from '../../app/models/mode';
-import { useSerialStore } from '../../app/providers/serial-store';
+import { useSerialStore, type SerialStoreState } from '../../app/providers/serial-store';
 
 // Mock the store
 vi.mock('../../app/providers/serial-store', () => ({
@@ -30,20 +30,24 @@ describe('SerialTestButton', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: any) => any) => {
-      const state = {
-        status: 'connected',
-        send: mockSend,
-      };
-      return selector(state);
-    });
+    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      <T,>(selector: (state: SerialStoreState) => T) => {
+        const state = {
+          status: 'connected',
+          send: mockSend,
+        } as unknown as SerialStoreState;
+        return selector(state);
+      },
+    );
   });
 
   it('should render nothing when not connected', () => {
-    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation((selector: (state: any) => any) => {
-      const state = { status: 'disconnected', send: mockSend };
-      return selector(state);
-    });
+    (useSerialStore as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      <T,>(selector: (state: SerialStoreState) => T) => {
+        const state = { status: 'disconnected', send: mockSend } as unknown as SerialStoreState;
+        return selector(state);
+      },
+    );
 
     render(<SerialTestButton data={mockMode} type="mode" disabled={false} />);
     expect(screen.queryByText('common.actions.test')).not.toBeInTheDocument();
@@ -85,7 +89,9 @@ describe('SerialTestButton', () => {
       changeAt: [{ ms: 0, output: '#ff0000' as HexColor }],
     };
 
-    render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />);
+    render(
+      <SerialTestButton data={mockPattern} type="pattern" patternTarget="front" disabled={false} />,
+    );
     fireEvent.click(screen.getByText('common.actions.test'));
 
     await waitFor(() => {
@@ -105,7 +111,9 @@ describe('SerialTestButton', () => {
       changeAt: [{ ms: 0, output: '#ff0000' as HexColor }],
     };
 
-    render(<SerialTestButton data={mockPattern} type="pattern" patternTarget="case" disabled={false} />);
+    render(
+      <SerialTestButton data={mockPattern} type="pattern" patternTarget="case" disabled={false} />,
+    );
     fireEvent.click(screen.getByText('common.actions.test'));
 
     await waitFor(() => {

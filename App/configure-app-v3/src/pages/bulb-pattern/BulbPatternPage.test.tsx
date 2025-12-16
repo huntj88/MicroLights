@@ -99,7 +99,9 @@ describe('BulbPatternPage', () => {
     await user.click(addButton);
 
     let dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
     expect(saveButton).toBeEnabled();
 
     await user.click(saveButton);
@@ -113,7 +115,9 @@ describe('BulbPatternPage', () => {
     await user.click(addButton);
 
     dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
@@ -215,13 +219,17 @@ describe('BulbPatternPage', () => {
 
     const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, storedPattern.name);
-    expect(screen.getByRole('textbox', { name: /patternEditor.form.nameLabel/i })).toHaveValue(storedPattern.name);
+    expect(screen.getByRole('textbox', { name: /patternEditor.form.nameLabel/i })).toHaveValue(
+      storedPattern.name,
+    );
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
     await user.click(screen.getByRole('button', { name: 'patternEditor.storage.deleteButton' }));
 
-    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching('patternEditor.storage.deleteConfirm'));
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringMatching('patternEditor.storage.deleteConfirm'),
+    );
     confirmSpy.mockRestore();
 
     expect(usePatternStore.getState().patterns).toHaveLength(0);
@@ -237,9 +245,13 @@ describe('BulbPatternPage', () => {
     await user.click(addButton);
 
     const dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
-    expect(screen.getByRole('heading', { name: 'patternEditor.steps.title #1' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { name: 'patternEditor.steps.title #1' }),
+    ).toBeInTheDocument();
 
     const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, '');

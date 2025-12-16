@@ -4,7 +4,7 @@ import type { SerialLogEntry } from '@/components/serial-log/SerialLogPanel';
 
 import { serialManager, type ConnectionStatus } from './serial-manager';
 
-interface SerialStoreState {
+export interface SerialStoreState {
   status: ConnectionStatus;
   logs: SerialLogEntry[];
   isSupported: boolean;

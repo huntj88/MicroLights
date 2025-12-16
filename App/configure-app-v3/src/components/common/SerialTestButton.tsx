@@ -13,7 +13,12 @@ interface SerialTestButtonProps {
   disabled: boolean;
 }
 
-export const SerialTestButton = ({ data, type, patternTarget, disabled }: SerialTestButtonProps) => {
+export const SerialTestButton = ({
+  data,
+  type,
+  patternTarget,
+  disabled,
+}: SerialTestButtonProps) => {
   const { t } = useTranslation();
   const status = useSerialStore(s => s.status);
   const send = useSerialStore(s => s.send);
@@ -49,7 +54,12 @@ export const SerialTestButton = ({ data, type, patternTarget, disabled }: Serial
   if (status !== 'connected') return null;
 
   return (
-    <StyledButton onClick={() => void handleTest()} variant="secondary" disabled={disabled} title={t('common.hints.fixValidationErrors')}>
+    <StyledButton
+      onClick={() => void handleTest()}
+      variant="secondary"
+      disabled={disabled}
+      title={t('common.hints.fixValidationErrors')}
+    >
       {t('common.actions.test')}
     </StyledButton>
   );

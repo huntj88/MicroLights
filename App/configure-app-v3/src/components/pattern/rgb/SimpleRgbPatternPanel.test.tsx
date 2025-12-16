@@ -64,8 +64,12 @@ describe('SimpleRgbPatternPanel', () => {
     const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
     await user.click(playButton);
 
-    expect(screen.getByRole('button', { name: 'patternEditor.controls.pause' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'patternEditor.controls.play' })).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'patternEditor.controls.pause' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'patternEditor.controls.play' }),
+    ).not.toBeInTheDocument();
 
     const pauseButton = screen.getByRole('button', { name: 'patternEditor.controls.pause' });
     await user.click(pauseButton);
@@ -81,7 +85,9 @@ describe('SimpleRgbPatternPanel', () => {
 
     const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
     await user.click(playButton);
-    expect(screen.getByRole('button', { name: 'patternEditor.controls.pause' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'patternEditor.controls.pause' }),
+    ).toBeInTheDocument();
 
     const stopButton = screen.getByRole('button', { name: 'patternEditor.controls.stop' });
     await user.click(stopButton);
@@ -105,7 +111,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.type(modalDurationInput, '200');
 
     const dialog = screen.getByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     const [nextPattern, action] = handleChange.mock.calls[0] as Parameters<
@@ -361,7 +369,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Change to 0
     await user.clear(durationInput);
@@ -388,7 +398,9 @@ describe('SimpleRgbPatternPanel', () => {
 
     renderWithProviders(<SimpleRgbPatternPanel onChange={vi.fn()} value={pattern} />);
 
-    expect(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }),
+    ).toBeInTheDocument();
   });
 
   it('triggers validation error when duration is empty', async () => {
@@ -402,7 +414,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(screen.getByRole('button', { name: 'patternEditor.preview.segmentLabel' }));
 
     // Find duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Clear input
     await user.clear(durationInput);
@@ -433,7 +447,9 @@ describe('SimpleRgbPatternPanel', () => {
     await user.click(segments[0]);
 
     // Find the duration input
-    const durationInput = screen.getByRole('spinbutton', { name: /^patternEditor.form.durationLabel/ });
+    const durationInput = screen.getByRole('spinbutton', {
+      name: /^patternEditor.form.durationLabel/,
+    });
 
     // Clear the input
     await user.clear(durationInput);
