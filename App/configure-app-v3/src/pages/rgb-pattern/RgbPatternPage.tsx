@@ -148,7 +148,7 @@ export const RgbPatternPage = () => {
           <p className="theme-muted">{t('rgbPattern.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
-          <SerialTestButton data={currentEditor.editingItem} type="pattern" patternTarget="front" />
+          <SerialTestButton data={currentEditor.editingItem} type="pattern" patternTarget="front" disabled={!currentEditor.isValid} />
           <SerialConnectButton />
         </div>
       </header>

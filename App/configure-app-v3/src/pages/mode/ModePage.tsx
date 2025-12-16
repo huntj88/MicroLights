@@ -68,8 +68,15 @@ export const ModePage = () => {
           <p className="theme-muted">{t('mode.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
-          <SerialTestButton data={editingMode} type="mode" />
-          <SerialFlashButton mode={editingMode} />
+          <SerialTestButton
+            data={editingMode}
+            type="mode"
+            disabled={!isValid}
+          />
+          <SerialFlashButton
+            mode={editingMode}
+            disabled={!isValid}
+          />
           <SerialConnectButton />
         </div>
       </header>

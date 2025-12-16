@@ -11,6 +11,13 @@
       "flash": "Flash to Device",
       "flashSuccess": "Mode flashed to device",
       "flashError": "Failed to flash mode"
+    },
+    "labels": {
+      "index": "Memory Slot"
+    },
+    "hints": {
+      "flashIndex": "Select which slot (1-6) to save this mode into on the device.",
+      "fixValidationErrors": "Please fix validation errors to proceed."
     }
   },
   "app": {
@@ -176,6 +183,8 @@
     "actions": {
       "connect": "Connect",
       "disconnect": "Disconnect",
+      "connecting": "Connecting...",
+      "disconnecting": "Disconnecting...",
       "autoscrollOn": "Autoscroll • on",
       "autoscrollOff": "Autoscroll • off",
       "clear": "Clear log",

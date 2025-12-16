@@ -10,15 +10,16 @@ interface SerialTestButtonProps {
   data: Mode | ModePattern;
   type: 'mode' | 'pattern';
   patternTarget?: 'front' | 'case';
+  disabled: boolean;
 }
 
-export const SerialTestButton = ({ data, type, patternTarget }: SerialTestButtonProps) => {
+export const SerialTestButton = ({ data, type, patternTarget, disabled }: SerialTestButtonProps) => {
   const { t } = useTranslation();
   const status = useSerialStore(s => s.status);
   const send = useSerialStore(s => s.send);
 
   const handleTest = async () => {
-    if (status !== 'connected') return;
+    if (status !== 'connected' || disabled) return;
 
     let payload: Mode;
 
@@ -48,7 +49,7 @@ export const SerialTestButton = ({ data, type, patternTarget }: SerialTestButton
   if (status !== 'connected') return null;
 
   return (
-    <StyledButton onClick={() => void handleTest()} variant="secondary">
+    <StyledButton onClick={() => void handleTest()} variant="secondary" disabled={disabled} title={t('common.hints.fixValidationErrors')}>
       {t('common.actions.test')}
     </StyledButton>
   );

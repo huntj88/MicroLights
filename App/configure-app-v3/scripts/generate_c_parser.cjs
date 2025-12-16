@@ -15,6 +15,64 @@ const fs = require('fs');
  *    - `optional`: boolean.
  *    - `default`: Default value.
  * 4. Run `node scripts/generate_c_parser.cjs` to regenerate mode_parser.h and mode_parser.c.
+ *
+ * EXAMPLES:
+ *
+ * 1. Simple Pattern:
+ * {
+ *   "name": "Blinky",
+ *   "front": {
+ *     "pattern": {
+ *       "type": "simple",
+ *       "name": "Flash",
+ *       "duration": 1000,
+ *       "changeAt": [
+ *         { "ms": 0, "output": "#FF0000" },
+ *         { "ms": 500, "output": "#000000" }
+ *       ]
+ *     }
+ *   }
+ * }
+ *
+ * 2. Equation Pattern:
+ * {
+ *   "name": "Sine Wave",
+ *   "case": {
+ *     "pattern": {
+ *       "type": "equation",
+ *       "name": "Red Sine",
+ *       "duration": 2000,
+ *       "red": {
+ *         "sections": [
+ *           { "equation": "sin(t * 2 * pi)", "duration": 2000 }
+ *         ],
+ *         "loopAfterDuration": true
+ *       },
+ *       "green": { "sections": [] },
+ *       "blue": { "sections": [] }
+ *     }
+ *   }
+ * }
+ *
+ * 3. Accel Trigger:
+ * {
+ *   "name": "Impact",
+ *   "accel": {
+ *     "triggers": [
+ *       {
+ *         "threshold": 2000,
+ *         "front": {
+ *           "pattern": {
+ *             "type": "simple",
+ *             "name": "White Flash",
+ *             "duration": 100,
+ *             "changeAt": [{ "ms": 0, "output": "#FFFFFF" }]
+ *           }
+ *         }
+ *       }
+ *     ]
+ *   }
+ * }
  */
 
 const schema = {
@@ -23,7 +81,8 @@ const schema = {
         fields: {
             ms: { type: 'uint32', min: 0 },
             output: { type: 'string', max: 7 } // #RRGGBB or high/low
-        }
+        },
+        refine: { expr: "isValidPatternOutput(out->output)", field: "output" }
     },
     SimplePattern: {
         type: 'struct',
@@ -50,14 +109,16 @@ const schema = {
     EquationPattern: {
         type: 'struct',
         fields: {
-            id: { type: 'string', max: 36, optional: true },
             name: { type: 'string', min: 1, max: 31 },
             duration: { type: 'uint32', min: 0 },
             red: { type: 'ChannelConfig' },
             green: { type: 'ChannelConfig' },
             blue: { type: 'ChannelConfig' }
         },
-        refine: "out->red.sections_count > 0 || out->green.sections_count > 0 || out->blue.sections_count > 0"
+        refine: {
+            expr: "out->red.sections_count > 0 || out->green.sections_count > 0 || out->blue.sections_count > 0",
+            field: "red"
+        }
     },
     ModePattern: {
         type: 'discriminatedUnion',
@@ -80,7 +141,7 @@ const schema = {
             front: { type: 'ModeComponent', optional: true },
             case: { type: 'ModeComponent', optional: true }
         },
-        refine: "out->has_front || out->has_case_comp"
+        refine: { expr: "out->has_front || out->has_case_comp", field: "front" }
     },
     ModeAccel: {
         type: 'struct',
@@ -96,7 +157,7 @@ const schema = {
             case: { type: 'ModeComponent', optional: true },
             accel: { type: 'ModeAccel', optional: true }
         },
-        refine: "out->has_front || out->has_case_comp"
+        refine: { expr: "out->has_front || out->has_case_comp", field: "front" }
     }
 };
 
@@ -108,6 +169,23 @@ function generateHeader() {
 #include <stdint.h>
 #include <stdbool.h>
 #include "lwjson/lwjson.h"
+
+typedef enum {
+    MODE_PARSER_OK = 0,
+    MODE_PARSER_ERR_MISSING_FIELD,
+    MODE_PARSER_ERR_STRING_TOO_SHORT,
+    MODE_PARSER_ERR_VALUE_TOO_SMALL,
+    MODE_PARSER_ERR_ARRAY_TOO_SHORT,
+    MODE_PARSER_ERR_INVALID_VARIANT,
+    MODE_PARSER_ERR_VALIDATION_FAILED
+} ModeParserError;
+
+typedef struct {
+    ModeParserError error;
+    char path[128];
+} ModeErrorContext;
+
+const char* modeParserErrorToString(ModeParserError err);
 
 typedef enum {
     PATTERN_TYPE_SIMPLE,
@@ -156,7 +234,7 @@ typedef enum {
         out += `};\n\n`;
     }
 
-    out += `bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out);\n`;
+    out += `ModeParserError parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);\n`;
     out += `\n#endif // MODE_PARSER_H\n`;
     return out;
 }
@@ -175,6 +253,46 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
     dest[len] = '\\0';
 }
 
+static void prependContext(ModeErrorContext *ctx, const char *prefix, int32_t index) {
+    char tmp[256];
+    if (ctx->path[0] == '\\0') {
+        if (index >= 0) snprintf(tmp, sizeof(tmp), "%s[%d]", prefix, (int)index);
+        else snprintf(tmp, sizeof(tmp), "%s", prefix);
+    } else {
+        if (index >= 0) snprintf(tmp, sizeof(tmp), "%s[%d].%s", prefix, (int)index, ctx->path);
+        else snprintf(tmp, sizeof(tmp), "%s.%s", prefix, ctx->path);
+    }
+    strncpy(ctx->path, tmp, sizeof(ctx->path) - 1);
+    ctx->path[sizeof(ctx->path) - 1] = '\\0';
+}
+
+const char* modeParserErrorToString(ModeParserError err) {
+    switch (err) {
+        case MODE_PARSER_OK: return "Success";
+        case MODE_PARSER_ERR_MISSING_FIELD: return "Missing required field";
+        case MODE_PARSER_ERR_STRING_TOO_SHORT: return "String is too short";
+        case MODE_PARSER_ERR_VALUE_TOO_SMALL: return "Value is too small";
+        case MODE_PARSER_ERR_ARRAY_TOO_SHORT: return "Array has too few items";
+        case MODE_PARSER_ERR_INVALID_VARIANT: return "Invalid variant type";
+        case MODE_PARSER_ERR_VALIDATION_FAILED: return "Validation failed";
+        default: return "Unknown error";
+    }
+}
+
+static bool isValidPatternOutput(const char *s) {
+    if (strcmp(s, "high") == 0) return true;
+    if (strcmp(s, "low") == 0) return true;
+    if (s[0] == '#') {
+        if (strlen(s) != 7) return false;
+        for (int i = 1; i < 7; i++) {
+            char c = s[i];
+            if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) return false;
+        }
+        return true;
+    }
+    return false;
+}
+
 `;
 
     // Generate parse functions for each type
@@ -183,15 +301,15 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
     
     for (const name of Object.keys(schema)) {
         if (name === 'Mode') continue;
-        out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out);\n`;
+        out += `static ModeParserError parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx);\n`;
     }
     out += '\n';
 
     for (const [name, def] of Object.entries(schema)) {
         const prefix = name === 'Mode' ? '' : 'static ';
-        out += `${prefix}bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out) {\n`;
+        out += `${prefix}ModeParserError parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx) {\n`;
         out += `    const lwjson_token_t *t;\n`;
-        out += `    bool valid = true;\n`;
+        out += `    ModeParserError err = MODE_PARSER_OK;\n`;
         
         if (def.type === 'struct') {
             // Initialize optional flags
@@ -213,12 +331,20 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
                 if (fieldDef.type === 'string') {
                     out += `        copyString(out->${cName}, t, ${fieldDef.max});\n`;
                     if (fieldDef.min) {
-                        out += `        if (strlen(out->${cName}) < ${fieldDef.min}) valid = false;\n`;
+                        out += `        if (strlen(out->${cName}) < ${fieldDef.min}) {\n`;
+                        out += `            ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;\n`;
+                        out += `            strcpy(ctx->path, "${fieldName}");\n`;
+                        out += `            return ctx->error;\n`;
+                        out += `        }\n`;
                     }
                 } else if (fieldDef.type === 'uint32') {
                     out += `        out->${cName} = (uint32_t)t->u.num_int;\n`;
                     if (fieldDef.min !== undefined) {
-                        out += `        if (out->${cName} < ${fieldDef.min}) valid = false;\n`;
+                        out += `        if (out->${cName} < ${fieldDef.min}) {\n`;
+                        out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
+                        out += `            strcpy(ctx->path, "${fieldName}");\n`;
+                        out += `            return ctx->error;\n`;
+                        out += `        }\n`;
                     }
                 } else if (fieldDef.type === 'boolean') {
                     out += `        out->${cName} = t->u.num_int != 0; // lwjson parses bools as ints often, or check type\n`;
@@ -227,19 +353,26 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
                 } else if (fieldDef.type === 'array') {
                     out += `        const lwjson_token_t *child = lwjson_get_first_child(t);\n`;
                     out += `        while (child != NULL && out->${cName}_count < ${fieldDef.max}) {\n`;
-                    out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t*)child, &out->${cName}[out->${cName}_count])) {\n`;
-                    out += `                valid = false;\n`;
-                    out += `                break;\n`;
+                    out += `            if ((err = parse${fieldDef.item}(lwjson, (lwjson_token_t*)child, &out->${cName}[out->${cName}_count], ctx)) != MODE_PARSER_OK) {\n`;
+                    out += `                prependContext(ctx, "${fieldName}", out->${cName}_count);\n`;
+                    out += `                return err;\n`;
                     out += `            }\n`;
                     out += `            out->${cName}_count++;\n`;
                     out += `            child = child->next;\n`;
                     out += `        }\n`;
                     if (fieldDef.min) {
-                        out += `        if (out->${cName}_count < ${fieldDef.min}) valid = false;\n`;
+                        out += `        if (out->${cName}_count < ${fieldDef.min}) {\n`;
+                        out += `            ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;\n`;
+                        out += `            strcpy(ctx->path, "${fieldName}");\n`;
+                        out += `            return ctx->error;\n`;
+                        out += `        }\n`;
                     }
                 } else {
                     // Struct type
-                    out += `        if (!parse${fieldDef.type}(lwjson, (lwjson_token_t*)t, &out->${cName})) valid = false;\n`;
+                    out += `        if ((err = parse${fieldDef.type}(lwjson, (lwjson_token_t*)t, &out->${cName}, ctx)) != MODE_PARSER_OK) {\n`;
+                    out += `            prependContext(ctx, "${fieldName}", -1);\n`;
+                    out += `            return err;\n`;
+                    out += `        }\n`;
                 }
 
                 if (fieldDef.optional) {
@@ -248,7 +381,11 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
                 
                 out += `    }`;
                 if (!fieldDef.optional && fieldDef.default === undefined) {
-                    out += ` else {\n        valid = false;\n    }\n`;
+                    out += ` else {\n`;
+                    out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
+                    out += `        strcpy(ctx->path, "${fieldName}");\n`;
+                    out += `        return ctx->error;\n`;
+                    out += `    }\n`;
                 } else if (fieldDef.default !== undefined) {
                     out += ` else {\n`;
                     if (fieldDef.type === 'boolean') {
@@ -261,7 +398,18 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
             }
 
             if (def.refine) {
-                out += `    if (!(${def.refine})) valid = false;\n`;
+                const refineExpr = typeof def.refine === 'string' ? def.refine : def.refine.expr;
+                const refineField = typeof def.refine === 'object' && def.refine.field ? def.refine.field : null;
+                
+                out += `    if (!(${refineExpr})) {\n`;
+                out += `        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;\n`;
+                if (refineField) {
+                    out += `        strcpy(ctx->path, "${refineField}");\n`;
+                } else {
+                    out += `        ctx->path[0] = '\\0';\n`;
+                }
+                out += `        return ctx->error;\n`;
+                out += `    }\n`;
             }
 
         } else if (def.type === 'discriminatedUnion') {
@@ -273,15 +421,23 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
             for (const [key, typeName] of Object.entries(def.variants)) {
                 out += `        ${first ? '' : 'else '}if (strcmp(typeStr, "${key}") == 0) {\n`;
                 out += `            out->type = PATTERN_TYPE_${key.toUpperCase()};\n`;
-                out += `            if (!parse${typeName}(lwjson, token, &out->data.${key})) valid = false;\n`;
+                out += `            if ((err = parse${typeName}(lwjson, token, &out->data.${key}, ctx)) != MODE_PARSER_OK) return err;\n`;
                 out += `        }\n`;
                 first = false;
             }
-            out += `        else { valid = false; }\n`;
-            out += `    } else { valid = false; }\n`;
+            out += `        else {\n`;
+            out += `            ctx->error = MODE_PARSER_ERR_INVALID_VARIANT;\n`;
+            out += `            strcpy(ctx->path, "${def.discriminator}");\n`;
+            out += `            return ctx->error;\n`;
+            out += `        }\n`;
+            out += `    } else {\n`;
+            out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
+            out += `        strcpy(ctx->path, "${def.discriminator}");\n`;
+            out += `        return ctx->error;\n`;
+            out += `    }\n`;
         }
 
-        out += `    return valid;\n`;
+        out += `    return MODE_PARSER_OK;\n`;
         out += `}\n\n`;
     }
 
