@@ -122,6 +122,18 @@ typedef enum {
     PATTERN_TYPE_EQUATION
 } PatternType;
 
+typedef enum SimpleOutputType {
+	BULB,
+	RGB
+} SimpleOutputType;
+
+typedef enum BulbSimpleOutput {
+	low, high
+} BulbSimpleOutput;
+
+typedef struct RGBSimpleOutput RGBSimpleOutput;
+typedef struct SimpleOutput SimpleOutput;
+
 typedef struct PatternChange PatternChange;
 typedef struct SimplePattern SimplePattern;
 typedef struct EquationSection EquationSection;
@@ -133,15 +145,29 @@ typedef struct ModeAccelTrigger ModeAccelTrigger;
 typedef struct ModeAccel ModeAccel;
 typedef struct Mode Mode;
 
+struct RGBSimpleOutput {
+	uint8_t r; // 0 - 255
+	uint8_t g; // 0 - 255
+	uint8_t b; // 0 - 255
+};
+
+struct SimpleOutput {
+	SimpleOutputType type;
+	union {
+		BulbSimpleOutput bulb;
+		RGBSimpleOutput rgb;
+	} data;
+};
+
 struct PatternChange {
     uint32_t ms;
-    char output[8];
+    SimpleOutput output;
 };
 
 struct SimplePattern {
-    char name[32];
+    char name[20];
     uint32_t duration;
-    PatternChange changeAt[64];
+    PatternChange changeAt[32];
     uint8_t changeAt_count;
 };
 
@@ -151,13 +177,13 @@ struct EquationSection {
 };
 
 struct ChannelConfig {
-    EquationSection sections[8];
+    EquationSection sections[3];
     uint8_t sections_count;
     bool loopAfterDuration;
 };
 
 struct EquationPattern {
-    char name[32];
+    char name[20];
     uint32_t duration;
     ChannelConfig red;
     ChannelConfig green;
@@ -185,7 +211,7 @@ struct ModeAccelTrigger {
 };
 
 struct ModeAccel {
-    ModeAccelTrigger triggers[8];
+    ModeAccelTrigger triggers[2];
     uint8_t triggers_count;
 };
 

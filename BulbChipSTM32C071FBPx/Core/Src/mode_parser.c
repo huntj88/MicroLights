@@ -37,20 +37,46 @@ const char* modeParserErrorToString(ModeParserError err) {
     }
 }
 
-static bool isValidPatternOutput(const char *s) {
-    if (strcmp(s, "high") == 0) return true;
-    if (strcmp(s, "low") == 0) return true;
-    if (s[0] == '#') {
-        if (strlen(s) != 7) return false;
-        for (int i = 1; i < 7; i++) {
-            char c = s[i];
-            if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) return false;
-        }
+static uint8_t hexCharToInt(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return 0;
+}
+
+static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx) {
+    if (token->type != LWJSON_TYPE_STRING) {
+        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
+        return false;
+    }
+    
+    char tmp[16];
+    copyString(tmp, token, 15);
+    
+    if (strcmp(tmp, "high") == 0) {
+        out->type = BULB;
+        out->data.bulb = high;
         return true;
     }
+    if (strcmp(tmp, "low") == 0) {
+        out->type = BULB;
+        out->data.bulb = low;
+        return true;
+    }
+    
+    if (tmp[0] == '#' && strlen(tmp) == 7) {
+        out->type = RGB;
+        out->data.rgb.r = (hexCharToInt(tmp[1]) << 4) | hexCharToInt(tmp[2]);
+        out->data.rgb.g = (hexCharToInt(tmp[3]) << 4) | hexCharToInt(tmp[4]);
+        out->data.rgb.b = (hexCharToInt(tmp[5]) << 4) | hexCharToInt(tmp[6]);
+        return true;
+    }
+    
+    ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
     return false;
 }
 
+static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx);
 static bool parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx);
 static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx);
 static bool parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx);
@@ -76,14 +102,12 @@ static bool parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternC
         return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "output")) != NULL) {
-        copyString(out->output, t, 7);
+        if (!parseSimpleOutput(lwjson, (lwjson_token_t*)t, &out->output, ctx)) {
+            prependContext(ctx, "output", -1);
+            return false;
+        }
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
-        strcpy(ctx->path, "output");
-        return false;
-    }
-    if (!(isValidPatternOutput(out->output))) {
-        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
         strcpy(ctx->path, "output");
         return false;
     }
@@ -94,7 +118,7 @@ static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePa
     const lwjson_token_t *t;
     out->changeAt_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
-        copyString(out->name, t, 31);
+        copyString(out->name, t, 19);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "name");
@@ -119,7 +143,7 @@ static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePa
     }
     if ((t = lwjson_find_ex(lwjson, token, "changeAt")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
-        while (child != NULL && out->changeAt_count < 64) {
+        while (child != NULL && out->changeAt_count < 32) {
             if (!parsePatternChange(lwjson, (lwjson_token_t*)child, &out->changeAt[out->changeAt_count], ctx)) {
                 prependContext(ctx, "changeAt", out->changeAt_count);
                 return false;
@@ -174,7 +198,7 @@ static bool parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelC
     out->sections_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "sections")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
-        while (child != NULL && out->sections_count < 8) {
+        while (child != NULL && out->sections_count < 3) {
             if (!parseEquationSection(lwjson, (lwjson_token_t*)child, &out->sections[out->sections_count], ctx)) {
                 prependContext(ctx, "sections", out->sections_count);
                 return false;
@@ -202,7 +226,7 @@ static bool parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelC
 static bool parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
-        copyString(out->name, t, 31);
+        copyString(out->name, t, 19);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
             strcpy(ctx->path, "name");
@@ -347,7 +371,7 @@ static bool parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *o
     out->triggers_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "triggers")) != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
-        while (child != NULL && out->triggers_count < 8) {
+        while (child != NULL && out->triggers_count < 2) {
             if (!parseModeAccelTrigger(lwjson, (lwjson_token_t*)child, &out->triggers[out->triggers_count], ctx)) {
                 prependContext(ctx, "triggers", out->triggers_count);
                 return false;

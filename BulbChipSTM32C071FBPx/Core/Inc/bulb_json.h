@@ -9,10 +9,42 @@
 #define INC_BULB_JSON_H_
 
 #include <stdint.h>
+#include "mode_parser.h"
 
-enum Output {
-	low, high
-};
+/*
+ * Example Commands:
+ *
+ * Write Mode:
+ * {
+ *   "command": "writeMode",
+ *   "index": 0,
+ *   "mode": { ... } // Refer to mode parser for the full json object
+ * }
+ *
+ * Read Mode:
+ * {
+ *   "command": "readMode",
+ *   "index": 0
+ * }
+ *
+ * Write Settings:
+ * {
+ *   "command": "writeSettings",
+ *   "modeCount": 5,
+ *   "minutesUntilAutoOff": 30,
+ *   "minutesUntilLockAfterAutoOff": 60
+ * }
+ *
+ * Read Settings:
+ * {
+ *   "command": "readSettings"
+ * }
+ *
+ * DFU:
+ * {
+ *   "command": "dfu"
+ * }
+ */
 
 enum ParseResult {
 	parseError,
@@ -23,43 +55,6 @@ enum ParseResult {
 	parseDfu
 };
 
-typedef struct ChangeAt {
-	uint16_t tick;
-	enum Output output;
-} ChangeAt;
-
-typedef struct Waveform {
-	char name[32];
-	uint16_t totalTicks;
-	ChangeAt changeAt[64];
-	uint8_t numChanges;
-} Waveform;
-
-typedef struct AccelTrigger {
-	uint8_t threshold;
-	char color[8]; // e.g. "#3584e4"
-	Waveform waveform;
-
-	// metadata calculated at runtime
-	int8_t red;
-	uint8_t green;
-	uint8_t blue;
-} AccelTrigger;
-
-typedef struct BulbMode {
-	char name[32];
-	char color[8]; // e.g. "#3584e4"
-	Waveform waveform;
-	AccelTrigger triggers[8];
-
-	// metadata calculated at runtime
-	uint8_t triggerCount;
-	uint8_t modeIndex;
-	uint8_t red;
-	uint8_t green;
-	uint8_t blue;
-} BulbMode;
-
 typedef struct ChipSettings {
 	uint8_t modeCount;
 	uint8_t minutesUntilAutoOff;
@@ -68,11 +63,16 @@ typedef struct ChipSettings {
 
 typedef struct CliInput {
 	// only one will be populated, see parsedType
-	BulbMode mode;
+	Mode mode;
 	ChipSettings settings;
+
+	// metadata
+	uint8_t modeIndex;
 
 	// metadata calculated at runtime
 	uint16_t jsonLength;
+	
+	// metadata calculated at runtime
 	// 0 for not parsed successfully
 	// 1 for mode
 	// 2 for settings

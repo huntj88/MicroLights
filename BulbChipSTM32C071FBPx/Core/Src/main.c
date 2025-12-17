@@ -61,7 +61,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
 MC3479 accel;
-RGB caseLed;
+RGBLed caseLed;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

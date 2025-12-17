@@ -7,6 +7,8 @@ import { modeSchema } from '../src/app/models/mode';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// TODO: add max name length, array length validation in Zod
+
 /**
  * This script generates a C parser for the Mode model defined in src/app/models/mode.ts.
  *
@@ -133,7 +135,8 @@ type FieldType =
   | 'EquationPattern'
   | 'PatternChange'
   | 'EquationSection'
-  | 'ChannelConfig';
+  | 'ChannelConfig'
+  | 'SimpleOutput';
 
 interface BaseFieldDef {
   type: FieldType;
@@ -172,7 +175,8 @@ interface StructFieldDef extends BaseFieldDef {
     | 'EquationPattern'
     | 'PatternChange'
     | 'EquationSection'
-    | 'ChannelConfig'; // Name of another struct
+    | 'ChannelConfig'
+    | 'SimpleOutput'; // Name of another struct
 }
 
 type FieldDef = StringFieldDef | Uint32FieldDef | BooleanFieldDef | ArrayFieldDef | StructFieldDef;
@@ -201,16 +205,15 @@ const schema: Record<string, SchemaDef> = {
     type: 'struct',
     fields: {
       ms: { type: 'uint32', min: 0 },
-      output: { type: 'string', max: 7 }, // #RRGGBB or high/low
+      output: { type: 'SimpleOutput' },
     },
-    refine: { expr: 'isValidPatternOutput(out->output)', field: 'output' },
   },
   SimplePattern: {
     type: 'struct',
     fields: {
-      name: { type: 'string', min: 1, max: 31 },
+      name: { type: 'string', min: 1, max: 19 },
       duration: { type: 'uint32', min: 1 },
-      changeAt: { type: 'array', item: 'PatternChange', min: 1, max: 64 },
+      changeAt: { type: 'array', item: 'PatternChange', min: 1, max: 32 },
     },
   },
   EquationSection: {
@@ -223,14 +226,14 @@ const schema: Record<string, SchemaDef> = {
   ChannelConfig: {
     type: 'struct',
     fields: {
-      sections: { type: 'array', item: 'EquationSection', max: 8 },
+      sections: { type: 'array', item: 'EquationSection', max: 3 },
       loopAfterDuration: { type: 'boolean' },
     },
   },
   EquationPattern: {
     type: 'struct',
     fields: {
-      name: { type: 'string', min: 1, max: 31 },
+      name: { type: 'string', min: 1, max: 19 },
       duration: { type: 'uint32', min: 0 },
       red: { type: 'ChannelConfig' },
       green: { type: 'ChannelConfig' },
@@ -267,7 +270,7 @@ const schema: Record<string, SchemaDef> = {
   ModeAccel: {
     type: 'struct',
     fields: {
-      triggers: { type: 'array', item: 'ModeAccelTrigger', min: 1, max: 8 },
+      triggers: { type: 'array', item: 'ModeAccelTrigger', min: 1, max: 2 },
     },
   },
   Mode: {
@@ -316,6 +319,18 @@ typedef enum {
     PATTERN_TYPE_EQUATION
 } PatternType;
 
+typedef enum SimpleOutputType {
+	BULB,
+	RGB
+} SimpleOutputType;
+
+typedef enum BulbSimpleOutput {
+	low, high
+} BulbSimpleOutput;
+
+typedef struct RGBSimpleOutput RGBSimpleOutput;
+typedef struct SimpleOutput SimpleOutput;
+
 `;
 
   // Forward declarations
@@ -323,6 +338,22 @@ typedef enum {
     out += `typedef struct ${name} ${name};\n`;
   }
   out += '\n';
+
+  out += `struct RGBSimpleOutput {
+	uint8_t r; // 0 - 255
+	uint8_t g; // 0 - 255
+	uint8_t b; // 0 - 255
+};
+
+struct SimpleOutput {
+	SimpleOutputType type;
+	union {
+		BulbSimpleOutput bulb;
+		RGBSimpleOutput rgb;
+	} data;
+};
+
+`;
 
   for (const [name, def] of Object.entries(schema)) {
     out += `struct ${name} {\n`;
@@ -405,17 +436,42 @@ const char* modeParserErrorToString(ModeParserError err) {
     }
 }
 
-static bool isValidPatternOutput(const char *s) {
-    if (strcmp(s, "high") == 0) return true;
-    if (strcmp(s, "low") == 0) return true;
-    if (s[0] == '#') {
-        if (strlen(s) != 7) return false;
-        for (int i = 1; i < 7; i++) {
-            char c = s[i];
-            if (!((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))) return false;
-        }
+static uint8_t hexCharToInt(char c) {
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    return 0;
+}
+
+static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx) {
+    if (token->type != LWJSON_TYPE_STRING) {
+        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
+        return false;
+    }
+    
+    char tmp[16];
+    copyString(tmp, token, 15);
+    
+    if (strcmp(tmp, "high") == 0) {
+        out->type = BULB;
+        out->data.bulb = high;
         return true;
     }
+    if (strcmp(tmp, "low") == 0) {
+        out->type = BULB;
+        out->data.bulb = low;
+        return true;
+    }
+    
+    if (tmp[0] == '#' && strlen(tmp) == 7) {
+        out->type = RGB;
+        out->data.rgb.r = (hexCharToInt(tmp[1]) << 4) | hexCharToInt(tmp[2]);
+        out->data.rgb.g = (hexCharToInt(tmp[3]) << 4) | hexCharToInt(tmp[4]);
+        out->data.rgb.b = (hexCharToInt(tmp[5]) << 4) | hexCharToInt(tmp[6]);
+        return true;
+    }
+    
+    ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
     return false;
 }
 
@@ -424,6 +480,8 @@ static bool isValidPatternOutput(const char *s) {
   // Generate parse functions for each type
   // We need to do this in dependency order or just forward declare.
   // Since C requires definition before use (or forward decl), let's forward declare all parse functions.
+
+  out += `static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx);\n`;
 
   for (const name of Object.keys(schema)) {
     if (name === 'Mode') continue;

@@ -11,20 +11,7 @@
 #include <ctype.h>
 #include "bulb_json.h"
 #include "lwjson/lwjson.h"
-
-// Helper: Parse hex color string (e.g. "#3584e4") to r/g/b (0-255)
-static void parseHexColor(const char *hex, uint8_t *r, uint8_t *g, uint8_t *b) {
-	if (!hex || strlen(hex) < 7 || hex[0] != '#') {
-		*r = *g = *b = 0;
-		return;
-	}
-	char rs[3] = {hex[1], hex[2], 0};
-	char gs[3] = {hex[3], hex[4], 0};
-	char bs[3] = {hex[5], hex[6], 0};
-	*r = (uint8_t)strtoul(rs, NULL, 16);
-	*g = (uint8_t)strtoul(gs, NULL, 16);
-	*b = (uint8_t)strtoul(bs, NULL, 16);
-}
+#include "mode_parser.h"
 
 static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
@@ -59,251 +46,6 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	return parsedProperties == 3;
 }
 
-static bool parseWaveformJson(lwjson_t *lwjson, lwjson_token_t *waveformJsonObject, Waveform *waveform) {
-	const lwjson_token_t *t;
-	bool didParseName = false;
-	bool didParseTotalTicks = false;
-	bool didParseOutput = false;
-	bool didParseTick = false;
-
-	if ((t = lwjson_find_ex(lwjson, waveformJsonObject, "name")) != NULL) {
-		char *nameRaw = t->u.str.token_value;
-		for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-			waveform->name[i] = nameRaw[i];
-		}
-		waveform->name[t->u.str.token_value_len] = '\0';
-		didParseName = true;
-	}
-
-	if ((t = lwjson_find_ex(lwjson, waveformJsonObject, "totalTicks")) != NULL) {
-		waveform->totalTicks = t->u.num_int;
-		didParseTotalTicks = true;
-	}
-
-	if ((t = lwjson_find_ex(lwjson, waveformJsonObject, "changeAt")) != NULL) {
-		uint8_t changeIndex = 0;
-		for (const lwjson_token_t *tkn = lwjson_get_first_child(t);
-			tkn != NULL; tkn = tkn->next) {
-			if (tkn->type == LWJSON_TYPE_OBJECT) {
-				const lwjson_token_t *tObject;
-				enum Output output;
-				uint16_t tick;
-
-				if ((tObject = lwjson_find_ex(lwjson, tkn, "output"))
-					!= NULL) {
-					if (strncmp(tObject->u.str.token_value, "high", 4) == 0) {
-						output = high;
-					} else {
-						output = low;
-					}
-					didParseOutput = true;
-				}
-
-				if ((tObject = lwjson_find_ex(lwjson, tkn, "tick")) != NULL) {
-					tick = tObject->u.num_int;
-					didParseTick = true;
-				}
-
-				ChangeAt change = { tick, output };
-				waveform->changeAt[changeIndex] = change;
-				changeIndex++;
-			}
-		}
-		waveform->numChanges = changeIndex;
-	}
-
-	bool hasMinRequiredProperties = didParseName && didParseTotalTicks && didParseOutput && didParseTick;
-
-	return hasMinRequiredProperties && waveform->totalTicks > 0;
-}
-
-static bool parseModeJson(lwjson_t *lwjson, lwjson_token_t *modeJsonObject, BulbMode *mode) {
-	const lwjson_token_t *t;
-	bool didParseName = false;
-	bool didParseColor = false;
-	bool didParseWaveform = false;
-	bool didParseAccel = false;
-
-	// name
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "name")) != NULL) {
-		char *nameRaw = t->u.str.token_value;
-		for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-			mode->name[i] = nameRaw[i];
-		}
-		mode->name[t->u.str.token_value_len] = '\0';
-		didParseName = true;
-	}
-
-	// color
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "color")) != NULL) {
-		char *colorRaw = t->u.str.token_value;
-		uint8_t len = t->u.str.token_value_len < (sizeof(mode->color) - 1) ? t->u.str.token_value_len : (sizeof(mode->color) - 1);
-		for (uint8_t i = 0; i < len; i++) {
-			mode->color[i] = colorRaw[i];
-		}
-		mode->color[len] = '\0';
-		// Parse hex color to rgb
-		uint8_t r, g, b;
-		parseHexColor(mode->color, &r, &g, &b);
-		mode->red = r;
-		mode->green = g;
-		mode->blue = b;
-		didParseColor = true;
-	}
-
-	// waveform
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "waveform")) != NULL) {
-		didParseWaveform = parseWaveformJson(lwjson, (lwjson_token_t *)t, &mode->waveform);
-	}
-
-	// accel -> triggers
-	mode->triggerCount = 0;
-	if ((t = lwjson_find_ex(lwjson, modeJsonObject, "accel")) != NULL) {
-		const lwjson_token_t *tTriggers = lwjson_find_ex(lwjson, (lwjson_token_t *)t, "triggers");
-		if (tTriggers != NULL) {
-			uint8_t triggerIndex = 0;
-			for (const lwjson_token_t *tkn = lwjson_get_first_child(tTriggers);
-				tkn != NULL; tkn = tkn->next) {
-				if (tkn->type == LWJSON_TYPE_OBJECT) {
-					const lwjson_token_t *tObject;
-					AccelTrigger trigger;
-					// threshold
-					if ((tObject = lwjson_find_ex(lwjson, tkn, "threshold")) != NULL) {
-						trigger.threshold = tObject->u.num_int;
-					} else {
-						// TODO: validation and error out
-						continue; // skip malformed trigger
-					}
-					// color
-					if ((tObject = lwjson_find_ex(lwjson, tkn, "color")) != NULL) {
-						char *colorRaw = tObject->u.str.token_value;
-						uint8_t len = tObject->u.str.token_value_len < (sizeof(trigger.color) - 1) ? tObject->u.str.token_value_len : (sizeof(trigger.color) - 1);
-						for (uint8_t i = 0; i < len; i++) {
-							trigger.color[i] = colorRaw[i];
-						}
-						trigger.color[len] = '\0';
-						// Parse hex color to rgb
-						uint8_t r, g, b;
-						parseHexColor(trigger.color, &r, &g, &b);
-						trigger.red = (int8_t)r;
-						trigger.green = g;
-						trigger.blue = b;
-					} else {
-						trigger.color[0] = '\0';
-						trigger.red = 0;
-						trigger.green = 0;
-						trigger.blue = 0;
-					}
-					// waveform
-					if ((tObject = lwjson_find_ex(lwjson, tkn, "waveform")) != NULL) {
-						if (!parseWaveformJson(lwjson, (lwjson_token_t *)tObject, &trigger.waveform)) {
-							// TODO: validation and error out
-							continue; // skip malformed trigger
-						}
-					} else {
-						// TODO: validation and error out
-						continue; // skip malformed trigger
-					}
-
-					mode->triggers[triggerIndex] = trigger;
-					triggerIndex++;
-				}
-			}
-			mode->triggerCount = triggerIndex;
-			didParseAccel = triggerIndex > 0;
-		}
-	}
-
-	// require name and waveform at minimum
-	bool hasMin = didParseName && didParseWaveform && didParseColor;
-	return hasMin;
-}
-
-/**
- * Example commands
- *
-{
-  "command": "writeMode",
-  "index": 1,
-  "mode": {
-    "name": "New Pattern",
-    "color": "#3584e4",
-    "waveform": {
-      "name": "Pulse",
-      "totalTicks": 20,
-      "changeAt": [
-        {
-          "tick": 0,
-          "output": "high"
-        },
-        {
-          "tick": 10,
-          "output": "low"
-        }
-      ]
-    },
-    "accel": {
-      "triggers": [
-        {
-          "threshold": 2,
-          "color": "#3584e4",
-          "waveform": {
-            "name": "Pulse",
-            "totalTicks": 20,
-            "changeAt": [
-              {
-                "tick": 0,
-                "output": "high"
-              },
-              {
-                "tick": 10,
-                "output": "low"
-              }
-            ]
-          }
-        },
-        {
-          "threshold": 4,
-          "color": "#3584e4",
-          "waveform": {
-            "name": "Double Blink",
-            "totalTicks": 20,
-            "changeAt": [
-              {
-                "tick": 0,
-                "output": "high"
-              },
-              {
-                "tick": 3,
-                "output": "low"
-              },
-              {
-                "tick": 6,
-                "output": "high"
-              },
-              {
-                "tick": 9,
-                "output": "low"
-              }
-            ]
-          }
-        }
-      ]
-    }
-  }
-}
-
-{
-  "command": "writeSettings",
-  "modeCount": 3,
-  "minutesUntilAutoOff": 90,
-  "minutesUntilLockAfterAutoOff": 10
-}
-
-{"command":"readSettings"}
-
-{"command":"dfu"}
-*/
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	static lwjson_token_t tokens[128];
 	static lwjson_t lwjson;
@@ -338,15 +80,18 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 		if (strncmp(command, "writeMode", 9) == 0) {
 			bool didParseMode = false;
 			bool didParseIndex = false;
-			BulbMode mode;
+			Mode mode;
+			ModeErrorContext ctx;
+			ctx.path[0] = '\0';
+			ctx.error = MODE_PARSER_OK;
 
 			if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
-				didParseMode = parseModeJson(&lwjson, (lwjson_token_t *)t, &mode);
+				didParseMode = parseMode(&lwjson, (lwjson_token_t *)t, &mode, &ctx);
 				input->mode = mode;
 			}
 
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
-				input->mode.modeIndex = t->u.num_int;
+				input->modeIndex = t->u.num_int;
 				didParseIndex = true;
 			}
 
@@ -354,9 +99,8 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 				input->parsedType = parseWriteMode;
 			}
 		} else if (strncmp(command, "readMode", 8) == 0) {
-			BulbMode mode;
 			if ((t = lwjson_find(&lwjson, "index")) != NULL) {
-				input->mode.modeIndex = t->u.num_int;
+				input->modeIndex = t->u.num_int;
 				input->parsedType = parseReadMode;
 			}
 		} else if (strncmp(command, "writeSettings", 13) == 0) {
