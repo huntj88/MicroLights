@@ -38,9 +38,7 @@ describe('SerialLogPage', () => {
           status: 'connected',
           send: mockSend,
           logs: [],
-          autoscroll: true,
           clearLogs: vi.fn(),
-          setAutoscroll: vi.fn(),
         } as unknown as SerialStoreState;
         return selector(state);
       },

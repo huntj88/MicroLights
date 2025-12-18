@@ -1,5 +1,5 @@
 import type { ChangeEvent, FormEvent } from 'react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export type SerialLogDirection = 'inbound' | 'outbound';
@@ -13,12 +13,10 @@ export interface SerialLogEntry {
 
 export interface SerialLogState {
   entries: SerialLogEntry[];
-  autoscroll: boolean;
   pendingPayload: string;
 }
 
 export type SerialLogAction =
-  | { type: 'toggle-autoscroll'; autoscroll: boolean }
   | { type: 'clear' }
   | { type: 'update-payload'; value: string }
   | { type: 'submit'; entry: SerialLogEntry };
@@ -44,20 +42,6 @@ const createEntry = (payload: string, direction: SerialLogDirection): SerialLogE
 
 export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
   const { t } = useTranslation();
-  const viewportRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (!value.autoscroll || !viewportRef.current) {
-      return;
-    }
-
-    if (typeof viewportRef.current.scrollTo === 'function') {
-      viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
-      return;
-    }
-
-    viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
-  }, [value.autoscroll, value.entries]);
 
   const handlePayloadChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const nextValue = event.target.value;
@@ -67,17 +51,6 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
         pendingPayload: nextValue,
       },
       { type: 'update-payload', value: nextValue },
-    );
-  };
-
-  const handleAutoscrollToggle = () => {
-    const nextAutoscroll = !value.autoscroll;
-    onChange(
-      {
-        ...value,
-        autoscroll: nextAutoscroll,
-      },
-      { type: 'toggle-autoscroll', autoscroll: nextAutoscroll },
     );
   };
 
@@ -107,8 +80,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
 
     onChange(
       {
-        autoscroll: value.autoscroll,
-        entries: [...value.entries, entry],
+        entries: [entry, ...value.entries],
         pendingPayload: '',
       },
       { type: 'submit', entry },
@@ -137,16 +109,6 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       <div className="flex flex-wrap items-center gap-2">
         <button
           className="rounded-full border border-solid theme-border px-3 py-1 text-sm transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
-          onClick={handleAutoscrollToggle}
-          type="button"
-          aria-pressed={value.autoscroll}
-        >
-          {value.autoscroll
-            ? t('serialLog.actions.autoscrollOn')
-            : t('serialLog.actions.autoscrollOff')}
-        </button>
-        <button
-          className="rounded-full border border-solid theme-border px-3 py-1 text-sm transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
           disabled={value.entries.length === 0}
           onClick={handleClear}
           type="button"
@@ -158,7 +120,6 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       <div
         aria-live="polite"
         className="theme-panel theme-border rounded-xl border p-4"
-        ref={viewportRef}
         role="log"
       >
         {value.entries.length === 0 ? (

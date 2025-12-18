@@ -15,19 +15,16 @@ export const SerialLogPage = () => {
   const { t } = useTranslation();
 
   const logs = useSerialStore(s => s.logs);
-  const autoscroll = useSerialStore(s => s.autoscroll);
   const status = useSerialStore(s => s.status);
 
   const send = useSerialStore(s => s.send);
   const clearLogs = useSerialStore(s => s.clearLogs);
-  const setAutoscroll = useSerialStore(s => s.setAutoscroll);
 
   const [pendingPayload, setPendingPayload] = useState('');
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const panelState: SerialLogState = {
     entries: logs,
-    autoscroll,
     pendingPayload,
   };
 
@@ -35,9 +32,6 @@ export const SerialLogPage = () => {
     switch (action.type) {
       case 'update-payload':
         setPendingPayload(action.value);
-        break;
-      case 'toggle-autoscroll':
-        setAutoscroll(action.autoscroll);
         break;
       case 'clear':
         clearLogs();
