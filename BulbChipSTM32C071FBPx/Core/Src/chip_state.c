@@ -386,7 +386,7 @@ static void updateMode() {
 	// Update Case (RGB only)
 	if (!hasClickStarted()) {
 		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
-			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
+			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
 				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, (uint32_t)modeMs);
 				if (output.type == RGB) {
 					rgbShowUserColor(caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
