@@ -6,6 +6,7 @@
       "cancel": "Cancel",
       "confirm": "Confirm",
       "test": "Test on Device",
+      "stopTest": "Stop Testing",
       "testSuccess": "Test pattern sent to device",
       "testError": "Failed to send test pattern",
       "flash": "Flash to Device",

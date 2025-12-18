@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -22,8 +23,16 @@ export const SerialTestButton = ({
   const { t } = useTranslation();
   const status = useSerialStore(s => s.status);
   const send = useSerialStore(s => s.send);
+  const [isAutoSync, setIsAutoSync] = useState(false);
 
-  const handleTest = async () => {
+  // Reset auto-sync if disconnected or disabled
+  useEffect(() => {
+    if (status !== 'connected' || disabled) {
+      setIsAutoSync(false);
+    }
+  }, [status, disabled]);
+
+  const handleTest = async (silent = false) => {
     if (status !== 'connected' || disabled) return;
 
     let mode: Mode;
@@ -50,23 +59,45 @@ export const SerialTestButton = ({
 
     try {
       await send(command);
-      toast.success(t('common.actions.testSuccess'));
+      if (!silent) {
+        toast.success(t('common.actions.testSuccess'));
+      }
     } catch (err) {
       console.error('Failed to send test data', err);
-      toast.error(t('common.actions.testError'));
+      if (!silent) {
+        toast.error(t('common.actions.testError'));
+      }
     }
   };
+
+  // Auto-sync effect
+  useEffect(() => {
+    if (!isAutoSync) return;
+
+    const timer = setTimeout(() => {
+      void handleTest(true);
+    }, 100); // Debounce slightly to avoid flooding
+
+    return () => clearTimeout(timer);
+  }, [data, isAutoSync]);
 
   if (status !== 'connected') return null;
 
   return (
     <StyledButton
-      onClick={() => void handleTest()}
-      variant="secondary"
+      onClick={() => {
+        if (isAutoSync) {
+          setIsAutoSync(false);
+        } else {
+          setIsAutoSync(true);
+          void handleTest(false);
+        }
+      }}
+      variant={isAutoSync ? 'primary' : 'secondary'}
       disabled={disabled}
       title={t('common.hints.fixValidationErrors')}
     >
-      {t('common.actions.test')}
+      {isAutoSync ? t('common.actions.stopTest') : t('common.actions.test')}
     </StyledButton>
   );
 };

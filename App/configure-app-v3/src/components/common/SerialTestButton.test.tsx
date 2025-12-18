@@ -145,4 +145,40 @@ describe('SerialTestButton', () => {
       expect(toast.error).toHaveBeenCalledWith('common.actions.testError');
     });
   });
+
+  it('should toggle auto-sync and send updates', async () => {
+    const { rerender } = render(<SerialTestButton data={mockMode} type="mode" disabled={false} />);
+
+    // Start auto-sync
+    fireEvent.click(screen.getByText('common.actions.test'));
+
+    // Should send immediately
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+
+    // Button text should change
+    expect(screen.getByText('common.actions.stopTest')).toBeInTheDocument();
+
+    // Update data
+    const updatedMode = { ...mockMode, name: 'Updated' };
+    rerender(<SerialTestButton data={updatedMode} type="mode" disabled={false} />);
+
+    // Should send update (debounced)
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledTimes(2);
+    }, { timeout: 1000 });
+
+    // Stop auto-sync
+    fireEvent.click(screen.getByText('common.actions.stopTest'));
+
+    // Update data again
+    const anotherMode = { ...mockMode, name: 'Another' };
+    rerender(<SerialTestButton data={anotherMode} type="mode" disabled={false} />);
+
+    // Should NOT send update
+    // Wait a bit to ensure debounce didn't fire
+    await new Promise(r => setTimeout(r, 200));
+    expect(mockSend).toHaveBeenCalledTimes(2);
+  });
 });
