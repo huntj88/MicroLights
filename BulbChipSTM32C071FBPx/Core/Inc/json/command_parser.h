@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef INC_BULB_JSON_H_
-#define INC_BULB_JSON_H_
+#ifndef INC_COMMAND_PARSER_H_
+#define INC_COMMAND_PARSER_H_
 
 #include <stdint.h>
 #include "mode_parser.h"
@@ -81,4 +81,4 @@ typedef struct CliInput {
 
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
 
-#endif /* INC_BULB_JSON_H_ */
+#endif /* INC_COMMAND_PARSER_H_ */

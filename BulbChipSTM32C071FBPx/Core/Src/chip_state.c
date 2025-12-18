@@ -5,16 +5,17 @@
  *      Author: jameshunt
  */
 
-#include <rgb_led.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "chip_state.h"
+#include "device/mc3479.h"
+#include "device/rgb_led.h"
+#include "json/command_parser.h"
+#include "json/mode_parser.h"
 #include "storage.h"
-#include "bulb_json.h"
-#include "mc3479.h"
-#include "mode_parser.h"
 
 static const uint8_t fakeOffModeIndex = 255;
 

@@ -5,9 +5,10 @@
  *      Author: jameshunt
  */
 
-#include <rgb_led.h>
-#include <stddef.h>
+#include "device/rgb_led.h"
+
 #include <stdbool.h>
+#include <stddef.h>
 
 // TODO: multiple priorities, could create a prioritized led resource mutex if it gets more complicated
 // button input

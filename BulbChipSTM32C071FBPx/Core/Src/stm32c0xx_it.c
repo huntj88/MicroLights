@@ -23,7 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "chip_state.h"
-#include "bq25180.h"
+#include "device/bq25180.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -4,14 +4,14 @@
  *  Created on: Jun 28, 2025
  *      Author: jameshunt
  */
-#include <stdint.h>
-#include <stdbool.h>
-
-#include <string.h>
 #include <ctype.h>
-#include "bulb_json.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+
+#include "json/command_parser.h"
+#include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
-#include "mode_parser.h"
 
 static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
@@ -65,12 +65,12 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	input->parsedType = parseError; // provide error default, override when successful
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-	if (lwjson_parse(&lwjson, bufJson) == lwjsonOK) {
+	if (lwjson_parse(&lwjson, (const char *)bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
 		char command[32];
 
 		if ((t = lwjson_find(&lwjson, "command")) != NULL) {
-			char *nameRaw = t->u.str.token_value;
+			const char *nameRaw = t->u.str.token_value;
 			for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
 				command[i] = nameRaw[i];
 			}

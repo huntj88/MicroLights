@@ -17,18 +17,18 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include <rgb_led.h>
+#include "device/rgb_led.h"
+#include "json/command_parser.h"
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tusb.h"
-#include "storage.h"
-#include "bulb_json.h"
-#include "chip_state.h"
-#include "bq25180.h"
 #include "bootloader.h"
-#include "mc3479.h"
+#include "chip_state.h"
+#include "device/bq25180.h"
+#include "device/mc3479.h"
+#include "storage.h"
+#include "tusb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
