@@ -5,13 +5,13 @@
  *      Author: jameshunt
  */
 
+#include <rgb_led.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include "chip_state.h"
 #include "storage.h"
-#include "rgb.h"
 #include "bulb_json.h"
 #include "mc3479.h"
 #include "mode_parser.h"
@@ -160,8 +160,6 @@ void setClickStarted() {
 static void setClickEnded() {
 	clickStarted = false;
 	ticksSinceLastUserActivity = 0;
-	const char *blah = "clicked\n";
-	writeUsbSerial(0, blah, strlen(blah));
 }
 
 static uint8_t hasClickStarted() {
@@ -226,6 +224,8 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 				newModeIndex = 0;
 			}
 			setCurrentModeIndex(newModeIndex);
+			const char *blah = "clicked\n";
+			writeUsbSerial(0, blah, strlen(blah));
 			break;
 		case shutdown:
 			shutdownFake();

@@ -17,6 +17,7 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include <rgb_led.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -26,7 +27,6 @@
 #include "bulb_json.h"
 #include "chip_state.h"
 #include "bq25180.h"
-#include "rgb.h"
 #include "bootloader.h"
 #include "mc3479.h"
 /* USER CODE END Includes */

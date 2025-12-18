@@ -8,12 +8,12 @@
 #ifndef INC_CHIP_STATE_H_
 #define INC_CHIP_STATE_H_
 
+#include <rgb_led.h>
 #include <stdint.h>
 
 #include "bulb_json.h"
 #include "bq25180.h"
 #include "mc3479.h"
-#include "rgb.h"
 
 typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 

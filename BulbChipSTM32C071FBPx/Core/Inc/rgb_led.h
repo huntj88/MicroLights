@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef INC_RGB_H_
-#define INC_RGB_H_
+#ifndef INC_RGB_LED_H_
+#define INC_RGB_LED_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -38,4 +38,4 @@ void rgbShowConstantCurrentCharging(RGBLed *device);
 void rgbShowConstantVoltageCharging(RGBLed *device);
 void rgbShowDoneCharging(RGBLed *device);
 
-#endif /* INC_RGB_H_ */
+#endif /* INC_RGB_LED_H_ */
