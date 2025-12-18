@@ -69,8 +69,12 @@ describe('SerialTestButton', () => {
 
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith({
-        ...mockMode,
-        name: 'transientTest',
+        command: 'writeMode',
+        index: 0,
+        mode: {
+          ...mockMode,
+          name: 'transientTest',
+        },
       });
     });
   });
@@ -96,8 +100,12 @@ describe('SerialTestButton', () => {
 
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith({
-        name: 'transientTest',
-        front: { pattern: mockPattern },
+        command: 'writeMode',
+        index: 0,
+        mode: {
+          name: 'transientTest',
+          front: { pattern: mockPattern },
+        },
       });
       expect(toast.success).toHaveBeenCalledWith('common.actions.testSuccess');
     });
@@ -118,8 +126,12 @@ describe('SerialTestButton', () => {
 
     await waitFor(() => {
       expect(mockSend).toHaveBeenCalledWith({
-        name: 'transientTest',
-        case: { pattern: mockPattern },
+        command: 'writeMode',
+        index: 0,
+        mode: {
+          name: 'transientTest',
+          case: { pattern: mockPattern },
+        },
       });
     });
   });

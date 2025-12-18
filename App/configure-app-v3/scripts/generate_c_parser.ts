@@ -121,7 +121,6 @@ ${JSON.stringify(ex.data, null, 2)
   .join('\n *\n')}
 `;
 
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 type FieldType =
   | 'string'
   | 'uint32'

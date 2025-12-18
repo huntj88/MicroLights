@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import { useModeStore } from './mode-store';
 import { modePatternSchema, type ModePattern } from '../models/mode';
 
 export interface PatternStoreState {
@@ -32,7 +33,7 @@ export const usePatternStore = create<PatternStoreState>()(
   persist(
     (set, get) => ({
       patterns: [],
-      savePattern: pattern =>
+      savePattern: pattern => {
         set(state => {
           const existingIndex = state.patterns.findIndex(entry => entry.name === pattern.name);
           const nextPattern = clonePattern(pattern);
@@ -46,7 +47,11 @@ export const usePatternStore = create<PatternStoreState>()(
           const nextPatterns = [...state.patterns];
           nextPatterns.splice(existingIndex, 1, nextPattern);
           return { patterns: nextPatterns };
-        }),
+        });
+
+        // Propagate changes to modes
+        useModeStore.getState().updatePatternInModes(pattern);
+      },
       deletePattern: name =>
         set(state => ({
           patterns: state.patterns.filter(pattern => pattern.name !== name),

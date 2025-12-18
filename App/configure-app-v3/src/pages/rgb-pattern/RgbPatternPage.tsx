@@ -151,7 +151,7 @@ export const RgbPatternPage = () => {
           <SerialTestButton
             data={currentEditor.editingItem}
             type="pattern"
-            patternTarget="front"
+            patternTarget="case"
             disabled={!currentEditor.isValid}
           />
           <SerialConnectButton />

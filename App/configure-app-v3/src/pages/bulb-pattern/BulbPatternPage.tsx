@@ -97,7 +97,7 @@ export const BulbPatternPage = () => {
           <SerialTestButton
             data={editingItem}
             type="pattern"
-            patternTarget="case"
+            patternTarget="front"
             disabled={validationErrors.length > 0}
           />
           <SerialConnectButton />

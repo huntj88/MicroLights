@@ -54,7 +54,7 @@ export type EquationSection = z.infer<typeof equationSectionSchema>;
 
 export const channelConfigSchema = z.object({
   sections: z.array(equationSectionSchema),
-  loopAfterDuration: z.boolean()
+  loopAfterDuration: z.boolean(),
 });
 
 export type ChannelConfig = z.infer<typeof channelConfigSchema>;

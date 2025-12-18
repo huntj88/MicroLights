@@ -217,6 +217,8 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 		}
 
 		switch (buttonState) {
+		case ignore:
+			break;
 		case clicked:
 			rgbShowSuccess(caseLed);
 			uint8_t newModeIndex = currentModeIndex + 1;
@@ -322,17 +324,12 @@ void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
-//// Helper to get color from a simple pattern at a specific time
-static void getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms, SimpleOutput *output) {
-//	if (pattern->changeAt_count == 0) {
-//		strcpy(colorOut, "#000000");
-//		return;
-//	}
-
+//// Helper to get output from a simple pattern at a specific time
+static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms) {
 	uint32_t patternTime = ms % pattern->duration;
 	// Find the last change that occurred before or at patternTime
-	int lastChangeIndex = -1;
-	for (int i = 0; i < pattern->changeAt_count; i++) {
+	uint8_t lastChangeIndex = 0;
+	for (uint8_t i = 0; i < pattern->changeAt_count; i++) {
 		if (pattern->changeAt[i].ms <= patternTime) {
 			lastChangeIndex = i;
 		} else {
@@ -340,14 +337,7 @@ static void getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms, Simp
 		}
 	}
 
-	if (lastChangeIndex >= 0) {
-		// TODO: validate this works
-		output = &pattern->changeAt[lastChangeIndex].output;
-//		strcpy(colorOut, pattern->changeAt[lastChangeIndex].output);
-	} else {
-		// Should not happen if changeAt[0].ms is 0, but default to black
-//		strcpy(colorOut, "#000000");
-	}
+	return pattern->changeAt[lastChangeIndex].output;
 }
 
 static void updateMode() {
@@ -362,8 +352,7 @@ static void updateMode() {
 
 	if (currentMode.has_accel && currentMode.accel.triggers_count > 0) {
 		// TODO: check for configurable trigger threshold
-		// For now using hardcoded 0.3f as in original code, but should use trigger.threshold
-		// Original code used trigger[0].threshold (uint8_t) but didn't actually use it in isOverThreshold call
+		// For now using hardcoded 0.3f, but should use trigger.threshold
 		if (isOverThreshold(accel, 0.3f)) {
 			// Use first trigger for now
 			ModeAccelTrigger trigger = currentMode.accel.triggers[0];
@@ -377,15 +366,16 @@ static void updateMode() {
 
 	// Update Front (Bulb and RGB)
 	if (currentMode.has_front || (triggered && currentMode.accel.triggers[0].has_front)) {
-		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE) {
-//			char color[8];
-			SimpleOutput output;
-			getOutputFromSimplePattern(&frontComp.pattern.data.simple, (uint32_t)modeMs, &output);
-
-			// TOD0: RGB
-			if (output.type == BULB && output.data.bulb == high) {
-				writeBulbLedPin(1);
+		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
+			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, (uint32_t)modeMs);
+			if (output.type == BULB) {
+				if (output.data.bulb == high) {
+					writeBulbLedPin(1);
+				} else {
+					writeBulbLedPin(0);
+				}
 			} else {
+				// TOD0: RGB
 				writeBulbLedPin(0);
 			}
 		}
@@ -396,16 +386,12 @@ static void updateMode() {
 	// Update Case (RGB only)
 	if (!hasClickStarted()) {
 		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
-			if (caseComp.pattern.type == PATTERN_TYPE_SIMPLE) {
-//				char color[8];
-				SimpleOutput output;
-				getOutputFromSimplePattern(&caseComp.pattern.data.simple, (uint32_t)modeMs, &output);
-//				uint8_t r, g, b;
-//				parseHexColor(color, &r, &g, &b);
+			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
+				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, (uint32_t)modeMs);
 				if (output.type == RGB) {
 					rgbShowUserColor(caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
 				} else {
-					// TODO: LED
+					// TODO: BULB
 				}
 			}
 		} else {
@@ -452,13 +438,19 @@ void handleJson(uint8_t buf[], uint32_t count) {
 
 	switch (cliInput.parsedType) {
 	case parseError: {
+		// TODO return errors from mode parser
 		char error[] = "{\"error\":\"unable to parse json\"}\n";
 		writeUsbSerial(0, error, strlen(error));
 		break;
 	}
 	case parseWriteMode: {
-		 writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
-		 setCurrentMode(&cliInput.mode, cliInput.modeIndex);
+		if (strcmp(cliInput.mode.name, "transientTest") == 0) {
+			// do not write to flash for transient test
+			setCurrentMode(&cliInput.mode, cliInput.modeIndex);
+		} else {
+			writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
+			setCurrentMode(&cliInput.mode, cliInput.modeIndex);
+		}
 		break;
 	}
 	case parseReadMode: {

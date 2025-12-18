@@ -9,7 +9,7 @@ import { StyledButton } from './StyledButton';
 interface SerialTestButtonProps {
   data: Mode | ModePattern;
   type: 'mode' | 'pattern';
-  patternTarget?: 'front' | 'case';
+  patternTarget?: 'front' | 'case'; // Required if type is 'pattern'
   disabled: boolean;
 }
 
@@ -26,24 +26,30 @@ export const SerialTestButton = ({
   const handleTest = async () => {
     if (status !== 'connected' || disabled) return;
 
-    let payload: Mode;
+    let mode: Mode;
 
     if (type === 'pattern') {
       if (!patternTarget) {
         console.error('patternTarget is required when testing a pattern');
         return;
       }
-      payload = {
+      mode = {
         name: 'transientTest',
         [patternTarget]: { pattern: data as ModePattern },
       };
     } else {
       // Mode
-      payload = { ...(data as Mode), name: 'transientTest' };
+      mode = { ...(data as Mode), name: 'transientTest' };
     }
 
+    const command = {
+      command: 'writeMode',
+      index: 0,
+      mode,
+    };
+
     try {
-      await send(payload);
+      await send(command);
       toast.success(t('common.actions.testSuccess'));
     } catch (err) {
       console.error('Failed to send test data', err);
