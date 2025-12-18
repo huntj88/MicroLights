@@ -290,7 +290,7 @@ static void chargerTask(uint16_t tick, float millisPerTick) {
 	}
 
 	// flash charging state to user every second
-	if (elapsedMillis % 1000 >= 1000 - millisPerTick) {
+	if (chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
 		showChargingState(chargingState);
 	}
 
