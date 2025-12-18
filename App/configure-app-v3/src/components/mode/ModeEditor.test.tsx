@@ -53,7 +53,7 @@ describe('ModeEditor', () => {
       <ModeEditor mode={defaultMode} onChange={onChange} patterns={mockPatterns} />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText('Enter mode name'), {
+    fireEvent.change(screen.getByPlaceholderText('modeEditor.namePlaceholder'), {
       target: { value: 'New Name' },
     });
 

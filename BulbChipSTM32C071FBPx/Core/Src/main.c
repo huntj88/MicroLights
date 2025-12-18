@@ -17,18 +17,18 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "device/rgb_led.h"
+#include "json/command_parser.h"
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "tusb.h"
-#include "storage.h"
-#include "bulb_json.h"
-#include "chip_state.h"
-#include "bq25180.h"
-#include "rgb.h"
 #include "bootloader.h"
-#include "mc3479.h"
+#include "chip_state.h"
+#include "device/bq25180.h"
+#include "device/mc3479.h"
+#include "storage.h"
+#include "tusb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,7 +61,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
 MC3479 accel;
-RGB caseLed;
+RGBLed caseLed;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -434,7 +434,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 2;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 10000;
+  htim1.Init.Period = 1000;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

@@ -5,7 +5,10 @@
  *      Author: jameshunt
  */
 
-#include "bq25180.h"
+#include "device/bq25180.h"
+
+#include <stdio.h>
+#include <string.h>
 
 bool bq25180Init(BQ25180 *chargerIC, BQ25180ReadRegister *readRegCb, BQ25180WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
 	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial) return false;
@@ -130,8 +133,8 @@ void print(BQ25180 *chargerIC, char *stringToPrint) {
 }
 
 void printBinary(BQ25180 *chargerIC, uint8_t num) {
-	char buffer[8] = { 0 };
-	char *bufferPtr = &buffer;
+	char buffer[9] = { 0 };
+	char *bufferPtr = buffer;
 
 	sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
 	sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
@@ -184,8 +187,6 @@ BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
 }
 
 void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
-	uint8_t receive_buffer[1] = { 0 };
-
 	uint8_t regValue = chargerIC->readRegister(chargerIC, reg);
 
 	print(chargerIC, "register");

@@ -1,9 +1,10 @@
-#include "mc3479.h"
+#include "device/mc3479.h"
 
-#include <stdint.h>
-#include <stddef.h>
-#include <stdbool.h>
 #include <math.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
 
 // TODO: set decimation rate
 static const float kSensitivityLsbPerG = 2048.0f;

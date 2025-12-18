@@ -11,7 +11,7 @@ import { renderWithProviders } from '../../test-utils/render-with-providers';
 describe('ModePage', () => {
   it('renders', () => {
     renderWithProviders(<ModePage />);
-    expect(screen.getByText('Mode Composer')).toBeInTheDocument();
+    expect(screen.getByText('mode.title')).toBeInTheDocument();
   });
 
   it('saves a new mode', () => {
@@ -34,7 +34,7 @@ describe('ModePage', () => {
 
     renderWithProviders(<ModePage />);
 
-    fireEvent.change(screen.getByPlaceholderText('Enter mode name'), {
+    fireEvent.change(screen.getByPlaceholderText('modeEditor.namePlaceholder'), {
       target: { value: 'New Mode' },
     });
 
@@ -43,7 +43,7 @@ describe('ModePage', () => {
     fireEvent.change(selects[1], { target: { value: 'Front Pattern' } });
     fireEvent.change(selects[2], { target: { value: 'Case Pattern' } });
 
-    fireEvent.click(screen.getByText('Save Mode'));
+    fireEvent.click(screen.getByText('modeEditor.storage.save'));
 
     const modes = useModeStore.getState().modes;
     expect(modes).toHaveLength(1);
@@ -97,7 +97,7 @@ describe('ModePage', () => {
     const savedModesSelect = screen.getAllByRole('combobox')[0];
     fireEvent.change(savedModesSelect, { target: { value: 'Existing Mode' } });
 
-    expect(screen.getByPlaceholderText('Enter mode name')).toHaveValue('Existing Mode');
+    expect(screen.getByPlaceholderText('modeEditor.namePlaceholder')).toHaveValue('Existing Mode');
   });
 
   it('deletes a mode', () => {
@@ -133,7 +133,7 @@ describe('ModePage', () => {
     const savedModesSelect = screen.getAllByRole('combobox')[0];
     fireEvent.change(savedModesSelect, { target: { value: 'Mode to Delete' } });
 
-    fireEvent.click(screen.getByText('Delete Mode'));
+    fireEvent.click(screen.getByText('modeEditor.storage.delete'));
 
     const modes = useModeStore.getState().modes;
     expect(modes).toHaveLength(0);
@@ -143,13 +143,11 @@ describe('ModePage', () => {
     renderWithProviders(<ModePage />);
 
     // Initially empty, should show errors
-    expect(screen.getByText('Mode name cannot be empty.')).toBeInTheDocument();
-    expect(
-      screen.getByText('At least one pattern (Front or Case) is required.'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('validation.mode.nameEmpty')).toBeInTheDocument();
+    expect(screen.getByText('validation.mode.patternRequired')).toBeInTheDocument();
 
     // Save button should be disabled
-    expect(screen.getByText('Save Mode')).toBeDisabled();
+    expect(screen.getByText('modeEditor.storage.save')).toBeDisabled();
   });
 
   it('clears validation errors when mode becomes valid', () => {
@@ -167,20 +165,18 @@ describe('ModePage', () => {
     renderWithProviders(<ModePage />);
 
     // Fix name error
-    fireEvent.change(screen.getByPlaceholderText('Enter mode name'), {
+    fireEvent.change(screen.getByPlaceholderText('modeEditor.namePlaceholder'), {
       target: { value: 'Valid Mode' },
     });
-    expect(screen.queryByText('Mode name cannot be empty.')).not.toBeInTheDocument();
+    expect(screen.queryByText('validation.mode.nameEmpty')).not.toBeInTheDocument();
 
     // Fix pattern error
     const selects = screen.getAllByRole('combobox');
     fireEvent.change(selects[1], { target: { value: 'Front Pattern' } });
-    expect(
-      screen.queryByText('At least one pattern (Front or Case) is required.'),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText('validation.mode.patternRequired')).not.toBeInTheDocument();
 
     // Save button should be enabled
-    expect(screen.getByText('Save Mode')).toBeEnabled();
+    expect(screen.getByText('modeEditor.storage.save')).toBeEnabled();
   });
 
   it('saves a mode with triggers', () => {
@@ -197,14 +193,14 @@ describe('ModePage', () => {
 
     renderWithProviders(<ModePage />);
 
-    fireEvent.change(screen.getByPlaceholderText('Enter mode name'), {
+    fireEvent.change(screen.getByPlaceholderText('modeEditor.namePlaceholder'), {
       target: { value: 'Trigger Mode' },
     });
 
     const selects = screen.getAllByRole('combobox');
     fireEvent.change(selects[1], { target: { value: 'Front Pattern' } });
 
-    fireEvent.click(screen.getByText('Add Trigger'));
+    fireEvent.click(screen.getByText('modeEditor.addTrigger'));
 
     // Trigger added, but invalid (needs pattern).
     // Find trigger pattern selector.
@@ -212,7 +208,7 @@ describe('ModePage', () => {
     const triggerSelects = screen.getAllByRole('combobox');
     fireEvent.change(triggerSelects[3], { target: { value: 'Front Pattern' } });
 
-    fireEvent.click(screen.getByText('Save Mode'));
+    fireEvent.click(screen.getByText('modeEditor.storage.save'));
 
     const modes = useModeStore.getState().modes;
     expect(modes).toHaveLength(1);
@@ -235,27 +231,23 @@ describe('ModePage', () => {
     renderWithProviders(<ModePage />);
 
     // Make mode valid first
-    fireEvent.change(screen.getByPlaceholderText('Enter mode name'), {
+    fireEvent.change(screen.getByPlaceholderText('modeEditor.namePlaceholder'), {
       target: { value: 'Trigger Mode' },
     });
     const selects = screen.getAllByRole('combobox');
     fireEvent.change(selects[1], { target: { value: 'Front Pattern' } });
 
     // Add trigger - initially invalid
-    fireEvent.click(screen.getByText('Add Trigger'));
+    fireEvent.click(screen.getByText('modeEditor.addTrigger'));
 
-    expect(
-      screen.getByText('Accelerometer triggers must configure at least one LED component.'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Save Mode')).toBeDisabled();
+    expect(screen.getByText('validation.accel.componentRequired')).toBeInTheDocument();
+    expect(screen.getByText('modeEditor.storage.save')).toBeDisabled();
 
     // Fix trigger
     const triggerSelects = screen.getAllByRole('combobox');
     fireEvent.change(triggerSelects[3], { target: { value: 'Front Pattern' } });
 
-    expect(
-      screen.queryByText('Accelerometer triggers must configure at least one LED component.'),
-    ).not.toBeInTheDocument();
-    expect(screen.getByText('Save Mode')).toBeEnabled();
+    expect(screen.queryByText('validation.accel.componentRequired')).not.toBeInTheDocument();
+    expect(screen.getByText('modeEditor.storage.save')).toBeEnabled();
   });
 });

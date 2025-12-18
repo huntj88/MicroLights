@@ -9,7 +9,6 @@ import type { SerialLogAction, SerialLogState } from './SerialLogPanel';
 
 describe('SerialLogPanel', () => {
   const baseState: SerialLogState = {
-    autoscroll: true,
     entries: [],
     pendingPayload: '',
   };
@@ -38,7 +37,7 @@ describe('SerialLogPanel', () => {
   it('renders empty state when there are no messages', () => {
     renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={baseState} />);
 
-    expect(screen.getByText(/no serial messages yet/i)).toBeInTheDocument();
+    expect(screen.getByText('serialLog.empty')).toBeInTheDocument();
   });
 
   it('emits updated payload when typing', async () => {
@@ -62,20 +61,6 @@ describe('SerialLogPanel', () => {
     });
   });
 
-  it('toggles autoscroll', async () => {
-    const user = userEvent.setup();
-    const handleChange = vi.fn<ChangeHandler>();
-
-    renderWithProviders(<SerialLogPanel onChange={handleChange} value={baseState} />);
-
-    await user.click(screen.getByRole('button', { name: /autoscroll/i }));
-
-    expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ autoscroll: false }), {
-      type: 'toggle-autoscroll',
-      autoscroll: false,
-    });
-  });
-
   it('submits payload and clears input', async () => {
     const user = userEvent.setup();
     const handleChange = vi.fn<ChangeHandler>();
@@ -84,7 +69,7 @@ describe('SerialLogPanel', () => {
       <SerialLogPanel onChange={handleChange} value={{ ...baseState, pendingPayload: 'ping' }} />,
     );
 
-    await user.click(screen.getByRole('button', { name: /send payload/i }));
+    await user.click(screen.getByRole('button', { name: 'serialLog.actions.send' }));
 
     expect(handleChange).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -112,7 +97,6 @@ describe('SerialLogPanel', () => {
     const user = userEvent.setup();
     const handleChange = vi.fn<ChangeHandler>();
     const populatedState: SerialLogState = {
-      autoscroll: true,
       pendingPayload: '',
       entries: [
         {
@@ -126,7 +110,7 @@ describe('SerialLogPanel', () => {
 
     renderWithProviders(<SerialLogPanel onChange={handleChange} value={populatedState} />);
 
-    await user.click(screen.getByRole('button', { name: /clear log/i }));
+    await user.click(screen.getByRole('button', { name: 'serialLog.actions.clear' }));
 
     expect(handleChange).toHaveBeenCalledWith(expect.objectContaining({ entries: [] }), {
       type: 'clear',
@@ -146,61 +130,6 @@ describe('SerialLogPanel', () => {
     renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={{ ...baseState, entries }} />);
 
     expect(screen.getByText('System ready')).toBeInTheDocument();
-    expect(screen.getByText(/incoming/i)).toBeInTheDocument();
-  });
-
-  it('autoscrolls to bottom when new message arrives', () => {
-    const { rerender } = renderWithProviders(
-      <SerialLogPanel onChange={vi.fn()} value={baseState} />,
-    );
-
-    const viewport = screen.getByRole('log');
-    // Mock scrollTo which is not implemented in JSDOM
-    viewport.scrollTo = vi.fn();
-    // Mock scrollHeight
-    Object.defineProperty(viewport, 'scrollHeight', { value: 500, configurable: true });
-
-    const entries: SerialLogState['entries'] = [
-      {
-        id: '1',
-        timestamp: new Date().toISOString(),
-        direction: 'inbound',
-        payload: 'New data',
-      },
-    ];
-
-    rerender(<SerialLogPanel onChange={vi.fn()} value={{ ...baseState, entries }} />);
-
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(viewport.scrollTo).toHaveBeenCalledWith({
-      top: 500,
-      behavior: 'smooth',
-    });
-  });
-
-  it('does not autoscroll when disabled', () => {
-    const { rerender } = renderWithProviders(
-      <SerialLogPanel onChange={vi.fn()} value={{ ...baseState, autoscroll: false }} />,
-    );
-
-    const viewport = screen.getByRole('log');
-    viewport.scrollTo = vi.fn();
-    Object.defineProperty(viewport, 'scrollHeight', { value: 500, configurable: true });
-
-    const entries: SerialLogState['entries'] = [
-      {
-        id: '1',
-        timestamp: new Date().toISOString(),
-        direction: 'inbound',
-        payload: 'New data',
-      },
-    ];
-
-    rerender(
-      <SerialLogPanel onChange={vi.fn()} value={{ ...baseState, autoscroll: false, entries }} />,
-    );
-
-    // eslint-disable-next-line @typescript-eslint/unbound-method
-    expect(viewport.scrollTo).not.toHaveBeenCalled();
+    expect(screen.getByText(/serialLog.direction.inbound/)).toBeInTheDocument();
   });
 });

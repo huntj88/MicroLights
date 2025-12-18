@@ -25,7 +25,7 @@ describe('AccelTriggerEditor', () => {
     renderWithProviders(
       <AccelTriggerEditor triggers={[]} onChange={vi.fn()} patterns={mockPatterns} />,
     );
-    expect(screen.getByText('No accelerometer triggers defined.')).toBeInTheDocument();
+    expect(screen.getByText('modeEditor.noTriggers')).toBeInTheDocument();
   });
 
   it('adds a trigger', () => {
@@ -34,7 +34,7 @@ describe('AccelTriggerEditor', () => {
       <AccelTriggerEditor triggers={[]} onChange={onChange} patterns={mockPatterns} />,
     );
 
-    fireEvent.click(screen.getByText('Add Trigger'));
+    fireEvent.click(screen.getByText('modeEditor.addTrigger'));
     expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ threshold: 1.5 })]);
   });
 
@@ -83,7 +83,7 @@ describe('AccelTriggerEditor', () => {
       <AccelTriggerEditor triggers={triggers} onChange={onChange} patterns={mockPatterns} />,
     );
 
-    fireEvent.click(screen.getByText('Delete'));
+    fireEvent.click(screen.getByText('modeEditor.deleteTrigger'));
     expect(onChange).toHaveBeenCalledWith([]);
   });
 

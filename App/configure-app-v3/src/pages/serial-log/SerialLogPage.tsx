@@ -3,28 +3,28 @@ import { useTranslation } from 'react-i18next';
 
 import { useSerialStore } from '@/app/providers/serial-store';
 import { SerialConnectButton } from '@/components/common/SerialConnectButton';
+import { StyledButton } from '@/components/common/StyledButton';
 import {
   SerialLogPanel,
   type SerialLogPanelProps,
   type SerialLogState,
 } from '@/components/serial-log/SerialLogPanel';
+import { SettingsModal } from '@/components/serial-log/SettingsModal';
 
 export const SerialLogPage = () => {
   const { t } = useTranslation();
 
   const logs = useSerialStore(s => s.logs);
-  const autoscroll = useSerialStore(s => s.autoscroll);
   const status = useSerialStore(s => s.status);
 
   const send = useSerialStore(s => s.send);
   const clearLogs = useSerialStore(s => s.clearLogs);
-  const setAutoscroll = useSerialStore(s => s.setAutoscroll);
 
   const [pendingPayload, setPendingPayload] = useState('');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const panelState: SerialLogState = {
     entries: logs,
-    autoscroll,
     pendingPayload,
   };
 
@@ -32,9 +32,6 @@ export const SerialLogPage = () => {
     switch (action.type) {
       case 'update-payload':
         setPendingPayload(action.value);
-        break;
-      case 'toggle-autoscroll':
-        setAutoscroll(action.autoscroll);
         break;
       case 'clear':
         clearLogs();
@@ -74,7 +71,39 @@ export const SerialLogPage = () => {
         <span className="capitalize">{status}</span>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <StyledButton
+          onClick={() => {
+            void (async () => {
+              for (let i = 0; i < 6; i++) {
+                await send({ command: 'readMode', index: i });
+              }
+            })();
+          }}
+          disabled={status !== 'connected'}
+        >
+          Read Modes
+        </StyledButton>
+        <StyledButton
+          onClick={() => { setIsSettingsModalOpen(true); }}
+          disabled={status !== 'connected'}
+        >
+          Settings
+        </StyledButton>
+        <StyledButton
+          onClick={() => void send({ command: 'dfu' })}
+          disabled={status !== 'connected'}
+        >
+          DFU
+        </StyledButton>
+      </div>
+
       <SerialLogPanel onChange={handleChange} value={panelState} />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => { setIsSettingsModalOpen(false); }}
+      />
     </section>
   );
 };

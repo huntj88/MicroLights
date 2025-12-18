@@ -94,7 +94,12 @@ export const BulbPatternPage = () => {
           <p className="theme-muted">{t('bulbPattern.subtitle')}</p>
         </div>
         <div className="flex items-center gap-2">
-          <SerialTestButton data={editingItem} type="pattern" patternTarget="case" />
+          <SerialTestButton
+            data={editingItem}
+            type="pattern"
+            patternTarget="front"
+            disabled={validationErrors.length > 0}
+          />
           <SerialConnectButton />
         </div>
       </header>

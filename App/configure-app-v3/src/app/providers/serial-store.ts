@@ -4,18 +4,16 @@ import type { SerialLogEntry } from '@/components/serial-log/SerialLogPanel';
 
 import { serialManager, type ConnectionStatus } from './serial-manager';
 
-interface SerialStoreState {
+export interface SerialStoreState {
   status: ConnectionStatus;
   logs: SerialLogEntry[];
   isSupported: boolean;
-  autoscroll: boolean;
 
   // Actions
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   send: (data: unknown) => Promise<void>;
   clearLogs: () => void;
-  setAutoscroll: (enabled: boolean) => void;
 }
 
 const MAX_LOGS = 500;
@@ -28,9 +26,9 @@ export const useSerialStore = create<SerialStoreState>(set => {
 
   serialManager.on('log', entry => {
     set(state => {
-      const newLogs = [...state.logs, entry];
+      const newLogs = [entry, ...state.logs];
       if (newLogs.length > MAX_LOGS) {
-        newLogs.shift();
+        newLogs.pop();
       }
       return { logs: newLogs };
     });
@@ -40,7 +38,6 @@ export const useSerialStore = create<SerialStoreState>(set => {
     status: serialManager.getStatus(),
     logs: [],
     isSupported: serialManager.isSupported(),
-    autoscroll: true,
 
     connect: async () => {
       await serialManager.connect();
@@ -56,10 +53,6 @@ export const useSerialStore = create<SerialStoreState>(set => {
 
     clearLogs: () => {
       set({ logs: [] });
-    },
-
-    setAutoscroll: (enabled: boolean) => {
-      set({ autoscroll: enabled });
     },
   };
 });

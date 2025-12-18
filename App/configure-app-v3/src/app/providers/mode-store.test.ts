@@ -105,4 +105,33 @@ describe('useModeStore', () => {
     const retrieved = result.current.getMode('Non Existent');
     expect(retrieved).toBeUndefined();
   });
+
+  it('updates modes when a pattern is updated', () => {
+    const { result } = renderHook(() => useModeStore());
+    const mode = createMockMode('Test Mode');
+
+    act(() => {
+      result.current.saveMode(mode);
+    });
+
+    const originalPattern =
+      mode.front?.pattern ??
+      (() => {
+        throw new Error('front pattern is undefined');
+      })();
+
+    // Update Duration
+    const updatedPattern = {
+      ...originalPattern,
+      duration: 9999,
+    };
+
+    act(() => {
+      result.current.updatePatternInModes(updatedPattern);
+    });
+
+    expect(result.current.modes[0].front?.pattern.duration).toBe(9999);
+    // Case pattern should remain unchanged as it has a different name
+    expect(result.current.modes[0].case?.pattern.duration).toBe(1000);
+  });
 });

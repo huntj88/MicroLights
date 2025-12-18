@@ -19,7 +19,7 @@ describe('ThemePreferenceSelector', () => {
   it('renders the current selection', () => {
     renderWithProviders(<ThemePreferenceSelector onChange={vi.fn()} value={baseState} />);
 
-    const systemRadio = screen.getByRole('radio', { name: /follow system/i });
+    const systemRadio = screen.getByRole('radio', { name: 'settings.theme.options.system.label' });
     expect(systemRadio).toBeChecked();
   });
 

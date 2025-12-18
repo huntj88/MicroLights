@@ -51,7 +51,6 @@ describe('useSerialStore', () => {
       status: 'disconnected',
       logs: [],
       isSupported: true,
-      autoscroll: true,
     });
     vi.clearAllMocks();
   });
@@ -61,7 +60,6 @@ describe('useSerialStore', () => {
     expect(state.status).toBe('disconnected');
     expect(state.logs).toEqual([]);
     expect(state.isSupported).toBe(true);
-    expect(state.autoscroll).toBe(true);
   });
 
   it('should call serialManager.connect when connect is called', async () => {
@@ -137,11 +135,5 @@ describe('useSerialStore', () => {
 
     useSerialStore.getState().clearLogs();
     expect(useSerialStore.getState().logs).toHaveLength(0);
-  });
-
-  it('should update autoscroll when setAutoscroll is called', () => {
-    expect(useSerialStore.getState().autoscroll).toBe(true);
-    useSerialStore.getState().setAutoscroll(false);
-    expect(useSerialStore.getState().autoscroll).toBe(false);
   });
 });

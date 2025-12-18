@@ -20,9 +20,11 @@ describe('RgbPatternPage', () => {
     setup();
     renderWithProviders(<RgbPatternPage />);
 
-    expect(screen.getByRole('heading', { level: 3, name: /simple method/i })).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { level: 3, name: /equation method/i }),
+      screen.getByRole('heading', { level: 3, name: 'rgbPattern.simple.title' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { level: 3, name: 'rgbPattern.equation.title' }),
     ).not.toBeInTheDocument();
   });
 
@@ -30,13 +32,13 @@ describe('RgbPatternPage', () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
-    await user.click(screen.getByRole('button', { name: /equation method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.methodSwitcher.equation' }));
 
     expect(
-      screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i }),
+      screen.getByRole('heading', { level: 3, name: 'rgbPattern.equation.title' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('heading', { level: 3, name: /simple method/i }),
+      screen.queryByRole('heading', { level: 3, name: 'rgbPattern.simple.title' }),
     ).not.toBeInTheDocument();
   });
 
@@ -45,15 +47,15 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     // Switch to equation method (default state is invalid because it has no sections)
-    await user.click(screen.getByRole('button', { name: /equation method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.methodSwitcher.equation' }));
 
-    expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
+    expect(screen.getByText('validation.pattern.equation.sectionRequired')).toBeInTheDocument();
 
     // Switch back to simple method (default state is valid)
-    await user.click(screen.getByRole('button', { name: /simple method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.simple.title' }));
 
     expect(
-      screen.queryByText(/at least one equation section is required/i),
+      screen.queryByText('validation.pattern.equation.sectionRequired'),
     ).not.toBeInTheDocument();
   });
 
@@ -61,7 +63,7 @@ describe('RgbPatternPage', () => {
     setup();
     renderWithProviders(<RgbPatternPage />);
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
     expect(saveButton).toBeDisabled();
   });
 
@@ -78,13 +80,13 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     // Select valid pattern
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, storedPattern.name);
 
     // Switch to New Pattern
     await user.selectOptions(chooser, '');
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
     expect(saveButton).toBeDisabled();
   });
 
@@ -92,20 +94,22 @@ describe('RgbPatternPage', () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
-    const addButton = screen.getByRole('button', { name: /add step/i });
-    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
+    const addButton = screen.getByRole('button', { name: 'patternEditor.form.addButton' });
+    const nameInput = screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ });
 
     await user.type(nameInput, 'My Pattern');
     await user.click(addButton);
 
     let dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
     expect(saveButton).toBeEnabled();
 
     await user.click(saveButton);
 
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     const options = within(chooser).getAllByRole('option');
     expect(options).toHaveLength(2);
     expect(chooser).toHaveValue('My Pattern');
@@ -114,7 +118,9 @@ describe('RgbPatternPage', () => {
     await user.click(addButton);
 
     dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
@@ -144,22 +150,22 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     // Select Pattern B
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, 'Pattern B');
 
     // Rename to Pattern A
-    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    const nameInput = screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ });
     await user.clear(nameInput);
     await user.type(nameInput, 'Pattern A');
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
     await user.click(saveButton);
 
     expect(confirmSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/A pattern named "Pattern A" already exists/i),
+      expect.stringMatching('patternEditor.storage.overwriteConfirm'),
     );
     confirmSpy.mockRestore();
   });
@@ -168,10 +174,10 @@ describe('RgbPatternPage', () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
     await user.click(saveButton);
 
-    expect(screen.getByText(/at least one change event is required/i)).toBeInTheDocument();
+    expect(screen.getByText('validation.pattern.simple.changeEventRequired')).toBeInTheDocument();
   });
 
   it('disables save button when loaded pattern is unchanged', async () => {
@@ -186,16 +192,16 @@ describe('RgbPatternPage', () => {
 
     renderWithProviders(<RgbPatternPage />);
 
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, storedPattern.name);
 
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
     await waitFor(() => {
       expect(saveButton).toBeDisabled();
     });
 
     // Change name
-    const nameInput = screen.getByRole('textbox', { name: /pattern name/i });
+    const nameInput = screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ });
     await user.clear(nameInput);
     await user.type(nameInput, 'My Pattern Modified');
 
@@ -214,40 +220,46 @@ describe('RgbPatternPage', () => {
 
     renderWithProviders(<RgbPatternPage />);
 
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, storedPattern.name);
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue(storedPattern.name);
+    expect(screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ })).toHaveValue(
+      storedPattern.name,
+    );
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockImplementation(() => true);
 
-    await user.click(screen.getByRole('button', { name: /delete pattern/i }));
+    await user.click(screen.getByRole('button', { name: 'patternEditor.storage.deleteButton' }));
 
-    expect(confirmSpy).toHaveBeenCalledWith(expect.stringMatching(/delete the pattern/i));
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringMatching('patternEditor.storage.deleteConfirm'),
+    );
     confirmSpy.mockRestore();
 
     expect(usePatternStore.getState().patterns).toHaveLength(0);
     expect(chooser).toHaveValue('');
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ })).toHaveValue('');
   });
 
   it('resets the builder when switching back to the new pattern option', async () => {
     const { user } = setup();
     renderWithProviders(<RgbPatternPage />);
 
-    const addButton = screen.getByRole('button', { name: /add step/i });
+    const addButton = screen.getByRole('button', { name: 'patternEditor.form.addButton' });
     await user.click(addButton);
 
     const dialog = await screen.findByRole('dialog');
-    await user.click(within(dialog).getByRole('button', { name: /add step/i }));
+    await user.click(
+      within(dialog).getByRole('button', { name: 'patternEditor.addModal.confirm' }),
+    );
 
-    expect(screen.getByRole('heading', { name: /pattern steps/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^patternEditor.steps.title/ })).toBeInTheDocument();
 
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, '');
 
     expect(chooser).toHaveValue('');
-    expect(screen.getAllByText(/no steps have been added yet/i)).toHaveLength(2);
-    expect(screen.getByRole('textbox', { name: /pattern name/i })).toHaveValue('');
+    expect(screen.getAllByText('patternEditor.preview.empty')).toHaveLength(2);
+    expect(screen.getByRole('textbox', { name: /^patternEditor.form.nameLabel/ })).toHaveValue('');
   });
 
   it('restores the selected pattern name when switching back to a method with a loaded pattern', async () => {
@@ -263,21 +275,23 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     // Select the pattern
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
     await user.selectOptions(chooser, storedPattern.name);
     expect(chooser).toHaveValue(storedPattern.name);
 
     // Switch to Equation
-    await user.click(screen.getByRole('button', { name: /equation method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.methodSwitcher.equation' }));
     expect(
-      screen.getByRole('heading', { level: 3, name: /equation rgb pattern editor/i }),
+      screen.getByRole('heading', { level: 3, name: 'rgbPattern.equation.title' }),
     ).toBeInTheDocument();
 
     // Switch back to Simple
-    await user.click(screen.getByRole('button', { name: /simple method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.simple.title' }));
 
     // Verify the pattern is still selected in the dropdown
-    expect(screen.getByLabelText(/saved patterns/i)).toHaveValue(storedPattern.name);
+    expect(screen.getByLabelText('patternEditor.storage.selectLabel')).toHaveValue(
+      storedPattern.name,
+    );
   });
 
   it('shows validation errors when saving an empty equation pattern', async () => {
@@ -285,13 +299,13 @@ describe('RgbPatternPage', () => {
     renderWithProviders(<RgbPatternPage />);
 
     // Switch to Equation method
-    await user.click(screen.getByRole('button', { name: /equation method/i }));
+    await user.click(screen.getByRole('button', { name: 'rgbPattern.methodSwitcher.equation' }));
 
     // Try to save immediately (default equation pattern is empty)
-    const saveButton = screen.getByRole('button', { name: /save pattern/i });
+    const saveButton = screen.getByRole('button', { name: 'patternEditor.storage.saveButton' });
     await user.click(saveButton);
 
-    expect(screen.getByText(/at least one equation section is required/i)).toBeInTheDocument();
+    expect(screen.getByText('validation.pattern.equation.sectionRequired')).toBeInTheDocument();
   });
 
   it('filters out binary patterns from the saved patterns list', () => {
@@ -314,7 +328,7 @@ describe('RgbPatternPage', () => {
 
     renderWithProviders(<RgbPatternPage />);
 
-    const chooser = screen.getByLabelText(/saved patterns/i);
+    const chooser = screen.getByLabelText('patternEditor.storage.selectLabel');
 
     // Check that Color Pattern is an option
     expect(within(chooser).getByRole('option', { name: 'Color Pattern' })).toBeInTheDocument();

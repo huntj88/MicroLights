@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -9,47 +10,94 @@ import { StyledButton } from './StyledButton';
 interface SerialTestButtonProps {
   data: Mode | ModePattern;
   type: 'mode' | 'pattern';
-  patternTarget?: 'front' | 'case';
+  patternTarget?: 'front' | 'case'; // Required if type is 'pattern'
+  disabled: boolean;
 }
 
-export const SerialTestButton = ({ data, type, patternTarget }: SerialTestButtonProps) => {
+export const SerialTestButton = ({
+  data,
+  type,
+  patternTarget,
+  disabled,
+}: SerialTestButtonProps) => {
   const { t } = useTranslation();
   const status = useSerialStore(s => s.status);
   const send = useSerialStore(s => s.send);
+  const [isAutoSync, setIsAutoSync] = useState(false);
 
-  const handleTest = async () => {
-    if (status !== 'connected') return;
+  // Reset auto-sync if disconnected or disabled
+  useEffect(() => {
+    if (status !== 'connected' || disabled) {
+      setIsAutoSync(false);
+    }
+  }, [status, disabled]);
 
-    let payload: Mode;
+  const handleTest = useCallback(async (silent = false) => {
+    if (status !== 'connected' || disabled) return;
+
+    let mode: Mode;
 
     if (type === 'pattern') {
       if (!patternTarget) {
         console.error('patternTarget is required when testing a pattern');
         return;
       }
-      payload = {
+      mode = {
         name: 'transientTest',
         [patternTarget]: { pattern: data as ModePattern },
       };
     } else {
       // Mode
-      payload = { ...(data as Mode), name: 'transientTest' };
+      mode = { ...(data as Mode), name: 'transientTest' };
     }
 
+    const command = {
+      command: 'writeMode',
+      index: 0,
+      mode,
+    };
+
     try {
-      await send(payload);
-      toast.success(t('common.actions.testSuccess'));
+      await send(command);
+      if (!silent) {
+        toast.success(t('common.actions.testSuccess'));
+      }
     } catch (err) {
       console.error('Failed to send test data', err);
-      toast.error(t('common.actions.testError'));
+      if (!silent) {
+        toast.error(t('common.actions.testError'));
+      }
     }
-  };
+  }, [status, disabled, type, patternTarget, data, send, t]);
+
+  // Auto-sync effect
+  useEffect(() => {
+    if (!isAutoSync) return;
+
+    const timer = setTimeout(() => {
+      void handleTest(true);
+    }, 100); // Debounce slightly to avoid flooding
+
+    return () => { clearTimeout(timer); };
+  }, [data, isAutoSync, handleTest]);
 
   if (status !== 'connected') return null;
 
   return (
-    <StyledButton onClick={() => void handleTest()} variant="secondary">
-      {t('common.actions.test')}
+    <StyledButton
+      onClick={() => {
+        if (isAutoSync) {
+          setIsAutoSync(false);
+        } else {
+          setIsAutoSync(true);
+          void handleTest(false);
+        }
+      }}
+      variant={isAutoSync ? 'primary' : 'secondary'}
+      disabled={disabled}
+      title={t('common.hints.fixValidationErrors')}
+    >
+      {isAutoSync ? t('common.actions.stopTest') : t('common.actions.test')}
     </StyledButton>
   );
 };

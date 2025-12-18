@@ -54,7 +54,7 @@ export type EquationSection = z.infer<typeof equationSectionSchema>;
 
 export const channelConfigSchema = z.object({
   sections: z.array(equationSectionSchema),
-  loopAfterDuration: z.boolean().default(true),
+  loopAfterDuration: z.boolean(),
 });
 
 export type ChannelConfig = z.infer<typeof channelConfigSchema>;
@@ -62,7 +62,6 @@ export type ChannelConfig = z.infer<typeof channelConfigSchema>;
 export const equationPatternSchema = z
   .object({
     type: z.literal('equation'),
-    id: z.uuid().optional(),
     name: z.string().min(1, 'validation.pattern.name.required'),
     duration: z.number().nonnegative(),
     red: channelConfigSchema,
@@ -83,7 +82,6 @@ export type EquationPattern = z.infer<typeof equationPatternSchema>;
 
 export const createDefaultEquationPattern = (): EquationPattern => ({
   type: 'equation',
-  id: crypto.randomUUID(),
   name: '',
   duration: 1000,
   red: { sections: [], loopAfterDuration: true },
@@ -93,7 +91,7 @@ export const createDefaultEquationPattern = (): EquationPattern => ({
 
 export const simplePatternSchema = z
   .object({
-    type: z.literal('simple').default('simple'),
+    type: z.literal('simple'),
     name: z.string().min(1, 'validation.pattern.name.required'),
     duration: z
       .number()

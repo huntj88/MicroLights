@@ -1,5 +1,6 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { useModeStore } from './mode-store';
 import { usePatternStore } from './pattern-store';
 import {
   createDefaultEquationPattern,
@@ -55,6 +56,15 @@ describe('pattern-store', () => {
 
       const stored = usePatternStore.getState().getPattern(patternA.name);
       expect(stored).toEqual(patternB);
+    });
+
+    it('propagates updates to mode store', () => {
+      const pattern = createSimplePattern();
+      const spy = vi.spyOn(useModeStore.getState(), 'updatePatternInModes');
+
+      usePatternStore.getState().savePattern(pattern);
+
+      expect(spy).toHaveBeenCalledWith(pattern);
     });
 
     it('deletes simple patterns by name', () => {
