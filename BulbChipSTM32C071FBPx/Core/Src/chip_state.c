@@ -325,7 +325,7 @@ void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
-//// Helper to get output from a simple pattern at a specific time
+// Helper to get output from a simple pattern at a specific time
 static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms) {
 	uint32_t patternTime = ms % pattern->duration;
 	// Find the last change that occurred before or at patternTime
@@ -342,7 +342,7 @@ static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t 
 }
 
 static void updateMode() {
-	static uint16_t modeMs = 0;
+	static uint32_t modeMs = 0;
 	
 	modeMs += getMillisecondsPerChipTick();
 
@@ -368,7 +368,7 @@ static void updateMode() {
 	// Update Front (Bulb and RGB)
 	if (currentMode.has_front || (triggered && currentMode.accel.triggers[0].has_front)) {
 		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
-			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, (uint32_t)modeMs);
+			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, modeMs);
 			if (output.type == BULB) {
 				if (output.data.bulb == high) {
 					writeBulbLedPin(1);
@@ -376,7 +376,7 @@ static void updateMode() {
 					writeBulbLedPin(0);
 				}
 			} else {
-				// TOD0: RGB
+				// TODO: RGB
 				writeBulbLedPin(0);
 			}
 		}
@@ -388,7 +388,7 @@ static void updateMode() {
 	if (!hasClickStarted()) {
 		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
-				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, (uint32_t)modeMs);
+				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, modeMs);
 				if (output.type == RGB) {
 					rgbShowUserColor(caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
 				} else {

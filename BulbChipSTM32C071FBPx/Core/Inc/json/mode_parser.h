@@ -165,7 +165,7 @@ struct PatternChange {
 };
 
 struct SimplePattern {
-    char name[20];
+    char name[32];
     uint32_t duration;
     PatternChange changeAt[32];
     uint8_t changeAt_count;
@@ -183,7 +183,7 @@ struct ChannelConfig {
 };
 
 struct EquationPattern {
-    char name[20];
+    char name[32];
     uint32_t duration;
     ChannelConfig red;
     ChannelConfig green;
