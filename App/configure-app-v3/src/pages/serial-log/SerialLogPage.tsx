@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 
 import { useSerialStore } from '@/app/providers/serial-store';
 import { SerialConnectButton } from '@/components/common/SerialConnectButton';
+import { StyledButton } from '@/components/common/StyledButton';
 import {
   SerialLogPanel,
   type SerialLogPanelProps,
   type SerialLogState,
 } from '@/components/serial-log/SerialLogPanel';
+import { SettingsModal } from '@/components/serial-log/SettingsModal';
 
 export const SerialLogPage = () => {
   const { t } = useTranslation();
@@ -21,6 +23,7 @@ export const SerialLogPage = () => {
   const setAutoscroll = useSerialStore(s => s.setAutoscroll);
 
   const [pendingPayload, setPendingPayload] = useState('');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   const panelState: SerialLogState = {
     entries: logs,
@@ -74,7 +77,39 @@ export const SerialLogPage = () => {
         <span className="capitalize">{status}</span>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        <StyledButton
+          onClick={() => {
+            void (async () => {
+              for (let i = 0; i < 6; i++) {
+                await send({ command: 'readMode', index: i });
+              }
+            })();
+          }}
+          disabled={status !== 'connected'}
+        >
+          Read Modes
+        </StyledButton>
+        <StyledButton
+          onClick={() => { setIsSettingsModalOpen(true); }}
+          disabled={status !== 'connected'}
+        >
+          Settings
+        </StyledButton>
+        <StyledButton
+          onClick={() => void send({ command: 'dfu' })}
+          disabled={status !== 'connected'}
+        >
+          DFU
+        </StyledButton>
+      </div>
+
       <SerialLogPanel onChange={handleChange} value={panelState} />
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => { setIsSettingsModalOpen(false); }}
+      />
     </section>
   );
 };

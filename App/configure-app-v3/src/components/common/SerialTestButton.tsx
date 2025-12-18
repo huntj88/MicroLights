@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
@@ -32,7 +32,7 @@ export const SerialTestButton = ({
     }
   }, [status, disabled]);
 
-  const handleTest = async (silent = false) => {
+  const handleTest = useCallback(async (silent = false) => {
     if (status !== 'connected' || disabled) return;
 
     let mode: Mode;
@@ -68,7 +68,7 @@ export const SerialTestButton = ({
         toast.error(t('common.actions.testError'));
       }
     }
-  };
+  }, [status, disabled, type, patternTarget, data, send, t]);
 
   // Auto-sync effect
   useEffect(() => {
@@ -78,8 +78,8 @@ export const SerialTestButton = ({
       void handleTest(true);
     }, 100); // Debounce slightly to avoid flooding
 
-    return () => clearTimeout(timer);
-  }, [data, isAutoSync]);
+    return () => { clearTimeout(timer); };
+  }, [data, isAutoSync, handleTest]);
 
   if (status !== 'connected') return null;
 
