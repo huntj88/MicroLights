@@ -325,7 +325,28 @@ void configureChipState(
 
 void stateTask() {
 	float millisPerTick = getMillisecondsPerChipTick();
-	buttonInputTask(button, chipTick, millisPerTick);
+	enum ButtonResult buttonResult = buttonInputTask(button, chipTick, millisPerTick);
+	switch (buttonResult) {
+	case ignore:
+		break;
+	case clicked:
+		rgbShowSuccess(caseLed);
+		uint8_t newModeIndex = currentModeIndex + 1;
+		if (newModeIndex >= modeCount) {
+			newModeIndex = 0;
+		}
+		setCurrentModeIndex(newModeIndex);
+		const char *blah = "clicked\n";
+		writeUsbSerial(0, blah, strlen(blah));
+		break;
+	case shutdown:
+		shutdownFake();
+		break;
+	case lockOrHardwareReset:
+		lock(chargerIC);
+		break;
+	}
+
 	rgbTask(caseLed, chipTick, millisPerTick);
 	mc3479Task(accel, chipTick, millisPerTick);
 	chargerTask(chargerIC, chipTick, millisPerTick);
@@ -400,7 +421,8 @@ static void updateMode() {
 
 	// Update Case (RGB only)
 //	if (!hasClickStarted()) {
-	if (true) { // TODO?
+	// Don't show case led changes during button input, button input task uses case led for status
+	if (!isEvaluatingButtonPress(button)) {
 		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
 				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, modeMs);

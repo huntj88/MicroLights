@@ -7,9 +7,9 @@
 
 #include "device/button.h"
 
-static volatile bool isEvaluatingButtonPress = false;
+static volatile bool processButtonInterrupt = false;
 void startButtonEvaluation() {
-	isEvaluatingButtonPress = true;
+	processButtonInterrupt = true;
 }
 
 bool buttonInit(
@@ -28,14 +28,12 @@ bool buttonInit(
 	button->stopButtonTimer = stopButtonTimer;
 	button->caseLed = caseLed;
 
-//	button->isEvaluating = false;
-	button->tick = 0;
 	button->evalStartTick = 0;
 	return true;
 }
 
 enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPerTick) {
-	if (isEvaluatingButtonPress && button->evalStartTick == 0) {
+	if (processButtonInterrupt && button->evalStartTick == 0) {
 		button->evalStartTick = tick;
 		rgbShowNoColor(button->caseLed);
 		// Timers interrupts needed to properly detect input
@@ -74,9 +72,14 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPer
 		}
 
 		button->evalStartTick = 0;
-		isEvaluatingButtonPress = false;
+		processButtonInterrupt = false;
 //		ticksSinceLastUserActivity = 0; // TODO: autoOff, refactor to do this in chipState
 		return buttonState;
 	}
 	return ignore;
+}
+
+bool isEvaluatingButtonPress(Button *button) {
+	// could also just check processButtonInterrupt == true, but button eval is first task after interrupt, so evalStartTick is fine
+	return button->evalStartTick != 0;
 }

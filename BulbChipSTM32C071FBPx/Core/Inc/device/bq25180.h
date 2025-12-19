@@ -94,6 +94,7 @@ bool bq25180Init(
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
 void chargerTask(BQ25180 *chargerIC,uint16_t tick, float millisPerTick);
+void lock(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
 void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOuput);

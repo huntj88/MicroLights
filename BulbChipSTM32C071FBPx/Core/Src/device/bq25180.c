@@ -38,7 +38,7 @@ bool bq25180Init(
 	return true;
 }
 
-static void lock(BQ25180 *chargerIC) {
+void lock(BQ25180 *chargerIC) {
 	enum ChargeState state = getChargingState(chargerIC);
 	if (state == notConnected) {
 		enableShipMode(chargerIC);

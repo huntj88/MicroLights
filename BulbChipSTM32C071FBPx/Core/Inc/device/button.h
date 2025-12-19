@@ -20,12 +20,9 @@ typedef struct Button {
 	uint8_t (*readButtonPin)();
 	void (*startButtonTimer)();
 	void (*stopButtonTimer)();
-
-	bool isEvaluating;
-	uint16_t tick;
-	uint16_t evalStartTick;
-
 	RGBLed *caseLed;
+
+	uint16_t evalStartTick;
 } Button;
 
 bool buttonInit(
@@ -44,5 +41,6 @@ enum ButtonResult {
 };
 
 enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPerTick);
+bool isEvaluatingButtonPress(Button *button);
 
 #endif /* INC_DEVICE_BUTTON_H_ */
