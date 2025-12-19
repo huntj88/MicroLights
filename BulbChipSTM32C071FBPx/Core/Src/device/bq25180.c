@@ -9,18 +9,122 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "device/rgb_led.h"
 
-bool bq25180Init(BQ25180 *chargerIC, BQ25180ReadRegister *readRegCb, BQ25180WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
+static volatile bool readChargerNow = false;
+
+void handleChargerInterrupt() {
+	readChargerNow = 1;
+}
+
+bool bq25180Init(
+	BQ25180 *chargerIC, 
+	BQ25180ReadRegister *readRegCb, 
+	BQ25180WriteRegister *writeCb, 
+	uint8_t devAddress, 
+	WriteToUsbSerial *writeToUsbSerial,
+	RGBLed *caseLed
+) {
 	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial) return false;
 
 	chargerIC->readRegister = readRegCb;
 	chargerIC->writeRegister = writeCb;
 	chargerIC->devAddress = devAddress;
 	chargerIC->writeToUsbSerial = writeToUsbSerial;
+	chargerIC->caseLed = caseLed;
 
 	configureChargerIC(chargerIC);
 
 	return true;
+}
+
+static void lock(BQ25180 *chargerIC) {
+	enum ChargeState state = getChargingState(chargerIC);
+	if (state == notConnected) {
+		enableShipMode(chargerIC);
+	} else {
+		hardwareReset(chargerIC);
+	}
+}
+
+static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
+	// TODO: after moving, disabled variable to handle this case, update from chipState
+	// if (hasClickStarted() || currentModeIndex != fakeOffModeIndex) {
+	// 	// don't show charging during button input, or when a mode is in use while plugged in, will still charge
+	// 	return;
+	// }
+
+	if (!chargerIC->ledEnabled) {
+		return;
+	}
+
+	switch (state) {
+	case notConnected:
+		// do nothing
+		break;
+	case notCharging:
+		rgbShowNotCharging(chargerIC->caseLed);
+		break;
+	case constantCurrent:
+		rgbShowConstantCurrentCharging(chargerIC->caseLed);
+		break;
+	case constantVoltage:
+		rgbShowConstantVoltageCharging(chargerIC->caseLed);
+		break;
+	case done:
+		rgbShowDoneCharging(chargerIC->caseLed);
+		break;
+	}
+}
+
+// TODO: move to charger file
+void chargerTask(BQ25180 *chargerIC,uint16_t tick, float millisPerTick) {
+	static enum ChargeState chargingState = notConnected;
+	static uint16_t checkedAtTick = 0;
+
+	uint8_t previousState = chargingState;
+	uint16_t elapsedMillis = 0;
+
+	if (checkedAtTick != 0) {
+		uint16_t elapsedTicks = tick - checkedAtTick;
+		elapsedMillis = elapsedTicks * millisPerTick;
+	}
+
+	// charger i2c watchdog timer will reset if not communicated
+	// with for 40 seconds, and 15 seconds after plugged in.
+	if (elapsedMillis > 30000 || checkedAtTick == 0) {
+		// char registerJson[256];
+		// readAllRegistersJson(chargerIC, registerJson);
+		// writeUsbSerial(0, registerJson, strlen(registerJson));
+		// printAllRegisters(chargerIC);
+
+		chargingState = getChargingState(chargerIC);
+		checkedAtTick = tick;
+	}
+
+	// flash charging state to user every second
+	if (chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
+		showChargingState(chargerIC, chargingState);
+	}
+
+	if (readChargerNow) {
+		readChargerNow = false;
+		enum ChargeState state = getChargingState(chargerIC);
+
+		bool wasDisconnected = previousState != notConnected && state == notConnected;
+		// if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
+		if (tick != 0 && wasDisconnected && chargerIC->unplugLockEnabled) {
+			// if in fake off mode and power is unplugged, put into ship mode
+			lock(chargerIC);
+		}
+
+		bool wasConnected = previousState == notConnected && state != notConnected;
+		if (wasConnected) {
+			// TODO: call implicitly in rgb led?
+			chargerIC->caseLed->startLedTimers(); // show charging status led
+			showChargingState(chargerIC, state);
+		}
+	}
 }
 
 enum ChargeState getChargingState(BQ25180 *chargerIC) {

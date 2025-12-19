@@ -35,7 +35,7 @@ void handleJson(uint8_t buf[], uint32_t count);
 void setClickStarted();
 void stateTask();
 void chipTickInterrupt();
-void handleChargerInterrupt();
+// void handleChargerInterrupt();
 void autoOffTimerInterrupt();
 
 

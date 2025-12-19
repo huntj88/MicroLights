@@ -279,7 +279,11 @@ int main(void)
 
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
-  if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial)) {
+  if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers, stopLedTimers)) {
+    Error_Handler();
+  }
+
+  if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
     Error_Handler();
   }
 
@@ -287,9 +291,6 @@ int main(void)
     Error_Handler();
   }
 
-  if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
-    Error_Handler();
-  }
   configureChipState(
 		  &chargerIC,
 		  &accel,

@@ -16,6 +16,8 @@ typedef void RGBWritePwm(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty
 typedef struct RGBLed {
 	RGBWritePwm *writePwm;
 	uint16_t period; // TODO: set period from config?
+	void (*startLedTimers)();
+	void (*stopLedTimers)();
 
 	uint16_t tick;
 	uint16_t tickOfColorChange;
@@ -25,7 +27,7 @@ typedef struct RGBLed {
 	uint8_t userBlue;
 } RGBLed;
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period);
+bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period, void (*startLedTimers)(), void (*stopLedTimers)());
 
 void rgbTask(RGBLed *device, uint16_t tick, float millisPerTick);
 void rgbShowNoColor(RGBLed *device);

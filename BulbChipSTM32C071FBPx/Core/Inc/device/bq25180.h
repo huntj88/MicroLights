@@ -7,6 +7,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "device/rgb_led.h"
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_
@@ -60,6 +61,9 @@ typedef struct BQ25180 {
 	BQ25180WriteRegister *writeRegister;
 	WriteToUsbSerial *writeToUsbSerial;
 	uint8_t devAddress;
+	RGBLed *caseLed;
+	bool ledEnabled;
+	bool unplugLockEnabled;
 } BQ25180;
 
 typedef struct BQ25180Registers {
@@ -83,11 +87,13 @@ bool bq25180Init(
 	BQ25180ReadRegister *readRegCb,
 	BQ25180WriteRegister *writeCb,
 	uint8_t devAddress,
-	WriteToUsbSerial *writeToUsbSerial
+	WriteToUsbSerial *writeToUsbSerial,
+	RGBLed *caseLed
 );
 
+void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
-void charger_task(BQ25180 *chargerIC);
+void chargerTask(BQ25180 *chargerIC,uint16_t tick, float millisPerTick);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
 void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOuput);

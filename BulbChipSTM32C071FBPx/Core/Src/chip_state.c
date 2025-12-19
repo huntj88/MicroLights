@@ -25,7 +25,7 @@ static volatile uint8_t modeCount;
 static volatile Mode currentMode;
 static volatile uint8_t currentModeIndex;
 static volatile bool clickStarted = false;
-static volatile bool readChargerNow = false;
+// static volatile bool readChargerNow = false;
 
 static uint16_t minutesUntilAutoOff;
 static uint16_t minutesUntilLockAfterAutoOff;
@@ -172,14 +172,14 @@ static uint8_t hasClickStarted() {
 }
 
 // TODO: move to charger file
-static void lock() {
-	enum ChargeState state = getChargingState(chargerIC);
-	if (state == notConnected) {
-		enableShipMode(chargerIC);
-	} else {
-		hardwareReset(chargerIC);
-	}
-}
+//static void lock() {
+//	enum ChargeState state = getChargingState(chargerIC);
+//	if (state == notConnected) {
+//		enableShipMode(chargerIC);
+//	} else {
+//		hardwareReset(chargerIC);
+//	}
+//}
 
 enum ButtonResult {
 	ignore,
@@ -238,7 +238,7 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 			shutdownFake();
 			break;
 		case lockOrHardwareReset:
-			lock();
+//			lock(); // TODO
 			break;
 		}
 
@@ -248,92 +248,92 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 }
 
 // TODO: move to charger file, add case rgbLed device as charger dependency
-static void showChargingState(enum ChargeState state) {
-	// TODO: after moving, disabled variable to handle this case, update from chipState
-	if (hasClickStarted() || currentModeIndex != fakeOffModeIndex) {
-		// don't show charging during button input, or when a mode is in use while plugged in, will still charge
-		return;
-	}
+// static void showChargingState(enum ChargeState state) {
+// 	// TODO: after moving, disabled variable to handle this case, update from chipState
+// 	if (hasClickStarted() || currentModeIndex != fakeOffModeIndex) {
+// 		// don't show charging during button input, or when a mode is in use while plugged in, will still charge
+// 		return;
+// 	}
 
-	switch (state) {
-	case notConnected:
-		// do nothing
-		break;
-	case notCharging:
-		rgbShowNotCharging(caseLed);
-		break;
-	case constantCurrent:
-		rgbShowConstantCurrentCharging(caseLed);
-		break;
-	case constantVoltage:
-		rgbShowConstantVoltageCharging(caseLed);
-		break;
-	case done:
-		rgbShowDoneCharging(caseLed);
-		break;
-	}
-}
+// 	switch (state) {
+// 	case notConnected:
+// 		// do nothing
+// 		break;
+// 	case notCharging:
+// 		rgbShowNotCharging(caseLed);
+// 		break;
+// 	case constantCurrent:
+// 		rgbShowConstantCurrentCharging(caseLed);
+// 		break;
+// 	case constantVoltage:
+// 		rgbShowConstantVoltageCharging(caseLed);
+// 		break;
+// 	case done:
+// 		rgbShowDoneCharging(caseLed);
+// 		break;
+// 	}
+// }
 
-// TODO: move to charger file
-static void chargerTask(uint16_t tick, float millisPerTick) {
-	static enum ChargeState chargingState = notConnected;
-	static uint16_t checkedAtTick = 0;
+// // TODO: move to charger file
+// static void chargerTask(uint16_t tick, float millisPerTick) {
+// 	static enum ChargeState chargingState = notConnected;
+// 	static uint16_t checkedAtTick = 0;
 
-	uint8_t previousState = chargingState;
-	uint16_t elapsedMillis = 0;
+// 	uint8_t previousState = chargingState;
+// 	uint16_t elapsedMillis = 0;
 
-	if (checkedAtTick != 0) {
-		uint16_t elapsedTicks = tick - checkedAtTick;
-		elapsedMillis = elapsedTicks * millisPerTick;
-	}
+// 	if (checkedAtTick != 0) {
+// 		uint16_t elapsedTicks = tick - checkedAtTick;
+// 		elapsedMillis = elapsedTicks * millisPerTick;
+// 	}
 
-	// charger i2c watchdog timer will reset if not communicated
-	// with for 40 seconds, and 15 seconds after plugged in.
-	if (elapsedMillis > 30000 || checkedAtTick == 0) {
-		// char registerJson[256];
-		// readAllRegistersJson(chargerIC, registerJson);
-		// writeUsbSerial(0, registerJson, strlen(registerJson));
-		// printAllRegisters(chargerIC);
+// 	// charger i2c watchdog timer will reset if not communicated
+// 	// with for 40 seconds, and 15 seconds after plugged in.
+// 	if (elapsedMillis > 30000 || checkedAtTick == 0) {
+// 		// char registerJson[256];
+// 		// readAllRegistersJson(chargerIC, registerJson);
+// 		// writeUsbSerial(0, registerJson, strlen(registerJson));
+// 		// printAllRegisters(chargerIC);
 
-		chargingState = getChargingState(chargerIC);
-		checkedAtTick = tick;
-	}
+// 		chargingState = getChargingState(chargerIC);
+// 		checkedAtTick = tick;
+// 	}
 
-	// flash charging state to user every second
-	if (chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
-		showChargingState(chargingState);
-	}
+// 	// flash charging state to user every second
+// 	if (chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
+// 		showChargingState(chargingState);
+// 	}
 
-	if (readChargerNow) {
-		readChargerNow = false;
-		enum ChargeState state = getChargingState(chargerIC);
+// 	if (readChargerNow) {
+// 		readChargerNow = false;
+// 		enum ChargeState state = getChargingState(chargerIC);
 
-		bool wasDisconnected = previousState != notConnected && state == notConnected;
-		if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
-			// if in fake off mode and power is unplugged, put into ship mode
-			lock();
-		}
+// 		bool wasDisconnected = previousState != notConnected && state == notConnected;
+// 		if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
+// 			// if in fake off mode and power is unplugged, put into ship mode
+// 			lock();
+// 		}
 
-		bool wasConnected = previousState == notConnected && state != notConnected;
-		if (wasConnected) {
-			startLedTimers(); // show charging status led
-			showChargingState(state);
-		}
-	}
-}
+// 		bool wasConnected = previousState == notConnected && state != notConnected;
+// 		if (wasConnected) {
+// 			startLedTimers(); // show charging status led
+// 			showChargingState(state);
+// 		}
+// 	}
+// }
 
 void stateTask() {
 	float millisPerTick = getMillisecondsPerChipTick();
 	buttonInputTask(chipTick, millisPerTick);
 	rgbTask(caseLed, chipTick, millisPerTick);
 	mc3479Task(accel, chipTick, millisPerTick);
-	chargerTask(chipTick, millisPerTick);
+	chargerTask(chargerIC, chipTick, millisPerTick);
 }
 
 // TODO: move to charger file
-void handleChargerInterrupt() {
-	readChargerNow = 1;
-}
+// void handleChargerInterrupt() {
+// 	readChargerNow = 1;
+// }
 
 // Helper to get output from a simple pattern at a specific time
 // TODO: pass in output pointer instead of returning by value, return bool for success/failure, return false is changeAt_count is 0
@@ -438,7 +438,7 @@ void autoOffTimerInterrupt() {
 
 		if (autoOffTimerDone) {
 			if (currentModeIndex == fakeOffModeIndex) {
-				lock();
+//				lock(); // TODO
 			} else {
 				ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
 				shutdownFake();

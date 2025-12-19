@@ -40,13 +40,21 @@ static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, 
 	device->tickOfColorChange = device->tick;
 }
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period) {
+bool rgbInit(
+		RGBLed *device,
+		RGBWritePwm *writeFn,
+		uint16_t period,
+		void (*startLedTimers)(),
+		void (*stopLedTimers)()
+) {
 	if (!device || !writeFn) {
 		return false;
 	}
 
 	device->writePwm = writeFn;
 	device->period = period;
+	device->startLedTimers = startLedTimers;
+	device->stopLedTimers = stopLedTimers;
 
 	device->tick = 0;
 	device->tickOfColorChange = 0;
