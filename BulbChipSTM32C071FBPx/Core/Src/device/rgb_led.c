@@ -10,6 +10,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// TODO: OSSPEEDR register settings for reduced potential EMI on PWM outputs? lower slew rate if not affecting color quality
+// TODO: OSSPEEDR on bulb io as well
+
 // TODO: multiple priorities, could create a prioritized led resource mutex if it gets more complicated
 // button input
 // user defined mode color

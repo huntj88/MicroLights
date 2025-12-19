@@ -275,6 +275,8 @@ int main(void)
   // TIM2: chipTick timer - interrupts to increment chipTick
   // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
 
+  // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?), add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a different timer, bulb LEDS should continue to work but on a new pin.
+
   tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
 
   if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial)) {

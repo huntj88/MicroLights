@@ -40,8 +40,8 @@ static void (*enterDFU)();
 static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
 static float (*getMillisecondsPerChipTick)();
-static void (*startLedTimers)(); // TODO: split bulb timer and rgb timer control into
-static void (*stopLedTimers)();  //       different functions. Move rgb timers to RGB
+static void (*startLedTimers)(); // TODO: split led timer control into different functions. front/case led (move functions to RGBLed), and chipTick
+static void (*stopLedTimers)();
 
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"off\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}}";
 static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
@@ -82,6 +82,7 @@ static void setCurrentMode(Mode *mode, uint8_t index) {
 	}
 }
 
+// TODO: move to mode manager file
 static void setCurrentModeIndex(uint8_t modeIndex) {
 	readBulbMode(modeIndex);
 	setCurrentMode(&cliInput.mode, modeIndex);
@@ -151,22 +152,26 @@ void configureChipState(
 	minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 }
 
+// TODO: move to button input file
 void setClickStarted() {
 	clickStarted = true;
 	rgbShowNoColor(caseLed);
-	// Timers interrupts needed to properly detect input.
+	// Timers interrupts needed to properly detect input, chipTickTimer is part of led timers currently.
 	startLedTimers();
 }
 
+// TODO: move to button input file
 static void setClickEnded() {
 	clickStarted = false;
 	ticksSinceLastUserActivity = 0;
 }
 
+// TODO: move to button input file
 static uint8_t hasClickStarted() {
 	return clickStarted;
 }
 
+// TODO: move to charger file
 static void lock() {
 	enum ChargeState state = getChargingState(chargerIC);
 	if (state == notConnected) {
@@ -183,6 +188,7 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
+// TODO: extract ButtonResult / button click logic to different file, return enum via pointer, update state based on enum. Different enum pointer for rgb hold state?
 static void buttonInputTask(uint16_t tick, float millisPerTick) {
 	static int16_t clickStartTick = 0;
 	
@@ -241,7 +247,9 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 	}
 }
 
+// TODO: move to charger file, add case rgbLed device as charger dependency
 static void showChargingState(enum ChargeState state) {
+	// TODO: after moving, disabled variable to handle this case, update from chipState
 	if (hasClickStarted() || currentModeIndex != fakeOffModeIndex) {
 		// don't show charging during button input, or when a mode is in use while plugged in, will still charge
 		return;
@@ -266,6 +274,7 @@ static void showChargingState(enum ChargeState state) {
 	}
 }
 
+// TODO: move to charger file
 static void chargerTask(uint16_t tick, float millisPerTick) {
 	static enum ChargeState chargingState = notConnected;
 	static uint16_t checkedAtTick = 0;
@@ -321,11 +330,14 @@ void stateTask() {
 	chargerTask(chipTick, millisPerTick);
 }
 
+// TODO: move to charger file
 void handleChargerInterrupt() {
 	readChargerNow = 1;
 }
 
 // Helper to get output from a simple pattern at a specific time
+// TODO: pass in output pointer instead of returning by value, return bool for success/failure, return false is changeAt_count is 0
+// TODO: extract to mode util file, for testing
 static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms) {
 	uint32_t patternTime = ms % pattern->duration;
 	// Find the last change that occurred before or at patternTime
@@ -341,6 +353,7 @@ static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t 
 	return pattern->changeAt[lastChangeIndex].output;
 }
 
+// TODO: pass in tick and millisPerTick to resolve time instead of using chipTick and getMillisecondsPerChipTick
 static void updateMode() {
 	static uint32_t modeMs = 0;
 	
@@ -434,6 +447,9 @@ void autoOffTimerInterrupt() {
 	}
 }
 
+// TODO: move to json folder
+// create modeManager that handles reading/writing modes from flash and interacting with currentMode
+// create settingsManager that handles reading/writing settings from flash
 void handleJson(uint8_t buf[], uint32_t count) {
 	parseJson(buf, count, &cliInput);
 
