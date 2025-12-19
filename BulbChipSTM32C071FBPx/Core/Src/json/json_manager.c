@@ -11,14 +11,21 @@
 #include "storage.h"
 #include <string.h>
 
-void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count, void (*enterDFU)()) {
+void handleJson(
+	ModeManager *modeManager,
+	SettingsManager *settingsManager,
+	WriteToUsbSerial *writeUsbSerial,
+	void (*enterDFU)(),
+	uint8_t buf[],
+	uint32_t count
+) {
 	parseJson(buf, count, &cliInput);
 
 	switch (cliInput.parsedType) {
 	case parseError: {
 		// TODO return errors from mode parser
 		char error[] = "{\"error\":\"unable to parse json\"}\n";
-		chip_state_write_serial(error);
+		writeUsbSerial(0, error, strlen(error));
 		break;
 	}
 	case parseWriteMode: {
@@ -37,7 +44,7 @@ void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint
 		uint16_t len = strlen(flashReadBuffer);
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';
-		chip_state_write_serial(flashReadBuffer);
+		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
 		break;
 	}
 	case parseWriteSettings: {
@@ -52,15 +59,11 @@ void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint
 		uint16_t len = strlen(flashReadBuffer);
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';
-		chip_state_write_serial(flashReadBuffer);
+		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
 		break;
 	}
 	case parseDfu: {
 		enterDFU();
 		break;
 	}}
-
-	if (cliInput.parsedType != parseError) {
-		chip_state_show_success();
-	}
 }

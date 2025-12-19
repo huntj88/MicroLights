@@ -17,8 +17,7 @@
 #include "json/command_parser.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
-
-typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
+#include "model/serial.h"
 
 void configureChipState(
 		ModeManager *modeManager,
@@ -28,16 +27,11 @@ void configureChipState(
 		MC3479 *accel,
 		RGBLed *rgb,
 		WriteToUsbSerial *writeUsbSerial,
-//		uint8_t (*readButtonPin)(),
 		void (*writeBulbLedPin)(uint8_t state),
 		float (*getMillisecondsPerChipTick)(),
 		void (*startLedTimers)(),
 		void (*stopLedTimers)()
 );
-
-// API for command parser
-void chip_state_write_serial(const char *msg);
-void chip_state_show_success();
 
 void setClickStarted();
 void stateTask();

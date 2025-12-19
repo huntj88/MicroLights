@@ -233,11 +233,3 @@ void autoOffTimerInterrupt() {
 		}
 	}
 }
-
-void chip_state_write_serial(const char *msg) {
-	state.writeUsbSerial(0, msg, strlen(msg));
-}
-
-void chip_state_show_success() {
-	rgbShowSuccess(state.caseLed);
-}

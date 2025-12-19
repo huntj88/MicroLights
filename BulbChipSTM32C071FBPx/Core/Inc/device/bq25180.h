@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "device/rgb_led.h"
+#include "model/serial.h"
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_
@@ -54,7 +55,6 @@ typedef struct BQ25180 BQ25180; // forward declaration
 
 typedef uint8_t BQ25180ReadRegister(BQ25180 *chargerIC, uint8_t reg);
 typedef void BQ25180WriteRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value);
-typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 typedef struct BQ25180 {
 	BQ25180ReadRegister *readRegister;

@@ -13,6 +13,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include "model/serial.h"
 
 #define MC3479_I2CADDR_DEFAULT 0x99 // 8-bit address
 
@@ -37,9 +38,6 @@ typedef bool MC3479ReadRegisters(MC3479 *dev, uint8_t startReg, uint8_t *buf, si
 
 // Write a single 8-bit register.
 typedef void MC3479WriteRegister(MC3479 *dev, uint8_t reg, uint8_t value);
-
-// TODO: consolidate this interface with the duplicates
-typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 struct MC3479 {
     MC3479ReadRegisters *readRegisters;

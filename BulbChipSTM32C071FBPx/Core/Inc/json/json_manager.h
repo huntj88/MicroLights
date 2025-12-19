@@ -11,7 +11,15 @@
 #include <stdint.h>
 #include "mode_manager.h"
 #include "settings_manager.h"
+#include "model/serial.h"
 
-void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count, void (*enterDFU)());
+void handleJson(
+    ModeManager *modeManager,
+    SettingsManager *settingsManager,
+    WriteToUsbSerial *writeUsbSerial,
+    void (*enterDFU)(),
+    uint8_t buf[],
+    uint32_t count
+);
 
 #endif /* INC_JSON_JSON_MANAGER_H_ */

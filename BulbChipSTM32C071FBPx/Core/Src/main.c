@@ -234,7 +234,7 @@ static void cdcTask() {
 				jsonIndex += count;
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
-				handleJson(&modeManager, &settingsManager, jsonBuf, 1024, setBootloaderFlagAndReset);
+				handleJson(&modeManager, &settingsManager, writeToSerial, setBootloaderFlagAndReset, jsonBuf, 1024);
 			}
 		}
 	}
