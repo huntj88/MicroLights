@@ -79,6 +79,9 @@ typedef struct CliInput {
 	enum ParseResult parsedType;
 } CliInput;
 
+extern CliInput cliInput;
+
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
+void handleJson(uint8_t buf[], uint32_t count);
 
 #endif /* INC_COMMAND_PARSER_H_ */

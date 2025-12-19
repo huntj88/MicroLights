@@ -32,7 +32,14 @@ void configureChipState(
 		void (*stopLedTimers)()
 );
 
-void handleJson(uint8_t buf[], uint32_t count);
+// API for command parser
+void chip_state_update_mode(uint8_t index, Mode *mode);
+void chip_state_update_settings(ChipSettings *settings);
+void chip_state_enter_dfu();
+void chip_state_load_mode(uint8_t index, char *buffer);
+void chip_state_load_settings(ChipSettings *settings, char *buffer);
+void chip_state_write_serial(const char *msg);
+void chip_state_show_success();
 
 void setClickStarted();
 void stateTask();

@@ -12,6 +12,10 @@
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
+#include "chip_state.h"
+#include "storage.h"
+
+CliInput cliInput;
 
 static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
 	for (uint32_t i = 0; i < count; i++) {
@@ -116,4 +120,59 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 		}
 	}
 	lwjson_free(&lwjson);
+}
+
+void handleJson(uint8_t buf[], uint32_t count) {
+	parseJson(buf, count, &cliInput);
+
+	switch (cliInput.parsedType) {
+	case parseError: {
+		// TODO return errors from mode parser
+		char error[] = "{\"error\":\"unable to parse json\"}\n";
+		chip_state_write_serial(error);
+		break;
+	}
+	case parseWriteMode: {
+		if (strcmp(cliInput.mode.name, "transientTest") == 0) {
+			// do not write to flash for transient test
+			chip_state_update_mode(cliInput.modeIndex, &cliInput.mode);
+		} else {
+			writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
+			chip_state_update_mode(cliInput.modeIndex, &cliInput.mode);
+		}
+		break;
+	}
+	case parseReadMode: {
+		char flashReadBuffer[1024];
+		chip_state_load_mode(cliInput.modeIndex, flashReadBuffer);
+		uint16_t len = strlen(flashReadBuffer);
+		flashReadBuffer[len] = '\n';
+		flashReadBuffer[len + 1] = '\0';
+		chip_state_write_serial(flashReadBuffer);
+		break;
+	}
+	case parseWriteSettings: {
+		ChipSettings settings = cliInput.settings;
+		writeSettingsToFlash(buf, cliInput.jsonLength);
+		chip_state_update_settings(&settings);
+		break;
+	}
+	case parseReadSettings: {
+		char flashReadBuffer[1024];
+		ChipSettings settings;
+		chip_state_load_settings(&settings, flashReadBuffer);
+		uint16_t len = strlen(flashReadBuffer);
+		flashReadBuffer[len] = '\n';
+		flashReadBuffer[len + 1] = '\0';
+		chip_state_write_serial(flashReadBuffer);
+		break;
+	}
+	case parseDfu: {
+		chip_state_enter_dfu();
+		break;
+	}}
+
+	if (cliInput.parsedType != parseError) {
+		chip_state_show_success();
+	}
 }

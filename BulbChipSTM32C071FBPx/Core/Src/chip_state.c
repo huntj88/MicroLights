@@ -17,30 +17,31 @@
 
 static const uint8_t fakeOffModeIndex = 255;
 
-static volatile uint16_t chipTick = 0;
+typedef struct {
+    volatile uint16_t chipTick;
+    volatile uint8_t modeCount;
+    volatile Mode currentMode;
+    volatile uint8_t currentModeIndex;
+    uint16_t minutesUntilAutoOff;
+    uint16_t minutesUntilLockAfterAutoOff;
+    volatile uint32_t ticksSinceLastUserActivity;
+    
+    // Devices
+    Button *button;
+    RGBLed *caseLed;
+    BQ25180 *chargerIC;
+    MC3479 *accel;
+    
+    // Callbacks
+    WriteToUsbSerial *writeUsbSerial;
+    void (*enterDFU)();
+    void (*writeBulbLedPin)(uint8_t state);
+    float (*getMillisecondsPerChipTick)();
+    void (*startLedTimers)();
+    void (*stopLedTimers)();
+} ChipState;
 
-static volatile uint8_t modeCount;
-static volatile Mode currentMode;
-static volatile uint8_t currentModeIndex;
-//static volatile bool clickStarted = false;
-// static volatile bool readChargerNow = false;
-
-static uint16_t minutesUntilAutoOff;
-static uint16_t minutesUntilLockAfterAutoOff;
-static volatile uint32_t ticksSinceLastUserActivity = 0;
-
-static CliInput cliInput;
-static Button *button;
-static RGBLed *caseLed;
-static BQ25180 *chargerIC;
-static MC3479 *accel;
-static WriteToUsbSerial *writeUsbSerial;
-static void (*enterDFU)();
-//static uint8_t (*readButtonPin)();
-static void (*writeBulbLedPin)(uint8_t state);
-static float (*getMillisecondsPerChipTick)();
-static void (*startLedTimers)(); // TODO: split led timer control into different functions. front/case led (move functions to RGBLed), and chipTick
-static void (*stopLedTimers)();
+static ChipState state = {0};
 
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"off\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}}";
 static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
@@ -65,19 +66,19 @@ static void readBulbMode(uint8_t modeIndex) {
 }
 
 static void setCurrentMode(Mode *mode, uint8_t index) {
-	currentMode = *mode;
-	currentModeIndex = index;
+	state.currentMode = *mode;
+	state.currentModeIndex = index;
 
-	if (currentModeIndex == fakeOffModeIndex) {
-		stopLedTimers();
+	if (state.currentModeIndex == fakeOffModeIndex) {
+		state.stopLedTimers();
 	} else {
-		startLedTimers();
+		state.startLedTimers();
 	}
 
-	if (currentMode.has_accel && currentMode.accel.triggers_count > 0) {
-		mc3479Enable(accel);
+	if (state.currentMode.has_accel && state.currentMode.accel.triggers_count > 0) {
+		mc3479Enable(state.accel);
 	} else {
-		mc3479Disable(accel);
+		mc3479Disable(state.accel);
 	}
 }
 
@@ -108,8 +109,8 @@ static void readSettings(ChipSettings *settings) {
 
 static void shutdownFake() {
 	setCurrentModeIndex(fakeOffModeIndex);
-	if (getChargingState(chargerIC) != notConnected) {
-		startLedTimers();
+	if (getChargingState(state.chargerIC) != notConnected) {
+		state.startLedTimers();
 	}
 }
 
@@ -126,21 +127,21 @@ void configureChipState(
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
-	button = _button;
-	caseLed = _caseLed;
-	chargerIC = _chargerIC;
-	accel = _accel;
-	writeUsbSerial = _writeUsbSerial;
-	enterDFU = _enterDFU;
-//	readButtonPin = _readButtonPin;
-	writeBulbLedPin = _writeBulbLedPin;
-	getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
-	startLedTimers = _startLedTimers;
-	stopLedTimers = _stopLedTimers;
+	state.button = _button;
+	state.caseLed = _caseLed;
+	state.chargerIC = _chargerIC;
+	state.accel = _accel;
+	state.writeUsbSerial = _writeUsbSerial;
+	state.enterDFU = _enterDFU;
+//	state.readButtonPin = _readButtonPin;
+	state.writeBulbLedPin = _writeBulbLedPin;
+	state.getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
+	state.startLedTimers = _startLedTimers;
+	state.stopLedTimers = _stopLedTimers;
 
-	enum ChargeState state = getChargingState(chargerIC);
+	enum ChargeState chargeState = getChargingState(state.chargerIC);
 
-	if (state == notConnected) {
+	if (chargeState == notConnected) {
 		setCurrentModeIndex(0);
 	} else {
 		shutdownFake();
@@ -148,9 +149,9 @@ void configureChipState(
 
 	ChipSettings settings;
 	readSettings(&settings);
-	modeCount = settings.modeCount;
-	minutesUntilAutoOff = settings.minutesUntilAutoOff;
-	minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
+	state.modeCount = settings.modeCount;
+	state.minutesUntilAutoOff = settings.minutesUntilAutoOff;
+	state.minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 }
 
 //// TODO: move to button input file
@@ -324,32 +325,32 @@ void configureChipState(
 // }
 
 void stateTask() {
-	float millisPerTick = getMillisecondsPerChipTick();
-	enum ButtonResult buttonResult = buttonInputTask(button, chipTick, millisPerTick);
+	float millisPerTick = state.getMillisecondsPerChipTick();
+	enum ButtonResult buttonResult = buttonInputTask(state.button, state.chipTick, millisPerTick);
 	switch (buttonResult) {
 	case ignore:
 		break;
 	case clicked:
-		rgbShowSuccess(caseLed);
-		uint8_t newModeIndex = currentModeIndex + 1;
-		if (newModeIndex >= modeCount) {
+		rgbShowSuccess(state.caseLed);
+		uint8_t newModeIndex = state.currentModeIndex + 1;
+		if (newModeIndex >= state.modeCount) {
 			newModeIndex = 0;
 		}
 		setCurrentModeIndex(newModeIndex);
 		const char *blah = "clicked\n";
-		writeUsbSerial(0, blah, strlen(blah));
+		state.writeUsbSerial(0, blah, strlen(blah));
 		break;
 	case shutdown:
 		shutdownFake();
 		break;
 	case lockOrHardwareReset:
-		lock(chargerIC);
+		lock(state.chargerIC);
 		break;
 	}
 
-	rgbTask(caseLed, chipTick, millisPerTick);
-	mc3479Task(accel, chipTick, millisPerTick);
-	chargerTask(chargerIC, chipTick, millisPerTick);
+	rgbTask(state.caseLed, state.chipTick, millisPerTick);
+	mc3479Task(state.accel, state.chipTick, millisPerTick);
+	chargerTask(state.chargerIC, state.chipTick, millisPerTick);
 }
 
 // TODO: move to charger file
@@ -379,19 +380,19 @@ static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t 
 static void updateMode() {
 	static uint32_t modeMs = 0;
 	
-	modeMs += getMillisecondsPerChipTick();
+	modeMs += state.getMillisecondsPerChipTick();
 
 	// Check triggers
-	ModeComponent frontComp = currentMode.front;
-	ModeComponent caseComp = currentMode.case_comp;
+	ModeComponent frontComp = state.currentMode.front;
+	ModeComponent caseComp = state.currentMode.case_comp;
 	bool triggered = false;
 
-	if (currentMode.has_accel && currentMode.accel.triggers_count > 0) {
+	if (state.currentMode.has_accel && state.currentMode.accel.triggers_count > 0) {
 		// TODO: check for configurable trigger threshold
 		// For now using hardcoded 0.3f, but should use trigger.threshold
-		if (isOverThreshold(accel, 0.3f)) {
+		if (isOverThreshold(state.accel, 0.3f)) {
 			// Use first trigger for now
-			ModeAccelTrigger trigger = currentMode.accel.triggers[0];
+			ModeAccelTrigger trigger = state.currentMode.accel.triggers[0];
 
 			// TODO: indicate fallthrough from mode if not specified in UI
 			if (trigger.has_front) frontComp = trigger.front;
@@ -401,40 +402,40 @@ static void updateMode() {
 	}
 
 	// Update Front (Bulb and RGB)
-	if (currentMode.has_front || (triggered && currentMode.accel.triggers[0].has_front)) {
+	if (state.currentMode.has_front || (triggered && state.currentMode.accel.triggers[0].has_front)) {
 		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
 			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, modeMs);
 			if (output.type == BULB) {
 				if (output.data.bulb == high) {
-					writeBulbLedPin(1);
+					state.writeBulbLedPin(1);
 				} else {
-					writeBulbLedPin(0);
+					state.writeBulbLedPin(0);
 				}
 			} else {
 				// TODO: RGB
-				writeBulbLedPin(0);
+				state.writeBulbLedPin(0);
 			}
 		}
 	} else {
-		writeBulbLedPin(0);
+		state.writeBulbLedPin(0);
 	}
 
 	// Update Case (RGB only)
 //	if (!hasClickStarted()) {
 	// Don't show case led changes during button input, button input task uses case led for status
-	if (!isEvaluatingButtonPress(button)) {
-		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
+	if (!isEvaluatingButtonPress(state.button)) {
+		if (state.currentMode.has_case_comp || (triggered && state.currentMode.accel.triggers[0].has_case_comp)) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
 				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, modeMs);
 				if (output.type == RGB) {
-					rgbShowUserColor(caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
+					rgbShowUserColor(state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
 				} else {
 					// TODO: BULB
 				}
 			}
 		} else {
 			// Default to off if no case component
-			rgbShowUserColor(caseLed, 0, 0, 0);
+			rgbShowUserColor(state.caseLed, 0, 0, 0);
 		}
 	}
 }
@@ -443,28 +444,28 @@ static void updateMode() {
 //	 that use chipTick should be able to resolve to time in 
 //   milliseconds for consistent behavior with different timer rates
 void chipTickInterrupt() {
-	chipTick++;
+	state.chipTick++;
 	updateMode();
 }
 
 // Auto off timer running at 0.1 hz
 // 12 megahertz / 65535 / 1831 = 0.1 hz
 void autoOffTimerInterrupt() {
-	if (getChargingState(chargerIC) == notConnected) {
-		ticksSinceLastUserActivity++;
+	if (getChargingState(state.chargerIC) == notConnected) {
+		state.ticksSinceLastUserActivity++;
 
-		uint16_t ticksUntilAutoOff = minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
-		bool autoOffTimerDone = ticksSinceLastUserActivity > ticksUntilAutoOff;
-		if (currentModeIndex == fakeOffModeIndex) {
-			uint16_t ticksUntilLockAfterAutoOff = minutesUntilLockAfterAutoOff * 60 / 10;
-			autoOffTimerDone = ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
+		uint16_t ticksUntilAutoOff = state.minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
+		bool autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilAutoOff;
+		if (state.currentModeIndex == fakeOffModeIndex) {
+			uint16_t ticksUntilLockAfterAutoOff = state.minutesUntilLockAfterAutoOff * 60 / 10;
+			autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
 		}
 
 		if (autoOffTimerDone) {
-			if (currentModeIndex == fakeOffModeIndex) {
+			if (state.currentModeIndex == fakeOffModeIndex) {
 //				lock(); // TODO
 			} else {
-				ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
+				state.ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
 				shutdownFake();
 			}
 		}
@@ -474,59 +475,32 @@ void autoOffTimerInterrupt() {
 // TODO: move to json folder
 // create modeManager that handles reading/writing modes from flash and interacting with currentMode
 // create settingsManager that handles reading/writing settings from flash
-void handleJson(uint8_t buf[], uint32_t count) {
-	parseJson(buf, count, &cliInput);
+void chip_state_update_mode(uint8_t index, Mode *mode) {
+	setCurrentMode(mode, index);
+}
 
-	switch (cliInput.parsedType) {
-	case parseError: {
-		// TODO return errors from mode parser
-		char error[] = "{\"error\":\"unable to parse json\"}\n";
-		writeUsbSerial(0, error, strlen(error));
-		break;
-	}
-	case parseWriteMode: {
-		if (strcmp(cliInput.mode.name, "transientTest") == 0) {
-			// do not write to flash for transient test
-			setCurrentMode(&cliInput.mode, cliInput.modeIndex);
-		} else {
-			writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
-			setCurrentMode(&cliInput.mode, cliInput.modeIndex);
-		}
-		break;
-	}
-	case parseReadMode: {
-		char flashReadBuffer[1024];
-		readBulbModeWithBuffer(cliInput.modeIndex, flashReadBuffer);
-		uint16_t len = strlen(flashReadBuffer);
-		flashReadBuffer[len] = '\n';
-		flashReadBuffer[len + 1] = '\0';
-		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
-		break;
-	}
-	case parseWriteSettings: {
-		ChipSettings settings = cliInput.settings;
-		writeSettingsToFlash(buf, cliInput.jsonLength);
-		modeCount = settings.modeCount;
-		minutesUntilAutoOff = settings.minutesUntilAutoOff;
-		minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
-		break;
-	}
-	case parseReadSettings: {
-		char flashReadBuffer[1024];
-		ChipSettings settings;
-		readSettingsWithBuffer(&settings, flashReadBuffer);
-		uint16_t len = strlen(flashReadBuffer);
-		flashReadBuffer[len] = '\n';
-		flashReadBuffer[len + 1] = '\0';
-		writeUsbSerial(0, flashReadBuffer, strlen(flashReadBuffer));
-		break;
-	}
-	case parseDfu: {
-		enterDFU();
-		break;
-	}}
+void chip_state_update_settings(ChipSettings *settings) {
+	state.modeCount = settings->modeCount;
+	state.minutesUntilAutoOff = settings->minutesUntilAutoOff;
+	state.minutesUntilLockAfterAutoOff = settings->minutesUntilLockAfterAutoOff;
+}
 
-	if (cliInput.parsedType != parseError) {
-		rgbShowSuccess(caseLed);
-	}
+void chip_state_enter_dfu() {
+	state.enterDFU();
+}
+
+void chip_state_load_mode(uint8_t index, char *buffer) {
+	readBulbModeWithBuffer(index, buffer);
+}
+
+void chip_state_load_settings(ChipSettings *settings, char *buffer) {
+	readSettingsWithBuffer(settings, buffer);
+}
+
+void chip_state_write_serial(const char *msg) {
+	state.writeUsbSerial(0, msg, strlen(msg));
+}
+
+void chip_state_show_success() {
+	rgbShowSuccess(state.caseLed);
 }
