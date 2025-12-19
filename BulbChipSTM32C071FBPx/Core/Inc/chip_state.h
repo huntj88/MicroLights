@@ -28,7 +28,6 @@ void configureChipState(
 		MC3479 *accel,
 		RGBLed *rgb,
 		WriteToUsbSerial *writeUsbSerial,
-		void (*enterDFU)(),
 //		uint8_t (*readButtonPin)(),
 		void (*writeBulbLedPin)(uint8_t state),
 		float (*getMillisecondsPerChipTick)(),
@@ -37,7 +36,6 @@ void configureChipState(
 );
 
 // API for command parser
-void chip_state_enter_dfu();
 void chip_state_write_serial(const char *msg);
 void chip_state_show_success();
 

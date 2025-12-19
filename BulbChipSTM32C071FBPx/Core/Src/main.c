@@ -233,7 +233,7 @@ static void cdcTask() {
 				jsonIndex += count;
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
-				handleJson(&modeManager, &settingsManager, jsonBuf, 1024);
+				handleJson(&modeManager, &settingsManager, jsonBuf, 1024, setBootloaderFlagAndReset);
 			}
 		}
 	}
@@ -313,7 +313,6 @@ int main(void)
 		  &accel,
 		  &caseLed,
 		  writeToSerial,
-		  setBootloaderFlagAndReset,
 //		  readButtonPin,
 		  writeBulbLed,
 		  millisecondsPerChipTick,

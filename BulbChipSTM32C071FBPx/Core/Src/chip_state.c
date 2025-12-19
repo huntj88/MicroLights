@@ -32,7 +32,6 @@ typedef struct {
     
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
-    void (*enterDFU)();
     void (*writeBulbLedPin)(uint8_t state);
     float (*getMillisecondsPerChipTick)();
     void (*startLedTimers)();
@@ -60,8 +59,6 @@ void configureChipState(
 		MC3479 *_accel,
 		RGBLed *_caseLed,
 		WriteToUsbSerial *_writeUsbSerial,
-		void (*_enterDFU)(),
-//		uint8_t (*_readButtonPin)(),
 		void (*_writeBulbLedPin)(uint8_t state),
 		float (*_getMillisecondsPerChipTick)(),
 		void (*_startLedTimers)(),
@@ -74,8 +71,6 @@ void configureChipState(
 	state.chargerIC = _chargerIC;
 	state.accel = _accel;
 	state.writeUsbSerial = _writeUsbSerial;
-	state.enterDFU = _enterDFU;
-//	state.readButtonPin = _readButtonPin;
 	state.writeBulbLedPin = _writeBulbLedPin;
 	state.getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
 	state.startLedTimers = _startLedTimers;
@@ -415,11 +410,7 @@ void autoOffTimerInterrupt() {
 }
 
 void chip_state_enter_dfu() {
-	state.enterDFU();
-}
-
-void chip_state_write_serial(const char *msg) {
-	state.writeUsbSerial(0, msg, strlen(msg));
+	state.enterDFU(erial(0, msg, strlen(msg));
 }
 
 void chip_state_show_success() {

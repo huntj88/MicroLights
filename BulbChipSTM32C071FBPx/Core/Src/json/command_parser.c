@@ -124,7 +124,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	lwjson_free(&lwjson);
 }
 
-void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count) {
+void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count, void (*enterDFU)()) {
 	parseJson(buf, count, &cliInput);
 
 	switch (cliInput.parsedType) {
@@ -169,7 +169,7 @@ void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint
 		break;
 	}
 	case parseDfu: {
-		chip_state_enter_dfu();
+		enterDFU();
 		break;
 	}}
 
