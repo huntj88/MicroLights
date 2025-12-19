@@ -12,6 +12,7 @@
 #include "mode_parser.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
+#include "model/cli_model.h"
 
 /*
  * Example Commands:
@@ -48,32 +49,7 @@
  * }
  */
 
-enum ParseResult {
-	parseError,
-	parseWriteMode,
-	parseReadMode,
-	parseWriteSettings,
-	parseReadSettings,
-	parseDfu
-};
 
-typedef struct CliInput {
-	// only one will be populated, see parsedType
-	Mode mode;
-	ChipSettings settings;
-
-	// metadata
-	uint8_t modeIndex;
-
-	// metadata calculated at runtime
-	uint16_t jsonLength;
-	
-	// metadata calculated at runtime
-	// 0 for not parsed successfully
-	// 1 for mode
-	// 2 for settings
-	enum ParseResult parsedType;
-} CliInput;
 
 extern CliInput cliInput;
 
