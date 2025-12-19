@@ -73,7 +73,6 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPer
 
 		button->evalStartTick = 0;
 		processButtonInterrupt = false;
-//		ticksSinceLastUserActivity = 0; // TODO: autoOff, refactor to do this in chipState
 		return buttonState;
 	}
 	return ignore;

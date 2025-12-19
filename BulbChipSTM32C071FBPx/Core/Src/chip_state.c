@@ -85,176 +85,6 @@ void configureChipState(
 	}
 }
 
-//// TODO: move to button input file
-//void setClickStarted() {
-//	clickStarted = true;
-//	rgbShowNoColor(caseLed);
-//	// Timers interrupts needed to properly detect input, chipTickTimer is part of led timers currently.
-//	startLedTimers();
-//}
-//
-//// TODO: move to button input file
-//static void setClickEnded() {
-//	clickStarted = false;
-//	ticksSinceLastUserActivity = 0;
-//}
-
-// TODO: move to button input file
-//static uint8_t hasClickStarted() {
-//	return clickStarted;
-//}
-
-// TODO: move to charger file
-//static void lock() {
-//	enum ChargeState state = getChargingState(chargerIC);
-//	if (state == notConnected) {
-//		enableShipMode(chargerIC);
-//	} else {
-//		hardwareReset(chargerIC);
-//	}
-//}
-
-//enum ButtonResult {
-//	ignore,
-//	clicked,
-//	shutdown,
-//	lockOrHardwareReset // hardware reset occurs when usb is plugged in
-//};
-
-// TODO: extract ButtonResult / button click logic to different file, return enum via pointer, update state based on enum. Different enum pointer for rgb hold state?
-//static void buttonInputTask(uint16_t tick, float millisPerTick) {
-//	static int16_t clickStartTick = 0;
-//
-//	if (hasClickStarted() && clickStartTick == 0) {
-//		clickStartTick = tick;
-//	}
-//
-//	uint16_t elapsedMillis = 0;
-//	if (clickStartTick != 0) {
-//		uint16_t elapsedTicks = tick - clickStartTick;
-//		elapsedMillis = elapsedTicks * millisPerTick;
-//	}
-//
-//	uint8_t state = readButtonPin();
-//	bool buttonCurrentlyDown = state == 0;
-//
-//	if (buttonCurrentlyDown) {
-//		if (elapsedMillis > 2000 && elapsedMillis < 2100) {
-//			rgbShowLocked(caseLed);
-//		} else if (elapsedMillis > 1000 && elapsedMillis < 1100) {
-//			rgbShowShutdown(caseLed);
-//		}
-//	}
-//
-//	if (!buttonCurrentlyDown && elapsedMillis > 20) {
-//		enum ButtonResult buttonState = clicked;
-//		if (elapsedMillis > 2000) {
-//			buttonState = lockOrHardwareReset;
-//		} else if (elapsedMillis > 1000) {
-//			buttonState = shutdown;
-//		}
-//
-//		switch (buttonState) {
-//		case ignore:
-//			break;
-//		case clicked:
-//			rgbShowSuccess(caseLed);
-//			uint8_t newModeIndex = currentModeIndex + 1;
-//			if (newModeIndex >= modeCount) {
-//				newModeIndex = 0;
-//			}
-//			setCurrentModeIndex(newModeIndex);
-//			const char *blah = "clicked\n";
-//			writeUsbSerial(0, blah, strlen(blah));
-//			break;
-//		case shutdown:
-//			shutdownFake();
-//			break;
-//		case lockOrHardwareReset:
-////			lock(); // TODO
-//			break;
-//		}
-//
-//		clickStartTick = 0;
-//		setClickEnded();
-//	}
-//}
-
-// TODO: move to charger file, add case rgbLed device as charger dependency
-// static void showChargingState(enum ChargeState state) {
-// 	// TODO: after moving, disabled variable to handle this case, update from chipState
-// 	if (hasClickStarted() || currentModeIndex != fakeOffModeIndex) {
-// 		// don't show charging during button input, or when a mode is in use while plugged in, will still charge
-// 		return;
-// 	}
-
-// 	switch (state) {
-// 	case notConnected:
-// 		// do nothing
-// 		break;
-// 	case notCharging:
-// 		rgbShowNotCharging(caseLed);
-// 		break;
-// 	case constantCurrent:
-// 		rgbShowConstantCurrentCharging(caseLed);
-// 		break;
-// 	case constantVoltage:
-// 		rgbShowConstantVoltageCharging(caseLed);
-// 		break;
-// 	case done:
-// 		rgbShowDoneCharging(caseLed);
-// 		break;
-// 	}
-// }
-
-// // TODO: move to charger file
-// static void chargerTask(uint16_t tick, float millisPerTick) {
-// 	static enum ChargeState chargingState = notConnected;
-// 	static uint16_t checkedAtTick = 0;
-
-// 	uint8_t previousState = chargingState;
-// 	uint16_t elapsedMillis = 0;
-
-// 	if (checkedAtTick != 0) {
-// 		uint16_t elapsedTicks = tick - checkedAtTick;
-// 		elapsedMillis = elapsedTicks * millisPerTick;
-// 	}
-
-// 	// charger i2c watchdog timer will reset if not communicated
-// 	// with for 40 seconds, and 15 seconds after plugged in.
-// 	if (elapsedMillis > 30000 || checkedAtTick == 0) {
-// 		// char registerJson[256];
-// 		// readAllRegistersJson(chargerIC, registerJson);
-// 		// writeUsbSerial(0, registerJson, strlen(registerJson));
-// 		// printAllRegisters(chargerIC);
-
-// 		chargingState = getChargingState(chargerIC);
-// 		checkedAtTick = tick;
-// 	}
-
-// 	// flash charging state to user every second
-// 	if (chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
-// 		showChargingState(chargingState);
-// 	}
-
-// 	if (readChargerNow) {
-// 		readChargerNow = false;
-// 		enum ChargeState state = getChargingState(chargerIC);
-
-// 		bool wasDisconnected = previousState != notConnected && state == notConnected;
-// 		if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
-// 			// if in fake off mode and power is unplugged, put into ship mode
-// 			lock();
-// 		}
-
-// 		bool wasConnected = previousState == notConnected && state != notConnected;
-// 		if (wasConnected) {
-// 			startLedTimers(); // show charging status led
-// 			showChargingState(state);
-// 		}
-// 	}
-// }
-
 void stateTask() {
 	float millisPerTick = state.getMillisecondsPerChipTick();
 	enum ButtonResult buttonResult = buttonInputTask(state.button, state.chipTick, millisPerTick);
@@ -290,11 +120,6 @@ void stateTask() {
 	bool chargeLedEnabled = !isEvaluatingButtonPress(state.button) && isFakeOff(state.modeManager);
 	chargerTask(state.chargerIC, state.chipTick, millisPerTick, unplugLockEnabled, chargeLedEnabled);
 }
-
-// TODO: move to charger file
-// void handleChargerInterrupt() {
-// 	readChargerNow = 1;
-// }
 
 // Helper to get output from a simple pattern at a specific time
 // TODO: pass in output pointer instead of returning by value, return bool for success/failure, return false is changeAt_count is 0
@@ -400,7 +225,7 @@ void autoOffTimerInterrupt() {
 
 		if (autoOffTimerDone) {
 			if (isFakeOff(state.modeManager)) {
-//				lock(); // TODO
+				lock(state.chargerIC);
 			} else {
 				state.ticksSinceLastUserActivity = 0; // restart timer to transition from fakeOff to shipMode
 				shutdownFake();
@@ -409,8 +234,8 @@ void autoOffTimerInterrupt() {
 	}
 }
 
-void chip_state_enter_dfu() {
-	state.enterDFU(erial(0, msg, strlen(msg));
+void chip_state_write_serial(const char *msg) {
+	state.writeUsbSerial(0, msg, strlen(msg));
 }
 
 void chip_state_show_success() {
