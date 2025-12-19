@@ -15,15 +15,14 @@
 #include "json/mode_parser.h"
 #include "storage.h"
 #include "mode_manager.h"
+#include "settings_manager.h"
 
 typedef struct {
     volatile uint16_t chipTick;
-    volatile uint8_t modeCount;
-    uint16_t minutesUntilAutoOff;
-    uint16_t minutesUntilLockAfterAutoOff;
     volatile uint32_t ticksSinceLastUserActivity;
     
     ModeManager *modeManager;
+    ChipSettings *settings;
 
     // Devices
     Button *button;
@@ -46,25 +45,6 @@ static void loadModeIndex(uint8_t modeIndex) {
 	loadMode(state.modeManager, modeIndex);
 }
 
-static void readSettingsWithBuffer(ChipSettings *settings, char *buffer) {
-	// set some defaults
-	settings->modeCount = 0;
-	settings->minutesUntilAutoOff = 90;
-	settings->minutesUntilLockAfterAutoOff = 10;
-
-	readSettingsFromFlash(buffer, 1024);
-	parseJson(buffer, 1024, &cliInput);
-
-	if (cliInput.parsedType == parseWriteSettings) {
-		*settings = cliInput.settings;
-	}
-}
-
-static void readSettings(ChipSettings *settings) {
-	char flashReadBuffer[1024];
-	readSettingsWithBuffer(settings, flashReadBuffer);
-}
-
 static void shutdownFake() {
 	loadModeIndex(FAKE_OFF_MODE_INDEX);
 	if (getChargingState(state.chargerIC) != notConnected) {
@@ -74,6 +54,7 @@ static void shutdownFake() {
 
 void configureChipState(
 		ModeManager *_modeManager,
+		ChipSettings *_settings,
 		Button *_button,
 		BQ25180 *_chargerIC,
 		MC3479 *_accel,
@@ -87,6 +68,7 @@ void configureChipState(
 		void (*_stopLedTimers)()
 ) {
 	state.modeManager = _modeManager;
+	state.settings = _settings;
 	state.button = _button;
 	state.caseLed = _caseLed;
 	state.chargerIC = _chargerIC;
@@ -106,12 +88,6 @@ void configureChipState(
 	} else {
 		shutdownFake();
 	}
-
-	ChipSettings settings;
-	readSettings(&settings);
-	state.modeCount = settings.modeCount;
-	state.minutesUntilAutoOff = settings.minutesUntilAutoOff;
-	state.minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 }
 
 //// TODO: move to button input file
@@ -293,7 +269,7 @@ void stateTask() {
 	case clicked:
 		rgbShowSuccess(state.caseLed);
 		uint8_t newModeIndex = state.modeManager->currentModeIndex + 1;
-		if (newModeIndex >= state.modeCount) {
+		if (newModeIndex >= state.settings->modeCount) {
 			newModeIndex = 0;
 		}
 		loadModeIndex(newModeIndex);
@@ -414,10 +390,10 @@ void autoOffTimerInterrupt() {
 	if (getChargingState(state.chargerIC) == notConnected) {
 		state.ticksSinceLastUserActivity++;
 
-		uint16_t ticksUntilAutoOff = state.minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
+		uint16_t ticksUntilAutoOff = state.settings->minutesUntilAutoOff * 60 / 10; // auto off timer running at 0.1hz
 		bool autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilAutoOff;
 		if (isFakeOff(state.modeManager)) {
-			uint16_t ticksUntilLockAfterAutoOff = state.minutesUntilLockAfterAutoOff * 60 / 10;
+			uint16_t ticksUntilLockAfterAutoOff = state.settings->minutesUntilLockAfterAutoOff * 60 / 10;
 			autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
 		}
 
@@ -432,21 +408,8 @@ void autoOffTimerInterrupt() {
 	}
 }
 
-// TODO: move to json folder
-// create modeManager that handles reading/writing modes from flash and interacting with currentMode
-// create settingsManager that handles reading/writing settings from flash
-void chip_state_update_settings(ChipSettings *settings) {
-	state.modeCount = settings->modeCount;
-	state.minutesUntilAutoOff = settings->minutesUntilAutoOff;
-	state.minutesUntilLockAfterAutoOff = settings->minutesUntilLockAfterAutoOff;
-}
-
 void chip_state_enter_dfu() {
 	state.enterDFU();
-}
-
-void chip_state_load_settings(ChipSettings *settings, char *buffer) {
-	readSettingsWithBuffer(settings, buffer);
 }
 
 void chip_state_write_serial(const char *msg) {

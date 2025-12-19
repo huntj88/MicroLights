@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "mode_parser.h"
 #include "mode_manager.h"
+#include "settings_manager.h"
 
 /*
  * Example Commands:
@@ -56,12 +57,6 @@ enum ParseResult {
 	parseDfu
 };
 
-typedef struct ChipSettings {
-	uint8_t modeCount;
-	uint8_t minutesUntilAutoOff;
-	uint8_t minutesUntilLockAfterAutoOff;
-} ChipSettings;
-
 typedef struct CliInput {
 	// only one will be populated, see parsedType
 	Mode mode;
@@ -83,6 +78,6 @@ typedef struct CliInput {
 extern CliInput cliInput;
 
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
-void handleJson(ModeManager *modeManager, uint8_t buf[], uint32_t count);
+void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count);
 
 #endif /* INC_COMMAND_PARSER_H_ */

@@ -15,6 +15,7 @@
 #include "chip_state.h"
 #include "storage.h"
 #include "mode_manager.h"
+#include "settings_manager.h"
 
 CliInput cliInput;
 
@@ -123,7 +124,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	lwjson_free(&lwjson);
 }
 
-void handleJson(ModeManager *modeManager, uint8_t buf[], uint32_t count) {
+void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count) {
 	parseJson(buf, count, &cliInput);
 
 	switch (cliInput.parsedType) {
@@ -155,13 +156,12 @@ void handleJson(ModeManager *modeManager, uint8_t buf[], uint32_t count) {
 	case parseWriteSettings: {
 		ChipSettings settings = cliInput.settings;
 		writeSettingsToFlash(buf, cliInput.jsonLength);
-		chip_state_update_settings(&settings);
+		settingsManagerUpdate(settingsManager, &settings);
 		break;
 	}
 	case parseReadSettings: {
 		char flashReadBuffer[1024];
-		ChipSettings settings;
-		chip_state_load_settings(&settings, flashReadBuffer);
+		settingsManagerLoadFromBuffer(settingsManager, flashReadBuffer);
 		uint16_t len = strlen(flashReadBuffer);
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';
