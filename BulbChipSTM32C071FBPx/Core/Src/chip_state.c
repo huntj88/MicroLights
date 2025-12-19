@@ -11,8 +11,6 @@
 #include <string.h>
 
 #include "chip_state.h"
-#include "device/mc3479.h"
-#include "device/rgb_led.h"
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
 #include "storage.h"
@@ -24,7 +22,7 @@ static volatile uint16_t chipTick = 0;
 static volatile uint8_t modeCount;
 static volatile Mode currentMode;
 static volatile uint8_t currentModeIndex;
-static volatile bool clickStarted = false;
+//static volatile bool clickStarted = false;
 // static volatile bool readChargerNow = false;
 
 static uint16_t minutesUntilAutoOff;
@@ -32,12 +30,13 @@ static uint16_t minutesUntilLockAfterAutoOff;
 static volatile uint32_t ticksSinceLastUserActivity = 0;
 
 static CliInput cliInput;
+static Button *button;
 static RGBLed *caseLed;
 static BQ25180 *chargerIC;
 static MC3479 *accel;
 static WriteToUsbSerial *writeUsbSerial;
 static void (*enterDFU)();
-static uint8_t (*readButtonPin)();
+//static uint8_t (*readButtonPin)();
 static void (*writeBulbLedPin)(uint8_t state);
 static float (*getMillisecondsPerChipTick)();
 static void (*startLedTimers)(); // TODO: split led timer control into different functions. front/case led (move functions to RGBLed), and chipTick
@@ -115,23 +114,25 @@ static void shutdownFake() {
 }
 
 void configureChipState(
+		Button *_button,
 		BQ25180 *_chargerIC,
 		MC3479 *_accel,
 		RGBLed *_caseLed,
 		WriteToUsbSerial *_writeUsbSerial,
 		void (*_enterDFU)(),
-		uint8_t (*_readButtonPin)(),
+//		uint8_t (*_readButtonPin)(),
 		void (*_writeBulbLedPin)(uint8_t state),
 		float (*_getMillisecondsPerChipTick)(),
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
+	button = _button;
 	caseLed = _caseLed;
 	chargerIC = _chargerIC;
 	accel = _accel;
 	writeUsbSerial = _writeUsbSerial;
 	enterDFU = _enterDFU;
-	readButtonPin = _readButtonPin;
+//	readButtonPin = _readButtonPin;
 	writeBulbLedPin = _writeBulbLedPin;
 	getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
 	startLedTimers = _startLedTimers;
@@ -152,24 +153,24 @@ void configureChipState(
 	minutesUntilLockAfterAutoOff = settings.minutesUntilLockAfterAutoOff;
 }
 
-// TODO: move to button input file
-void setClickStarted() {
-	clickStarted = true;
-	rgbShowNoColor(caseLed);
-	// Timers interrupts needed to properly detect input, chipTickTimer is part of led timers currently.
-	startLedTimers();
-}
+//// TODO: move to button input file
+//void setClickStarted() {
+//	clickStarted = true;
+//	rgbShowNoColor(caseLed);
+//	// Timers interrupts needed to properly detect input, chipTickTimer is part of led timers currently.
+//	startLedTimers();
+//}
+//
+//// TODO: move to button input file
+//static void setClickEnded() {
+//	clickStarted = false;
+//	ticksSinceLastUserActivity = 0;
+//}
 
 // TODO: move to button input file
-static void setClickEnded() {
-	clickStarted = false;
-	ticksSinceLastUserActivity = 0;
-}
-
-// TODO: move to button input file
-static uint8_t hasClickStarted() {
-	return clickStarted;
-}
+//static uint8_t hasClickStarted() {
+//	return clickStarted;
+//}
 
 // TODO: move to charger file
 //static void lock() {
@@ -181,71 +182,71 @@ static uint8_t hasClickStarted() {
 //	}
 //}
 
-enum ButtonResult {
-	ignore,
-	clicked,
-	shutdown,
-	lockOrHardwareReset // hardware reset occurs when usb is plugged in
-};
+//enum ButtonResult {
+//	ignore,
+//	clicked,
+//	shutdown,
+//	lockOrHardwareReset // hardware reset occurs when usb is plugged in
+//};
 
 // TODO: extract ButtonResult / button click logic to different file, return enum via pointer, update state based on enum. Different enum pointer for rgb hold state?
-static void buttonInputTask(uint16_t tick, float millisPerTick) {
-	static int16_t clickStartTick = 0;
-	
-	if (hasClickStarted() && clickStartTick == 0) {
-		clickStartTick = tick;
-	}
-
-	uint16_t elapsedMillis = 0;
-	if (clickStartTick != 0) {
-		uint16_t elapsedTicks = tick - clickStartTick;
-		elapsedMillis = elapsedTicks * millisPerTick;
-	}
-
-	uint8_t state = readButtonPin();
-	bool buttonCurrentlyDown = state == 0;
-
-	if (buttonCurrentlyDown) {
-		if (elapsedMillis > 2000 && elapsedMillis < 2100) {
-			rgbShowLocked(caseLed);
-		} else if (elapsedMillis > 1000 && elapsedMillis < 1100) {
-			rgbShowShutdown(caseLed);
-		}
-	}
-
-	if (!buttonCurrentlyDown && elapsedMillis > 20) {
-		enum ButtonResult buttonState = clicked;
-		if (elapsedMillis > 2000) {
-			buttonState = lockOrHardwareReset;
-		} else if (elapsedMillis > 1000) {
-			buttonState = shutdown;
-		}
-
-		switch (buttonState) {
-		case ignore:
-			break;
-		case clicked:
-			rgbShowSuccess(caseLed);
-			uint8_t newModeIndex = currentModeIndex + 1;
-			if (newModeIndex >= modeCount) {
-				newModeIndex = 0;
-			}
-			setCurrentModeIndex(newModeIndex);
-			const char *blah = "clicked\n";
-			writeUsbSerial(0, blah, strlen(blah));
-			break;
-		case shutdown:
-			shutdownFake();
-			break;
-		case lockOrHardwareReset:
-//			lock(); // TODO
-			break;
-		}
-
-		clickStartTick = 0;
-		setClickEnded();
-	}
-}
+//static void buttonInputTask(uint16_t tick, float millisPerTick) {
+//	static int16_t clickStartTick = 0;
+//
+//	if (hasClickStarted() && clickStartTick == 0) {
+//		clickStartTick = tick;
+//	}
+//
+//	uint16_t elapsedMillis = 0;
+//	if (clickStartTick != 0) {
+//		uint16_t elapsedTicks = tick - clickStartTick;
+//		elapsedMillis = elapsedTicks * millisPerTick;
+//	}
+//
+//	uint8_t state = readButtonPin();
+//	bool buttonCurrentlyDown = state == 0;
+//
+//	if (buttonCurrentlyDown) {
+//		if (elapsedMillis > 2000 && elapsedMillis < 2100) {
+//			rgbShowLocked(caseLed);
+//		} else if (elapsedMillis > 1000 && elapsedMillis < 1100) {
+//			rgbShowShutdown(caseLed);
+//		}
+//	}
+//
+//	if (!buttonCurrentlyDown && elapsedMillis > 20) {
+//		enum ButtonResult buttonState = clicked;
+//		if (elapsedMillis > 2000) {
+//			buttonState = lockOrHardwareReset;
+//		} else if (elapsedMillis > 1000) {
+//			buttonState = shutdown;
+//		}
+//
+//		switch (buttonState) {
+//		case ignore:
+//			break;
+//		case clicked:
+//			rgbShowSuccess(caseLed);
+//			uint8_t newModeIndex = currentModeIndex + 1;
+//			if (newModeIndex >= modeCount) {
+//				newModeIndex = 0;
+//			}
+//			setCurrentModeIndex(newModeIndex);
+//			const char *blah = "clicked\n";
+//			writeUsbSerial(0, blah, strlen(blah));
+//			break;
+//		case shutdown:
+//			shutdownFake();
+//			break;
+//		case lockOrHardwareReset:
+////			lock(); // TODO
+//			break;
+//		}
+//
+//		clickStartTick = 0;
+//		setClickEnded();
+//	}
+//}
 
 // TODO: move to charger file, add case rgbLed device as charger dependency
 // static void showChargingState(enum ChargeState state) {
@@ -324,7 +325,7 @@ static void buttonInputTask(uint16_t tick, float millisPerTick) {
 
 void stateTask() {
 	float millisPerTick = getMillisecondsPerChipTick();
-	buttonInputTask(chipTick, millisPerTick);
+	buttonInputTask(button, chipTick, millisPerTick);
 	rgbTask(caseLed, chipTick, millisPerTick);
 	mc3479Task(accel, chipTick, millisPerTick);
 	chargerTask(chargerIC, chipTick, millisPerTick);
@@ -398,7 +399,8 @@ static void updateMode() {
 	}
 
 	// Update Case (RGB only)
-	if (!hasClickStarted()) {
+//	if (!hasClickStarted()) {
+	if (true) { // TODO?
 		if (currentMode.has_case_comp || (triggered && currentMode.accel.triggers[0].has_case_comp)) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
 				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, modeMs);

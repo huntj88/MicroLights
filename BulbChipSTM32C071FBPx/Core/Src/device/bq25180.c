@@ -25,7 +25,7 @@ bool bq25180Init(
 	WriteToUsbSerial *writeToUsbSerial,
 	RGBLed *caseLed
 ) {
-	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial) return false;
+	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) return false;
 
 	chargerIC->readRegister = readRegCb;
 	chargerIC->writeRegister = writeCb;

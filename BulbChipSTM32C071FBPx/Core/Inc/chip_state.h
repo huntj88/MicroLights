@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 
+#include "device/button.h"
 #include "device/bq25180.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
@@ -18,12 +19,13 @@
 typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 void configureChipState(
+		Button *button,
 		BQ25180 *chargerIC,
 		MC3479 *accel,
 		RGBLed *rgb,
 		WriteToUsbSerial *writeUsbSerial,
 		void (*enterDFU)(),
-		uint8_t (*readButtonPin)(),
+//		uint8_t (*readButtonPin)(),
 		void (*writeBulbLedPin)(uint8_t state),
 		float (*getMillisecondsPerChipTick)(),
 		void (*startLedTimers)(),

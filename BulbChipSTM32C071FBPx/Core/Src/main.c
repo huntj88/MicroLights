@@ -26,6 +26,7 @@
 #include "bootloader.h"
 #include "chip_state.h"
 #include "device/bq25180.h"
+#include "device/button.h"
 #include "device/mc3479.h"
 #include "storage.h"
 #include "tusb.h"
@@ -60,6 +61,7 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
+Button button;
 MC3479 accel;
 RGBLed caseLed;
 /* USER CODE END PV */
@@ -287,17 +289,23 @@ int main(void)
     Error_Handler();
   }
 
+  // TODO: button timers
+  if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
+	  Error_Handler();
+  }
+
   if (!mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
     Error_Handler();
   }
 
   configureChipState(
+		  &button,
 		  &chargerIC,
 		  &accel,
 		  &caseLed,
 		  writeToSerial,
 		  setBootloaderFlagAndReset,
-		  readButtonPin,
+//		  readButtonPin,
 		  writeBulbLed,
 		  millisecondsPerChipTick,
 		  startLedTimers,
