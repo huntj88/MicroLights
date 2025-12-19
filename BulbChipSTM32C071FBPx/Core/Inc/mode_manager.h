@@ -16,7 +16,7 @@
 #define FAKE_OFF_MODE_INDEX 255
 
 typedef struct {
-    Mode currentMode;
+    Mode currentMode; // if running out of memory, consider using a pointer here that shares cliInput.mode
     uint8_t currentModeIndex;
     MC3479 *accel;
     void (*startLedTimers)();

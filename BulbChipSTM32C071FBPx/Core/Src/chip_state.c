@@ -284,9 +284,16 @@ void stateTask() {
 		break;
 	}
 
+	if (buttonResult != ignore) {
+		state.ticksSinceLastUserActivity = 0;
+	}
+
 	rgbTask(state.caseLed, state.chipTick, millisPerTick);
 	mc3479Task(state.accel, state.chipTick, millisPerTick);
-	chargerTask(state.chargerIC, state.chipTick, millisPerTick);
+
+	bool unplugLockEnabled = isFakeOff(state.modeManager);
+	bool chargeLedEnabled = !isEvaluatingButtonPress(state.button) && isFakeOff(state.modeManager);
+	chargerTask(state.chargerIC, state.chipTick, millisPerTick, unplugLockEnabled, chargeLedEnabled);
 }
 
 // TODO: move to charger file
@@ -357,7 +364,6 @@ static void updateMode() {
 	}
 
 	// Update Case (RGB only)
-//	if (!hasClickStarted()) {
 	// Don't show case led changes during button input, button input task uses case led for status
 	if (!isEvaluatingButtonPress(state.button)) {
 		if (state.modeManager->currentMode.has_case_comp || (triggered && state.modeManager->currentMode.accel.triggers[0].has_case_comp)) {
