@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "mode_parser.h"
+#include "mode_manager.h"
 
 /*
  * Example Commands:
@@ -82,6 +83,6 @@ typedef struct CliInput {
 extern CliInput cliInput;
 
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
-void handleJson(uint8_t buf[], uint32_t count);
+void handleJson(ModeManager *modeManager, uint8_t buf[], uint32_t count);
 
 #endif /* INC_COMMAND_PARSER_H_ */

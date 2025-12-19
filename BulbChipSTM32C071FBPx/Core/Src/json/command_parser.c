@@ -14,6 +14,7 @@
 #include "lwjson/lwjson.h"
 #include "chip_state.h"
 #include "storage.h"
+#include "mode_manager.h"
 
 CliInput cliInput;
 
@@ -122,7 +123,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	lwjson_free(&lwjson);
 }
 
-void handleJson(uint8_t buf[], uint32_t count) {
+void handleJson(ModeManager *modeManager, uint8_t buf[], uint32_t count) {
 	parseJson(buf, count, &cliInput);
 
 	switch (cliInput.parsedType) {
@@ -135,16 +136,16 @@ void handleJson(uint8_t buf[], uint32_t count) {
 	case parseWriteMode: {
 		if (strcmp(cliInput.mode.name, "transientTest") == 0) {
 			// do not write to flash for transient test
-			chip_state_update_mode(cliInput.modeIndex, &cliInput.mode);
+			setMode(modeManager, &cliInput.mode, cliInput.modeIndex);
 		} else {
 			writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
-			chip_state_update_mode(cliInput.modeIndex, &cliInput.mode);
+			setMode(modeManager, &cliInput.mode, cliInput.modeIndex);
 		}
 		break;
 	}
 	case parseReadMode: {
 		char flashReadBuffer[1024];
-		chip_state_load_mode(cliInput.modeIndex, flashReadBuffer);
+		loadModeFromBuffer(modeManager, cliInput.modeIndex, flashReadBuffer);
 		uint16_t len = strlen(flashReadBuffer);
 		flashReadBuffer[len] = '\n';
 		flashReadBuffer[len + 1] = '\0';

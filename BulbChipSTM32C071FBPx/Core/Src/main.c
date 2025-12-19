@@ -30,6 +30,7 @@
 #include "device/mc3479.h"
 #include "storage.h"
 #include "tusb.h"
+#include "mode_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +65,7 @@ BQ25180 chargerIC;
 Button button;
 MC3479 accel;
 RGBLed caseLed;
+ModeManager modeManager;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -229,7 +231,7 @@ static void cdcTask() {
 				jsonIndex += count;
 			} else if (jsonIndex != 0) {
 				jsonIndex = 0;
-				handleJson(jsonBuf, 1024);
+				handleJson(&modeManager, jsonBuf, 1024);
 			}
 		}
 	}
@@ -298,7 +300,10 @@ int main(void)
     Error_Handler();
   }
 
+  modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers);
+
   configureChipState(
+		  &modeManager,
 		  &button,
 		  &chargerIC,
 		  &accel,

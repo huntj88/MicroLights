@@ -15,10 +15,12 @@
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
 #include "json/command_parser.h"
+#include "mode_manager.h"
 
 typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 void configureChipState(
+		ModeManager *modeManager,
 		Button *button,
 		BQ25180 *chargerIC,
 		MC3479 *accel,
@@ -33,10 +35,8 @@ void configureChipState(
 );
 
 // API for command parser
-void chip_state_update_mode(uint8_t index, Mode *mode);
 void chip_state_update_settings(ChipSettings *settings);
 void chip_state_enter_dfu();
-void chip_state_load_mode(uint8_t index, char *buffer);
 void chip_state_load_settings(ChipSettings *settings, char *buffer);
 void chip_state_write_serial(const char *msg);
 void chip_state_show_success();
