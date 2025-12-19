@@ -2,21 +2,16 @@
  * settings_manager.h
  *
  *  Created on: Dec 18, 2025
- *      Author: GitHub Copilot
+ *      Author: jameshunt
  */
 
 #ifndef INC_SETTINGS_MANAGER_H_
 #define INC_SETTINGS_MANAGER_H_
 
 #include <stdint.h>
+#include "model/cli_model.h"
 
-typedef struct {
-	uint8_t modeCount;
-	uint8_t minutesUntilAutoOff;
-	uint8_t minutesUntilLockAfterAutoOff;
-} ChipSettings;
-
-typedef struct {
+typedef struct SettingsManager {
     ChipSettings currentSettings;
 } SettingsManager;
 

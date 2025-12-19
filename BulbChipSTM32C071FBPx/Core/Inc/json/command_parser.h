@@ -10,8 +10,6 @@
 
 #include <stdint.h>
 #include "mode_parser.h"
-#include "mode_manager.h"
-#include "settings_manager.h"
 #include "model/cli_model.h"
 
 /*
@@ -49,11 +47,6 @@
  * }
  */
 
-
-
-extern CliInput cliInput;
-
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
-void handleJson(ModeManager *modeManager, SettingsManager *settingsManager, uint8_t buf[], uint32_t count, void (*enterDFU)());
 
 #endif /* INC_COMMAND_PARSER_H_ */

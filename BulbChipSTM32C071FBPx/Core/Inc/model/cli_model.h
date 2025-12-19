@@ -2,7 +2,7 @@
  * cli_model.h
  *
  *  Created on: Dec 19, 2025
- *      Author: GitHub Copilot
+ *      Author: jameshunt
  */
 
 #ifndef INC_MODEL_CLI_MODEL_H_
@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "model/mode.h"
-#include "settings_manager.h"
+#include "model/chip_settings.h"
 
 enum ParseResult {
 	parseError,
@@ -38,5 +38,7 @@ typedef struct CliInput {
 	// 2 for settings
 	enum ParseResult parsedType;
 } CliInput;
+
+extern CliInput cliInput;
 
 #endif /* INC_MODEL_CLI_MODEL_H_ */

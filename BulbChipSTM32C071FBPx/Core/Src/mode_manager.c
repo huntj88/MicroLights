@@ -2,7 +2,7 @@
  * mode_manager.c
  *
  *  Created on: Dec 18, 2025
- *      Author: GitHub Copilot
+ *      Author: jameshunt
  */
 
 #include "mode_manager.h"
@@ -47,7 +47,7 @@ void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
     }
 }
 
-static void readBulbMode(uint8_t modeIndex) {
+static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
         parseJson((uint8_t*)fakeOffMode, 1024, &cliInput);
     } else {
@@ -63,7 +63,7 @@ static void readBulbMode(uint8_t modeIndex) {
 }
 
 void loadMode(ModeManager *manager, uint8_t index) {
-    readBulbMode(index);
+    readBulbMode(manager, index);
     setMode(manager, &cliInput.mode, index);
 }
 

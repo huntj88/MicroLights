@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "device/rgb_led.h"
 #include "json/command_parser.h"
+#include "json/json_manager.h"
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/

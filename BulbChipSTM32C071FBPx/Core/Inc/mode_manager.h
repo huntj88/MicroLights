@@ -2,7 +2,7 @@
  * mode_manager.h
  *
  *  Created on: Dec 18, 2025
- *      Author: GitHub Copilot
+ *      Author: jameshunt
  */
 
 #ifndef INC_MODE_MANAGER_H_
@@ -10,12 +10,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "json/mode_parser.h"
 #include "device/mc3479.h"
+#include "model/cli_model.h"
 
 #define FAKE_OFF_MODE_INDEX 255
 
-typedef struct {
+typedef struct ModeManager {
     Mode currentMode; // if running out of memory, consider using a pointer here that shares cliInput.mode
     uint8_t currentModeIndex;
     MC3479 *accel;

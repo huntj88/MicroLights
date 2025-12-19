@@ -2,7 +2,7 @@
  * settings_manager.c
  *
  *  Created on: Dec 18, 2025
- *      Author: GitHub Copilot
+ *      Author: jameshunt
  */
 
 #include "settings_manager.h"
