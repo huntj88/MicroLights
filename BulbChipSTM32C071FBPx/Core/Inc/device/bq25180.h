@@ -62,6 +62,9 @@ typedef struct BQ25180 {
 	WriteToUsbSerial *writeToUsbSerial;
 	uint8_t devAddress;
 	RGBLed *caseLed;
+
+	enum ChargeState chargingState;
+	uint16_t checkedAtMs;
 } BQ25180;
 
 typedef struct BQ25180Registers {

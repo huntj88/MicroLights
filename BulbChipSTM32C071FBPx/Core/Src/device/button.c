@@ -42,7 +42,7 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
 
 	uint16_t elapsedMillis = 0;
 	if (button->evalStartMs != 0) {
-		elapsedMillis = (uint16_t)(ms - button->evalStartMs);
+		elapsedMillis = ms - button->evalStartMs;
 	}
 
 	uint8_t state = button->readButtonPin();

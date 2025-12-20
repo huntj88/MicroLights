@@ -33,6 +33,9 @@ bool bq25180Init(
 	chargerIC->writeToUsbSerial = writeToUsbSerial;
 	chargerIC->caseLed = caseLed;
 
+	chargerIC->chargingState = notConnected;
+	chargerIC->checkedAtMs = 0;
+
 	configureChargerIC(chargerIC);
 
 	return true;
@@ -69,31 +72,28 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 
 // TODO: move to charger file
 void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool ledEnabled) {
-	static enum ChargeState chargingState = notConnected; // TODO: move to charger struct
-	static uint16_t checkedAtMs = 0; // TODO: move to charger struct
-
-	uint8_t previousState = chargingState;
+	uint8_t previousState = chargerIC->chargingState;
 	uint16_t elapsedMillis = 0;
 
-	if (checkedAtMs != 0) {
-		elapsedMillis = ms - checkedAtMs;
+	if (chargerIC->checkedAtMs != 0) {
+		elapsedMillis = ms - chargerIC->checkedAtMs;
 	}
 
 	// charger i2c watchdog timer will reset if not communicated
 	// with for 40 seconds, and 15 seconds after plugged in.
-	if (elapsedMillis > 30000 || checkedAtMs == 0) {
+	if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
 		// char registerJson[256];
 		// readAllRegistersJson(chargerIC, registerJson);
 		// writeUsbSerial(0, registerJson, strlen(registerJson));
 		// printAllRegisters(chargerIC);
 
-		chargingState = getChargingState(chargerIC);
-		checkedAtMs = ms;
+		chargerIC->chargingState = getChargingState(chargerIC);
+		chargerIC->checkedAtMs = ms;
 	}
 
 	// flash charging state to user every second
-	if (ledEnabled && chargingState != notConnected && ms % 1000 < 50) {
-		showChargingState(chargerIC, chargingState);
+	if (ledEnabled && chargerIC->chargingState != notConnected && ms % 1000 < 50) {
+		showChargingState(chargerIC, chargerIC->chargingState);
 	}
 
 	if (readChargerNow) {

@@ -100,7 +100,7 @@ void rgbTask(RGBLed *device, uint16_t ms) {
 
 	device->ms = ms;
 
-	uint16_t elapsedMillis = (uint16_t)(ms - device->msOfColorChange);
+	uint16_t elapsedMillis = ms - device->msOfColorChange;
 
 	// show status color for 300 milliseconds, then switch back to user color
 	if (device->showingTransientStatus && elapsedMillis > 300) {

@@ -122,7 +122,8 @@ void mc3479Task(MC3479 *dev, uint16_t ms) {
     if (!dev->enabled) return;
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    bool samplePeriodElapsed = (uint16_t)(ms - dev->lastSampleMs) >= 50;
+    uint16_t elapsed = ms - dev->lastSampleMs;
+    bool samplePeriodElapsed = elapsed >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
         if (mc3479SampleNow(dev, ms)) {
