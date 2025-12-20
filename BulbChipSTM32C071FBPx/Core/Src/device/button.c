@@ -76,6 +76,6 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
 }
 
 bool isEvaluatingButtonPress(Button *button) {
-	// could also just check processButtonInterrupt == true, but button eval is first task after interrupt, so evalStartTick is fine
+	// could also just check processButtonInterrupt == true, but button eval is first task after interrupt, so evalStartMs is fine
 	return button->evalStartMs != 0;
 }

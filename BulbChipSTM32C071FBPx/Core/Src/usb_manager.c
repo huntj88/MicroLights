@@ -115,13 +115,19 @@ void usbCdcTask(USBManager *usbManager) {
 			if (tud_cdc_n_available(itf)) {
 				uint8_t buf[64];
 				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				for (uint8_t i = 0; i < count; i++) {
-					jsonBuf[jsonIndex + i] = buf[i];
+				if (jsonIndex + count > sizeof(jsonBuf)) {
+					char error[] = "{\"error\":\"payload too long\"}\n";
+					usbWriteToSerial(usbManager, itf, error, strlen(error));
+					jsonIndex = 0;
+				} else {
+					for (uint8_t i = 0; i < count; i++) {
+						jsonBuf[jsonIndex++] = buf[i];
+						if (buf[i] == '\n') {
+							handleJson(usbManager, jsonBuf, jsonIndex);
+							jsonIndex = 0;
+						}
+					}
 				}
-				jsonIndex += count;
-			} else if (jsonIndex != 0) {
-				jsonIndex = 0;
-				handleJson(usbManager, jsonBuf, 1024);
 			}
 		}
 	}
