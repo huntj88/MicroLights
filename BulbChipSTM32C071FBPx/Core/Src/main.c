@@ -69,6 +69,7 @@ MC3479 accel;
 RGBLed caseLed;
 ModeManager modeManager;
 SettingsManager settingsManager;
+USBManager usbManager;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,16 +90,7 @@ static void MX_TIM3_Init(void);
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
-	for (uint32_t i = 0; i < count; i += 64) {
-		uint32_t countMax64 = MIN(count - i, 64);
-		tud_cdc_n_write(itf, buf + i, countMax64);
-		tud_task();
-	}
-	tud_cdc_n_write_flush(itf);
-	tud_task();
-
-	// also log to uart serial in case usb doesn't work
-	HAL_UART_Transmit(&huart2, buf, count, 100);
+	usbWriteToSerial(&usbManager, itf, buf, count);
 }
 
 static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
@@ -213,32 +205,6 @@ static float millisecondsPerChipTick() {
   return (float)(intervalSeconds * 1000.0);
 }
 
-static void cdcTask() {
-	static uint8_t jsonBuf[1024];
-	static uint16_t jsonIndex = 0;
-	uint8_t itf;
-
-	tud_task();
-
-	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
-		// connected() check for DTR bit
-		// Most but not all terminal client set this when making connection
-		// if ( tud_cdc_n_connected(itf) )
-		{
-			if (tud_cdc_n_available(itf)) {
-				uint8_t buf[64];
-				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				for (uint8_t i = 0; i < count; i++) {
-					jsonBuf[jsonIndex + i] = buf[i];
-				}
-				jsonIndex += count;
-			} else if (jsonIndex != 0) {
-				jsonIndex = 0;
-				handleJson(&modeManager, &settingsManager, writeToSerial, setBootloaderFlagAndReset, jsonBuf, 1024);
-			}
-		}
-	}
-}
 /* USER CODE END 0 */
 
 /**
@@ -284,14 +250,16 @@ int main(void)
 
   // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?), add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a different timer, bulb LEDS should continue to work but on a new pin.
 
-  tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+  modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers);
+  settingsManagerLoad(&settingsManager);
+  usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset);
 
   if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers, stopLedTimers)) {
-    Error_Handler();
+	  Error_Handler();
   }
 
   if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
-    Error_Handler();
+	  Error_Handler();
   }
 
   // TODO: button timers
@@ -300,11 +268,8 @@ int main(void)
   }
 
   if (!mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
-    Error_Handler();
+	  Error_Handler();
   }
-
-  modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers);
-  settingsManagerLoad(&settingsManager);
 
   configureChipState(
 		  &modeManager,
@@ -329,7 +294,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   while (1) {
-	  cdcTask();
+	  usbCdcTask(&usbManager);
 
 	  stateTask();
 
