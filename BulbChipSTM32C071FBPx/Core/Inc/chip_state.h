@@ -33,10 +33,8 @@ void configureChipState(
 		void (*stopLedTimers)()
 );
 
-void setClickStarted();
 void stateTask();
 void chipTickInterrupt();
-// void handleChargerInterrupt();
 void autoOffTimerInterrupt();
 
 

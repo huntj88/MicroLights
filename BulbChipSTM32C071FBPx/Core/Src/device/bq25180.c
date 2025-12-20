@@ -70,7 +70,6 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 	}
 }
 
-// TODO: move to charger file
 void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool ledEnabled) {
 	uint8_t previousState = chargerIC->chargingState;
 	uint16_t elapsedMillis = 0;
@@ -101,7 +100,6 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 		enum ChargeState state = getChargingState(chargerIC);
 
 		bool wasDisconnected = previousState != notConnected && state == notConnected;
-		// if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
 		if (ms != 0 && wasDisconnected && unplugLockEnabled) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock(chargerIC);
@@ -109,7 +107,6 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 
 		bool wasConnected = previousState == notConnected && state != notConnected;
 		if (wasConnected && ledEnabled) {
-			// TODO: call implicitly in rgb led?
 			chargerIC->caseLed->startLedTimers(); // show charging status led
 			showChargingState(chargerIC, state);
 		}
