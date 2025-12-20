@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef INC_JSON_JSON_MANAGER_H_
-#define INC_JSON_JSON_MANAGER_H_
+#ifndef INC_JSON_USB_COMMAND_MANAGER_H_
+#define INC_JSON_USB_COMMAND_MANAGER_H_
 
 #include <stdint.h>
 #include "mode_manager.h"
@@ -22,4 +22,4 @@ void handleJson(
     uint32_t count
 );
 
-#endif /* INC_JSON_JSON_MANAGER_H_ */
+#endif /* INC_JSON_USB_COMMAND_MANAGER_H_ */

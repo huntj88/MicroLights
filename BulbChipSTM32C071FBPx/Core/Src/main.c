@@ -17,13 +17,13 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "device/rgb_led.h"
-#include "json/command_parser.h"
-#include "json/json_manager.h"
+#include <usb_manager.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "device/rgb_led.h"
+#include "json/command_parser.h"
 #include "bootloader.h"
 #include "chip_state.h"
 #include "device/bq25180.h"

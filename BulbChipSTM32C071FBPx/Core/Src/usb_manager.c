@@ -5,11 +5,11 @@
  *      Author: jameshunt
  */
 
-#include "json/json_manager.h"
 #include "json/command_parser.h"
 #include "chip_state.h"
 #include "storage.h"
 #include <string.h>
+#include <usb_manager.h>
 
 void handleJson(
 	ModeManager *modeManager,
