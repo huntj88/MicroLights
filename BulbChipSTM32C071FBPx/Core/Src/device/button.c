@@ -63,8 +63,6 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPer
 			buttonState = lockOrHardwareReset;
 		} else if (elapsedMillis > 1000) {
 			buttonState = shutdown;
-		} else {
-			buttonState = ignore;
 		}
 
 		if (buttonState == clicked) {
