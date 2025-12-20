@@ -68,32 +68,31 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 }
 
 // TODO: move to charger file
-void chargerTask(BQ25180 *chargerIC,uint16_t tick, float millisPerTick, bool unplugLockEnabled, bool ledEnabled) {
-	static enum ChargeState chargingState = notConnected;
-	static uint16_t checkedAtTick = 0;
+void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool ledEnabled) {
+	static enum ChargeState chargingState = notConnected; // TODO: move to charger struct
+	static uint16_t checkedAtMs = 0; // TODO: move to charger struct
 
 	uint8_t previousState = chargingState;
 	uint16_t elapsedMillis = 0;
 
-	if (checkedAtTick != 0) {
-		uint16_t elapsedTicks = tick - checkedAtTick;
-		elapsedMillis = elapsedTicks * millisPerTick;
+	if (checkedAtMs != 0) {
+		elapsedMillis = ms - checkedAtMs;
 	}
 
 	// charger i2c watchdog timer will reset if not communicated
 	// with for 40 seconds, and 15 seconds after plugged in.
-	if (elapsedMillis > 30000 || checkedAtTick == 0) {
+	if (elapsedMillis > 30000 || checkedAtMs == 0) {
 		// char registerJson[256];
 		// readAllRegistersJson(chargerIC, registerJson);
 		// writeUsbSerial(0, registerJson, strlen(registerJson));
 		// printAllRegisters(chargerIC);
 
 		chargingState = getChargingState(chargerIC);
-		checkedAtTick = tick;
+		checkedAtMs = ms;
 	}
 
 	// flash charging state to user every second
-	if (ledEnabled && chargingState != notConnected && elapsedMillis % 1000 >= 1000 - millisPerTick) {
+	if (ledEnabled && chargingState != notConnected && ms % 1000 < 50) {
 		showChargingState(chargerIC, chargingState);
 	}
 
@@ -103,7 +102,7 @@ void chargerTask(BQ25180 *chargerIC,uint16_t tick, float millisPerTick, bool unp
 
 		bool wasDisconnected = previousState != notConnected && state == notConnected;
 		// if (tick != 0 && wasDisconnected && currentModeIndex == fakeOffModeIndex) {
-		if (tick != 0 && wasDisconnected && unplugLockEnabled) {
+		if (ms != 0 && wasDisconnected && unplugLockEnabled) {
 			// if in fake off mode and power is unplugged, put into ship mode
 			lock(chargerIC);
 		}

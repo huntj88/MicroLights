@@ -42,8 +42,8 @@ void mc3479Enable(MC3479 *dev) {
     dev->enabled = true;
 
     // reset last sample tick so the task may sample immediately on next mc3479Task call
-    dev->lastSampleTick = 0;
-    dev->currentJerkGPerTick = 0.0f;
+    dev->lastSampleMs = 0;
+    dev->currentJerkGPerMs = 0.0f;
     dev->lastAxG = 0.0f;
     dev->lastAyG = 0.0f;
     dev->lastAzG = 0.0f;
@@ -57,15 +57,15 @@ void mc3479Disable(MC3479 *dev) {
     dev->enabled = false;
 
     // reset the sample time and clear the cached magnitude
-    dev->lastSampleTick = 0;
+    dev->lastSampleMs = 0;
     dev->currentMagnitudeG = 0.0f;
-    dev->currentJerkGPerTick = 0.0f;
+    dev->currentJerkGPerMs = 0.0f;
     dev->lastAxG = 0.0f;
     dev->lastAyG = 0.0f;
     dev->lastAzG = 0.0f;
 }
 
-bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
+bool mc3479SampleNow(MC3479 *dev, uint16_t ms) {
     if (!dev || !dev->enabled) return false;
 
     // read all 6 bytes
@@ -90,47 +90,47 @@ bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
     dev->currentMagnitudeG = sqrtf(gx*gx + gy*gy + gz*gz);
 
     // Compute jerk (derivative of acceleration). This driver measures and
-    // stores jerk in units of g per tick (caller ticks are used directly).
-    if (dev->lastSampleTick != 0 && tick > dev->lastSampleTick) {
-        float dt_ticks = (float)(tick - dev->lastSampleTick);
-        if (dt_ticks > 0.0f) {
+    // stores jerk in units of g per ms (caller ms are used directly).
+    if (dev->lastSampleMs != 0 && ms > dev->lastSampleMs) {
+        float dt_ms = (float)(ms - dev->lastSampleMs);
+        if (dt_ms > 0.0f) {
             float dax = gx - dev->lastAxG;
             float day = gy - dev->lastAyG;
             float daz = gz - dev->lastAzG;
 
-            float jerk_mag = sqrtf(dax*dax + day*day + daz*daz) / dt_ticks;
-            dev->currentJerkGPerTick = jerk_mag;
+            float jerk_mag = sqrtf(dax*dax + day*day + daz*daz) / dt_ms;
+            dev->currentJerkGPerMs = jerk_mag;
         } else {
-            dev->currentJerkGPerTick = 0.0f;
+            dev->currentJerkGPerMs = 0.0f;
         }
     } else {
         // Insufficient history to compute jerk yet
-        dev->currentJerkGPerTick = 0.0f;
+        dev->currentJerkGPerMs = 0.0f;
     }
 
     dev->lastAxG = gx;
     dev->lastAyG = gy;
     dev->lastAzG = gz;
 
-    dev->lastSampleTick = tick;
+    dev->lastSampleMs = ms;
 
     return true;
 }
 
-void mc3479Task(MC3479 *dev, uint16_t tick, float millisPerTick) {
+void mc3479Task(MC3479 *dev, uint16_t ms) {
     if (!dev) return;
     if (!dev->enabled) return;
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    bool samplePeriodElapsed = (tick - dev->lastSampleTick) * millisPerTick >= 50;
+    bool samplePeriodElapsed = (uint16_t)(ms - dev->lastSampleMs) >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, tick)) {
+        if (mc3479SampleNow(dev, ms)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleTick = tick;
+            dev->lastSampleMs = ms;
         }
     }
 }
@@ -139,5 +139,5 @@ bool isOverThreshold(MC3479 *dev, float threshold) {
 	if (!dev) return false;
 	if (!dev->enabled) return false;
 
-	return dev->currentJerkGPerTick > threshold;
+	return dev->currentJerkGPerMs > threshold;
 }

@@ -28,22 +28,21 @@ bool buttonInit(
 	button->stopButtonTimer = stopButtonTimer;
 	button->caseLed = caseLed;
 
-	button->evalStartTick = 0;
+	button->evalStartMs = 0;
 	return true;
 }
 
-enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPerTick) {
-	if (processButtonInterrupt && button->evalStartTick == 0) {
-		button->evalStartTick = tick;
+enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
+	if (processButtonInterrupt && button->evalStartMs == 0) {
+		button->evalStartMs = ms;
 		rgbShowNoColor(button->caseLed);
 		// Timers interrupts needed to properly detect input
 		button->startButtonTimer();
 	}
 
 	uint16_t elapsedMillis = 0;
-	if (button->evalStartTick != 0) {
-		uint16_t elapsedTicks = tick - button->evalStartTick;
-		elapsedMillis = elapsedTicks * millisPerTick;
+	if (button->evalStartMs != 0) {
+		elapsedMillis = (uint16_t)(ms - button->evalStartMs);
 	}
 
 	uint8_t state = button->readButtonPin();
@@ -69,7 +68,7 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPer
 			rgbShowSuccess(button->caseLed);
 		}
 
-		button->evalStartTick = 0;
+		button->evalStartMs = 0;
 		processButtonInterrupt = false;
 		return buttonState;
 	}
@@ -78,5 +77,5 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t tick, float millisPer
 
 bool isEvaluatingButtonPress(Button *button) {
 	// could also just check processButtonInterrupt == true, but button eval is first task after interrupt, so evalStartTick is fine
-	return button->evalStartTick != 0;
+	return button->evalStartMs != 0;
 }

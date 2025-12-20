@@ -37,7 +37,7 @@ static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, 
 	uint16_t scaledBlue = colorRangeToDuty(device, blue);
 
 	device->writePwm(scaledRed, scaledGreen, scaledBlue);
-	device->tickOfColorChange = device->tick;
+	device->msOfColorChange = device->ms;
 }
 
 bool rgbInit(
@@ -56,8 +56,8 @@ bool rgbInit(
 	device->startLedTimers = startLedTimers;
 	device->stopLedTimers = stopLedTimers;
 
-	device->tick = 0;
-	device->tickOfColorChange = 0;
+	device->ms = 0;
+	device->msOfColorChange = 0;
 	device->showingTransientStatus = false;
 	device->userRed = 0;
 	device->userGreen = 0;
@@ -93,14 +93,14 @@ bool rgbInit(
 //	}
 //}
 
-void rgbTask(RGBLed *device, uint16_t tick, float millisPerTick) {
+void rgbTask(RGBLed *device, uint16_t ms) {
 	if (!device) {
 		return;
 	}
 
-	device->tick = tick;
+	device->ms = ms;
 
-	uint16_t elapsedMillis = (uint16_t)((tick - device->tickOfColorChange) * millisPerTick);
+	uint16_t elapsedMillis = (uint16_t)(ms - device->msOfColorChange);
 
 	// show status color for 300 milliseconds, then switch back to user color
 	if (device->showingTransientStatus && elapsedMillis > 300) {
