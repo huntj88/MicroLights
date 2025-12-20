@@ -13,6 +13,16 @@
 #include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
 
+static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
+	for (uint32_t i = 0; i < count; i++) {
+		char current = buf[i];
+		if (current == '\n' || current == '\0') {
+			return i;
+		}
+	}
+	return -1;
+}
+
 static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 	const lwjson_token_t *t;
 
@@ -40,15 +50,17 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	static lwjson_token_t tokens[128];
 	static lwjson_t lwjson;
 
-	uint8_t bufJson[count];
+	uint32_t indexOfTerminalChar = jsonLength(buf, count);
+	uint8_t includeTerimalChar = 1;
+	uint8_t bufJson[indexOfTerminalChar + includeTerimalChar];
 
-	for (uint32_t i = 0; i < count; i++) {
+	for (uint32_t i = 0; i < indexOfTerminalChar + includeTerimalChar; i++) {
 		bufJson[i] = buf[i];
 	}
 
 	// ensure terminal character is \0 and not \n
-	bufJson[count - 1] = '\0';
-	input->jsonLength = count - 1;
+	bufJson[indexOfTerminalChar] = '\0';
+	input->jsonLength = indexOfTerminalChar;
 
 	input->parsedType = parseError; // provide error default, override when successful
 
