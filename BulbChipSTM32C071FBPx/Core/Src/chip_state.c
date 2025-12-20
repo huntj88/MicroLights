@@ -85,6 +85,44 @@ void configureChipState(
 	}
 }
 
+void stateTask() {
+	float millisPerTick = state.getMillisecondsPerChipTick();
+	uint32_t ms = (uint32_t)(state.chipTick * millisPerTick);
+
+	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
+	switch (buttonResult) {
+	case ignore:
+		break;
+	case clicked:
+		rgbShowSuccess(state.caseLed);
+		uint8_t newModeIndex = state.modeManager->currentModeIndex + 1;
+		if (newModeIndex >= state.settings->modeCount) {
+			newModeIndex = 0;
+		}
+		loadModeIndex(newModeIndex);
+		const char *blah = "clicked\n";
+		state.writeUsbSerial(0, blah, strlen(blah));
+		break;
+	case shutdown:
+		shutdownFake();
+		break;
+	case lockOrHardwareReset:
+		lock(state.chargerIC);
+		break;
+	}
+
+	if (buttonResult != ignore) {
+		state.ticksSinceLastUserActivity = 0;
+	}
+
+	rgbTask(state.caseLed, (uint16_t)ms);
+	mc3479Task(state.accel, (uint16_t)ms);
+
+	bool unplugLockEnabled = isFakeOff(state.modeManager);
+	bool chargeLedEnabled = !isEvaluatingButtonPress(state.button) && isFakeOff(state.modeManager);
+	chargerTask(state.chargerIC, (uint16_t)ms, unplugLockEnabled, chargeLedEnabled);
+}
+
 // Helper to get output from a simple pattern at a specific time
 // TODO: pass in output pointer instead of returning by value, return bool for success/failure, return false is changeAt_count is 0
 // TODO: extract to mode util file, for testing
@@ -165,51 +203,12 @@ static void updateMode(uint32_t ms) {
 	}
 }
 
-void stateTask() {
-	float millisPerTick = state.getMillisecondsPerChipTick();
-	uint32_t ms = (uint32_t)(state.chipTick * millisPerTick);
-
-	updateMode(ms);
-
-	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
-	switch (buttonResult) {
-	case ignore:
-		break;
-	case clicked:
-		rgbShowSuccess(state.caseLed);
-		uint8_t newModeIndex = state.modeManager->currentModeIndex + 1;
-		if (newModeIndex >= state.settings->modeCount) {
-			newModeIndex = 0;
-		}
-		loadModeIndex(newModeIndex);
-		const char *blah = "clicked\n";
-		state.writeUsbSerial(0, blah, strlen(blah));
-		break;
-	case shutdown:
-		shutdownFake();
-		break;
-	case lockOrHardwareReset:
-		lock(state.chargerIC);
-		break;
-	}
-
-	if (buttonResult != ignore) {
-		state.ticksSinceLastUserActivity = 0;
-	}
-
-	rgbTask(state.caseLed, (uint16_t)ms);
-	mc3479Task(state.accel, (uint16_t)ms);
-
-	bool unplugLockEnabled = isFakeOff(state.modeManager);
-	bool chargeLedEnabled = !isEvaluatingButtonPress(state.button) && isFakeOff(state.modeManager);
-	chargerTask(state.chargerIC, (uint16_t)ms, unplugLockEnabled, chargeLedEnabled);
-}
-
-// TODO: Rate of chipTick interrupt should be configurable. Places
-//	 that use chipTick should be able to resolve to time in 
-//   milliseconds for consistent behavior with different timer rates
+// TODO: Rate of chipTick interrupt should be configurable
 void chipTickInterrupt() {
 	state.chipTick++;
+	float millisPerTick = state.getMillisecondsPerChipTick();
+	uint32_t ms = (uint32_t)(state.chipTick * millisPerTick);
+	updateMode(ms);
 }
 
 // Auto off timer running at 0.1 hz
