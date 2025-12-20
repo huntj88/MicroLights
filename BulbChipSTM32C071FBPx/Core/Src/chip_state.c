@@ -139,7 +139,6 @@ static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t 
 	return pattern->changeAt[lastChangeIndex].output;
 }
 
-// TODO: pass in tick and millisPerTick to resolve time instead of using chipTick and getMillisecondsPerChipTick
 static void updateMode() {
 	static uint32_t modeMs = 0;
 	
@@ -164,6 +163,9 @@ static void updateMode() {
 		}
 	}
 
+	// TODO: stop led timers individually depending on if pattern set.
+	//       Would only apply to RGB patterns for front LED, bulb uses chip tick interrupt
+
 	// Update Front (Bulb and RGB)
 	if (state.modeManager->currentMode.has_front || (triggered && state.modeManager->currentMode.accel.triggers[0].has_front)) {
 		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
@@ -184,7 +186,7 @@ static void updateMode() {
 	}
 
 	// Update Case (RGB only)
-	// Don't show case led changes during button input, button input task uses case led for status
+	// Don't update case led during button input, button input task uses case led for status
 	if (!isEvaluatingButtonPress(state.button)) {
 		if (state.modeManager->currentMode.has_case_comp || (triggered && state.modeManager->currentMode.accel.triggers[0].has_case_comp)) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
