@@ -58,18 +58,26 @@ static void advanceComponentState(ModeComponentState *componentState, const Mode
     advanceSimplePattern(&componentState->simple, pattern, deltaMs);
 }
 
-void modeStateReset(ModeState *state) {
+void modeStateReset(ModeState *state, uint32_t initialMs) {
     if (!state) {
         return;
     }
 
     memset(state, 0, sizeof(*state));
+    state->lastPatternUpdateMs = initialMs;
 }
 
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t ms) {
-    uint32_t deltaMs = ms - state->lastPatternUpdateMs;
+    if (!state || !mode) {
+        return;
+    }
+
+    uint32_t deltaMs = 0U;
+    if (ms >= state->lastPatternUpdateMs) {
+        deltaMs = ms - state->lastPatternUpdateMs;
+    }
     state->lastPatternUpdateMs = ms;
-    if (!state || !mode || deltaMs == 0U) {
+    if (deltaMs == 0U) {
         return;
     }
 

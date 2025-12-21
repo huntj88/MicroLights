@@ -31,7 +31,7 @@ typedef struct {
     uint32_t lastPatternUpdateMs;
 } ModeState;
 
-void modeStateReset(ModeState *state);
+void modeStateReset(ModeState *state, uint32_t initialMs);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t deltaMs);
 bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);
 

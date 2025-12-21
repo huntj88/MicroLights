@@ -39,23 +39,14 @@ typedef struct {
     void (*stopLedTimers)();
 
     ModeState modeState;
-    uint32_t lastPatternUpdateMs;
 } ChipState;
 
 static ChipState state = {0};
 
-static void resetPatternState() {
-	modeStateReset(&state.modeState);
-	if (state.convertTicksToMs) {
-		state.lastPatternUpdateMs = state.convertTicksToMs(state.chipTick);
-	} else {
-		state.lastPatternUpdateMs = 0;
-	}
-}
-
 static void loadModeIndex(uint8_t modeIndex) {
 	loadMode(state.modeManager, modeIndex);
-	resetPatternState();
+	uint32_t initialMs = state.convertTicksToMs(state.chipTick);
+	modeStateReset(&state.modeState, initialMs);
 }
 
 static void shutdownFake() {
@@ -181,8 +172,6 @@ static void updateMode(uint32_t ms) {
 void stateTask() {
 	uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-	updateMode(ms);
-
 	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
 	switch (buttonResult) {
 	case ignore:
@@ -220,6 +209,8 @@ void stateTask() {
 // TODO: Rate of chipTick interrupt should be configurable
 void chipTickInterrupt() {
 	state.chipTick++;
+	uint32_t ms = state.convertTicksToMs(state.chipTick);
+	updateMode(ms);
 }
 
 // Auto off timer running at 0.1 hz
