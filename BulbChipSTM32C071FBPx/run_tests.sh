@@ -48,6 +48,10 @@ echo "Compiling and running test_mode_manager..."
 gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
+echo "Compiling and running test_mode_state..."
+gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c -o Tests/build/test_mode_state
+run_test ./Tests/build/test_mode_state
+
 echo "Compiling and running test_button..."
 gcc $CFLAGS Tests/test_button.c $UNITY_SRC -o Tests/build/test_button
 run_test ./Tests/build/test_button
