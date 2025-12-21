@@ -2,13 +2,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-// Include lwjson source
-// We need to define LWJSON_IGNORE_USER_OPTS to avoid needing lwjson_opts.h if it's not in include path
-// But the project has lwjson_opts.h in Core/Inc.
-// So we should include Core/Inc in include path.
-// For now, I'll just include the source.
-// #include "../libs/lwjson/lwjson/src/lwjson/lwjson.c"
-
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
 
