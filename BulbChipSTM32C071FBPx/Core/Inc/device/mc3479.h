@@ -80,6 +80,6 @@ void mc3479Task(MC3479 *dev, uint16_t ms);
 // delta-ms, and therefore its units are g per ms (g/ms).
 bool mc3479SampleNow(MC3479 *dev, uint16_t ms);
 
-bool isOverThreshold(MC3479 *dev, float threshold);
+bool isOverThreshold(MC3479 *dev, uint8_t threshold);
 
 #endif /* INC_MC3479_H_ */

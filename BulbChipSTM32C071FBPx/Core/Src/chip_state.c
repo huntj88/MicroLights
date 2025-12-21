@@ -148,10 +148,8 @@ static void updateMode(uint32_t ms) {
 	bool triggered = false;
 
 	if (state.modeManager->currentMode.has_accel && state.modeManager->currentMode.accel.triggers_count > 0) {
-		// TODO: check for configurable trigger threshold
-		// For now using hardcoded 0.3f, but should use trigger.threshold
-		float threshold = 0.3f / state.getMillisecondsPerChipTick();
-		if (isOverThreshold(state.accel, threshold)) {
+		// TODO: check for all configurable trigger thresholds
+		if (isOverThreshold(state.accel, state.modeManager->currentMode.accel.triggers[0].threshold)) {
 			// Use first trigger for now
 			ModeAccelTrigger trigger = state.modeManager->currentMode.accel.triggers[0];
 

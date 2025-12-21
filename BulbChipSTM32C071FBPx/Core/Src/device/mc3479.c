@@ -136,9 +136,10 @@ void mc3479Task(MC3479 *dev, uint16_t ms) {
     }
 }
 
-bool isOverThreshold(MC3479 *dev, float threshold) {
+bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
 	if (!dev) return false;
 	if (!dev->enabled) return false;
 
-	return dev->currentJerkGPerMs > threshold;
+    float currentJerkGPerSecond = dev->currentJerkGPerMs * 1000.0f;
+	return currentJerkGPerSecond > threshold;
 }
