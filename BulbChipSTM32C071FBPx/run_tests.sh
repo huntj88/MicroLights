@@ -2,6 +2,7 @@
 
 # Create output directory
 mkdir -p Tests/build
+rm -f Tests/build/*
 
 # Common flags
 # Include paths:
@@ -14,6 +15,7 @@ LWJSON_SRC="libs/lwjson/lwjson/src/lwjson/lwjson.c"
 
 TOTAL_TESTS=0
 TOTAL_FAILURES=0
+SUITE_ERRORS=0
 
 run_test() {
     local exe_path=$1
@@ -25,10 +27,16 @@ run_test() {
         local t=$(echo "$output" | grep -oE '[0-9]+ Tests' | head -n1 | awk '{print $1}')
         local f=$(echo "$output" | grep -oE '[0-9]+ Failures' | head -n1 | awk '{print $1}')
         
+        if [ -z "$t" ]; then
+            echo "ERROR: Failed to parse test results for $exe_path"
+            SUITE_ERRORS=$((SUITE_ERRORS + 1))
+        fi
+
         TOTAL_TESTS=$((TOTAL_TESTS + ${t:-0}))
         TOTAL_FAILURES=$((TOTAL_FAILURES + ${f:-0}))
     else
-        echo "Executable $exe_path not found or not executable."
+        echo "Executable $exe_path not found or not executable (Compilation failed?)."
+        SUITE_ERRORS=$((SUITE_ERRORS + 1))
     fi
 }
 
@@ -58,7 +66,11 @@ echo "Final Aggregate Report"
 echo "Total Tests: $TOTAL_TESTS"
 echo "Total Failures: $TOTAL_FAILURES"
 
-if [ "$TOTAL_FAILURES" -eq 0 ]; then
+if [ "$SUITE_ERRORS" -ne 0 ]; then
+    echo "ERROR: $SUITE_ERRORS test suite(s) failed to start or compile."
+    echo "OVERALL STATUS: FAIL"
+    exit 1
+elif [ "$TOTAL_FAILURES" -eq 0 ]; then
     echo "OVERALL STATUS: PASS"
     exit 0
 else
