@@ -541,6 +541,102 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 }
 
+void test_Settings_ModeCount_LimitsModeCycling(void) {
+    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel, &mockCaseLed, 
+                       mock_writeUsbSerial, mock_writeBulbLedPin, mock_getMillisecondsPerChipTick, 
+                       mock_startLedTimers, mock_stopLedTimers);
+    
+    // Case 1: Mode Count 3, Current 2 -> Should wrap to 0
+    mockSettings.modeCount = 3;
+    mockModeManager.currentModeIndex = 2;
+    mockButtonResult = clicked;
+    
+    stateTask();
+    TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
+
+    // Case 2: Mode Count 5, Current 2 -> Should go to 3
+    mockSettings.modeCount = 5;
+    mockModeManager.currentModeIndex = 2;
+    mockButtonResult = clicked;
+    
+    stateTask();
+    TEST_ASSERT_EQUAL_UINT8(3, lastLoadedModeIndex);
+}
+
+void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
+    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel, &mockCaseLed, 
+                       mock_writeUsbSerial, mock_writeBulbLedPin, mock_getMillisecondsPerChipTick, 
+                       mock_startLedTimers, mock_stopLedTimers);
+    
+    mockChargeState = notConnected;
+    mockIsFakeOff = false;
+
+    // Case 1: 1 Minute (6 ticks)
+    mockSettings.minutesUntilAutoOff = 1;
+    
+    // Just below threshold (starts at 5, increments to 6 inside interrupt. 6 > 6 is False)
+    state.ticksSinceLastUserActivity = 5;
+    lastLoadedModeIndex = 0; // Reset
+    autoOffTimerInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex); // No change
+
+    // Just above threshold (starts at 6, increments to 7 inside interrupt. 7 > 6 is True)
+    state.ticksSinceLastUserActivity = 6;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex); // Changed
+
+    // Case 2: 2 Minutes (12 ticks)
+    mockSettings.minutesUntilAutoOff = 2;
+    
+    // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
+    state.ticksSinceLastUserActivity = 11;
+    lastLoadedModeIndex = 0; // Reset
+    autoOffTimerInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex); // No change
+
+    // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
+    state.ticksSinceLastUserActivity = 12;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex); // Changed
+}
+
+void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
+    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel, &mockCaseLed, 
+                       mock_writeUsbSerial, mock_writeBulbLedPin, mock_getMillisecondsPerChipTick, 
+                       mock_startLedTimers, mock_stopLedTimers);
+    
+    mockChargeState = notConnected;
+    mockIsFakeOff = true; // Already in fake off
+
+    // Case 1: 1 Minute (6 ticks)
+    mockSettings.minutesUntilLockAfterAutoOff = 1;
+    mockLockCalled = false;
+
+    // Just below threshold (starts at 5, increments to 6. 6 > 6 is False)
+    state.ticksSinceLastUserActivity = 5;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_FALSE(mockLockCalled);
+
+    // Just above threshold (starts at 6, increments to 7. 7 > 6 is True)
+    state.ticksSinceLastUserActivity = 6;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_TRUE(mockLockCalled);
+
+    // Case 2: 2 Minutes (12 ticks)
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
+    mockLockCalled = false;
+
+    // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
+    state.ticksSinceLastUserActivity = 11;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_FALSE(mockLockCalled);
+
+    // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
+    state.ticksSinceLastUserActivity = 12;
+    autoOffTimerInterrupt();
+    TEST_ASSERT_TRUE(mockLockCalled);
+}
+
 
 int main(void) {
     UNITY_BEGIN();
@@ -559,5 +655,8 @@ int main(void) {
     RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_PartialOverride);
+    RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
+    RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
+    RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
     return UNITY_END();
 }
