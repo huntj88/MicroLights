@@ -7,9 +7,7 @@
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
 #include "device/mc3479.h"
-
-// Mock Data
-CliInput cliInput;
+#include "model/cli_model.h"
 
 static MC3479 mockAccel;
 static bool ledTimersStarted = false;
@@ -57,7 +55,6 @@ void mock_readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
 #include "../Core/Src/mode_manager.c"
 
 void setUp(void) {
-    memset(&cliInput, 0, sizeof(CliInput));
     memset(&mockAccel, 0, sizeof(MC3479));
     ledTimersStarted = false;
     ledTimersStopped = false;

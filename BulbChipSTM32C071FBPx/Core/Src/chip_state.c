@@ -119,7 +119,7 @@ void stateTask() {
 	mc3479Task(state.accel, (uint16_t)ms);
 
 	bool unplugLockEnabled = isFakeOff(state.modeManager);
-	bool chargeLedEnabled = !isEvaluatingButtonPress(state.button) && isFakeOff(state.modeManager);
+	bool chargeLedEnabled =  isFakeOff(state.modeManager) && !isEvaluatingButtonPress(state.button);
 	chargerTask(state.chargerIC, (uint16_t)ms, unplugLockEnabled, chargeLedEnabled);
 }
 
@@ -167,7 +167,7 @@ static void updateMode(uint32_t ms) {
 	//       Would only apply to RGB patterns for front LED, bulb uses chip tick interrupt
 
 	// Update Front (Bulb and RGB)
-	if (state.modeManager->currentMode.has_front || (triggered && state.modeManager->currentMode.accel.triggers[0].has_front)) {
+	if (state.modeManager->currentMode.has_front || triggered) {
 		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
 			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, ms);
 			if (output.type == BULB) {
@@ -188,7 +188,7 @@ static void updateMode(uint32_t ms) {
 	// Update Case (RGB only)
 	// Don't update case led during button input, button input task uses case led for status
 	if (!isEvaluatingButtonPress(state.button)) {
-		if (state.modeManager->currentMode.has_case_comp || (triggered && state.modeManager->currentMode.accel.triggers[0].has_case_comp)) {
+		if (state.modeManager->currentMode.has_case_comp || triggered) {
 			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
 				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, ms);
 				if (output.type == RGB) {

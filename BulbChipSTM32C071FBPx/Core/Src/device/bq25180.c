@@ -11,6 +11,8 @@
 #include <string.h>
 #include "device/rgb_led.h"
 
+// more than one chargerIC not likely,
+// if handling multiple chargers would need to pass in function pointer that get bool for specific interrupt variable
 static volatile bool readChargerNow = false;
 
 void handleChargerInterrupt() {

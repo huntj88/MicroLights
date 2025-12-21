@@ -7,7 +7,10 @@
 
 #include "device/button.h"
 
+// more than one button not likely,
+// if handling multiple buttons would need to pass in function pointer that get bool for specific interrupt variable
 static volatile bool processButtonInterrupt = false;
+
 void startButtonEvaluation() {
 	processButtonInterrupt = true;
 }
@@ -33,6 +36,7 @@ bool buttonInit(
 }
 
 enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
+	// shadow evalStartMs to avoid multiple reads of volatile
 	if (processButtonInterrupt && button->evalStartMs == 0) {
 		button->evalStartMs = ms;
 		rgbShowNoColor(button->caseLed);
@@ -76,6 +80,6 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
 }
 
 bool isEvaluatingButtonPress(Button *button) {
-	// could also just check processButtonInterrupt == true, but button eval is first task after interrupt, so evalStartMs is fine
-	return button->evalStartMs != 0;
+	// coupled to interrupt variable, see comment on variable
+	return processButtonInterrupt;
 }

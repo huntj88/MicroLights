@@ -39,6 +39,7 @@ typedef struct CliInput {
 	enum ParseResult parsedType;
 } CliInput;
 
+// shared preallocated CliInput used for parsing json commands.
 extern CliInput cliInput;
 
 #endif /* INC_MODEL_CLI_MODEL_H_ */

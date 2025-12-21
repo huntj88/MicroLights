@@ -4,9 +4,8 @@
 
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
+#include "model/cli_model.h"
 
-// Mock Data
-CliInput cliInput;
 static bool parseModeCalled = false;
 static bool parseModeResult = true;
 
@@ -20,7 +19,6 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *t, Mode *mode, ModeErrorContext
 #include "../Core/Src/json/command_parser.c"
 
 void setUp(void) {
-    memset(&cliInput, 0, sizeof(CliInput));
     parseModeCalled = false;
     parseModeResult = true;
 }
