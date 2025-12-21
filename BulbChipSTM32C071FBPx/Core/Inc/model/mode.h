@@ -73,7 +73,7 @@
  *   "accel": {
  *     "triggers": [
  *       {
- *         "threshold": 2000,
+ *         "threshold": 50,
  *         "front": {
  *           "pattern": {
  *             "type": "simple",
@@ -185,7 +185,7 @@ struct ModeComponent {
 };
 
 struct ModeAccelTrigger {
-    uint32_t threshold;
+    uint8_t threshold;
     ModeComponent front;
     bool has_front;
     ModeComponent case_comp;

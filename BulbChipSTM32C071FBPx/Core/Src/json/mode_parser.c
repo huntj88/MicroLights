@@ -333,7 +333,7 @@ static bool parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeA
     out->has_front = false;
     out->has_case_comp = false;
     if ((t = lwjson_find_ex(lwjson, token, "threshold")) != NULL) {
-        out->threshold = (uint32_t)t->u.num_int;
+        out->threshold = (uint8_t)t->u.num_int;
         if (out->threshold < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "threshold");

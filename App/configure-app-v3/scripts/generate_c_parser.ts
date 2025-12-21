@@ -77,7 +77,7 @@ const examplesData = [
       accel: {
         triggers: [
           {
-            threshold: 2000,
+            threshold: 50,
             front: {
               pattern: {
                 type: 'simple',
@@ -123,6 +123,7 @@ ${JSON.stringify(ex.data, null, 2)
 
 type FieldType =
   | 'string'
+  | 'uint8'
   | 'uint32'
   | 'boolean'
   | 'array'
@@ -146,6 +147,11 @@ interface StringFieldDef extends BaseFieldDef {
   type: 'string';
   min?: number;
   max: number;
+}
+
+interface Uint8FieldDef extends BaseFieldDef {
+  type: 'uint8';
+  min?: number;
 }
 
 interface Uint32FieldDef extends BaseFieldDef {
@@ -178,7 +184,7 @@ interface StructFieldDef extends BaseFieldDef {
     | 'SimpleOutput'; // Name of another struct
 }
 
-type FieldDef = StringFieldDef | Uint32FieldDef | BooleanFieldDef | ArrayFieldDef | StructFieldDef;
+type FieldDef = StringFieldDef | Uint8FieldDef | Uint32FieldDef | BooleanFieldDef | ArrayFieldDef | StructFieldDef;
 
 interface RefineDef {
   expr: string;
@@ -260,7 +266,7 @@ const schema: Record<string, SchemaDef> = {
   ModeAccelTrigger: {
     type: 'struct',
     fields: {
-      threshold: { type: 'uint32', min: 0 },
+      threshold: { type: 'uint8', min: 0 },
       front: { type: 'ModeComponent', optional: true },
       case: { type: 'ModeComponent', optional: true },
     },
@@ -343,7 +349,9 @@ struct SimpleOutput {
         const cName = fieldName === 'case' ? 'case_comp' : fieldName;
         if (fieldDef.type === 'string') {
           out += `    char ${cName}[${String(fieldDef.max + 1)}];\n`;
-        } else if (fieldDef.type === 'uint32') {
+        } else if (fieldDef.type === 'uint8') {
+          out += `    uint8_t ${cName};\n`;
+        }  else if (fieldDef.type === 'uint32') {
           out += `    uint32_t ${cName};\n`;
         } else if (fieldDef.type === 'boolean') {
           out += `    bool ${cName};\n`;
@@ -530,6 +538,15 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
           }
         } else if (fieldDef.type === 'uint32') {
           out += `        out->${cName} = (uint32_t)t->u.num_int;\n`;
+          if (fieldDef.min !== undefined) {
+            out += `        if (out->${cName} < ${String(fieldDef.min)}) {\n`;
+            out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
+            out += `            strcpy(ctx->path, "${fieldName}");\n`;
+            out += `            return false;\n`;
+            out += `        }\n`;
+          }
+        } else if (fieldDef.type === 'uint8') {
+          out += `        out->${cName} = (uint8_t)t->u.num_int;\n`;
           if (fieldDef.min !== undefined) {
             out += `        if (out->${cName} < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
