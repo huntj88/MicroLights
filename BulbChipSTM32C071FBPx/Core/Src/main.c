@@ -205,6 +205,37 @@ static float millisecondsPerChipTick() {
   return (float)(intervalSeconds * 1000.0);
 }
 
+/**
+ * @brief Converts chip ticks to milliseconds using fixed-point arithmetic optimization.
+ *
+ * Traditional approach:
+ *   ms = ticks * millisecondsPerTick
+ *   or
+ *   ms = (ticks * microsecondsPerTick) / 1000
+ *
+ * This requires either floating point math (slow/large code size) or integer division (slow).
+ *
+ * Optimization:
+ *   We use a fixed-point multiplier scaled by 2^20 (1048576).
+ *   multiplier = millisecondsPerTick * 2^20
+ *
+ *   Calculation becomes:
+ *   ms = (ticks * multiplier) / 2^20
+ *
+ *   Division by 2^20 is implemented as a right bit shift (>> 20), which is extremely fast.
+ *   We use uint64_t for the intermediate multiplication to prevent overflow before the shift.
+ *   2^20 is chosen to provide sufficient precision while keeping the multiplier within uint32_t
+ *   (assuming millisecondsPerTick < ~4000ms) and the intermediate result within uint64_t.
+ */
+static uint32_t convertTicksToMs(uint32_t ticks) {
+  static uint32_t multiplier = 0;
+  if (multiplier == 0) {
+    float ms = millisecondsPerChipTick();
+    multiplier = (uint32_t)(ms * 1048576.0f);
+  }
+  return (uint32_t)(((uint64_t)ticks * multiplier) >> 20);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -287,7 +318,7 @@ int main(void)
 		  &caseLed,
 		  writeToSerial,
 		  writeBulbLed,
-		  millisecondsPerChipTick,
+		  convertTicksToMs,
 		  startLedTimers,
 		  stopLedTimers
   );

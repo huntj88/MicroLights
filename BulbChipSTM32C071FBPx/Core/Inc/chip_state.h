@@ -28,7 +28,7 @@ void configureChipState(
 		RGBLed *rgb,
 		WriteToUsbSerial *writeUsbSerial,
 		void (*writeBulbLedPin)(uint8_t state),
-		float (*getMillisecondsPerChipTick)(),
+		uint32_t (*convertTicksToMs)(uint32_t ticks),
 		void (*startLedTimers)(),
 		void (*stopLedTimers)()
 );

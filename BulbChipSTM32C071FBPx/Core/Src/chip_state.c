@@ -18,7 +18,7 @@
 #include "settings_manager.h"
 
 typedef struct {
-    volatile uint16_t chipTick;
+    volatile uint32_t chipTick;
     volatile uint32_t ticksSinceLastUserActivity;
     
     ModeManager *modeManager;
@@ -33,7 +33,7 @@ typedef struct {
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
     void (*writeBulbLedPin)(uint8_t state);
-    float (*getMillisecondsPerChipTick)();
+    uint32_t (*convertTicksToMs)(uint32_t ticks);
     void (*startLedTimers)();
     void (*stopLedTimers)();
 } ChipState;
@@ -60,7 +60,7 @@ void configureChipState(
 		RGBLed *_caseLed,
 		WriteToUsbSerial *_writeUsbSerial,
 		void (*_writeBulbLedPin)(uint8_t state),
-		float (*_getMillisecondsPerChipTick)(),
+		uint32_t (*_convertTicksToMs)(uint32_t ticks),
 		void (*_startLedTimers)(),
 		void (*_stopLedTimers)()
 ) {
@@ -72,7 +72,7 @@ void configureChipState(
 	state.accel = _accel;
 	state.writeUsbSerial = _writeUsbSerial;
 	state.writeBulbLedPin = _writeBulbLedPin;
-	state.getMillisecondsPerChipTick = _getMillisecondsPerChipTick;
+	state.convertTicksToMs = _convertTicksToMs;
 	state.startLedTimers = _startLedTimers;
 	state.stopLedTimers = _stopLedTimers;
 
@@ -86,8 +86,7 @@ void configureChipState(
 }
 
 void stateTask() {
-	float millisPerTick = state.getMillisecondsPerChipTick();
-	uint32_t ms = (uint32_t)(state.chipTick * millisPerTick);
+	uint32_t ms = state.convertTicksToMs(state.chipTick);
 
 	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
 	switch (buttonResult) {
@@ -207,8 +206,7 @@ static void updateMode(uint32_t ms) {
 // TODO: Rate of chipTick interrupt should be configurable
 void chipTickInterrupt() {
 	state.chipTick++;
-	float millisPerTick = state.getMillisecondsPerChipTick();
-	uint32_t ms = (uint32_t)(state.chipTick * millisPerTick);
+	uint32_t ms = state.convertTicksToMs(state.chipTick);
 	updateMode(ms);
 }
 
