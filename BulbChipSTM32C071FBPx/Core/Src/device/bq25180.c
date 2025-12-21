@@ -41,15 +41,6 @@ bool bq25180Init(
 	return true;
 }
 
-void lock(BQ25180 *chargerIC) {
-	enum ChargeState state = getChargingState(chargerIC);
-	if (state == notConnected) {
-		enableShipMode(chargerIC);
-	} else {
-		hardwareReset(chargerIC);
-	}
-}
-
 static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 	switch (state) {
 	case notConnected:
@@ -311,7 +302,7 @@ void printAllRegisters(BQ25180 *chargerIC) {
 }
 
 // power must be unplugged to enter ship mode.
-void enableShipMode(BQ25180 *chargerIC) {
+static void enableShipMode(BQ25180 *chargerIC) {
 	// REG_RST - Software Reset
 	// 1b0 = Do nothing
 	// 1b1 = Software Reset
@@ -343,6 +334,15 @@ void enableShipMode(BQ25180 *chargerIC) {
 	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01000001);
 }
 
-void hardwareReset(BQ25180 *chargerIC) {
+static void hardwareReset(BQ25180 *chargerIC) {
 	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01100001);
+}
+
+void lock(BQ25180 *chargerIC) {
+	enum ChargeState state = getChargingState(chargerIC);
+	if (state == notConnected) {
+		enableShipMode(chargerIC);
+	} else {
+		hardwareReset(chargerIC);
+	}
 }

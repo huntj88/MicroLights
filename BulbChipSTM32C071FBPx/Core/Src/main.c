@@ -254,6 +254,7 @@ int main(void)
   settingsManagerLoad(&settingsManager);
   usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset);
 
+  // TODO: will need another when adding front rgb led, split up led timers.
   if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers, stopLedTimers)) {
 	  Error_Handler();
   }
@@ -279,7 +280,6 @@ int main(void)
 		  &accel,
 		  &caseLed,
 		  writeToSerial,
-//		  readButtonPin,
 		  writeBulbLed,
 		  millisecondsPerChipTick,
 		  startLedTimers,
