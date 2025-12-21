@@ -15,6 +15,7 @@
 #include "json/mode_parser.h"
 #include "storage.h"
 #include "mode_manager.h"
+#include "model/mode_state.h"
 #include "settings_manager.h"
 
 typedef struct {
@@ -36,12 +37,25 @@ typedef struct {
     uint32_t (*convertTicksToMs)(uint32_t ticks);
     void (*startLedTimers)();
     void (*stopLedTimers)();
+
+    ModeState modeState;
+    uint32_t lastPatternUpdateMs;
 } ChipState;
 
 static ChipState state = {0};
 
+static void resetPatternState() {
+	modeStateReset(&state.modeState);
+	if (state.convertTicksToMs) {
+		state.lastPatternUpdateMs = state.convertTicksToMs(state.chipTick);
+	} else {
+		state.lastPatternUpdateMs = 0;
+	}
+}
+
 static void loadModeIndex(uint8_t modeIndex) {
 	loadMode(state.modeManager, modeIndex);
+	resetPatternState();
 }
 
 static void shutdownFake() {
@@ -85,8 +99,91 @@ void configureChipState(
 	}
 }
 
+// If timing issues cause mode to not display right (try bulb with first color only),
+// move updateMode to chipTick interrupt to confirm. Interrupt will guarantee proper timing.
+// If moving fixed the bug, that indicates something is slow
+static void updateMode(uint32_t deltaMs) {
+	modeStateAdvance(&state.modeState, &state.modeManager->currentMode, deltaMs);
+
+	ModeComponent *frontComp = NULL;
+	ModeComponentState *frontState = NULL;
+	ModeComponent *caseComp = NULL;
+	ModeComponentState *caseState = NULL;
+	bool triggered = false;
+
+	if (state.modeManager->currentMode.has_front) {
+		frontComp = &state.modeManager->currentMode.front;
+		frontState = &state.modeState.front;
+	}
+
+	if (state.modeManager->currentMode.has_case_comp) {
+		caseComp = &state.modeManager->currentMode.case_comp;
+		caseState = &state.modeState.case_comp;
+	}
+
+	if (state.modeManager->currentMode.has_accel && state.modeManager->currentMode.accel.triggers_count > 0) {
+		uint8_t triggerCount = state.modeManager->currentMode.accel.triggers_count;
+		if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
+			triggerCount = MODE_ACCEL_TRIGGER_MAX;
+		}
+
+		for (uint8_t i = 0; i < triggerCount; i++) {
+			ModeAccelTrigger *trigger = &state.modeManager->currentMode.accel.triggers[i];
+			if (isOverThreshold(state.accel, trigger->threshold)) {
+				triggered = true;
+				ModeAccelTriggerState *triggerState = &state.modeState.accel[i];
+
+				if (trigger->has_front) {
+					frontComp = &trigger->front;
+					frontState = &triggerState->front;
+				}
+
+				if (trigger->has_case_comp) {
+					caseComp = &trigger->case_comp;
+					caseState = &triggerState->case_comp;
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	if (state.modeManager->currentMode.has_front || triggered) {
+		if (frontComp && frontState) {
+			SimpleOutput output;
+			if (modeStateGetSimpleOutput(frontState, frontComp, &output)) {
+				if (output.type == BULB) {
+					state.writeBulbLedPin(output.data.bulb == high ? 1 : 0);
+				} else {
+					// TODO: RGB front component support
+					state.writeBulbLedPin(0);
+				}
+			}
+		}
+	} else {
+		state.writeBulbLedPin(0);
+	}
+
+	if (!isEvaluatingButtonPress(state.button)) {
+		if (state.modeManager->currentMode.has_case_comp || triggered) {
+			if (caseComp && caseState) {
+				SimpleOutput output;
+				if (modeStateGetSimpleOutput(caseState, caseComp, &output) && output.type == RGB) {
+					rgbShowUserColor(state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
+				}
+			}
+		} else {
+			rgbShowUserColor(state.caseLed, 0, 0, 0);
+		}
+	}
+}
+
 void stateTask() {
 	uint32_t ms = state.convertTicksToMs(state.chipTick);
+
+	uint32_t deltaMs = ms - state.lastPatternUpdateMs;
+	state.lastPatternUpdateMs = ms; //  todo: move lastPatternUpdateMs to mode state instead of chip state
+	updateMode(deltaMs);
 
 	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
 	switch (buttonResult) {
@@ -122,92 +219,9 @@ void stateTask() {
 	chargerTask(state.chargerIC, (uint16_t)ms, unplugLockEnabled, chargeLedEnabled);
 }
 
-// Helper to get output from a simple pattern at a specific time
-// TODO: pass in output pointer instead of returning by value, return bool for success/failure, return false is changeAt_count is 0
-// TODO: extract to mode util file, for testing
-static SimpleOutput getOutputFromSimplePattern(SimplePattern *pattern, uint32_t ms) {
-	uint32_t patternTime = ms % pattern->duration;
-	// Find the last change that occurred before or at patternTime
-	uint8_t lastChangeIndex = 0;
-	for (uint8_t i = 0; i < pattern->changeAt_count; i++) {
-		if (pattern->changeAt[i].ms <= patternTime) {
-			lastChangeIndex = i;
-		} else {
-			break;
-		}
-	}
-
-	return pattern->changeAt[lastChangeIndex].output;
-}
-
-static void updateMode(uint32_t ms) {
-	// Check triggers
-	ModeComponent frontComp = state.modeManager->currentMode.front;
-	ModeComponent caseComp = state.modeManager->currentMode.case_comp;
-	bool triggered = false;
-
-	if (state.modeManager->currentMode.has_accel && state.modeManager->currentMode.accel.triggers_count > 0) {
-		// Triggers are sorted by threshold ascending. Find the highest threshold that is met.
-		for (uint8_t i = 0; i < state.modeManager->currentMode.accel.triggers_count; i++) {
-			if (isOverThreshold(state.accel, state.modeManager->currentMode.accel.triggers[i].threshold)) {
-				ModeAccelTrigger trigger = state.modeManager->currentMode.accel.triggers[i];
-
-				// TODO: indicate fallthrough from mode if not specified in UI
-				if (trigger.has_front) frontComp = trigger.front;
-				if (trigger.has_case_comp) caseComp = trigger.case_comp;
-				triggered = true;
-			} else {
-				break;
-			}
-		}
-	}
-
-	// TODO: stop led timers individually depending on if pattern set.
-	//       Would only apply to RGB patterns for front LED, bulb uses chip tick interrupt
-
-	// Update Front (Bulb and RGB)
-	if (state.modeManager->currentMode.has_front || triggered) {
-		if (frontComp.pattern.type == PATTERN_TYPE_SIMPLE && frontComp.pattern.data.simple.changeAt_count > 0) {
-			SimpleOutput output = getOutputFromSimplePattern(&frontComp.pattern.data.simple, ms);
-			if (output.type == BULB) {
-				if (output.data.bulb == high) {
-					state.writeBulbLedPin(1);
-				} else {
-					state.writeBulbLedPin(0);
-				}
-			} else {
-				// TODO: RGB
-				state.writeBulbLedPin(0);
-			}
-		}
-	} else {
-		state.writeBulbLedPin(0);
-	}
-
-	// Update Case (RGB only)
-	// Don't update case led during button input, button input task uses case led for status
-	if (!isEvaluatingButtonPress(state.button)) {
-		if (state.modeManager->currentMode.has_case_comp || triggered) {
-			if (caseComp.pattern.type ==  PATTERN_TYPE_SIMPLE && caseComp.pattern.data.simple.changeAt_count > 0) {
-				SimpleOutput output = getOutputFromSimplePattern(&caseComp.pattern.data.simple, ms);
-				if (output.type == RGB) {
-					rgbShowUserColor(state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
-				} else {
-					// TODO: BULB
-				}
-			}
-		} else {
-			// Default to off if no case component
-			rgbShowUserColor(state.caseLed, 0, 0, 0);
-		}
-	}
-}
-
 // TODO: Rate of chipTick interrupt should be configurable
 void chipTickInterrupt() {
 	state.chipTick++;
-	uint32_t ms = state.convertTicksToMs(state.chipTick);
-	updateMode(ms);
 }
 
 // Auto off timer running at 0.1 hz

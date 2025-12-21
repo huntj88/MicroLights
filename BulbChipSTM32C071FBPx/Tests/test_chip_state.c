@@ -105,7 +105,8 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
     lastRgbB = b;
 }
 
-// Include the source file under test to access static state
+// Include the source files under test to access static state
+#include "../Core/Src/model/mode_state.c"
 #include "../Core/Src/chip_state.c"
 
 // Setup and Teardown
@@ -237,6 +238,53 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
 
     // Test at 600ms (should be Low)
     state.chipTick = 60; // 60 * 10ms = 600ms
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
+}
+
+void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
+    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel, &mockCaseLed,
+               mock_writeUsbSerial, mock_writeBulbLedPin, mock_convertTicksToMs,
+               mock_startLedTimers, mock_stopLedTimers);
+
+    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.front.pattern.data.simple.duration = 2000;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 2;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = high;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[1].ms = 1000;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[1].output.type = BULB;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAt[1].output.data.bulb = low;
+
+    mockModeManager.currentMode.has_accel = true;
+    mockModeManager.currentMode.accel.triggers_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].threshold = 10;
+    mockModeManager.currentMode.accel.triggers[0].has_front = true;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 100;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.type = BULB;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb = high;
+
+    mockAccelMagnitude = 0.0f;
+    state.chipTick = 10;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+
+    mockAccelMagnitude = 20.0f;
+    state.chipTick = 60;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+
+    state.chipTick = 120;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+
+    mockAccelMagnitude = 0.0f;
+    state.chipTick = 130;
     chipTickInterrupt();
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
@@ -428,7 +476,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     // Setup Accel Trigger: Front ON, Case RED
     mockModeManager.currentMode.has_accel = true;
     mockModeManager.currentMode.accel.triggers_count = 1;
-    mockModeManager.currentMode.accel.triggers[0].threshold = 10; // Not used by logic yet, but good to set
+    mockModeManager.currentMode.accel.triggers[0].threshold = 10;
     
     mockModeManager.currentMode.accel.triggers[0].has_front = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
@@ -718,6 +766,7 @@ int main(void) {
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_UpdateMode_FrontLed_FollowsSimplePattern);
+    RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
     RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
     RUN_TEST(test_UpdateMode_CaseLed_FollowsSimplePattern);
     RUN_TEST(test_UpdateMode_CaseLed_Off_WhenNoPattern);
