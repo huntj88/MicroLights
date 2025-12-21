@@ -2,22 +2,6 @@
 
 #include <string.h>
 
-static uint32_t getEffectiveDuration(const SimplePattern *pattern) {
-    if (!pattern) {
-        return 0U;
-    }
-
-    if (pattern->duration != 0U) {
-        return pattern->duration;
-    }
-
-    if (pattern->changeAt_count == 0U) {
-        return 0U;
-    }
-
-    return pattern->changeAt[pattern->changeAt_count - 1U].ms + 1U;
-}
-
 static void advanceSimplePattern(SimplePatternState *state, const SimplePattern *pattern, uint32_t deltaMs) {
     if (!state || !pattern || pattern->changeAt_count == 0U || deltaMs == 0U) {
         if (state && pattern && pattern->changeAt_count > 0U && state->changeIndex >= pattern->changeAt_count) {
@@ -26,10 +10,10 @@ static void advanceSimplePattern(SimplePatternState *state, const SimplePattern 
         return;
     }
 
-    uint32_t duration = getEffectiveDuration(pattern);
+    uint32_t duration = pattern->duration;
     if (duration == 0U) {
         state->elapsedMs = 0U;
-        state->changeIndex = pattern->changeAt_count - 1U;
+        state->changeIndex = 0U;
         return;
     }
 
@@ -60,6 +44,7 @@ static void advanceComponentState(ModeComponentState *componentState, const Mode
     if (component->pattern.type != PATTERN_TYPE_SIMPLE) {
         componentState->simple.elapsedMs = 0U;
         componentState->simple.changeIndex = 0U;
+        // TODO: Handle equation patterns
         return;
     }
 
@@ -130,7 +115,7 @@ bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const Mo
 
     uint8_t index = componentState->simple.changeIndex;
     if (index >= pattern->changeAt_count) {
-        index = pattern->changeAt_count - 1U;
+        index = 0U;
     }
 
     *output = pattern->changeAt[index].output;
