@@ -102,8 +102,8 @@ void configureChipState(
 // If timing issues cause mode to not display right (try bulb with first color only),
 // move updateMode to chipTick interrupt to confirm. Interrupt will guarantee proper timing.
 // If moving fixed the bug, that indicates something is slow
-static void updateMode(uint32_t deltaMs) {
-	modeStateAdvance(&state.modeState, &state.modeManager->currentMode, deltaMs);
+static void updateMode(uint32_t ms) {
+	modeStateAdvance(&state.modeState, &state.modeManager->currentMode, ms);
 
 	ModeComponent *frontComp = NULL;
 	ModeComponentState *frontState = NULL;
@@ -181,9 +181,7 @@ static void updateMode(uint32_t deltaMs) {
 void stateTask() {
 	uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-	uint32_t deltaMs = ms - state.lastPatternUpdateMs;
-	state.lastPatternUpdateMs = ms; //  todo: move lastPatternUpdateMs to mode state instead of chip state
-	updateMode(deltaMs);
+	updateMode(ms);
 
 	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
 	switch (buttonResult) {

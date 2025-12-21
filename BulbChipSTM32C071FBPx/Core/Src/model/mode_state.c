@@ -81,7 +81,9 @@ void modeStateReset(ModeState *state) {
     memset(state, 0, sizeof(*state));
 }
 
-void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t deltaMs) {
+void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t ms) {
+    uint32_t deltaMs = ms - state->lastPatternUpdateMs;
+    state->lastPatternUpdateMs = ms;
     if (!state || !mode || deltaMs == 0U) {
         return;
     }

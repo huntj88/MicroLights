@@ -28,6 +28,7 @@ typedef struct {
     ModeComponentState front;
     ModeComponentState case_comp;
     ModeAccelTriggerState accel[MODE_ACCEL_TRIGGER_MAX];
+    uint32_t lastPatternUpdateMs;
 } ModeState;
 
 void modeStateReset(ModeState *state);
