@@ -37,7 +37,7 @@ gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC -o Tests/build/test_chip_state
 run_test ./Tests/build/test_chip_state
 
 echo "Compiling and running test_mode_manager..."
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC -o Tests/build/test_mode_manager
+gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
 echo "Compiling and running test_button..."

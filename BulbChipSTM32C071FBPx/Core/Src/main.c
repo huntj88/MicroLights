@@ -250,9 +250,15 @@ int main(void)
 
   // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?), add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a different timer, bulb LEDS should continue to work but on a new pin.
 
-  modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers);
-  settingsManagerLoad(&settingsManager);
-  usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset);
+  if (!modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers, readBulbModeFromFlash)) {
+	  Error_Handler();
+  }
+  if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
+	  Error_Handler();
+  }
+  if (!usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset)) {
+	  Error_Handler();
+  }
 
   // TODO: will need another when adding front rgb led, split up led timers.
   if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers, stopLedTimers)) {

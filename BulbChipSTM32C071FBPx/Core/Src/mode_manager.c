@@ -13,11 +13,22 @@
 static const char *fakeOffMode = "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"off\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}}";
 static const char *defaultMode = "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
 
-void modeManagerInit(ModeManager *manager, MC3479 *accel, void (*startLedTimers)(), void (*stopLedTimers)()) {
+bool modeManagerInit(
+    ModeManager *manager, 
+    MC3479 *accel, 
+    void (*startLedTimers)(), 
+    void (*stopLedTimers)(), 
+    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length)
+) {
+    if (!manager || !accel || !startLedTimers || !stopLedTimers || !readBulbModeFromFlash) {
+        return false;
+    }
     manager->accel = accel;
     manager->startLedTimers = startLedTimers;
     manager->stopLedTimers = stopLedTimers;
+    manager->readBulbModeFromFlash = readBulbModeFromFlash;
     manager->currentModeIndex = 0;
+    return true;
 }
 
 void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
@@ -38,7 +49,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
 }
 
 void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
-    readBulbModeFromFlash(index, buffer, 1024);
+    manager->readBulbModeFromFlash(index, buffer, 1024);
     parseJson((uint8_t*)buffer, 1024, &cliInput);
 
     if (cliInput.parsedType != parseWriteMode) {
@@ -52,7 +63,7 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
         parseJson((uint8_t*)fakeOffMode, 1024, &cliInput);
     } else {
         char flashReadBuffer[1024];
-        readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
+        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
         parseJson((uint8_t*)flashReadBuffer, 1024, &cliInput);
 
         if (cliInput.parsedType != parseWriteMode) {

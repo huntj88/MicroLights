@@ -8,6 +8,7 @@
 #ifndef INC_USB_MANAGER_H_
 #define INC_USB_MANAGER_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "mode_manager.h"
 #include "settings_manager.h"
@@ -21,7 +22,7 @@ typedef struct USBManager {
 	void (*enterDFU)();
 } USBManager;
 
-void usbInit(
+bool usbInit(
 	USBManager *usbManager,
 	UART_HandleTypeDef *huart,
 	ModeManager *mm,

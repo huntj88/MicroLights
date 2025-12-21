@@ -14,19 +14,23 @@
 #include "bootloader.h"
 
 // integration guide: https://github.com/hathach/tinyusb/discussions/633
-void usbInit(
+bool usbInit(
 	USBManager *usbManager,
 	UART_HandleTypeDef *huart,
 	ModeManager *_modeManager,
 	SettingsManager *_settingsManager,
 	void (*_enterDFU)()
 ) {
+	if (!usbManager || !huart || !_modeManager || !_settingsManager || !_enterDFU) {
+		return false;
+	}
 	usbManager->huart = huart;
 	usbManager->modeManager = _modeManager;
 	usbManager->settingsManager = _settingsManager;
 	usbManager->enterDFU = _enterDFU;
 
 	tusb_init();
+	return true;
 }
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))

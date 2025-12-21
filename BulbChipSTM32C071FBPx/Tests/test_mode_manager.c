@@ -5,10 +5,12 @@
 #include "mode_manager.h"
 #include "storage.h"
 #include "json/command_parser.h"
+#include "json/mode_parser.h"
 #include "device/mc3479.h"
 
 // Mock Data
 CliInput cliInput;
+
 static MC3479 mockAccel;
 static bool ledTimersStarted = false;
 static bool ledTimersStopped = false;
@@ -34,22 +36,20 @@ void mc3479Disable(MC3479 *dev) {
     accelDisabled = true;
 }
 
-void readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
+void mock_readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
     lastReadModeIndex = mode;
-    // Simulate reading valid JSON
-    strcpy(buffer, "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"test\"}}");
-}
-
-void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
-    // Simulate parsing
-    if (strstr((char*)buf, "fakeOff") != NULL) {
-        input->parsedType = parseWriteMode;
-        input->modeIndex = FAKE_OFF_MODE_INDEX;
-    } else if (strstr((char*)buf, "writeMode") != NULL) {
-        input->parsedType = parseWriteMode;
-        input->modeIndex = 0;
+    if (mode == 1) {
+        // Standard valid mode
+        strcpy(buffer, "{\"command\":\"writeMode\",\"index\":1,\"mode\":{\"name\":\"test\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"test\",\"duration\":1000,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}}");
+    } else if (mode == 2) {
+        // Mode with Accel
+        strcpy(buffer, "{\"command\":\"writeMode\",\"index\":2,\"mode\":{\"name\":\"accel\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}},\"accel\":{\"triggers\":[{\"threshold\":1000,\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"flash\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}]}}}");
+    } else if (mode == 3) {
+        // Mode without Accel
+        strcpy(buffer, "{\"command\":\"writeMode\",\"index\":3,\"mode\":{\"name\":\"no_accel\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}");
     } else {
-        input->parsedType = parseError;
+        // Default or empty
+        strcpy(buffer, "");
     }
 }
 
@@ -71,7 +71,7 @@ void tearDown(void) {}
 
 void test_ModeManager_LoadMode_ReadsFromStorage(void) {
     ModeManager manager;
-    modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers);
+    TEST_ASSERT_TRUE(modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers, mock_readBulbModeFromFlash));
     
     loadMode(&manager, 1);
     
@@ -82,7 +82,7 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
 
 void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
     ModeManager manager;
-    modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers);
+    TEST_ASSERT_TRUE(modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers, mock_readBulbModeFromFlash));
     
     manager.currentModeIndex = FAKE_OFF_MODE_INDEX;
     TEST_ASSERT_TRUE(isFakeOff(&manager));
@@ -93,7 +93,7 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
 
 void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
     ModeManager manager;
-    modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers);
+    TEST_ASSERT_TRUE(modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers, mock_readBulbModeFromFlash));
     
     loadMode(&manager, FAKE_OFF_MODE_INDEX);
     
@@ -104,26 +104,18 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
 
 void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
     ModeManager manager;
-    modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers);
+    TEST_ASSERT_TRUE(modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers, mock_readBulbModeFromFlash));
     
-    // Setup cliInput to simulate a mode with accel
-    cliInput.mode.has_accel = true;
-    cliInput.mode.accel.triggers_count = 1;
-    
-    // We need to override the parseJson mock to populate cliInput correctly for this test
-    // Or just call setMode directly since loadMode calls setMode
-    setMode(&manager, &cliInput.mode, 0);
+    loadMode(&manager, 2); // Mode 2 has accel
     
     TEST_ASSERT_TRUE(accelEnabled);
 }
 
 void test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel(void) {
     ModeManager manager;
-    modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers);
+    TEST_ASSERT_TRUE(modeManagerInit(&manager, &mockAccel, mock_startLedTimers, mock_stopLedTimers, mock_readBulbModeFromFlash));
     
-    cliInput.mode.has_accel = false;
-    
-    setMode(&manager, &cliInput.mode, 0);
+    loadMode(&manager, 3); // Mode 3 has no accel
     
     TEST_ASSERT_TRUE(accelDisabled);
 }
