@@ -117,9 +117,9 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
-void test_ChargerTask_UpdatesLed_WhenStateChanges(void) {
-    // Initial state: Constant Current
-    charger.chargingState = constantCurrent;
+void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(void) {
+    // Initial state: Not Connected
+    charger.chargingState = notConnected;
     charger.checkedAtMs = 100; // Prevent watchdog update
     
     // New state in registers: Done charging
@@ -142,6 +142,6 @@ int main(void) {
     RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
-    RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChanges);
+    RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);
     return UNITY_END();
 }

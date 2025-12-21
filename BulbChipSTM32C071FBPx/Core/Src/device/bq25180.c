@@ -97,7 +97,9 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 			lock(chargerIC);
 		}
 
-		if (previousState != state && state != notConnected && ledEnabled) {
+		// only update LED from interrupt when plugged in for immediate feedback.
+		bool wasConnected = previousState == notConnected && state != notConnected;
+		if (wasConnected && ledEnabled) {
 			chargerIC->caseLed->startLedTimers(); // show charging status led
 			showChargingState(chargerIC, state);
 		}
