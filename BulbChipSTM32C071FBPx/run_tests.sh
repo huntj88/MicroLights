@@ -28,3 +28,7 @@ echo "Compiling and running test_command_parser..."
 # Needs lwjson.c linked
 gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_command_parser
 ./Tests/build/test_command_parser
+
+echo "Compiling and running test_bq25180..."
+gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC -o Tests/build/test_bq25180
+./Tests/build/test_bq25180

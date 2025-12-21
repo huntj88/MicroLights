@@ -98,6 +98,7 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 	if (readChargerNow) {
 		readChargerNow = false;
 		enum ChargeState state = getChargingState(chargerIC);
+		chargerIC->chargingState = state;
 
 		bool wasDisconnected = previousState != notConnected && state == notConnected;
 		if (ms != 0 && wasDisconnected && unplugLockEnabled) {
@@ -105,8 +106,7 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 			lock(chargerIC);
 		}
 
-		bool wasConnected = previousState == notConnected && state != notConnected;
-		if (wasConnected && ledEnabled) {
+		if (previousState != state && state != notConnected && ledEnabled) {
 			chargerIC->caseLed->startLedTimers(); // show charging status led
 			showChargingState(chargerIC, state);
 		}
