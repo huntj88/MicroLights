@@ -13,5 +13,11 @@ tar -xzf tinyusb.tar.gz &&
 rm tinyusb.tar.gz &&
 mv tinyusb-0.18.0 tinyusb &&
 
-python3 tinyusb/tools/get_deps.py stm32c0
+python3 tinyusb/tools/get_deps.py stm32c0 &&
+
+rm -rf Unity &&
+curl -L https://github.com/ThrowTheSwitch/Unity/archive/refs/tags/v2.6.1.tar.gz > Unity.tar.gz &&
+tar -xzf Unity.tar.gz &&
+rm Unity.tar.gz &&
+mv Unity-2.6.1 Unity
 
