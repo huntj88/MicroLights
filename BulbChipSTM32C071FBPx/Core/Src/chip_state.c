@@ -148,15 +148,18 @@ static void updateMode(uint32_t ms) {
 	bool triggered = false;
 
 	if (state.modeManager->currentMode.has_accel && state.modeManager->currentMode.accel.triggers_count > 0) {
-		// TODO: check for all configurable trigger thresholds
-		if (isOverThreshold(state.accel, state.modeManager->currentMode.accel.triggers[0].threshold)) {
-			// Use first trigger for now
-			ModeAccelTrigger trigger = state.modeManager->currentMode.accel.triggers[0];
+		// Triggers are sorted by threshold ascending. Find the highest threshold that is met.
+		for (uint8_t i = 0; i < state.modeManager->currentMode.accel.triggers_count; i++) {
+			if (isOverThreshold(state.accel, state.modeManager->currentMode.accel.triggers[i].threshold)) {
+				ModeAccelTrigger trigger = state.modeManager->currentMode.accel.triggers[i];
 
-			// TODO: indicate fallthrough from mode if not specified in UI
-			if (trigger.has_front) frontComp = trigger.front;
-			if (trigger.has_case_comp) caseComp = trigger.case_comp;
-			triggered = true;
+				// TODO: indicate fallthrough from mode if not specified in UI
+				if (trigger.has_front) frontComp = trigger.front;
+				if (trigger.has_case_comp) caseComp = trigger.case_comp;
+				triggered = true;
+			} else {
+				break;
+			}
 		}
 	}
 

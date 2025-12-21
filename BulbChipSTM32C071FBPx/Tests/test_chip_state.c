@@ -88,9 +88,9 @@ bool isEvaluatingButtonPress(Button *button) {
     return mockIsEvaluatingButtonPress;
 }
 
-bool mockIsOverThreshold = false;
-bool isOverThreshold(MC3479 *dev, float threshold) {
-    return mockIsOverThreshold;
+float mockAccelMagnitude = 0.0f;
+bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
+    return mockAccelMagnitude > threshold;
 }
 
 uint8_t lastRgbR, lastRgbG, lastRgbB;
@@ -125,7 +125,7 @@ void setUp(void) {
     mockLockCalled = false;
     mockIsFakeOff = false;
     mockIsEvaluatingButtonPress = false;
-    mockIsOverThreshold = false;
+    mockAccelMagnitude = 0.0f;
     lastRgbR = 0; lastRgbG = 0; lastRgbB = 0;
     
     state = (ChipState){0}; // Reset internal state
@@ -422,7 +422,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     // Setup Accel Trigger: Front ON, Case RED
     mockModeManager.currentMode.has_accel = true;
     mockModeManager.currentMode.accel.triggers_count = 1;
-    mockModeManager.currentMode.accel.triggers[0].threshold = 1000; // Not used by logic yet, but good to set
+    mockModeManager.currentMode.accel.triggers[0].threshold = 10; // Not used by logic yet, but good to set
     
     mockModeManager.currentMode.accel.triggers[0].has_front = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
@@ -443,7 +443,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
 
     // Trigger the accel
-    mockIsOverThreshold = true;
+    mockAccelMagnitude = 20.0f;
 
     state.chipTick = 10;
     chipTickInterrupt();
@@ -481,7 +481,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb = high;
 
     // Do NOT trigger the accel
-    mockIsOverThreshold = false;
+    mockAccelMagnitude = 0.0f;
 
     state.chipTick = 10;
     chipTickInterrupt();
@@ -529,7 +529,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     mockModeManager.currentMode.accel.triggers[0].has_case_comp = false; // No override
 
     // Trigger the accel
-    mockIsOverThreshold = true;
+    mockAccelMagnitude = 20.0f;
 
     state.chipTick = 10;
     chipTickInterrupt();
@@ -539,6 +539,71 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
+}
+
+void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOrder(void) {
+    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel, &mockCaseLed, 
+                       mock_writeUsbSerial, mock_writeBulbLedPin, mock_getMillisecondsPerChipTick, 
+                       mock_startLedTimers, mock_stopLedTimers);
+    
+    // Setup Default Mode: Case OFF
+    mockModeManager.currentMode.has_case_comp = true;
+    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
+
+    mockModeManager.currentMode.has_accel = true;
+    mockModeManager.currentMode.accel.triggers_count = 2;
+    
+    // Trigger 0: Low Threshold (10) -> BLUE
+    mockModeManager.currentMode.accel.triggers[0].threshold = 10;
+    mockModeManager.currentMode.accel.triggers[0].has_case_comp = true;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 255;
+
+    // Trigger 1: High Threshold (20) -> RED
+    mockModeManager.currentMode.accel.triggers[1].threshold = 20;
+    mockModeManager.currentMode.accel.triggers[1].has_case_comp = true;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
+
+    // Case A: Accel = 5 (Below both) -> Default (OFF)
+    mockAccelMagnitude = 5.0f;
+    state.chipTick = 10;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
+    TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
+
+    // Case B: Accel = 15 (Above Trigger 0, Below Trigger 1) -> Trigger 0 (BLUE)
+    mockAccelMagnitude = 15.0f;
+    state.chipTick = 20;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
+    TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
+
+    // Case C: Accel = 25 (Above both) -> Trigger 1 (RED)
+    mockAccelMagnitude = 25.0f;
+    state.chipTick = 30;
+    chipTickInterrupt();
+    TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
+    TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
@@ -655,6 +720,7 @@ int main(void) {
     RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_PartialOverride);
+    RUN_TEST(test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOrder);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
     RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
     RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
