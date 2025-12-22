@@ -10,6 +10,9 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// TODO: OSSPEEDR register settings for reduced potential EMI on PWM outputs? lower slew rate if not affecting color quality
+// TODO: OSSPEEDR on bulb io as well
+
 // TODO: multiple priorities, could create a prioritized led resource mutex if it gets more complicated
 // button input
 // user defined mode color
@@ -34,19 +37,27 @@ static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, 
 	uint16_t scaledBlue = colorRangeToDuty(device, blue);
 
 	device->writePwm(scaledRed, scaledGreen, scaledBlue);
-	device->tickOfColorChange = device->tick;
+	device->msOfColorChange = device->ms;
 }
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period) {
+bool rgbInit(
+		RGBLed *device,
+		RGBWritePwm *writeFn,
+		uint16_t period,
+		void (*startLedTimers)(),
+		void (*stopLedTimers)()
+) {
 	if (!device || !writeFn) {
 		return false;
 	}
 
 	device->writePwm = writeFn;
 	device->period = period;
+	device->startLedTimers = startLedTimers;
+	device->stopLedTimers = stopLedTimers;
 
-	device->tick = 0;
-	device->tickOfColorChange = 0;
+	device->ms = 0;
+	device->msOfColorChange = 0;
 	device->showingTransientStatus = false;
 	device->userRed = 0;
 	device->userGreen = 0;
@@ -82,14 +93,14 @@ bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period) {
 //	}
 //}
 
-void rgbTask(RGBLed *device, uint16_t tick, float millisPerTick) {
+void rgbTask(RGBLed *device, uint32_t ms) {
 	if (!device) {
 		return;
 	}
 
-	device->tick = tick;
+	device->ms = ms;
 
-	uint16_t elapsedMillis = (uint16_t)((tick - device->tickOfColorChange) * millisPerTick);
+	uint32_t elapsedMillis = ms - device->msOfColorChange;
 
 	// show status color for 300 milliseconds, then switch back to user color
 	if (device->showingTransientStatus && elapsedMillis > 300) {

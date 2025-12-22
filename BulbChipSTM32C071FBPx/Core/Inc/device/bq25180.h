@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "device/rgb_led.h"
+#include "model/serial.h"
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_
@@ -53,13 +55,16 @@ typedef struct BQ25180 BQ25180; // forward declaration
 
 typedef uint8_t BQ25180ReadRegister(BQ25180 *chargerIC, uint8_t reg);
 typedef void BQ25180WriteRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value);
-typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 typedef struct BQ25180 {
 	BQ25180ReadRegister *readRegister;
 	BQ25180WriteRegister *writeRegister;
 	WriteToUsbSerial *writeToUsbSerial;
 	uint8_t devAddress;
+	RGBLed *caseLed;
+
+	enum ChargeState chargingState;
+	uint32_t checkedAtMs;
 } BQ25180;
 
 typedef struct BQ25180Registers {
@@ -83,16 +88,17 @@ bool bq25180Init(
 	BQ25180ReadRegister *readRegCb,
 	BQ25180WriteRegister *writeCb,
 	uint8_t devAddress,
-	WriteToUsbSerial *writeToUsbSerial
+	WriteToUsbSerial *writeToUsbSerial,
+	RGBLed *caseLed
 );
 
+void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
-void charger_task(BQ25180 *chargerIC);
+void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled);
+void lock(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
 void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOuput);
-void enableShipMode(BQ25180 *chargerIC);
-void hardwareReset(BQ25180 *chargerIC);
 enum ChargeState getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers

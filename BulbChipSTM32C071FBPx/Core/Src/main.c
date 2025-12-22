@@ -17,18 +17,22 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "device/rgb_led.h"
-#include "json/command_parser.h"
+#include <usb_manager.h>
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "device/rgb_led.h"
+#include "json/command_parser.h"
 #include "bootloader.h"
 #include "chip_state.h"
 #include "device/bq25180.h"
+#include "device/button.h"
 #include "device/mc3479.h"
 #include "storage.h"
 #include "tusb.h"
+#include "mode_manager.h"
+#include "settings_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,8 +64,12 @@ PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
 /* USER CODE BEGIN PV */
 BQ25180 chargerIC;
+Button button;
 MC3479 accel;
 RGBLed caseLed;
+ModeManager modeManager;
+SettingsManager settingsManager;
+USBManager usbManager;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,16 +90,7 @@ static void MX_TIM3_Init(void);
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
-	for (uint32_t i = 0; i < count; i += 64) {
-		uint32_t countMax64 = MIN(count - i, 64);
-		tud_cdc_n_write(itf, buf + i, countMax64);
-		tud_task();
-	}
-	tud_cdc_n_write_flush(itf);
-	tud_task();
-
-	// also log to uart serial in case usb doesn't work
-	HAL_UART_Transmit(&huart2, buf, count, 100);
+	usbWriteToSerial(&usbManager, itf, buf, count);
 }
 
 static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
@@ -181,7 +180,7 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
-static float millisecondsPerChipTick() {
+static uint32_t calculateTickMultiplier() {
   RCC_ClkInitTypeDef clkConfig;
   uint32_t flashLatency;
   HAL_RCC_GetClockConfig(&clkConfig, &flashLatency);
@@ -199,39 +198,50 @@ static float millisecondsPerChipTick() {
   uint32_t period = htim2.Init.Period + 1U;
 
   if (timerClock == 0U) {
-    return 0.0f;
+    return 0;
   }
 
-  double intervalSeconds = (prescaler * period) / (double)timerClock;
-  return (float)(intervalSeconds * 1000.0);
+  // We want to calculate: multiplier = (msPerTick) * 2^20
+  // msPerTick = (prescaler * period * 1000) / timerClock
+  // multiplier = (prescaler * period * 1000 * 2^20) / timerClock
+  // 2^20 = 1048576
+  // 1000 * 1048576 = 1048576000
+  
+  // Use uint64_t to prevent overflow during calculation
+  uint64_t numerator = (uint64_t)prescaler * (uint64_t)period * 1048576000ULL;
+  return (uint32_t)(numerator / timerClock);
 }
 
-static void cdcTask() {
-	static uint8_t jsonBuf[1024];
-	static uint16_t jsonIndex = 0;
-	uint8_t itf;
-
-	tud_task();
-
-	for (itf = 0; itf < CFG_TUD_CDC; itf++) {
-		// connected() check for DTR bit
-		// Most but not all terminal client set this when making connection
-		// if ( tud_cdc_n_connected(itf) )
-		{
-			if (tud_cdc_n_available(itf)) {
-				uint8_t buf[64];
-				uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
-				for (uint8_t i = 0; i < count; i++) {
-					jsonBuf[jsonIndex + i] = buf[i];
-				}
-				jsonIndex += count;
-			} else if (jsonIndex != 0) {
-				jsonIndex = 0;
-				handleJson(jsonBuf, 1024);
-			}
-		}
-	}
+/**
+ * @brief Converts chip ticks to milliseconds using fixed-point arithmetic optimization.
+ *
+ * Traditional approach:
+ *   ms = ticks * millisecondsPerTick
+ *   or
+ *   ms = (ticks * microsecondsPerTick) / 1000
+ *
+ * This requires either floating point math (slow/large code size) or integer division (slow).
+ *
+ * Optimization:
+ *   We use a fixed-point multiplier scaled by 2^20 (1048576).
+ *   multiplier = millisecondsPerTick * 2^20
+ *
+ *   Calculation becomes:
+ *   ms = (ticks * multiplier) / 2^20
+ *
+ *   Division by 2^20 is implemented as a right bit shift (>> 20), which is extremely fast.
+ *   We use uint64_t for the intermediate multiplication to prevent overflow before the shift.
+ *   2^20 is chosen to provide sufficient precision while keeping the multiplier within uint32_t
+ *   (assuming millisecondsPerTick < ~4000ms) and the intermediate result within uint64_t.
+ */
+static uint32_t convertTicksToMs(uint32_t ticks) {
+  static uint32_t multiplier = 0;
+  if (multiplier == 0) {
+    multiplier = calculateTickMultiplier();
+  }
+  return (uint32_t)(((uint64_t)ticks * multiplier) >> 20);
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -275,28 +285,46 @@ int main(void)
   // TIM2: chipTick timer - interrupts to increment chipTick
   // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
 
-  tusb_init(); // integration guide: https://github.com/hathach/tinyusb/discussions/633
+  // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?), add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a different timer, bulb LEDS should continue to work but on a new pin.
 
-  if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial)) {
-    Error_Handler();
+  if (!modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers, readBulbModeFromFlash)) {
+	  Error_Handler();
+  }
+  if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
+	  Error_Handler();
+  }
+  if (!usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset)) {
+	  Error_Handler();
+  }
+
+  // TODO: will need another when adding front rgb led, split up led timers.
+  if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers, stopLedTimers)) {
+	  Error_Handler();
+  }
+
+  if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
+	  Error_Handler();
+  }
+
+  // TODO: button timers
+  if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
+	  Error_Handler();
   }
 
   if (!mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
-    Error_Handler();
+	  Error_Handler();
   }
 
-  if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
-    Error_Handler();
-  }
   configureChipState(
+		  &modeManager,
+		  &settingsManager.currentSettings,
+		  &button,
 		  &chargerIC,
 		  &accel,
 		  &caseLed,
 		  writeToSerial,
-		  setBootloaderFlagAndReset,
-		  readButtonPin,
 		  writeBulbLed,
-		  millisecondsPerChipTick,
+		  convertTicksToMs,
 		  startLedTimers,
 		  stopLedTimers
   );
@@ -309,7 +337,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   while (1) {
-	  cdcTask();
+	  usbCdcTask(&usbManager);
 
 	  stateTask();
 
@@ -522,7 +550,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 0;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 60000;
+  htim2.Init.Period = 15000;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)

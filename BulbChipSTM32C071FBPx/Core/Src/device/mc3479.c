@@ -1,13 +1,13 @@
 #include "device/mc3479.h"
 
-#include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 
-// TODO: set decimation rate
-static const float kSensitivityLsbPerG = 2048.0f;
+// TODO: set decimation rate?
+// Sensitivity for +/- 16g range: 32768 / 16 = 2048 LSB/g
+#define MC3479_SENSITIVITY_LSB_PER_G 2048ULL
 
 /* Small helper to safely call the optional USB logging callback */
 static void mc3479Log(MC3479 *dev, const char *msg) {
@@ -42,11 +42,12 @@ void mc3479Enable(MC3479 *dev) {
     dev->enabled = true;
 
     // reset last sample tick so the task may sample immediately on next mc3479Task call
-    dev->lastSampleTick = 0;
-    dev->currentJerkGPerTick = 0.0f;
-    dev->lastAxG = 0.0f;
-    dev->lastAyG = 0.0f;
-    dev->lastAzG = 0.0f;
+    dev->lastSampleMs = 0;
+    dev->currentJerkSquaredSum = 0;
+    dev->lastDtMs = 0;
+    dev->lastRawX = 0;
+    dev->lastRawY = 0;
+    dev->lastRawZ = 0;
 }
 
 void mc3479Disable(MC3479 *dev) {
@@ -57,15 +58,15 @@ void mc3479Disable(MC3479 *dev) {
     dev->enabled = false;
 
     // reset the sample time and clear the cached magnitude
-    dev->lastSampleTick = 0;
-    dev->currentMagnitudeG = 0.0f;
-    dev->currentJerkGPerTick = 0.0f;
-    dev->lastAxG = 0.0f;
-    dev->lastAyG = 0.0f;
-    dev->lastAzG = 0.0f;
+    dev->lastSampleMs = 0;
+    dev->currentJerkSquaredSum = 0;
+    dev->lastDtMs = 0;
+    dev->lastRawX = 0;
+    dev->lastRawY = 0;
+    dev->lastRawZ = 0;
 }
 
-bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
+bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     if (!dev || !dev->enabled) return false;
 
     // read all 6 bytes
@@ -81,63 +82,70 @@ bool mc3479SampleNow(MC3479 *dev, uint16_t tick) {
     int16_t raw_y = (int16_t)(((uint16_t)buf[3] << 8) | buf[2]);
     int16_t raw_z = (int16_t)(((uint16_t)buf[5] << 8) | buf[4]);
 
-    // Convert to g using configured sensitivity
-    float gx = ((float)raw_x) / kSensitivityLsbPerG;
-    float gy = ((float)raw_y) / kSensitivityLsbPerG;
-    float gz = ((float)raw_z) / kSensitivityLsbPerG;
-
-    // Compute magnitude
-    dev->currentMagnitudeG = sqrtf(gx*gx + gy*gy + gz*gz);
-
     // Compute jerk (derivative of acceleration). This driver measures and
-    // stores jerk in units of g per tick (caller ticks are used directly).
-    if (dev->lastSampleTick != 0 && tick > dev->lastSampleTick) {
-        float dt_ticks = (float)(tick - dev->lastSampleTick);
-        if (dt_ticks > 0.0f) {
-            float dax = gx - dev->lastAxG;
-            float day = gy - dev->lastAyG;
-            float daz = gz - dev->lastAzG;
+    // stores jerk in units of g per ms (caller ms are used directly).
+    if (dev->lastSampleMs != 0 && ms > dev->lastSampleMs) {
+        uint32_t dt_ms = ms - dev->lastSampleMs;
+        if (dt_ms > 0) {
+            int32_t dax = (int32_t)raw_x - dev->lastRawX;
+            int32_t day = (int32_t)raw_y - dev->lastRawY;
+            int32_t daz = (int32_t)raw_z - dev->lastRawZ;
 
-            float jerk_mag = sqrtf(dax*dax + day*day + daz*daz) / dt_ticks;
-            dev->currentJerkGPerTick = jerk_mag;
+            dev->currentJerkSquaredSum = (uint64_t)dax*dax + (uint64_t)day*day + (uint64_t)daz*daz;
+            dev->lastDtMs = dt_ms;
         } else {
-            dev->currentJerkGPerTick = 0.0f;
+            dev->currentJerkSquaredSum = 0;
+            dev->lastDtMs = 0;
         }
     } else {
         // Insufficient history to compute jerk yet
-        dev->currentJerkGPerTick = 0.0f;
+        dev->currentJerkSquaredSum = 0;
+        dev->lastDtMs = 0;
     }
 
-    dev->lastAxG = gx;
-    dev->lastAyG = gy;
-    dev->lastAzG = gz;
+    dev->lastRawX = raw_x;
+    dev->lastRawY = raw_y;
+    dev->lastRawZ = raw_z;
 
-    dev->lastSampleTick = tick;
+    dev->lastSampleMs = ms;
 
     return true;
 }
 
-void mc3479Task(MC3479 *dev, uint16_t tick, float millisPerTick) {
+void mc3479Task(MC3479 *dev, uint32_t ms) {
     if (!dev) return;
     if (!dev->enabled) return;
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    bool samplePeriodElapsed = (tick - dev->lastSampleTick) * millisPerTick >= 50;
+    uint32_t elapsed = ms - dev->lastSampleMs;
+    bool samplePeriodElapsed = elapsed >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, tick)) {
+        if (mc3479SampleNow(dev, ms)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleTick = tick;
+            dev->lastSampleMs = ms;
         }
     }
 }
 
-bool isOverThreshold(MC3479 *dev, float threshold) {
+bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
 	if (!dev) return false;
 	if (!dev->enabled) return false;
+    if (dev->lastDtMs == 0) return false;
 
-	return dev->currentJerkGPerTick > threshold;
+    // Threshold is in G/s.
+    // We want to check if:
+    // sqrt(sum_sq_diff) / 2048 / dt_ms * 1000 > threshold
+    //
+    // Squaring both sides:
+    // sum_sq_diff * 1000000 > (threshold * 2048 * dt_ms)^2
+    
+    uint64_t lhs = dev->currentJerkSquaredSum * 1000000ULL;
+    uint64_t rhs_term = (uint64_t)threshold * MC3479_SENSITIVITY_LSB_PER_G * (uint64_t)dev->lastDtMs;
+    uint64_t rhs = rhs_term * rhs_term;
+
+	return lhs > rhs;
 }

@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "chip_state.h"
+#include "device/button.h"
 #include "device/bq25180.h"
 /* USER CODE END Includes */
 
@@ -189,7 +190,7 @@ void TIM3_IRQHandler(void)
 
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == button_Pin) {
-		setClickStarted();
+		startButtonEvaluation();
 	} else if (GPIO_Pin == chargerIT_Pin) {
 		handleChargerInterrupt();
 	}

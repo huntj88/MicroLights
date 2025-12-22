@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include "mode_parser.h"
+#include "model/cli_model.h"
 
 /*
  * Example Commands:
@@ -45,39 +46,6 @@
  *   "command": "dfu"
  * }
  */
-
-enum ParseResult {
-	parseError,
-	parseWriteMode,
-	parseReadMode,
-	parseWriteSettings,
-	parseReadSettings,
-	parseDfu
-};
-
-typedef struct ChipSettings {
-	uint8_t modeCount;
-	uint8_t minutesUntilAutoOff;
-	uint8_t minutesUntilLockAfterAutoOff;
-} ChipSettings;
-
-typedef struct CliInput {
-	// only one will be populated, see parsedType
-	Mode mode;
-	ChipSettings settings;
-
-	// metadata
-	uint8_t modeIndex;
-
-	// metadata calculated at runtime
-	uint16_t jsonLength;
-	
-	// metadata calculated at runtime
-	// 0 for not parsed successfully
-	// 1 for mode
-	// 2 for settings
-	enum ParseResult parsedType;
-} CliInput;
 
 void parseJson(uint8_t buf[], uint32_t count, CliInput *input);
 

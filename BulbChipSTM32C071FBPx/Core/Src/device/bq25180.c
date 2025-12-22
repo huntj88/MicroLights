@@ -9,18 +9,103 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "device/rgb_led.h"
 
-bool bq25180Init(BQ25180 *chargerIC, BQ25180ReadRegister *readRegCb, BQ25180WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
-	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial) return false;
+// more than one chargerIC not likely,
+// if handling multiple chargers would need to pass in function pointer that get bool for specific interrupt variable
+static volatile bool readChargerNow = false;
+
+void handleChargerInterrupt() {
+	readChargerNow = 1;
+}
+
+bool bq25180Init(
+	BQ25180 *chargerIC, 
+	BQ25180ReadRegister *readRegCb, 
+	BQ25180WriteRegister *writeCb, 
+	uint8_t devAddress, 
+	WriteToUsbSerial *writeToUsbSerial,
+	RGBLed *caseLed
+) {
+	if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) return false;
 
 	chargerIC->readRegister = readRegCb;
 	chargerIC->writeRegister = writeCb;
 	chargerIC->devAddress = devAddress;
 	chargerIC->writeToUsbSerial = writeToUsbSerial;
+	chargerIC->caseLed = caseLed;
+
+	chargerIC->chargingState = notConnected;
+	chargerIC->checkedAtMs = 0;
 
 	configureChargerIC(chargerIC);
 
 	return true;
+}
+
+static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
+	switch (state) {
+	case notConnected:
+		// do nothing
+		break;
+	case notCharging:
+		rgbShowNotCharging(chargerIC->caseLed);
+		break;
+	case constantCurrent:
+		rgbShowConstantCurrentCharging(chargerIC->caseLed);
+		break;
+	case constantVoltage:
+		rgbShowConstantVoltageCharging(chargerIC->caseLed);
+		break;
+	case done:
+		rgbShowDoneCharging(chargerIC->caseLed);
+		break;
+	}
+}
+
+void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled) {
+	enum ChargeState previousState = chargerIC->chargingState;
+	uint32_t elapsedMillis = 0;
+
+	if (chargerIC->checkedAtMs != 0) {
+		elapsedMillis = ms - chargerIC->checkedAtMs;
+	}
+
+	// charger i2c watchdog timer will reset if not communicated
+	// with for 40 seconds, and 15 seconds after plugged in.
+	if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
+		// char registerJson[256];
+		// readAllRegistersJson(chargerIC, registerJson);
+		// writeUsbSerial(0, registerJson, strlen(registerJson));
+		// printAllRegisters(chargerIC);
+
+		chargerIC->chargingState = getChargingState(chargerIC);
+		chargerIC->checkedAtMs = ms;
+	}
+
+	// flash charging state to user every ~1 second (1024ms, 2^10)
+	if (ledEnabled && chargerIC->chargingState != notConnected && (ms & 0x3FF) < 50) {
+		showChargingState(chargerIC, chargerIC->chargingState);
+	}
+
+	if (readChargerNow) {
+		readChargerNow = false;
+		enum ChargeState state = getChargingState(chargerIC);
+		chargerIC->chargingState = state;
+
+		bool wasDisconnected = previousState != notConnected && state == notConnected;
+		if (ms != 0 && wasDisconnected && unplugLockEnabled) {
+			// if in fake off mode and power is unplugged, put into ship mode
+			lock(chargerIC);
+		}
+
+		// only update LED from interrupt when plugged in for immediate feedback.
+		bool wasConnected = previousState == notConnected && state != notConnected;
+		if (wasConnected && ledEnabled) {
+			chargerIC->caseLed->startLedTimers(); // show charging status led
+			showChargingState(chargerIC, state);
+		}
+	}
 }
 
 enum ChargeState getChargingState(BQ25180 *chargerIC) {
@@ -221,7 +306,7 @@ void printAllRegisters(BQ25180 *chargerIC) {
 }
 
 // power must be unplugged to enter ship mode.
-void enableShipMode(BQ25180 *chargerIC) {
+static void enableShipMode(BQ25180 *chargerIC) {
 	// REG_RST - Software Reset
 	// 1b0 = Do nothing
 	// 1b1 = Software Reset
@@ -253,6 +338,15 @@ void enableShipMode(BQ25180 *chargerIC) {
 	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01000001);
 }
 
-void hardwareReset(BQ25180 *chargerIC) {
+static void hardwareReset(BQ25180 *chargerIC) {
 	chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01100001);
+}
+
+void lock(BQ25180 *chargerIC) {
+	enum ChargeState state = getChargingState(chargerIC);
+	if (state == notConnected) {
+		enableShipMode(chargerIC);
+	} else {
+		hardwareReset(chargerIC);
+	}
 }

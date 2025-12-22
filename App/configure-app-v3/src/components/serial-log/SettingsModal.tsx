@@ -32,6 +32,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       // Send read command
       void serialManager.send({ command: 'readSettings' });
 
+      // TODO: if no response in X seconds, show error instead of showing defaults
       // Timeout fallback
       const timer = setTimeout(() => {
         setIsLoading(false);

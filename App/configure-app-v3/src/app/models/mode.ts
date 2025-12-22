@@ -165,6 +165,7 @@ export const modeAccelTriggerSchema = z
 
 export type ModeAccelTrigger = z.infer<typeof modeAccelTriggerSchema>;
 
+// TODO: sort the triggers by threshold ascending automatically
 export const modeAccelSchema = z
   .object({
     triggers: z.array(modeAccelTriggerSchema).min(1, 'validation.accel.triggerRequired'),

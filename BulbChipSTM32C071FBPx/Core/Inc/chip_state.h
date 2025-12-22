@@ -10,32 +10,31 @@
 
 #include <stdint.h>
 
+#include "device/button.h"
 #include "device/bq25180.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
 #include "json/command_parser.h"
-
-typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
+#include "mode_manager.h"
+#include "settings_manager.h"
+#include "model/serial.h"
 
 void configureChipState(
+		ModeManager *modeManager,
+		ChipSettings *settings,
+		Button *button,
 		BQ25180 *chargerIC,
 		MC3479 *accel,
 		RGBLed *rgb,
 		WriteToUsbSerial *writeUsbSerial,
-		void (*enterDFU)(),
-		uint8_t (*readButtonPin)(),
 		void (*writeBulbLedPin)(uint8_t state),
-		float (*getMillisecondsPerChipTick)(),
+		uint32_t (*convertTicksToMs)(uint32_t ticks),
 		void (*startLedTimers)(),
 		void (*stopLedTimers)()
 );
 
-void handleJson(uint8_t buf[], uint32_t count);
-
-void setClickStarted();
 void stateTask();
 void chipTickInterrupt();
-void handleChargerInterrupt();
 void autoOffTimerInterrupt();
 
 
