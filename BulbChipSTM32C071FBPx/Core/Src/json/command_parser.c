@@ -50,7 +50,17 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	static lwjson_token_t tokens[128];
 	static lwjson_t lwjson;
 
+	if (buf == NULL || count == 0 || input == NULL) {
+		input->parsedType = parseError;
+		return;
+	}
+
 	uint32_t indexOfTerminalChar = jsonLength(buf, count);
+	if (indexOfTerminalChar == -1) {
+		input->parsedType = parseError;
+		return;
+	}
+
 	uint8_t includeTerimalChar = 1;
 	uint8_t bufJson[indexOfTerminalChar + includeTerimalChar];
 
@@ -67,7 +77,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 	input->errorContext.path[0] = '\0';
 
 	lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-	if (lwjson_parse(&lwjson, (const char *)bufJson) == lwjsonOK) {
+	if (lwjson_parse(&lwjson, (const char*) bufJson) == lwjsonOK) {
 		const lwjson_token_t *t;
 		char command[32];
 
@@ -87,7 +97,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
 			input->errorContext.error = MODE_PARSER_OK;
 
 			if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
-				didParseMode = parseMode(&lwjson, (lwjson_token_t *)t, &mode, &input->errorContext);
+				didParseMode = parseMode(&lwjson, (lwjson_token_t*) t, &mode, &input->errorContext);
 				input->mode = mode;
 			}
 
