@@ -30,6 +30,7 @@ const char* modeParserErrorToString(ModeParserError err) {
         case MODE_PARSER_ERR_MISSING_FIELD: return "Missing required field";
         case MODE_PARSER_ERR_STRING_TOO_SHORT: return "String is too short";
         case MODE_PARSER_ERR_VALUE_TOO_SMALL: return "Value is too small";
+        case MODE_PARSER_ERR_VALUE_TOO_LARGE: return "Value is too large";
         case MODE_PARSER_ERR_ARRAY_TOO_SHORT: return "Array has too few items";
         case MODE_PARSER_ERR_INVALID_VARIANT: return "Invalid variant type";
         case MODE_PARSER_ERR_VALIDATION_FAILED: return "Validation failed";
@@ -90,12 +91,17 @@ static bool parseModeAccel(lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *o
 static bool parsePatternChange(lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     if ((t = lwjson_find_ex(lwjson, token, "ms")) != NULL) {
-        out->ms = (uint32_t)t->u.num_int;
-        if (out->ms < 0) {
+        if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "ms");
             return false;
         }
+        if (t->u.num_int > 4294967295) {
+            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+            strcpy(ctx->path, "ms");
+            return false;
+        }
+        out->ms = (uint32_t)t->u.num_int;
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "ms");
@@ -130,12 +136,17 @@ static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePa
         return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
-        out->duration = (uint32_t)t->u.num_int;
-        if (out->duration < 1) {
+        if (t->u.num_int < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
             return false;
         }
+        if (t->u.num_int > 4294967295) {
+            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+            strcpy(ctx->path, "duration");
+            return false;
+        }
+        out->duration = (uint32_t)t->u.num_int;
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
@@ -179,12 +190,17 @@ static bool parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, Equati
         return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
-        out->duration = (uint32_t)t->u.num_int;
-        if (out->duration < 1) {
+        if (t->u.num_int < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
             return false;
         }
+        if (t->u.num_int > 4294967295) {
+            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+            strcpy(ctx->path, "duration");
+            return false;
+        }
+        out->duration = (uint32_t)t->u.num_int;
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
@@ -238,12 +254,17 @@ static bool parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, Equati
         return false;
     }
     if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
-        out->duration = (uint32_t)t->u.num_int;
-        if (out->duration < 0) {
+        if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
             return false;
         }
+        if (t->u.num_int > 4294967295) {
+            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+            strcpy(ctx->path, "duration");
+            return false;
+        }
+        out->duration = (uint32_t)t->u.num_int;
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "duration");
@@ -333,12 +354,17 @@ static bool parseModeAccelTrigger(lwjson_t *lwjson, lwjson_token_t *token, ModeA
     out->has_front = false;
     out->has_case_comp = false;
     if ((t = lwjson_find_ex(lwjson, token, "threshold")) != NULL) {
-        out->threshold = (uint8_t)t->u.num_int;
-        if (out->threshold < 0) {
+        if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "threshold");
             return false;
         }
+        if (t->u.num_int > 255) {
+            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+            strcpy(ctx->path, "threshold");
+            return false;
+        }
+        out->threshold = (uint8_t)t->u.num_int;
     } else {
         ctx->error = MODE_PARSER_ERR_MISSING_FIELD;
         strcpy(ctx->path, "threshold");

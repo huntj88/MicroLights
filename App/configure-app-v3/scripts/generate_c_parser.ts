@@ -397,6 +397,7 @@ typedef enum {
     MODE_PARSER_ERR_MISSING_FIELD,
     MODE_PARSER_ERR_STRING_TOO_SHORT,
     MODE_PARSER_ERR_VALUE_TOO_SMALL,
+    MODE_PARSER_ERR_VALUE_TOO_LARGE,
     MODE_PARSER_ERR_ARRAY_TOO_SHORT,
     MODE_PARSER_ERR_INVALID_VARIANT,
     MODE_PARSER_ERR_VALIDATION_FAILED
@@ -448,6 +449,7 @@ const char* modeParserErrorToString(ModeParserError err) {
         case MODE_PARSER_ERR_MISSING_FIELD: return "Missing required field";
         case MODE_PARSER_ERR_STRING_TOO_SHORT: return "String is too short";
         case MODE_PARSER_ERR_VALUE_TOO_SMALL: return "Value is too small";
+        case MODE_PARSER_ERR_VALUE_TOO_LARGE: return "Value is too large";
         case MODE_PARSER_ERR_ARRAY_TOO_SHORT: return "Array has too few items";
         case MODE_PARSER_ERR_INVALID_VARIANT: return "Invalid variant type";
         case MODE_PARSER_ERR_VALIDATION_FAILED: return "Validation failed";
@@ -537,23 +539,33 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
             out += `        }\n`;
           }
         } else if (fieldDef.type === 'uint32') {
+          if (fieldDef.min !== undefined) {
+            out += `        if (t->u.num_int < ${String(fieldDef.min)}) {\n`;
+            out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
+            out += `            strcpy(ctx->path, "${fieldName}");\n`;
+            out += `            return false;\n`;
+            out += `        }\n`;
+          }
+          out += `        if (t->u.num_int > 4294967295) {\n`;
+          out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;\n`;
+          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `            return false;\n`;
+          out += `        }\n`;
           out += `        out->${cName} = (uint32_t)t->u.num_int;\n`;
-          if (fieldDef.min !== undefined) {
-            out += `        if (out->${cName} < ${String(fieldDef.min)}) {\n`;
-            out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
-            out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return false;\n`;
-            out += `        }\n`;
-          }
         } else if (fieldDef.type === 'uint8') {
-          out += `        out->${cName} = (uint8_t)t->u.num_int;\n`;
           if (fieldDef.min !== undefined) {
-            out += `        if (out->${cName} < ${String(fieldDef.min)}) {\n`;
+            out += `        if (t->u.num_int < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
             out += `            return false;\n`;
             out += `        }\n`;
           }
+          out += `        if (t->u.num_int > 255) {\n`;
+          out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;\n`;
+          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `            return false;\n`;
+          out += `        }\n`;
+          out += `        out->${cName} = (uint8_t)t->u.num_int;\n`;
         } else if (fieldDef.type === 'boolean') {
           out += `        out->${cName} = t->u.num_int != 0; // lwjson parses bools as ints often, or check type\n`;
           out += `        if (t->type == LWJSON_TYPE_TRUE) out->${cName} = true;\n`;

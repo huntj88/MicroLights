@@ -172,7 +172,7 @@ static void updateMode(uint32_t ms) {
 void stateTask() {
 	uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-	enum ButtonResult buttonResult = buttonInputTask(state.button, (uint16_t)ms);
+	enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
 	switch (buttonResult) {
 	case ignore:
 		break;
