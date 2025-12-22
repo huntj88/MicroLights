@@ -180,7 +180,7 @@ static void stopLedTimers() {
 	HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
-static float millisecondsPerChipTick() {
+static uint32_t calculateTickMultiplier() {
   RCC_ClkInitTypeDef clkConfig;
   uint32_t flashLatency;
   HAL_RCC_GetClockConfig(&clkConfig, &flashLatency);
@@ -198,11 +198,18 @@ static float millisecondsPerChipTick() {
   uint32_t period = htim2.Init.Period + 1U;
 
   if (timerClock == 0U) {
-    return 0.0f;
+    return 0;
   }
 
-  double intervalSeconds = (prescaler * period) / (double)timerClock;
-  return (float)(intervalSeconds * 1000.0);
+  // We want to calculate: multiplier = (msPerTick) * 2^20
+  // msPerTick = (prescaler * period * 1000) / timerClock
+  // multiplier = (prescaler * period * 1000 * 2^20) / timerClock
+  // 2^20 = 1048576
+  // 1000 * 1048576 = 1048576000
+  
+  // Use uint64_t to prevent overflow during calculation
+  uint64_t numerator = (uint64_t)prescaler * (uint64_t)period * 1048576000ULL;
+  return (uint32_t)(numerator / timerClock);
 }
 
 /**
@@ -230,8 +237,7 @@ static float millisecondsPerChipTick() {
 static uint32_t convertTicksToMs(uint32_t ticks) {
   static uint32_t multiplier = 0;
   if (multiplier == 0) {
-    float ms = millisecondsPerChipTick();
-    multiplier = (uint32_t)(ms * 1048576.0f);
+    multiplier = calculateTickMultiplier();
   }
   return (uint32_t)(((uint64_t)ticks * multiplier) >> 20);
 }
