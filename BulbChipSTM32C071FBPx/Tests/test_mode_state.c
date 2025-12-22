@@ -13,8 +13,10 @@ static void advance_to_ms(uint32_t targetMs) {
         modeStateAdvance(&state, &mode, targetMs);
         return;
     }
-    for (uint32_t t = current + 1U; t <= targetMs; t+=10U) {
-        modeStateAdvance(&state, &mode, t);
+    uint32_t next = (current / 10U + 1U) * 10U;
+    while (next <= targetMs) {
+        modeStateAdvance(&state, &mode, next);
+        next += 10U;
     }
 }
 
@@ -114,7 +116,7 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     add_rgb_change(&mode.accel.triggers[0].case_comp.pattern.data.simple, 1, 10U, 255, 255, 0);
 
     modeStateReset(&state, 0U);
-    advance_to_ms(15U);
+    advance_to_ms(10U);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output));
     TEST_ASSERT_EQUAL_UINT8(high, output.data.bulb);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.accel[0].case_comp, &mode.accel.triggers[0].case_comp, &output));
@@ -122,7 +124,7 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
 
-    advance_to_ms(45U);
+    advance_to_ms(40U);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(low, output.data.bulb);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.case_comp, &mode.case_comp, &output));
