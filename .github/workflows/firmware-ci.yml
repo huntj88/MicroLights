@@ -22,6 +22,11 @@ jobs:
       working-directory: App/configure-app-v3
       run: npm ci
 
+    - name: Install clang-format
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-format
+
     - name: Generate C Parser
       working-directory: App/configure-app-v3
       run: npm run generate:c_parser
@@ -42,3 +47,14 @@ jobs:
       run: |
         chmod +x run_tests.sh
         ./run_tests.sh
+
+    - name: Check Formatting
+      working-directory: BulbChipSTM32C071FBPx
+      run: |
+        chmod +x format_files.sh
+        ./format_files.sh
+        if ! git diff --exit-code; then
+          echo "Error: Code formatting check failed."
+          echo "Please run ./format_files.sh in BulbChipSTM32C071FBPx/ to fix formatting."
+          exit 1
+        fi
