@@ -20,12 +20,13 @@ void handleChargerInterrupt() {
     readChargerNow = 1;
 }
 
-bool bq25180Init(BQ25180 *chargerIC,
-                 BQ25180ReadRegister *readRegCb,
-                 BQ25180WriteRegister *writeCb,
-                 uint8_t devAddress,
-                 WriteToUsbSerial *writeToUsbSerial,
-                 RGBLed *caseLed) {
+bool bq25180Init(
+    BQ25180 *chargerIC,
+    BQ25180ReadRegister *readRegCb,
+    BQ25180WriteRegister *writeCb,
+    uint8_t devAddress,
+    WriteToUsbSerial *writeToUsbSerial,
+    RGBLed *caseLed) {
     if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) return false;
 
     chargerIC->readRegister = readRegCb;
@@ -236,13 +237,25 @@ static void bq25180regsToJson(const BQ25180Registers r, char *jsonOutput) {
     if (!jsonOutput) {
         return;
     }
-    sprintf(jsonOutput,
-            "{\"stat0\":%d,\"stat1\":%d,\"flag0\":%d,\"vbat_ctrl\":%d,"
-            "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
-            "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
-            "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
-            r.stat0, r.stat1, r.flag0, r.vbat_ctrl, r.ichg_ctrl, r.chargectrl0, r.chargectrl1,
-            r.ic_ctrl, r.tmr_ilim, r.ship_rst, r.sys_reg, r.ts_control, r.mask_id);
+    sprintf(
+        jsonOutput,
+        "{\"stat0\":%d,\"stat1\":%d,\"flag0\":%d,\"vbat_ctrl\":%d,"
+        "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
+        "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
+        "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
+        r.stat0,
+        r.stat1,
+        r.flag0,
+        r.vbat_ctrl,
+        r.ichg_ctrl,
+        r.chargectrl0,
+        r.chargectrl1,
+        r.ic_ctrl,
+        r.tmr_ilim,
+        r.ship_rst,
+        r.sys_reg,
+        r.ts_control,
+        r.mask_id);
 }
 
 void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {

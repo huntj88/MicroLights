@@ -16,11 +16,12 @@ void startButtonEvaluation() {
     processButtonInterrupt = true;
 }
 
-bool buttonInit(Button *button,
-                uint8_t (*readButtonPin)(),
-                void (*startButtonTimer)(),
-                void (*stopButtonTimer)(),
-                RGBLed *caseLed) {
+bool buttonInit(
+    Button *button,
+    uint8_t (*readButtonPin)(),
+    void (*startButtonTimer)(),
+    void (*stopButtonTimer)(),
+    RGBLed *caseLed) {
     if (!button || !caseLed) {
         return false;
     }

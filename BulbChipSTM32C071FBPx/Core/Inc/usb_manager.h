@@ -22,11 +22,12 @@ typedef struct USBManager {
     void (*enterDFU)();
 } USBManager;
 
-bool usbInit(USBManager *usbManager,
-             UART_HandleTypeDef *huart,
-             ModeManager *mm,
-             SettingsManager *sm,
-             void (*enterDFU)());
+bool usbInit(
+    USBManager *usbManager,
+    UART_HandleTypeDef *huart,
+    ModeManager *mm,
+    SettingsManager *sm,
+    void (*enterDFU)());
 
 void usbCdcTask(USBManager *usbManager);
 void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count);

@@ -61,8 +61,8 @@ void setUp(void) {
     rgbSuccessCalled = false;
     processButtonInterrupt = false;
 
-    buttonInit(&button, mock_readButtonPin, mock_startButtonTimer, mock_stopButtonTimer,
-               &mockCaseLed);
+    buttonInit(
+        &button, mock_readButtonPin, mock_startButtonTimer, mock_stopButtonTimer, &mockCaseLed);
 }
 
 void tearDown(void) {

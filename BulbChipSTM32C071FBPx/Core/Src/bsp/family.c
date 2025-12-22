@@ -118,15 +118,16 @@ void board_init(void) {
         HAL_GPIO_Init(UART_GPIO_PORT, &gpio_init);
     }
 
-    UartHandle = (UART_HandleTypeDef){.Instance = UART_DEV,
-                                      .Init.BaudRate = CFG_BOARD_UART_BAUDRATE,
-                                      .Init.WordLength = UART_WORDLENGTH_8B,
-                                      .Init.StopBits = UART_STOPBITS_1,
-                                      .Init.Parity = UART_PARITY_NONE,
-                                      .Init.HwFlowCtl = UART_HWCONTROL_NONE,
-                                      .Init.Mode = UART_MODE_TX_RX,
-                                      .Init.OverSampling = UART_OVERSAMPLING_16,
-                                      .AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT};
+    UartHandle = (UART_HandleTypeDef){
+        .Instance = UART_DEV,
+        .Init.BaudRate = CFG_BOARD_UART_BAUDRATE,
+        .Init.WordLength = UART_WORDLENGTH_8B,
+        .Init.StopBits = UART_STOPBITS_1,
+        .Init.Parity = UART_PARITY_NONE,
+        .Init.HwFlowCtl = UART_HWCONTROL_NONE,
+        .Init.Mode = UART_MODE_TX_RX,
+        .Init.OverSampling = UART_OVERSAMPLING_16,
+        .AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT};
     HAL_UART_Init(&UartHandle);
 #endif
 }

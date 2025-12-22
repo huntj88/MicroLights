@@ -18,11 +18,12 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
     dev->writeToUsbSerial(0, msg, strlen(msg));
 }
 
-bool mc3479Init(MC3479 *dev,
-                MC3479ReadRegisters *readRegsCb,
-                MC3479WriteRegister *writeCb,
-                uint8_t devAddress,
-                WriteToUsbSerial *writeToUsbSerial) {
+bool mc3479Init(
+    MC3479 *dev,
+    MC3479ReadRegisters *readRegsCb,
+    MC3479WriteRegister *writeCb,
+    uint8_t devAddress,
+    WriteToUsbSerial *writeToUsbSerial) {
     if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) return false;
 
     dev->readRegisters = readRegsCb;

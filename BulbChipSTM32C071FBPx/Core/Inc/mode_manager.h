@@ -25,11 +25,12 @@ typedef struct ModeManager {
     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length);
 } ModeManager;
 
-bool modeManagerInit(ModeManager *manager,
-                     MC3479 *accel,
-                     void (*startLedTimers)(),
-                     void (*stopLedTimers)(),
-                     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length));
+bool modeManagerInit(
+    ModeManager *manager,
+    MC3479 *accel,
+    void (*startLedTimers)(),
+    void (*stopLedTimers)(),
+    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length));
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer);

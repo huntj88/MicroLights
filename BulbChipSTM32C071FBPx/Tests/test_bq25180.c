@@ -71,8 +71,8 @@ void setUp(void) {
     rgbConstantVoltageCalled = false;
     rgbDoneChargingCalled = false;
 
-    bq25180Init(&charger, mock_readRegister, mock_writeRegister, 0x6A, mock_writeToUsbSerial,
-                &mockLed);
+    bq25180Init(
+        &charger, mock_readRegister, mock_writeRegister, 0x6A, mock_writeToUsbSerial, &mockLed);
 
     // Reset write flag after init, as init performs writes
     writeCalled = false;

@@ -25,10 +25,8 @@ static void init_simple_pattern(SimplePattern *pattern, uint32_t duration) {
     pattern->duration = duration;
 }
 
-static void add_bulb_change(SimplePattern *pattern,
-                            uint8_t index,
-                            uint32_t ms,
-                            BulbSimpleOutput level) {
+static void add_bulb_change(
+    SimplePattern *pattern, uint8_t index, uint32_t ms, BulbSimpleOutput level) {
     pattern->changeAt[index].ms = ms;
     pattern->changeAt[index].output.type = BULB;
     pattern->changeAt[index].output.data.bulb = level;
@@ -125,8 +123,8 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     TEST_ASSERT_TRUE(
         modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output));
     TEST_ASSERT_EQUAL_UINT8(high, output.data.bulb);
-    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.accel[0].case_comp,
-                                              &mode.accel.triggers[0].case_comp, &output));
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
+        &state.accel[0].case_comp, &mode.accel.triggers[0].case_comp, &output));
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.r);
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
@@ -141,8 +139,8 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     TEST_ASSERT_TRUE(
         modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output));
     TEST_ASSERT_EQUAL_UINT8(low, output.data.bulb);
-    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.accel[0].case_comp,
-                                              &mode.accel.triggers[0].case_comp, &output));
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
+        &state.accel[0].case_comp, &mode.accel.triggers[0].case_comp, &output));
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.r);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.g);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);

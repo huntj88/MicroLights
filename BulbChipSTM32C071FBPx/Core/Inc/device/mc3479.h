@@ -59,11 +59,12 @@ struct MC3479 {
     int16_t lastRawZ;
 };
 
-bool mc3479Init(MC3479 *dev,
-                MC3479ReadRegisters *readRegsCb,
-                MC3479WriteRegister *writeCb,
-                uint8_t devAddress,
-                WriteToUsbSerial *writeToUsbSerial);
+bool mc3479Init(
+    MC3479 *dev,
+    MC3479ReadRegisters *readRegsCb,
+    MC3479WriteRegister *writeCb,
+    uint8_t devAddress,
+    WriteToUsbSerial *writeToUsbSerial);
 
 void mc3479Enable(MC3479 *dev);
 void mc3479Disable(MC3479 *dev);

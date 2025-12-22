@@ -77,12 +77,13 @@ typedef struct BQ25180Registers {
     uint8_t mask_id;
 } BQ25180Registers;
 
-bool bq25180Init(BQ25180 *chargerIC,
-                 BQ25180ReadRegister *readRegCb,
-                 BQ25180WriteRegister *writeCb,
-                 uint8_t devAddress,
-                 WriteToUsbSerial *writeToUsbSerial,
-                 RGBLed *caseLed);
+bool bq25180Init(
+    BQ25180 *chargerIC,
+    BQ25180ReadRegister *readRegCb,
+    BQ25180WriteRegister *writeCb,
+    uint8_t devAddress,
+    WriteToUsbSerial *writeToUsbSerial,
+    RGBLed *caseLed);
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);

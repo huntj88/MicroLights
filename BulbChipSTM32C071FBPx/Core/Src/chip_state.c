@@ -56,17 +56,18 @@ static void shutdownFake() {
     }
 }
 
-void configureChipState(ModeManager *_modeManager,
-                        ChipSettings *_settings,
-                        Button *_button,
-                        BQ25180 *_chargerIC,
-                        MC3479 *_accel,
-                        RGBLed *_caseLed,
-                        WriteToUsbSerial *_writeUsbSerial,
-                        void (*_writeBulbLedPin)(uint8_t state),
-                        uint32_t (*_convertTicksToMs)(uint32_t ticks),
-                        void (*_startLedTimers)(),
-                        void (*_stopLedTimers)()) {
+void configureChipState(
+    ModeManager *_modeManager,
+    ChipSettings *_settings,
+    Button *_button,
+    BQ25180 *_chargerIC,
+    MC3479 *_accel,
+    RGBLed *_caseLed,
+    WriteToUsbSerial *_writeUsbSerial,
+    void (*_writeBulbLedPin)(uint8_t state),
+    uint32_t (*_convertTicksToMs)(uint32_t ticks),
+    void (*_startLedTimers)(),
+    void (*_stopLedTimers)()) {
     state.modeManager = _modeManager;
     state.settings = _settings;
     state.button = _button;
@@ -159,8 +160,8 @@ static void updateMode(uint32_t ms) {
             if (caseComp && caseState) {
                 SimpleOutput output;
                 if (modeStateGetSimpleOutput(caseState, caseComp, &output) && output.type == RGB) {
-                    rgbShowUserColor(state.caseLed, output.data.rgb.r, output.data.rgb.g,
-                                     output.data.rgb.b);
+                    rgbShowUserColor(
+                        state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
                 }
             }
         } else {

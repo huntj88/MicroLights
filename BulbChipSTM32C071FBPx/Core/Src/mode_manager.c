@@ -19,11 +19,12 @@ static const char *defaultMode =
     "on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,"
     "\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
 
-bool modeManagerInit(ModeManager *manager,
-                     MC3479 *accel,
-                     void (*startLedTimers)(),
-                     void (*stopLedTimers)(),
-                     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length)) {
+bool modeManagerInit(
+    ModeManager *manager,
+    MC3479 *accel,
+    void (*startLedTimers)(),
+    void (*stopLedTimers)(),
+    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length)) {
     if (!manager || !accel || !startLedTimers || !stopLedTimers || !readBulbModeFromFlash) {
         return false;
     }

@@ -19,17 +19,18 @@
 #include "model/serial.h"
 #include "settings_manager.h"
 
-void configureChipState(ModeManager *modeManager,
-                        ChipSettings *settings,
-                        Button *button,
-                        BQ25180 *chargerIC,
-                        MC3479 *accel,
-                        RGBLed *rgb,
-                        WriteToUsbSerial *writeUsbSerial,
-                        void (*writeBulbLedPin)(uint8_t state),
-                        uint32_t (*convertTicksToMs)(uint32_t ticks),
-                        void (*startLedTimers)(),
-                        void (*stopLedTimers)());
+void configureChipState(
+    ModeManager *modeManager,
+    ChipSettings *settings,
+    Button *button,
+    BQ25180 *chargerIC,
+    MC3479 *accel,
+    RGBLed *rgb,
+    WriteToUsbSerial *writeUsbSerial,
+    void (*writeBulbLedPin)(uint8_t state),
+    uint32_t (*convertTicksToMs)(uint32_t ticks),
+    void (*startLedTimers)(),
+    void (*stopLedTimers)());
 
 void stateTask();
 void chipTickInterrupt();

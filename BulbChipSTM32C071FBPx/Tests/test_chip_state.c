@@ -151,27 +151,54 @@ void tearDown(void) {
 
 void test_ConfigureChipState_WhenNotCharging_LoadsModeZero(void) {
     mockChargeState = notConnected;
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 }
 
 void test_ConfigureChipState_WhenCharging_EntersFakeOff(void) {
     mockChargeState = constantCurrent;
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_TRUE(ledTimersStarted);
 }
 
 void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockModeManager.currentModeIndex = 1;
     mockSettings.modeCount = 5;
@@ -184,9 +211,18 @@ void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
 }
 
 void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockModeManager.currentModeIndex = 4;
     mockSettings.modeCount = 5;
@@ -198,9 +234,18 @@ void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
 }
 
 void test_StateTask_ButtonResult_Shutdown_EntersFakeOff(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockButtonResult = shutdown;
 
@@ -210,9 +255,18 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff(void) {
 }
 
 void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockButtonResult = lockOrHardwareReset;
 
@@ -222,9 +276,18 @@ void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
 }
 
 void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup a simple pattern: High at 0ms, Low at 500ms
     mockModeManager.currentMode.has_front = true;
@@ -250,9 +313,18 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
 }
 
 void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockModeManager.currentMode.has_front = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
@@ -301,9 +373,18 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
 }
 
 void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockSettings.minutesUntilAutoOff = 1;  // 1 minute
     mockChargeState = notConnected;
@@ -322,9 +403,18 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
 }
 
 void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup a simple pattern for Case LED
     mockModeManager.currentMode.has_case_comp = true;
@@ -349,9 +439,18 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
 }
 
 void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockModeManager.currentMode.has_case_comp = false;
     mockIsEvaluatingButtonPress = false;
@@ -370,9 +469,18 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
 }
 
 void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup pattern
     mockModeManager.currentMode.has_case_comp = true;
@@ -402,9 +510,18 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
 }
 
 void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup a simple pattern for Case LED
     mockModeManager.currentMode.has_case_comp = true;
@@ -465,9 +582,18 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
 }
 
 void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF, Case OFF
     mockModeManager.currentMode.has_front = true;
@@ -537,9 +663,18 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
 }
 
 void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF
     mockModeManager.currentMode.has_front = true;
@@ -576,9 +711,18 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
 }
 
 void test_UpdateMode_AccelTrigger_PartialOverride(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF, Case BLUE
     mockModeManager.currentMode.has_front = true;
@@ -631,9 +775,18 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
 }
 
 void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOrder(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Setup Default Mode: Case OFF
     mockModeManager.currentMode.has_case_comp = true;
@@ -712,9 +865,18 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     // Case 1: Mode Count 3, Current 2 -> Should wrap to 0
     mockSettings.modeCount = 3;
@@ -734,9 +896,18 @@ void test_Settings_ModeCount_LimitsModeCycling(void) {
 }
 
 void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockChargeState = notConnected;
     mockIsFakeOff = false;
@@ -771,9 +942,18 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
 }
 
 void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
-    configureChipState(&mockModeManager, &mockSettings, &mockButton, &mockCharger, &mockAccel,
-                       &mockCaseLed, mock_writeUsbSerial, mock_writeBulbLedPin,
-                       mock_convertTicksToMs, mock_startLedTimers, mock_stopLedTimers);
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_writeBulbLedPin,
+        mock_convertTicksToMs,
+        mock_startLedTimers,
+        mock_stopLedTimers);
 
     mockChargeState = notConnected;
     mockIsFakeOff = true;  // Already in fake off

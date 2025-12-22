@@ -15,11 +15,12 @@
 #include "tusb.h"
 
 // integration guide: https://github.com/hathach/tinyusb/discussions/633
-bool usbInit(USBManager *usbManager,
-             UART_HandleTypeDef *huart,
-             ModeManager *_modeManager,
-             SettingsManager *_settingsManager,
-             void (*_enterDFU)()) {
+bool usbInit(
+    USBManager *usbManager,
+    UART_HandleTypeDef *huart,
+    ModeManager *_modeManager,
+    SettingsManager *_settingsManager,
+    void (*_enterDFU)()) {
     if (!usbManager || !huart || !_modeManager || !_settingsManager || !_enterDFU) {
         return false;
     }
@@ -56,9 +57,12 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
         case parseError: {
             char errorBuf[256];
             if (cliInput.errorContext.error != MODE_PARSER_OK) {
-                snprintf(errorBuf, sizeof(errorBuf), "{\"error\":\"%s\",\"path\":\"%s\"}\n",
-                         modeParserErrorToString(cliInput.errorContext.error),
-                         cliInput.errorContext.path);
+                snprintf(
+                    errorBuf,
+                    sizeof(errorBuf),
+                    "{\"error\":\"%s\",\"path\":\"%s\"}\n",
+                    modeParserErrorToString(cliInput.errorContext.error),
+                    cliInput.errorContext.path);
             } else {
                 snprintf(errorBuf, sizeof(errorBuf), "{\"error\":\"unable to parse json\"}\n");
             }

@@ -287,8 +287,8 @@ int main(void) {
     // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
     // different timer, bulb LEDS should continue to work but on a new pin.
 
-    if (!modeManagerInit(&modeManager, &accel, startLedTimers, stopLedTimers,
-                         readBulbModeFromFlash)) {
+    if (!modeManagerInit(
+            &modeManager, &accel, startLedTimers, stopLedTimers, readBulbModeFromFlash)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
@@ -299,13 +299,17 @@ int main(void) {
     }
 
     // TODO: will need another when adding front rgb led, split up led timers.
-    if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period, startLedTimers,
-                 stopLedTimers)) {
+    if (!rgbInit(
+            &caseLed,
+            writeRgbPwmCaseLed,
+            (uint16_t)htim1.Init.Period,
+            startLedTimers,
+            stopLedTimers)) {
         Error_Handler();
     }
 
-    if (!bq25180Init(&chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial,
-                     &caseLed)) {
+    if (!bq25180Init(
+            &chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
         Error_Handler();
     }
 
@@ -314,14 +318,27 @@ int main(void) {
         Error_Handler();
     }
 
-    if (!mc3479Init(&accel, readRegistersAccel, writeRegisterAccel, MC3479_I2CADDR_DEFAULT,
-                    writeToSerial)) {
+    if (!mc3479Init(
+            &accel,
+            readRegistersAccel,
+            writeRegisterAccel,
+            MC3479_I2CADDR_DEFAULT,
+            writeToSerial)) {
         Error_Handler();
     }
 
-    configureChipState(&modeManager, &settingsManager.currentSettings, &button, &chargerIC, &accel,
-                       &caseLed, writeToSerial, writeBulbLed, convertTicksToMs, startLedTimers,
-                       stopLedTimers);
+    configureChipState(
+        &modeManager,
+        &settingsManager.currentSettings,
+        &button,
+        &chargerIC,
+        &accel,
+        &caseLed,
+        writeToSerial,
+        writeBulbLed,
+        convertTicksToMs,
+        startLedTimers,
+        stopLedTimers);
 
     HAL_TIM_Base_Start_IT(&htim3);  // auto off timer
 

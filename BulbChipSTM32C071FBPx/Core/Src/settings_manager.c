@@ -10,8 +10,8 @@
 #include "json/command_parser.h"
 #include "storage.h"
 
-bool settingsManagerInit(SettingsManager *manager,
-                         void (*readSettingsFromFlash)(char *buffer, uint32_t length)) {
+bool settingsManagerInit(
+    SettingsManager *manager, void (*readSettingsFromFlash)(char *buffer, uint32_t length)) {
     if (!manager || !readSettingsFromFlash) {
         return false;
     }

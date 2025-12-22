@@ -8,5 +8,7 @@ PointerAlignment: Right
 AllowShortFunctionsOnASingleLine: None
 KeepEmptyLinesAtTheStartOfBlocks: false
 BinPackParameters: false
+BinPackArguments: false
+AlignAfterOpenBracket: AlwaysBreak
 
 
