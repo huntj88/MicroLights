@@ -22,7 +22,7 @@ typedef struct Button {
 	void (*stopButtonTimer)();
 	RGBLed *caseLed;
 
-	uint16_t evalStartMs;
+	uint32_t evalStartMs;
 } Button;
 
 bool buttonInit(
@@ -40,7 +40,7 @@ enum ButtonResult {
 	lockOrHardwareReset // hardware reset occurs when usb is plugged in
 };
 
-enum ButtonResult buttonInputTask(Button *button, uint16_t ms);
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms);
 bool isEvaluatingButtonPress(Button *button);
 
 #endif /* INC_DEVICE_BUTTON_H_ */

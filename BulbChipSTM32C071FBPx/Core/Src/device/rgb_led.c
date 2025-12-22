@@ -93,14 +93,14 @@ bool rgbInit(
 //	}
 //}
 
-void rgbTask(RGBLed *device, uint16_t ms) {
+void rgbTask(RGBLed *device, uint32_t ms) {
 	if (!device) {
 		return;
 	}
 
 	device->ms = ms;
 
-	uint16_t elapsedMillis = ms - device->msOfColorChange;
+	uint32_t elapsedMillis = ms - device->msOfColorChange;
 
 	// show status color for 300 milliseconds, then switch back to user color
 	if (device->showingTransientStatus && elapsedMillis > 300) {

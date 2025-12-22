@@ -65,7 +65,7 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastAzG = 0.0f;
 }
 
-bool mc3479SampleNow(MC3479 *dev, uint16_t ms) {
+bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     if (!dev || !dev->enabled) return false;
 
     // read all 6 bytes
@@ -117,12 +117,12 @@ bool mc3479SampleNow(MC3479 *dev, uint16_t ms) {
     return true;
 }
 
-void mc3479Task(MC3479 *dev, uint16_t ms) {
+void mc3479Task(MC3479 *dev, uint32_t ms) {
     if (!dev) return;
     if (!dev->enabled) return;
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    uint16_t elapsed = ms - dev->lastSampleMs;
+    uint32_t elapsed = ms - dev->lastSampleMs;
     bool samplePeriodElapsed = elapsed >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact

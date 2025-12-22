@@ -65,7 +65,7 @@ void loadMode(ModeManager *manager, uint8_t index) {
 }
 
 enum ButtonResult mockButtonResult = ignore;
-enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
     return mockButtonResult;
 }
 
@@ -79,8 +79,8 @@ void lock(BQ25180 *dev) {
     mockLockCalled = true;
 }
 
-void rgbTask(RGBLed *led, uint16_t ms) {}
-void mc3479Task(MC3479 *dev, uint16_t ms) {}
+void rgbTask(RGBLed *led, uint32_t ms) {}
+void mc3479Task(MC3479 *dev, uint32_t ms) {}
 void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {}
 
 bool mockIsFakeOff = false;

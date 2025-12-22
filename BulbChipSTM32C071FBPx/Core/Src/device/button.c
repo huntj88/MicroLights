@@ -35,7 +35,7 @@ bool buttonInit(
 	return true;
 }
 
-enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
 	// shadow evalStartMs to avoid multiple reads of volatile
 	if (processButtonInterrupt && button->evalStartMs == 0) {
 		button->evalStartMs = ms;
@@ -44,7 +44,7 @@ enum ButtonResult buttonInputTask(Button *button, uint16_t ms) {
 		button->startButtonTimer();
 	}
 
-	uint16_t elapsedMillis = 0;
+	uint32_t elapsedMillis = 0;
 	if (button->evalStartMs != 0) {
 		elapsedMillis = ms - button->evalStartMs;
 	}
