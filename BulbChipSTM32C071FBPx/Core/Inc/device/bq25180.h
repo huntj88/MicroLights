@@ -64,7 +64,7 @@ typedef struct BQ25180 {
 	RGBLed *caseLed;
 
 	enum ChargeState chargingState;
-	uint16_t checkedAtMs;
+	uint32_t checkedAtMs;
 } BQ25180;
 
 typedef struct BQ25180Registers {
@@ -94,7 +94,7 @@ bool bq25180Init(
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
-void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool ledEnabled);
+void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled);
 void lock(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);

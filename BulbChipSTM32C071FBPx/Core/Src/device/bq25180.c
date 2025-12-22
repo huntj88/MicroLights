@@ -63,9 +63,9 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 	}
 }
 
-void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool ledEnabled) {
-	uint8_t previousState = chargerIC->chargingState;
-	uint16_t elapsedMillis = 0;
+void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled) {
+	enum ChargeState previousState = chargerIC->chargingState;
+	uint32_t elapsedMillis = 0;
 
 	if (chargerIC->checkedAtMs != 0) {
 		elapsedMillis = ms - chargerIC->checkedAtMs;
@@ -83,8 +83,8 @@ void chargerTask(BQ25180 *chargerIC, uint16_t ms, bool unplugLockEnabled, bool l
 		chargerIC->checkedAtMs = ms;
 	}
 
-	// flash charging state to user every second
-	if (ledEnabled && chargerIC->chargingState != notConnected && ms % 1000 < 50) {
+	// flash charging state to user every ~1 second (1024ms, 2^10)
+	if (ledEnabled && chargerIC->chargingState != notConnected && (ms & 0x3FF) < 50) {
 		showChargingState(chargerIC, chargerIC->chargingState);
 	}
 

@@ -34,7 +34,7 @@ void mock_writeBulbLedPin(uint8_t state) {
 
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
     if (mockMsPerTickMultiplier == 0) {
-        mockMsPerTickMultiplier = (uint32_t)(mockMillisPerTick * 1048576.0f);
+        mockMsPerTickMultiplier = (uint32_t)(mockMillisPerTick * 1048576.0f); // 2^20 for fixed point
     }
     return (uint32_t)(((uint64_t)ticks * mockMsPerTickMultiplier) >> 20);
 }
@@ -81,7 +81,7 @@ void lock(BQ25180 *dev) {
 
 void rgbTask(RGBLed *led, uint16_t ms) {}
 void mc3479Task(MC3479 *dev, uint16_t ms) {}
-void chargerTask(BQ25180 *dev, uint16_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {}
+void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {}
 
 bool mockIsFakeOff = false;
 bool isFakeOff(ModeManager *manager) {

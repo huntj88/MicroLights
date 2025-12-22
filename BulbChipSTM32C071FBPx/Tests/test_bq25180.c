@@ -105,15 +105,15 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     charger.chargingState = constantCurrent;
     charger.checkedAtMs = 100; // Prevent watchdog update
     
-    // Test at ms % 1000 < 50 (e.g., 1000)
-    chargerTask(&charger, 1000, false, true); // ledEnabled = true
+    // Test at (ms & 0x3FF) < 50 (e.g., 1024)
+    chargerTask(&charger, 1024, false, true); // ledEnabled = true
     TEST_ASSERT_TRUE(rgbConstantCurrentCalled);
     
     // Reset
     rgbConstantCurrentCalled = false;
     
-    // Test at ms % 1000 >= 50 (e.g., 1060)
-    chargerTask(&charger, 1060, false, true);
+    // Test at (ms & 0x3FF) >= 50 (e.g., 1100)
+    chargerTask(&charger, 1100, false, true);
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
