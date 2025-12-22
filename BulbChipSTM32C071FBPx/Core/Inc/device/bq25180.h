@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "device/rgb_led.h"
 #include "model/serial.h"
 
@@ -29,68 +29,60 @@
 #define BQ25180_TS_CONTROL 0xB
 #define BQ25180_MASK_ID 0xC
 
-#define STAT0_DEFAULT 0b00000000       // Default value for STAT0 register (Offset = 0x0)
-#define STAT1_DEFAULT 0b00000000       // Default value for STAT1 register (Offset = 0x1)
-#define FLAG0_DEFAULT 0b00000000       // Default value for FLAG0 register (Offset = 0x2)
-#define VBAT_CTRL_DEFAULT 0b01000110   // Default value for VBAT_CTRL register (Offset = 0x3)
-#define ICHG_CTRL_DEFAULT 0b00000101   // Default value for ICHG_CTRL register (Offset = 0x4)
-#define CHARGECTRL0_DEFAULT 0b00101100 // Default value for CHARGECTRL0 register (Offset = 0x5)
-#define CHARGECTRL1_DEFAULT 0b01010110 // Default value for CHARGECTRL1 register (Offset = 0x6)
-#define IC_CTRL_DEFAULT 0b10000100     // Default value for IC_CTRL register (Offset = 0x7)
-#define TMR_ILIM_DEFAULT 0b01001101    // Default value for TMR_ILIM register (Offset = 0x8)
-#define SHIP_RST_DEFAULT 0b00010001    // Default value for SHIP_RST register (Offset = 0x9)
-#define SYS_REG_DEFAULT 0b01000000     // Default value for SYS_REG register (Offset = 0xA)
-#define TS_CONTROL_DEFAULT 0b00000000  // Default value for TS_CONTROL register (Offset = 0xB)
-#define MASK_ID_DEFAULT 0b11000000     // Default value for MASK_ID register (Offset = 0xC)
+#define STAT0_DEFAULT 0b00000000        // Default value for STAT0 register (Offset = 0x0)
+#define STAT1_DEFAULT 0b00000000        // Default value for STAT1 register (Offset = 0x1)
+#define FLAG0_DEFAULT 0b00000000        // Default value for FLAG0 register (Offset = 0x2)
+#define VBAT_CTRL_DEFAULT 0b01000110    // Default value for VBAT_CTRL register (Offset = 0x3)
+#define ICHG_CTRL_DEFAULT 0b00000101    // Default value for ICHG_CTRL register (Offset = 0x4)
+#define CHARGECTRL0_DEFAULT 0b00101100  // Default value for CHARGECTRL0 register (Offset = 0x5)
+#define CHARGECTRL1_DEFAULT 0b01010110  // Default value for CHARGECTRL1 register (Offset = 0x6)
+#define IC_CTRL_DEFAULT 0b10000100      // Default value for IC_CTRL register (Offset = 0x7)
+#define TMR_ILIM_DEFAULT 0b01001101     // Default value for TMR_ILIM register (Offset = 0x8)
+#define SHIP_RST_DEFAULT 0b00010001     // Default value for SHIP_RST register (Offset = 0x9)
+#define SYS_REG_DEFAULT 0b01000000      // Default value for SYS_REG register (Offset = 0xA)
+#define TS_CONTROL_DEFAULT 0b00000000   // Default value for TS_CONTROL register (Offset = 0xB)
+#define MASK_ID_DEFAULT 0b11000000      // Default value for MASK_ID register (Offset = 0xC)
 
-enum ChargeState {
-	notConnected,
-	notCharging,
-	constantCurrent,
-	constantVoltage,
-	done
-};
+enum ChargeState { notConnected, notCharging, constantCurrent, constantVoltage, done };
 
-typedef struct BQ25180 BQ25180; // forward declaration
+typedef struct BQ25180 BQ25180;  // forward declaration
 
 typedef uint8_t BQ25180ReadRegister(BQ25180 *chargerIC, uint8_t reg);
 typedef void BQ25180WriteRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value);
 
 typedef struct BQ25180 {
-	BQ25180ReadRegister *readRegister;
-	BQ25180WriteRegister *writeRegister;
-	WriteToUsbSerial *writeToUsbSerial;
-	uint8_t devAddress;
-	RGBLed *caseLed;
+    BQ25180ReadRegister *readRegister;
+    BQ25180WriteRegister *writeRegister;
+    WriteToUsbSerial *writeToUsbSerial;
+    uint8_t devAddress;
+    RGBLed *caseLed;
 
-	enum ChargeState chargingState;
-	uint32_t checkedAtMs;
+    enum ChargeState chargingState;
+    uint32_t checkedAtMs;
 } BQ25180;
 
 typedef struct BQ25180Registers {
-	uint8_t stat0;
-	uint8_t stat1;
-	uint8_t flag0;
-	uint8_t vbat_ctrl;
-	uint8_t ichg_ctrl;
-	uint8_t chargectrl0;
-	uint8_t chargectrl1;
-	uint8_t ic_ctrl;
-	uint8_t tmr_ilim;
-	uint8_t ship_rst;
-	uint8_t sys_reg;
-	uint8_t ts_control;
-	uint8_t mask_id;
+    uint8_t stat0;
+    uint8_t stat1;
+    uint8_t flag0;
+    uint8_t vbat_ctrl;
+    uint8_t ichg_ctrl;
+    uint8_t chargectrl0;
+    uint8_t chargectrl1;
+    uint8_t ic_ctrl;
+    uint8_t tmr_ilim;
+    uint8_t ship_rst;
+    uint8_t sys_reg;
+    uint8_t ts_control;
+    uint8_t mask_id;
 } BQ25180Registers;
 
-bool bq25180Init(
-	BQ25180 *chargerIC,
-	BQ25180ReadRegister *readRegCb,
-	BQ25180WriteRegister *writeCb,
-	uint8_t devAddress,
-	WriteToUsbSerial *writeToUsbSerial,
-	RGBLed *caseLed
-);
+bool bq25180Init(BQ25180 *chargerIC,
+                 BQ25180ReadRegister *readRegCb,
+                 BQ25180WriteRegister *writeCb,
+                 uint8_t devAddress,
+                 WriteToUsbSerial *writeToUsbSerial,
+                 RGBLed *caseLed);
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
@@ -103,6 +95,5 @@ enum ChargeState getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - send errors over usb to app
-
 
 #endif /* INC_BQ25180_H_ */

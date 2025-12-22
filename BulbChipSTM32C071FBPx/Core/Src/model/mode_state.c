@@ -2,9 +2,12 @@
 
 #include <string.h>
 
-static void advanceSimplePattern(SimplePatternState *state, const SimplePattern *pattern, uint32_t deltaMs) {
+static void advanceSimplePattern(SimplePatternState *state,
+                                 const SimplePattern *pattern,
+                                 uint32_t deltaMs) {
     if (!state || !pattern || pattern->changeAt_count == 0U || deltaMs == 0U) {
-        if (state && pattern && pattern->changeAt_count > 0U && state->changeIndex >= pattern->changeAt_count) {
+        if (state && pattern && pattern->changeAt_count > 0U &&
+            state->changeIndex >= pattern->changeAt_count) {
             state->changeIndex = pattern->changeAt_count - 1U;
         }
         return;
@@ -30,13 +33,14 @@ static void advanceSimplePattern(SimplePatternState *state, const SimplePattern 
         state->changeIndex++;
     }
 
-    while (state->changeIndex > 0U &&
-           pattern->changeAt[state->changeIndex].ms > state->elapsedMs) {
+    while (state->changeIndex > 0U && pattern->changeAt[state->changeIndex].ms > state->elapsedMs) {
         state->changeIndex--;
     }
 }
 
-static void advanceComponentState(ModeComponentState *componentState, const ModeComponent *component, uint32_t deltaMs) {
+static void advanceComponentState(ModeComponentState *componentState,
+                                  const ModeComponent *component,
+                                  uint32_t deltaMs) {
     if (!componentState || !component) {
         return;
     }
@@ -97,17 +101,21 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t ms) {
 
         for (uint8_t i = 0; i < triggerCount; i++) {
             if (mode->accel.triggers[i].has_front) {
-                advanceComponentState(&state->accel[i].front, &mode->accel.triggers[i].front, deltaMs);
+                advanceComponentState(&state->accel[i].front, &mode->accel.triggers[i].front,
+                                      deltaMs);
             }
 
             if (mode->accel.triggers[i].has_case_comp) {
-                advanceComponentState(&state->accel[i].case_comp, &mode->accel.triggers[i].case_comp, deltaMs);
+                advanceComponentState(&state->accel[i].case_comp,
+                                      &mode->accel.triggers[i].case_comp, deltaMs);
             }
         }
     }
 }
 
-bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output) {
+bool modeStateGetSimpleOutput(const ModeComponentState *componentState,
+                              const ModeComponent *component,
+                              SimpleOutput *output) {
     if (!componentState || !component || !output) {
         return false;
     }

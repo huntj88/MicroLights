@@ -20,9 +20,7 @@ typedef struct {
     ModeComponentState case_comp;
 } ModeAccelTriggerState;
 
-enum {
-    MODE_ACCEL_TRIGGER_MAX = sizeof(((ModeAccel *)0)->triggers) / sizeof(ModeAccelTrigger)
-};
+enum { MODE_ACCEL_TRIGGER_MAX = sizeof(((ModeAccel *)0)->triggers) / sizeof(ModeAccelTrigger) };
 
 typedef struct {
     ModeComponentState front;
@@ -33,6 +31,8 @@ typedef struct {
 
 void modeStateReset(ModeState *state, uint32_t initialMs);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t deltaMs);
-bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);
+bool modeStateGetSimpleOutput(const ModeComponentState *componentState,
+                              const ModeComponent *component,
+                              SimpleOutput *output);
 
 #endif /* MODE_STATE_H */

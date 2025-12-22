@@ -10,25 +10,23 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "mode_manager.h"
-#include "settings_manager.h"
-#include "model/serial.h"
 #include "main.h"
+#include "mode_manager.h"
+#include "model/serial.h"
+#include "settings_manager.h"
 
 typedef struct USBManager {
-	UART_HandleTypeDef *huart;
-	ModeManager *modeManager;
-	SettingsManager *settingsManager;
-	void (*enterDFU)();
+    UART_HandleTypeDef *huart;
+    ModeManager *modeManager;
+    SettingsManager *settingsManager;
+    void (*enterDFU)();
 } USBManager;
 
-bool usbInit(
-	USBManager *usbManager,
-	UART_HandleTypeDef *huart,
-	ModeManager *mm,
-	SettingsManager *sm,
-	void (*enterDFU)()
-);
+bool usbInit(USBManager *usbManager,
+             UART_HandleTypeDef *huart,
+             ModeManager *mm,
+             SettingsManager *sm,
+             void (*enterDFU)());
 
 void usbCdcTask(USBManager *usbManager);
 void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count);

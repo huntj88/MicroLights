@@ -10,28 +10,28 @@
 #ifndef INC_MC3479_H_
 #define INC_MC3479_H_
 
-#include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include "model/serial.h"
 
-#define MC3479_I2CADDR_DEFAULT 0x99 // 8-bit address
+#define MC3479_I2CADDR_DEFAULT 0x99  // 8-bit address
 
 // Register map used by this driver (defaults - consult datasheet)
-#define MC3479_REG_STATUS    0x05
-#define MC3479_REG_CTRL1     0x07
-#define MC3479_REG_CTRL2     0x08
-#define MC3479_REG_RANGE     0x20
+#define MC3479_REG_STATUS 0x05
+#define MC3479_REG_CTRL1 0x07
+#define MC3479_REG_CTRL2 0x08
+#define MC3479_REG_RANGE 0x20
 
 // Axis output registers
-#define MC3479_REG_XOUT_L    0x0D
-#define MC3479_REG_XOUT_H    0x0E
-#define MC3479_REG_YOUT_L    0x0F
-#define MC3479_REG_YOUT_H    0x10
-#define MC3479_REG_ZOUT_L    0x11
-#define MC3479_REG_ZOUT_H    0x12
+#define MC3479_REG_XOUT_L 0x0D
+#define MC3479_REG_XOUT_H 0x0E
+#define MC3479_REG_YOUT_L 0x0F
+#define MC3479_REG_YOUT_H 0x10
+#define MC3479_REG_ZOUT_L 0x11
+#define MC3479_REG_ZOUT_H 0x12
 
-typedef struct MC3479 MC3479; // forward declaration
+typedef struct MC3479 MC3479;  // forward declaration
 
 // Read multiple consecutive registers. Returns true on success.
 typedef bool MC3479ReadRegisters(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len);
@@ -59,8 +59,11 @@ struct MC3479 {
     int16_t lastRawZ;
 };
 
-
-bool mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial);
+bool mc3479Init(MC3479 *dev,
+                MC3479ReadRegisters *readRegsCb,
+                MC3479WriteRegister *writeCb,
+                uint8_t devAddress,
+                WriteToUsbSerial *writeToUsbSerial);
 
 void mc3479Enable(MC3479 *dev);
 void mc3479Disable(MC3479 *dev);
