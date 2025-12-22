@@ -41,7 +41,7 @@ void mock_readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
         strcpy(buffer, "{\"command\":\"writeMode\",\"index\":1,\"mode\":{\"name\":\"test\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"test\",\"duration\":1000,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}}");
     } else if (mode == 2) {
         // Mode with Accel
-        strcpy(buffer, "{\"command\":\"writeMode\",\"index\":2,\"mode\":{\"name\":\"accel\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}},\"accel\":{\"triggers\":[{\"threshold\":1000,\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"flash\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}]}}}");
+        strcpy(buffer, "{\"command\":\"writeMode\",\"index\":2,\"mode\":{\"name\":\"accel\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}},\"accel\":{\"triggers\":[{\"threshold\":100,\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"flash\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"low\"}]}}}]}}}");
     } else if (mode == 3) {
         // Mode without Accel
         strcpy(buffer, "{\"command\":\"writeMode\",\"index\":3,\"mode\":{\"name\":\"no_accel\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}");

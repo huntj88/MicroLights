@@ -198,12 +198,12 @@ void stateTask() {
 		state.ticksSinceLastUserActivity = 0;
 	}
 
-	rgbTask(state.caseLed, (uint16_t)ms);
-	mc3479Task(state.accel, (uint16_t)ms);
+	rgbTask(state.caseLed, ms);
+	mc3479Task(state.accel, ms);
 
 	bool unplugLockEnabled = isFakeOff(state.modeManager);
 	bool chargeLedEnabled =  isFakeOff(state.modeManager) && !isEvaluatingButtonPress(state.button);
-	chargerTask(state.chargerIC, (uint16_t)ms, unplugLockEnabled, chargeLedEnabled);
+	chargerTask(state.chargerIC, ms, unplugLockEnabled, chargeLedEnabled);
 }
 
 // TODO: Rate of chipTick interrupt should be configurable
