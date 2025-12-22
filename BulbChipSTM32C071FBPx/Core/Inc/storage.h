@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #define FLASH_INIT 0x08000000  // This is the page zero of our flash
 #define PAGE_SECTOR 2048       // Page size
 #define SETTINGS_PAGE 56       // 2K flash reserved for settings starting at page 56

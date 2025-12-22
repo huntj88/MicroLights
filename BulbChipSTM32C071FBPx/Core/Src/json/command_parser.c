@@ -50,7 +50,11 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
 
-    if (buf == NULL || count == 0 || input == NULL) {
+    if (input == NULL) {
+        return;
+    }
+
+    if (buf == NULL || count == 0) {
         input->parsedType = parseError;
         return;
     }
@@ -79,7 +83,7 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
     if (lwjson_parse(&lwjson, (const char *)bufJson) == lwjsonOK) {
         const lwjson_token_t *t;
-        char command[32];
+        char command[32] = {0};
 
         if ((t = lwjson_find(&lwjson, "command")) != NULL) {
             const char *nameRaw = t->u.str.token_value;
