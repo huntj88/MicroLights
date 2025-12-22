@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install App Dependencies
+      working-directory: App/configure-app-v3
+      run: npm ci
+
+    - name: Generate C Parser
+      working-directory: App/configure-app-v3
+      run: npm run generate:c_parser
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x'
+
+    - name: Run Firmware Setup
+      working-directory: BulbChipSTM32C071FBPx
+      run: |
+        chmod +x setup.sh
+        ./setup.sh
+
+    - name: Run Firmware Tests
+      working-directory: BulbChipSTM32C071FBPx
+      run: |
+        chmod +x run_tests.sh
+        ./run_tests.sh
