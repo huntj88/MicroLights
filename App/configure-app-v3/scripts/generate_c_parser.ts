@@ -396,6 +396,7 @@ typedef enum {
     MODE_PARSER_OK = 0,
     MODE_PARSER_ERR_MISSING_FIELD,
     MODE_PARSER_ERR_STRING_TOO_SHORT,
+    MODE_PARSER_ERR_STRING_TOO_LONG,
     MODE_PARSER_ERR_VALUE_TOO_SMALL,
     MODE_PARSER_ERR_VALUE_TOO_LARGE,
     MODE_PARSER_ERR_ARRAY_TOO_SHORT,
@@ -448,6 +449,7 @@ const char* modeParserErrorToString(ModeParserError err) {
         case MODE_PARSER_OK: return "Success";
         case MODE_PARSER_ERR_MISSING_FIELD: return "Missing required field";
         case MODE_PARSER_ERR_STRING_TOO_SHORT: return "String is too short";
+        case MODE_PARSER_ERR_STRING_TOO_LONG: return "String is too long";
         case MODE_PARSER_ERR_VALUE_TOO_SMALL: return "Value is too small";
         case MODE_PARSER_ERR_VALUE_TOO_LARGE: return "Value is too large";
         case MODE_PARSER_ERR_ARRAY_TOO_SHORT: return "Array has too few items";
@@ -530,6 +532,11 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
         out += `    if ((t = lwjson_find_ex(lwjson, token, "${fieldName}")) != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
+          out += `        if (t->u.str.token_value_len > ${String(fieldDef.max)}) {\n`;
+          out += `            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;\n`;
+          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `            return false;\n`;
+          out += `        }\n`;
           out += `        copyString(out->${cName}, t, ${String(fieldDef.max)});\n`;
           if (fieldDef.min) {
             out += `        if (strlen(out->${cName}) < ${String(fieldDef.min)}) {\n`;

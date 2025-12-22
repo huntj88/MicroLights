@@ -9,6 +9,7 @@
 #include "chip_state.h"
 #include "storage.h"
 #include <string.h>
+#include <stdio.h>
 #include <usb_manager.h>
 #include "tusb.h"
 #include "bootloader.h"
@@ -59,9 +60,16 @@ static void handleJson(
 
 	switch (cliInput.parsedType) {
 	case parseError: {
-		// TODO return errors from mode parser
-		char error[] = "{\"error\":\"unable to parse json\"}\n";
-		usbWriteToSerial(usbManager, 0, error, strlen(error));
+		char errorBuf[256];
+		if (cliInput.errorContext.error != MODE_PARSER_OK) {
+			snprintf(errorBuf, sizeof(errorBuf),
+				"{\"error\":\"%s\",\"path\":\"%s\"}\n",
+				modeParserErrorToString(cliInput.errorContext.error),
+				cliInput.errorContext.path);
+		} else {
+			snprintf(errorBuf, sizeof(errorBuf), "{\"error\":\"unable to parse json\"}\n");
+		}
+		usbWriteToSerial(usbManager, 0, errorBuf, strlen(errorBuf));
 		break;
 	}
 	case parseWriteMode: {

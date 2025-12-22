@@ -29,6 +29,7 @@ const char* modeParserErrorToString(ModeParserError err) {
         case MODE_PARSER_OK: return "Success";
         case MODE_PARSER_ERR_MISSING_FIELD: return "Missing required field";
         case MODE_PARSER_ERR_STRING_TOO_SHORT: return "String is too short";
+        case MODE_PARSER_ERR_STRING_TOO_LONG: return "String is too long";
         case MODE_PARSER_ERR_VALUE_TOO_SMALL: return "Value is too small";
         case MODE_PARSER_ERR_VALUE_TOO_LARGE: return "Value is too large";
         case MODE_PARSER_ERR_ARRAY_TOO_SHORT: return "Array has too few items";
@@ -124,6 +125,11 @@ static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePa
     const lwjson_token_t *t;
     out->changeAt_count = 0;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+        if (t->u.str.token_value_len > 31) {
+            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+            strcpy(ctx->path, "name");
+            return false;
+        }
         copyString(out->name, t, 31);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
@@ -178,6 +184,11 @@ static bool parseSimplePattern(lwjson_t *lwjson, lwjson_token_t *token, SimplePa
 static bool parseEquationSection(lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     if ((t = lwjson_find_ex(lwjson, token, "equation")) != NULL) {
+        if (t->u.str.token_value_len > 63) {
+            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+            strcpy(ctx->path, "equation");
+            return false;
+        }
         copyString(out->equation, t, 63);
         if (strlen(out->equation) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
@@ -242,6 +253,11 @@ static bool parseChannelConfig(lwjson_t *lwjson, lwjson_token_t *token, ChannelC
 static bool parseEquationPattern(lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+        if (t->u.str.token_value_len > 31) {
+            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+            strcpy(ctx->path, "name");
+            return false;
+        }
         copyString(out->name, t, 31);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
@@ -424,6 +440,11 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorCont
     out->has_case_comp = false;
     out->has_accel = false;
     if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+        if (t->u.str.token_value_len > 31) {
+            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+            strcpy(ctx->path, "name");
+            return false;
+        }
         copyString(out->name, t, 31);
         if (strlen(out->name) < 1) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;

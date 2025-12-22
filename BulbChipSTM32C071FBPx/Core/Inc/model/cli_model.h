@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include "model/mode.h"
 #include "model/chip_settings.h"
+#include "json/mode_parser.h"
 
 enum ParseResult {
 	parseError,
@@ -31,6 +32,8 @@ typedef struct CliInput {
 
 	// metadata calculated at runtime
 	uint16_t jsonLength;
+
+	ModeErrorContext errorContext;
 	
 	// metadata calculated at runtime
 	// 0 for not parsed successfully
