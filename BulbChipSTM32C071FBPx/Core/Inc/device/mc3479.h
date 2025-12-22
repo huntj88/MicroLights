@@ -46,20 +46,17 @@ struct MC3479 {
 
     uint8_t devAddress;
 
-    // Current calculated magnitude in units of g
-    float currentMagnitudeG; // TODO: delete?
-
-    // Current calculated jerk magnitude (absolute) in units of g per ms
-    // Caller-provided ms are used directly.
-    float currentJerkGPerMs;
+    // Current calculated jerk magnitude (absolute) squared
+    uint64_t currentJerkSquaredSum;
+    uint32_t lastDtMs;
 
     bool enabled;
     uint32_t lastSampleMs;
 
-    // Cached last acceleration values in units of g (for jerk calculation)
-    float lastAxG;
-    float lastAyG;
-    float lastAzG;
+    // Cached last acceleration values (raw)
+    int16_t lastRawX;
+    int16_t lastRawY;
+    int16_t lastRawZ;
 };
 
 
