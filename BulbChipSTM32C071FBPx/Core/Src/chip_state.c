@@ -89,26 +89,24 @@ void configureChipState(
     }
 }
 
-// If timing issues cause mode to not display right (try bulb with first color only),
-// move updateMode to chipTick interrupt to confirm. Interrupt will guarantee proper timing.
-// If moving fixed the bug, that indicates something is slow
-static void updateMode(uint32_t ms) {
-    modeStateAdvance(&state.modeState, &state.modeManager->currentMode, ms);
+typedef struct {
+    ModeComponent *frontComp;
+    ModeComponentState *frontState;
+    ModeComponent *caseComp;
+    ModeComponentState *caseState;
+} ActiveComponents;
 
-    ModeComponent *frontComp = NULL;
-    ModeComponentState *frontState = NULL;
-    ModeComponent *caseComp = NULL;
-    ModeComponentState *caseState = NULL;
-    bool triggered = false;
+static ActiveComponents resolveActiveComponents() {
+    ActiveComponents active = {0};
 
     if (state.modeManager->currentMode.has_front) {
-        frontComp = &state.modeManager->currentMode.front;
-        frontState = &state.modeState.front;
+        active.frontComp = &state.modeManager->currentMode.front;
+        active.frontState = &state.modeState.front;
     }
 
     if (state.modeManager->currentMode.has_case_comp) {
-        caseComp = &state.modeManager->currentMode.case_comp;
-        caseState = &state.modeState.case_comp;
+        active.caseComp = &state.modeManager->currentMode.case_comp;
+        active.caseState = &state.modeState.case_comp;
     }
 
     if (state.modeManager->currentMode.has_accel &&
@@ -121,48 +119,55 @@ static void updateMode(uint32_t ms) {
         for (uint8_t i = 0; i < triggerCount; i++) {
             ModeAccelTrigger *trigger = &state.modeManager->currentMode.accel.triggers[i];
             if (isOverThreshold(state.accel, trigger->threshold)) {
-                triggered = true;
                 ModeAccelTriggerState *triggerState = &state.modeState.accel[i];
 
                 if (trigger->has_front) {
-                    frontComp = &trigger->front;
-                    frontState = &triggerState->front;
+                    active.frontComp = &trigger->front;
+                    active.frontState = &triggerState->front;
                 }
 
                 if (trigger->has_case_comp) {
-                    caseComp = &trigger->case_comp;
-                    caseState = &triggerState->case_comp;
+                    active.caseComp = &trigger->case_comp;
+                    active.caseState = &triggerState->case_comp;
                 }
             } else {
                 break;
             }
         }
     }
+    return active;
+}
 
-    if (state.modeManager->currentMode.has_front || triggered) {
-        if (frontComp && frontState) {
-            SimpleOutput output;
-            if (modeStateGetSimpleOutput(frontState, frontComp, &output)) {
-                if (output.type == BULB) {
-                    state.writeBulbLedPin(output.data.bulb == high ? 1 : 0);
-                } else {
-                    // TODO: RGB front component support
-                    state.writeBulbLedPin(0);
-                }
+// If timing issues cause mode to not display right (try bulb with first color only),
+// move updateMode to chipTick interrupt to confirm. Interrupt will guarantee proper timing.
+// If moving fixed the bug, that indicates something is slow
+static void updateMode(uint32_t ms) {
+    modeStateAdvance(&state.modeState, &state.modeManager->currentMode, ms);
+
+    ActiveComponents active = resolveActiveComponents();
+
+    if (active.frontComp && active.frontState) {
+        SimpleOutput output;
+        if (modeStateGetSimpleOutput(active.frontState, active.frontComp, &output)) {
+            if (output.type == BULB) {
+                state.writeBulbLedPin(output.data.bulb == high ? 1 : 0);
+            } else {
+                // TODO: RGB front component support
+                state.writeBulbLedPin(0);
             }
         }
     } else {
         state.writeBulbLedPin(0);
     }
 
+    // Update Case LED only if not evaluating button press, need to show shutdown/lock status
     if (!isEvaluatingButtonPress(state.button)) {
-        if (state.modeManager->currentMode.has_case_comp || triggered) {
-            if (caseComp && caseState) {
-                SimpleOutput output;
-                if (modeStateGetSimpleOutput(caseState, caseComp, &output) && output.type == RGB) {
-                    rgbShowUserColor(
-                        state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
-                }
+        if (active.caseComp && active.caseState) {
+            SimpleOutput output;
+            if (modeStateGetSimpleOutput(active.caseState, active.caseComp, &output) &&
+                output.type == RGB) {
+                rgbShowUserColor(
+                    state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
             }
         } else {
             rgbShowUserColor(state.caseLed, 0, 0, 0);
@@ -172,6 +177,8 @@ static void updateMode(uint32_t ms) {
 
 void stateTask() {
     uint32_t ms = state.convertTicksToMs(state.chipTick);
+
+    updateMode(ms);
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
     switch (buttonResult) {
@@ -210,8 +217,6 @@ void stateTask() {
 // TODO: Rate of chipTick interrupt should be configurable
 void chipTickInterrupt() {
     state.chipTick++;
-    uint32_t ms = state.convertTicksToMs(state.chipTick);
-    updateMode(ms);
 }
 
 // Auto off timer running at 0.1 hz

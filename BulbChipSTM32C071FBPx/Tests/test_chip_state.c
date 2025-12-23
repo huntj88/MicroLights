@@ -303,12 +303,12 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
 
     // Test at 100ms (should be High)
     state.chipTick = 10;  // 10 * 10ms = 100ms
-    chipTickInterrupt();  // Calls updateMode
+    stateTask();          // Calls updateMode
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     // Test at 600ms (should be Low)
     state.chipTick = 60;  // 60 * 10ms = 600ms
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -354,21 +354,21 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
 
     mockAccelMagnitude = 0.0f;
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     mockAccelMagnitude = 20.0f;
     state.chipTick = 60;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     state.chipTick = 120;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     mockAccelMagnitude = 0.0f;
     state.chipTick = 130;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -431,7 +431,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
 
     // Test at 100ms
     state.chipTick = 10;  // 100ms
-    chipTickInterrupt();  // Calls updateMode
+    stateTask();          // Calls updateMode
 
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -461,7 +461,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
     lastRgbB = 10;
 
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
 
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -501,7 +501,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
     lastRgbB = 50;
 
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
 
     // Should NOT have updated to 255, 255, 255
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbR);
@@ -554,28 +554,28 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
 
     // Test at 100ms (Should be Red)
     state.chipTick = 10;  // 100ms
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 600ms (Should be Green)
     state.chipTick = 60;  // 600ms
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 1500ms (Should be Blue)
     state.chipTick = 150;  // 1500ms
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Test at 2100ms (Should be Red - loop back to 100ms)
     state.chipTick = 210;  // 2100ms % 2000ms = 100ms
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
@@ -653,7 +653,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     mockAccelMagnitude = 20.0f;
 
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
 
     // Should be High and Red
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -704,7 +704,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     mockAccelMagnitude = 0.0f;
 
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
 
     // Should be Low (Default)
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
@@ -765,7 +765,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     mockAccelMagnitude = 20.0f;
 
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
 
     // Should be High (Triggered) and Blue (Default)
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -845,21 +845,21 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     // Case A: Accel = 5 (Below both) -> Default (OFF)
     mockAccelMagnitude = 5.0f;
     state.chipTick = 10;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Case B: Accel = 15 (Above Trigger 0, Below Trigger 1) -> Trigger 0 (BLUE)
     mockAccelMagnitude = 15.0f;
     state.chipTick = 20;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Case C: Accel = 25 (Above both) -> Trigger 1 (RED)
     mockAccelMagnitude = 25.0f;
     state.chipTick = 30;
-    chipTickInterrupt();
+    stateTask();
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
