@@ -249,7 +249,6 @@ void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
     TEST_ASSERT_TRUE(mockLockCalled);
 }
 
-
 void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
     configureChipState(
         &mockModeManager,
@@ -278,7 +277,6 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
 }
-
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
     configureChipState(

@@ -258,12 +258,9 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 100;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.type = BULB;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.data.bulb = high;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.type = BULB;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
+        high;
 
     modeStateReset(&manager.modeState, 0);
     manager.shouldResetState = false;
@@ -490,21 +487,17 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.type = BULB;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.data.bulb = high;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.type = BULB;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
+        high;
 
     manager.currentMode.accel.triggers[0].hasCaseComp = true;
     manager.currentMode.accel.triggers[0].caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .caseComp.pattern.data.simple.changeAt[0]
-        .output.type = RGB;
+    manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].output.type =
+        RGB;
     manager.currentMode.accel.triggers[0]
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 255;
@@ -558,12 +551,9 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.type = BULB;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.data.bulb = high;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.type = BULB;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
+        high;
 
     modeStateReset(&manager.modeState, 0);
     manager.shouldResetState = false;
@@ -616,12 +606,9 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.type = BULB;
-    manager.currentMode.accel.triggers[0]
-        .front.pattern.data.simple.changeAt[0]
-        .output.data.bulb = high;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.type = BULB;
+    manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
+        high;
 
     manager.currentMode.accel.triggers[0].hasCaseComp = false;  // No override
 
@@ -672,9 +659,8 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[0]
-        .caseComp.pattern.data.simple.changeAt[0]
-        .output.type = RGB;
+    manager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].output.type =
+        RGB;
     manager.currentMode.accel.triggers[0]
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 0;
@@ -692,9 +678,8 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     manager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.duration = 1000;
     manager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.changeAtCount = 1;
     manager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.changeAt[0].ms = 0;
-    manager.currentMode.accel.triggers[1]
-        .caseComp.pattern.data.simple.changeAt[0]
-        .output.type = RGB;
+    manager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.changeAt[0].output.type =
+        RGB;
     manager.currentMode.accel.triggers[1]
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 255;
