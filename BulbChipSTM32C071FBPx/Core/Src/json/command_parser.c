@@ -49,6 +49,79 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
     return parsedProperties == 3;
 }
 
+static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *t;
+    bool didParseMode = false;
+    bool didParseIndex = false;
+    Mode mode;
+
+    input->errorContext.path[0] = '\0';
+    input->errorContext.error = MODE_PARSER_OK;
+
+    t = lwjson_find(lwjson, "mode");
+    if (t != NULL) {
+        didParseMode = parseMode(lwjson, (lwjson_token_t *)t, &mode, &input->errorContext);
+        input->mode = mode;
+    }
+
+    t = lwjson_find(lwjson, "index");
+    if (t != NULL) {
+        input->modeIndex = t->u.num_int;
+        didParseIndex = true;
+    }
+
+    if (didParseMode && didParseIndex) {
+        input->parsedType = parseWriteMode;
+    }
+}
+
+static void handleReadMode(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *t = lwjson_find(lwjson, "index");
+    if (t != NULL) {
+        input->modeIndex = t->u.num_int;
+        input->parsedType = parseReadMode;
+    }
+}
+
+static void handleWriteSettings(lwjson_t *lwjson, CliInput *input) {
+    ChipSettings settings;
+    if (parseSettingsJson(lwjson, &settings)) {
+        input->settings = settings;
+        input->parsedType = parseWriteSettings;
+    }
+}
+
+static void processCommand(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *t;
+    char command[32] = {0};
+
+    t = lwjson_find(lwjson, "command");
+    if (t == NULL) {
+        return;
+    }
+
+    const char *nameRaw = t->u.str.token_value;
+    size_t len = t->u.str.token_value_len;
+    if (len >= sizeof(command)) {
+        len = sizeof(command) - 1;
+    }
+
+    memcpy(command, nameRaw, len);
+    command[len] = '\0';
+
+    if (strncmp(command, "writeMode", 9) == 0) {
+        handleWriteMode(lwjson, input);
+    } else if (strncmp(command, "readMode", 8) == 0) {
+        handleReadMode(lwjson, input);
+    } else if (strncmp(command, "writeSettings", 13) == 0) {
+        handleWriteSettings(lwjson, input);
+    } else if (strncmp(command, "readSettings", 12) == 0) {
+        input->parsedType = parseReadSettings;
+    } else if (strncmp(command, "dfu", 3) == 0) {
+        input->parsedType = parseDfu;
+    }
+}
+
 void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
@@ -85,57 +158,7 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
 
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
     if (lwjson_parse(&lwjson, (const char *)bufJson) == lwjsonOK) {
-        const lwjson_token_t *t;
-        char command[32] = {0};
-
-        t = lwjson_find(&lwjson, "command");
-        if (t != NULL) {
-            const char *nameRaw = t->u.str.token_value;
-            for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
-                command[i] = nameRaw[i];
-            }
-            command[t->u.str.token_value_len] = '\0';
-        }
-
-        if (strncmp(command, "writeMode", 9) == 0) {
-            bool didParseMode = false;
-            bool didParseIndex = false;
-            Mode mode;
-            input->errorContext.path[0] = '\0';
-            input->errorContext.error = MODE_PARSER_OK;
-
-            t = lwjson_find(&lwjson, "mode");
-            if (t != NULL) {
-                didParseMode = parseMode(&lwjson, (lwjson_token_t *)t, &mode, &input->errorContext);
-                input->mode = mode;
-            }
-
-            t = lwjson_find(&lwjson, "index");
-            if (t != NULL) {
-                input->modeIndex = t->u.num_int;
-                didParseIndex = true;
-            }
-
-            if (didParseMode && didParseIndex) {
-                input->parsedType = parseWriteMode;
-            }
-        } else if (strncmp(command, "readMode", 8) == 0) {
-            t = lwjson_find(&lwjson, "index");
-            if (t != NULL) {
-                input->modeIndex = t->u.num_int;
-                input->parsedType = parseReadMode;
-            }
-        } else if (strncmp(command, "writeSettings", 13) == 0) {
-            ChipSettings settings;
-            if (parseSettingsJson(&lwjson, &settings)) {
-                input->settings = settings;
-                input->parsedType = parseWriteSettings;
-            }
-        } else if (strncmp(command, "readSettings", 12) == 0) {
-            input->parsedType = parseReadSettings;
-        } else if (strncmp(command, "dfu", 3) == 0) {
-            input->parsedType = parseDfu;
-        }
+        processCommand(&lwjson, input);
     }
     lwjson_free(&lwjson);
 }
