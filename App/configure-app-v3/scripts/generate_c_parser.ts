@@ -515,6 +515,62 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
     return false;
 }
 
+static bool parseStringField(const lwjson_token_t *t, char *out, size_t min, size_t max, ModeErrorContext *ctx, const char *fieldName) {
+    if (t->u.str.token_value_len > max) {
+        ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    copyString(out, t, max);
+    if (strlen(out) < min) {
+        ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    return true;
+}
+
+static bool parseUInt32Field(const lwjson_token_t *t, uint32_t *out, uint32_t min, uint32_t max, ModeErrorContext *ctx, const char *fieldName) {
+    if (t->u.num_int < (lwjson_int_t)min) {
+        ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    if (t->u.num_int > (lwjson_int_t)max) {
+        ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    *out = (uint32_t)t->u.num_int;
+    return true;
+}
+
+static bool parseUInt8Field(const lwjson_token_t *t, uint8_t *out, uint8_t min, uint8_t max, ModeErrorContext *ctx, const char *fieldName) {
+    if (t->u.num_int < (lwjson_int_t)min) {
+        ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    if (t->u.num_int > (lwjson_int_t)max) {
+        ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+        strcpy(ctx->path, fieldName);
+        return false;
+    }
+    *out = (uint8_t)t->u.num_int;
+    return true;
+}
+
+static bool parseBooleanField(const lwjson_token_t *t, bool *out) {
+    if (t->type == LWJSON_TYPE_TRUE) {
+        *out = true;
+    } else if (t->type == LWJSON_TYPE_FALSE) {
+        *out = false;
+    } else {
+        *out = t->u.num_int != 0;
+    }
+    return true;
+}
+
 `;
 
   // Forward declarations
@@ -548,55 +604,19 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
         out += `    if (t != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
-          out += `        if (t->u.str.token_value_len > ${String(fieldDef.max)}) {\n`;
-          out += `            ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;\n`;
-          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `        if (!parseStringField(t, out->${cName}, ${String(fieldDef.min || 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
-          out += `        copyString(out->${cName}, t, ${String(fieldDef.max)});\n`;
-          if (fieldDef.min) {
-            out += `        if (strlen(out->${cName}) < ${String(fieldDef.min)}) {\n`;
-            out += `            ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;\n`;
-            out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return false;\n`;
-            out += `        }\n`;
-          }
         } else if (fieldDef.type === 'uint32') {
-          if (fieldDef.min !== undefined) {
-            out += `        if (t->u.num_int < ${String(fieldDef.min)}) {\n`;
-            out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
-            out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return false;\n`;
-            out += `        }\n`;
-          }
-          out += `        if (t->u.num_int > 4294967295) {\n`;
-          out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;\n`;
-          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `        if (!parseUInt32Field(t, &out->${cName}, ${String(fieldDef.min || 0)}, 4294967295U, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
-          out += `        out->${cName} = (uint32_t)t->u.num_int;\n`;
         } else if (fieldDef.type === 'uint8') {
-          if (fieldDef.min !== undefined) {
-            out += `        if (t->u.num_int < ${String(fieldDef.min)}) {\n`;
-            out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;\n`;
-            out += `            strcpy(ctx->path, "${fieldName}");\n`;
-            out += `            return false;\n`;
-            out += `        }\n`;
-          }
-          out += `        if (t->u.num_int > 255) {\n`;
-          out += `            ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;\n`;
-          out += `            strcpy(ctx->path, "${fieldName}");\n`;
+          out += `        if (!parseUInt8Field(t, &out->${cName}, ${String(fieldDef.min || 0)}, 255, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
-          out += `        out->${cName} = (uint8_t)t->u.num_int;\n`;
         } else if (fieldDef.type === 'boolean') {
-          out += `        out->${cName} =\n`;
-          out += `            t->u.num_int != 0;  // lwjson parses bools as ints often, or check type\n`;
-          out += `        if (t->type == LWJSON_TYPE_TRUE) {\n`;
-          out += `            out->${cName} = true;\n`;
-          out += `        } else if (t->type == LWJSON_TYPE_FALSE) {\n`;
-          out += `            out->${cName} = false;\n`;
-          out += `        }\n`;
+          out += `        parseBooleanField(t, &out->${cName});\n`;
         } else if (fieldDef.type === 'array') {
           out += `        const lwjson_token_t *child = lwjson_get_first_child(t);\n`;
           out += `        while (child != NULL && out->${cName}_count < ${String(fieldDef.max)}) {\n`;
@@ -659,7 +679,9 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
       out += `    t = lwjson_find_ex(lwjson, token, "${def.discriminator}");\n`;
       out += `    if (t != NULL) {\n`;
       out += `        char typeStr[32];\n`;
-      out += `        copyString(typeStr, t, 31);\n`;
+      out += `        if (!parseStringField(t, typeStr, 1, 31, ctx, "${def.discriminator}")) {\n`;
+      out += `            return false;\n`;
+      out += `        }\n`;
 
       let first = true;
       for (const [key, typeName] of Object.entries(def.variants)) {
