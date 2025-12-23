@@ -34,12 +34,22 @@ cppcheck --enable=warning,performance,portability \
          --inline-suppr \
          --quiet \
          $INCLUDES \
+         -i Core/Src/stm32c0xx_hal_msp.c \
+         -i Core/Src/stm32c0xx_it.c \
+         -i Core/Src/syscalls.c \
+         -i Core/Src/sysmem.c \
+         -i Core/Src/system_stm32c0xx.c \
          Core/Src Core/Inc
 
 echo "Running clang-tidy..."
 
 # Find all C source files in Core/Src
-SOURCES=$(find Core/Src -name "*.c")
+SOURCES=$(find Core/Src -name "*.c" \
+    -not -name "stm32c0xx_hal_msp.c" \
+    -not -name "stm32c0xx_it.c" \
+    -not -name "syscalls.c" \
+    -not -name "sysmem.c" \
+    -not -name "system_stm32c0xx.c")
 
 # Run clang-tidy
 # -checks=...: Select checks

@@ -26,7 +26,7 @@ static void readBytes(uint32_t page, char *buffer, uint32_t length) {
     memcpy(buffer, (void *)address, length);
 }
 
-static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
+static void writeBytes(uint32_t page, const uint8_t buf[], uint32_t bufCount) {
     // TODO: only write if bytes are different.
 
     uint8_t numBytesToWrite = 8;
@@ -49,7 +49,8 @@ static void writeBytes(uint32_t page, uint8_t buf[], uint32_t bufCount) {
             uint32_t address =
                 getHexAddressOfPage(page) + ((numBytesToWrite * (i / numBytesToWrite)));
 
-            uint64_t data, *ptr;
+            uint64_t data;
+            uint64_t *ptr;
 
             ptr = (uint64_t *)&dataSpaceBuf[0];
             data = *ptr;

@@ -103,8 +103,6 @@ static bool parseSimpleOutput(
     return false;
 }
 
-static bool parseSimpleOutput(
-    lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx);
 static bool parsePatternChange(
     lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx);
 static bool parseSimplePattern(
@@ -127,7 +125,8 @@ static bool parseModeAccel(
 static bool parsePatternChange(
     lwjson_t *lwjson, lwjson_token_t *token, PatternChange *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    if ((t = lwjson_find_ex(lwjson, token, "ms")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "ms");
+    if (t != NULL) {
         if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "ms");
@@ -144,7 +143,8 @@ static bool parsePatternChange(
         strcpy(ctx->path, "ms");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "output")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "output");
+    if (t != NULL) {
         if (!parseSimpleOutput(lwjson, (lwjson_token_t *)t, &out->output, ctx)) {
             prependContext(ctx, "output", -1);
             return false;
@@ -161,7 +161,8 @@ static bool parseSimplePattern(
     lwjson_t *lwjson, lwjson_token_t *token, SimplePattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     out->changeAt_count = 0;
-    if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "name");
+    if (t != NULL) {
         if (t->u.str.token_value_len > 31) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
             strcpy(ctx->path, "name");
@@ -178,7 +179,8 @@ static bool parseSimplePattern(
         strcpy(ctx->path, "name");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "duration");
+    if (t != NULL) {
         if (t->u.num_int < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
@@ -195,7 +197,8 @@ static bool parseSimplePattern(
         strcpy(ctx->path, "duration");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "changeAt")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "changeAt");
+    if (t != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->changeAt_count < 32) {
             if (!parsePatternChange(
@@ -222,7 +225,8 @@ static bool parseSimplePattern(
 static bool parseEquationSection(
     lwjson_t *lwjson, lwjson_token_t *token, EquationSection *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    if ((t = lwjson_find_ex(lwjson, token, "equation")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "equation");
+    if (t != NULL) {
         if (t->u.str.token_value_len > 63) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
             strcpy(ctx->path, "equation");
@@ -239,7 +243,8 @@ static bool parseEquationSection(
         strcpy(ctx->path, "equation");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "duration");
+    if (t != NULL) {
         if (t->u.num_int < 1) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
@@ -263,7 +268,8 @@ static bool parseChannelConfig(
     lwjson_t *lwjson, lwjson_token_t *token, ChannelConfig *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     out->sections_count = 0;
-    if ((t = lwjson_find_ex(lwjson, token, "sections")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "sections");
+    if (t != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->sections_count < 3) {
             if (!parseEquationSection(
@@ -279,7 +285,8 @@ static bool parseChannelConfig(
         strcpy(ctx->path, "sections");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "loopAfterDuration")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "loopAfterDuration");
+    if (t != NULL) {
         out->loopAfterDuration =
             t->u.num_int != 0;  // lwjson parses bools as ints often, or check type
         if (t->type == LWJSON_TYPE_TRUE) {
@@ -298,7 +305,8 @@ static bool parseChannelConfig(
 static bool parseEquationPattern(
     lwjson_t *lwjson, lwjson_token_t *token, EquationPattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "name");
+    if (t != NULL) {
         if (t->u.str.token_value_len > 31) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
             strcpy(ctx->path, "name");
@@ -315,7 +323,8 @@ static bool parseEquationPattern(
         strcpy(ctx->path, "name");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "duration")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "duration");
+    if (t != NULL) {
         if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "duration");
@@ -332,7 +341,8 @@ static bool parseEquationPattern(
         strcpy(ctx->path, "duration");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "red")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "red");
+    if (t != NULL) {
         if (!parseChannelConfig(lwjson, (lwjson_token_t *)t, &out->red, ctx)) {
             prependContext(ctx, "red", -1);
             return false;
@@ -342,7 +352,8 @@ static bool parseEquationPattern(
         strcpy(ctx->path, "red");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "green")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "green");
+    if (t != NULL) {
         if (!parseChannelConfig(lwjson, (lwjson_token_t *)t, &out->green, ctx)) {
             prependContext(ctx, "green", -1);
             return false;
@@ -352,7 +363,8 @@ static bool parseEquationPattern(
         strcpy(ctx->path, "green");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "blue")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "blue");
+    if (t != NULL) {
         if (!parseChannelConfig(lwjson, (lwjson_token_t *)t, &out->blue, ctx)) {
             prependContext(ctx, "blue", -1);
             return false;
@@ -374,7 +386,8 @@ static bool parseEquationPattern(
 static bool parseModePattern(
     lwjson_t *lwjson, lwjson_token_t *token, ModePattern *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    if ((t = lwjson_find_ex(lwjson, token, "type")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "type");
+    if (t != NULL) {
         char typeStr[32];
         copyString(typeStr, t, 31);
         if (strcmp(typeStr, "simple") == 0) {
@@ -403,7 +416,8 @@ static bool parseModePattern(
 static bool parseModeComponent(
     lwjson_t *lwjson, lwjson_token_t *token, ModeComponent *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
-    if ((t = lwjson_find_ex(lwjson, token, "pattern")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "pattern");
+    if (t != NULL) {
         if (!parseModePattern(lwjson, (lwjson_token_t *)t, &out->pattern, ctx)) {
             prependContext(ctx, "pattern", -1);
             return false;
@@ -421,7 +435,8 @@ static bool parseModeAccelTrigger(
     const lwjson_token_t *t;
     out->has_front = false;
     out->has_case_comp = false;
-    if ((t = lwjson_find_ex(lwjson, token, "threshold")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "threshold");
+    if (t != NULL) {
         if (t->u.num_int < 0) {
             ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
             strcpy(ctx->path, "threshold");
@@ -438,14 +453,16 @@ static bool parseModeAccelTrigger(
         strcpy(ctx->path, "threshold");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "front")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "front");
+    if (t != NULL) {
         if (!parseModeComponent(lwjson, (lwjson_token_t *)t, &out->front, ctx)) {
             prependContext(ctx, "front", -1);
             return false;
         }
         out->has_front = true;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "case")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "case");
+    if (t != NULL) {
         if (!parseModeComponent(lwjson, (lwjson_token_t *)t, &out->case_comp, ctx)) {
             prependContext(ctx, "case", -1);
             return false;
@@ -464,7 +481,8 @@ static bool parseModeAccel(
     lwjson_t *lwjson, lwjson_token_t *token, ModeAccel *out, ModeErrorContext *ctx) {
     const lwjson_token_t *t;
     out->triggers_count = 0;
-    if ((t = lwjson_find_ex(lwjson, token, "triggers")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "triggers");
+    if (t != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(t);
         while (child != NULL && out->triggers_count < 2) {
             if (!parseModeAccelTrigger(
@@ -493,7 +511,8 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorCont
     out->has_front = false;
     out->has_case_comp = false;
     out->has_accel = false;
-    if ((t = lwjson_find_ex(lwjson, token, "name")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "name");
+    if (t != NULL) {
         if (t->u.str.token_value_len > 31) {
             ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
             strcpy(ctx->path, "name");
@@ -510,21 +529,24 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorCont
         strcpy(ctx->path, "name");
         return false;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "front")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "front");
+    if (t != NULL) {
         if (!parseModeComponent(lwjson, (lwjson_token_t *)t, &out->front, ctx)) {
             prependContext(ctx, "front", -1);
             return false;
         }
         out->has_front = true;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "case")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "case");
+    if (t != NULL) {
         if (!parseModeComponent(lwjson, (lwjson_token_t *)t, &out->case_comp, ctx)) {
             prependContext(ctx, "case", -1);
             return false;
         }
         out->has_case_comp = true;
     }
-    if ((t = lwjson_find_ex(lwjson, token, "accel")) != NULL) {
+    t = lwjson_find_ex(lwjson, token, "accel");
+    if (t != NULL) {
         if (!parseModeAccel(lwjson, (lwjson_token_t *)t, &out->accel, ctx)) {
             prependContext(ctx, "accel", -1);
             return false;

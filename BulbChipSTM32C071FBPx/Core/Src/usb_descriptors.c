@@ -157,7 +157,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
                 return NULL;
             }
 
-            const char *str = string_desc_arr[index];
+            const unsigned char *str = string_desc_arr[index];
 
             // Cap at max char
             chr_count = strlen(str);

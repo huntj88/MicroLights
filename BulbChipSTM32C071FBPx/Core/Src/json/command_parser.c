@@ -15,7 +15,7 @@
 
 static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
-        char current = buf[i];
+        unsigned char current = buf[i];
         if (current == '\n' || current == '\0') {
             return i;
         }

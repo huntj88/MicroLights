@@ -518,8 +518,6 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
 `;
 
   // Forward declarations
-  out += `static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx);\n`;
-
   for (const name of Object.keys(schema)) {
     if (name === 'Mode') continue;
     out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx);\n`;
@@ -546,7 +544,8 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
       for (const [fieldName, fieldDef] of Object.entries(def.fields)) {
         const cName = fieldName === 'case' ? 'case_comp' : fieldName;
 
-        out += `    if ((t = lwjson_find_ex(lwjson, token, "${fieldName}")) != NULL) {\n`;
+        out += `    t = lwjson_find_ex(lwjson, token, "${fieldName}");\n`;
+        out += `    if (t != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
           out += `        if (t->u.str.token_value_len > ${String(fieldDef.max)}) {\n`;
@@ -657,7 +656,8 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
 
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     } else if (def.type === 'discriminatedUnion') {
-      out += `    if ((t = lwjson_find_ex(lwjson, token, "${def.discriminator}")) != NULL) {\n`;
+      out += `    t = lwjson_find_ex(lwjson, token, "${def.discriminator}");\n`;
+      out += `    if (t != NULL) {\n`;
       out += `        char typeStr[32];\n`;
       out += `        copyString(typeStr, t, 31);\n`;
 

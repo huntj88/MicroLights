@@ -124,7 +124,8 @@ void usbCdcTask(USBManager *usbManager) {
         {
             if (tud_cdc_n_available(itf)) {
                 uint8_t buf[64];
-                uint32_t count = tud_cdc_n_read(itf, buf, sizeof(buf));
+                // cast count as uint8_t, buf is only 64 bytes
+                uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
                 if (jsonIndex + count > sizeof(jsonBuf)) {
                     char error[] = "{\"error\":\"payload too long\"}\n";
                     usbWriteToSerial(usbManager, itf, error, strlen(error));
