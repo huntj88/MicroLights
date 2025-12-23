@@ -24,25 +24,25 @@ static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
 }
 
 static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
-    const lwjson_token_t *t;
+    const lwjson_token_t *token;
 
     uint8_t parsedProperties = 0;
 
-    t = lwjson_find(lwjson, "modeCount");
-    if (t != NULL) {
-        settings->modeCount = t->u.num_int;
+    token = lwjson_find(lwjson, "modeCount");
+    if (token != NULL) {
+        settings->modeCount = token->u.num_int;
         parsedProperties++;
     }
 
-    t = lwjson_find(lwjson, "minutesUntilAutoOff");
-    if (t != NULL) {
-        settings->minutesUntilAutoOff = t->u.num_int;
+    token = lwjson_find(lwjson, "minutesUntilAutoOff");
+    if (token != NULL) {
+        settings->minutesUntilAutoOff = token->u.num_int;
         parsedProperties++;
     }
 
-    t = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff");
-    if (t != NULL) {
-        settings->minutesUntilLockAfterAutoOff = t->u.num_int;
+    token = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff");
+    if (token != NULL) {
+        settings->minutesUntilLockAfterAutoOff = token->u.num_int;
         parsedProperties++;
     }
 
@@ -50,7 +50,7 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 }
 
 static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
-    const lwjson_token_t *t;
+    const lwjson_token_t *token;
     bool didParseMode = false;
     bool didParseIndex = false;
     Mode mode;
@@ -58,15 +58,15 @@ static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
     input->errorContext.path[0] = '\0';
     input->errorContext.error = MODE_PARSER_OK;
 
-    t = lwjson_find(lwjson, "mode");
-    if (t != NULL) {
-        didParseMode = parseMode(lwjson, (lwjson_token_t *)t, &mode, &input->errorContext);
+    token = lwjson_find(lwjson, "mode");
+    if (token != NULL) {
+        didParseMode = parseMode(lwjson, (lwjson_token_t *)token, &mode, &input->errorContext);
         input->mode = mode;
     }
 
-    t = lwjson_find(lwjson, "index");
-    if (t != NULL) {
-        input->modeIndex = t->u.num_int;
+    token = lwjson_find(lwjson, "index");
+    if (token != NULL) {
+        input->modeIndex = token->u.num_int;
         didParseIndex = true;
     }
 
@@ -76,9 +76,9 @@ static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
 }
 
 static void handleReadMode(lwjson_t *lwjson, CliInput *input) {
-    const lwjson_token_t *t = lwjson_find(lwjson, "index");
-    if (t != NULL) {
-        input->modeIndex = t->u.num_int;
+    const lwjson_token_t *token = lwjson_find(lwjson, "index");
+    if (token != NULL) {
+        input->modeIndex = token->u.num_int;
         input->parsedType = parseReadMode;
     }
 }
@@ -92,16 +92,16 @@ static void handleWriteSettings(lwjson_t *lwjson, CliInput *input) {
 }
 
 static void processCommand(lwjson_t *lwjson, CliInput *input) {
-    const lwjson_token_t *t;
+    const lwjson_token_t *token;
     char command[32] = {0};
 
-    t = lwjson_find(lwjson, "command");
-    if (t == NULL) {
+    token = lwjson_find(lwjson, "command");
+    if (token == NULL) {
         return;
     }
 
-    const char *nameRaw = t->u.str.token_value;
-    size_t len = t->u.str.token_value_len;
+    const char *nameRaw = token->u.str.token_value;
+    size_t len = token->u.str.token_value_len;
     if (len >= sizeof(command)) {
         len = sizeof(command) - 1;
     }
