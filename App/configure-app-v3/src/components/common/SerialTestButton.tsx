@@ -32,43 +32,46 @@ export const SerialTestButton = ({
     }
   }, [status, disabled]);
 
-  const handleTest = useCallback(async (silent = false) => {
-    if (status !== 'connected' || disabled) return;
+  const handleTest = useCallback(
+    async (silent = false) => {
+      if (status !== 'connected' || disabled) return;
 
-    let mode: Mode;
+      let mode: Mode;
 
-    if (type === 'pattern') {
-      if (!patternTarget) {
-        console.error('patternTarget is required when testing a pattern');
-        return;
+      if (type === 'pattern') {
+        if (!patternTarget) {
+          console.error('patternTarget is required when testing a pattern');
+          return;
+        }
+        mode = {
+          name: 'transientTest',
+          [patternTarget]: { pattern: data as ModePattern },
+        };
+      } else {
+        // Mode
+        mode = { ...(data as Mode), name: 'transientTest' };
       }
-      mode = {
-        name: 'transientTest',
-        [patternTarget]: { pattern: data as ModePattern },
+
+      const command = {
+        command: 'writeMode',
+        index: 0,
+        mode,
       };
-    } else {
-      // Mode
-      mode = { ...(data as Mode), name: 'transientTest' };
-    }
 
-    const command = {
-      command: 'writeMode',
-      index: 0,
-      mode,
-    };
-
-    try {
-      await send(command);
-      if (!silent) {
-        toast.success(t('common.actions.testSuccess'));
+      try {
+        await send(command);
+        if (!silent) {
+          toast.success(t('common.actions.testSuccess'));
+        }
+      } catch (err) {
+        console.error('Failed to send test data', err);
+        if (!silent) {
+          toast.error(t('common.actions.testError'));
+        }
       }
-    } catch (err) {
-      console.error('Failed to send test data', err);
-      if (!silent) {
-        toast.error(t('common.actions.testError'));
-      }
-    }
-  }, [status, disabled, type, patternTarget, data, send, t]);
+    },
+    [status, disabled, type, patternTarget, data, send, t],
+  );
 
   // Auto-sync effect
   useEffect(() => {
@@ -78,7 +81,9 @@ export const SerialTestButton = ({
       void handleTest(true);
     }, 100); // Debounce slightly to avoid flooding
 
-    return () => { clearTimeout(timer); };
+    return () => {
+      clearTimeout(timer);
+    };
   }, [data, isAutoSync, handleTest]);
 
   if (status !== 'connected') return null;

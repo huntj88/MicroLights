@@ -1,7 +1,7 @@
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { execSync } from 'child_process';
 
 import { modeSchema } from '../src/app/models/mode';
 
@@ -185,7 +185,13 @@ interface StructFieldDef extends BaseFieldDef {
     | 'SimpleOutput'; // Name of another struct
 }
 
-type FieldDef = StringFieldDef | Uint8FieldDef | Uint32FieldDef | BooleanFieldDef | ArrayFieldDef | StructFieldDef;
+type FieldDef =
+  | StringFieldDef
+  | Uint8FieldDef
+  | Uint32FieldDef
+  | BooleanFieldDef
+  | ArrayFieldDef
+  | StructFieldDef;
 
 interface RefineDef {
   expr: string;
@@ -344,7 +350,7 @@ struct SimpleOutput {
           out += `    char ${cName}[${String(fieldDef.max + 1)}];\n`;
         } else if (fieldDef.type === 'uint8') {
           out += `    uint8_t ${cName};\n`;
-        }  else if (fieldDef.type === 'uint32') {
+        } else if (fieldDef.type === 'uint32') {
           out += `    uint32_t ${cName};\n`;
         } else if (fieldDef.type === 'boolean') {
           out += `    bool ${cName};\n`;
@@ -608,15 +614,15 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
         out += `    if (tokenField != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
-          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min || 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min ?? 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint32') {
-          out += `        if (!parseUInt32Field(tokenField, &out->${cName}, ${String(fieldDef.min || 0)}, 4294967295U, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseUInt32Field(tokenField, &out->${cName}, ${String(fieldDef.min ?? 0)}, 4294967295U, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint8') {
-          out += `        if (!parseUInt8Field(tokenField, &out->${cName}, ${String(fieldDef.min || 0)}, 255, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseUInt8Field(tokenField, &out->${cName}, ${String(fieldDef.min ?? 0)}, 255, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'boolean') {
@@ -691,9 +697,9 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
       let first = true;
       for (const [key, typeName] of Object.entries(def.variants)) {
         if (first) {
-            out += `        if (strcmp(typeStr, "${key}") == 0) {\n`;
+          out += `        if (strcmp(typeStr, "${key}") == 0) {\n`;
         } else {
-            out += `        } else if (strcmp(typeStr, "${key}") == 0) {\n`;
+          out += `        } else if (strcmp(typeStr, "${key}") == 0) {\n`;
         }
         out += `            out->type = PATTERN_TYPE_${key.toUpperCase()};\n`;
         out += `            if (!parse${typeName}(lwjson, token, &out->data.${key}, ctx)) {\n`;
@@ -744,7 +750,7 @@ function writeAndFormat(filePath: string, content: string) {
   try {
     execSync(`clang-format -i "${filePath}"`);
     console.log(`Formatted ${filePath}`);
-  } catch (e) {
+  } catch {
     console.warn(`Warning: Failed to run clang-format on ${filePath}. Is clang-format installed?`);
   }
 }

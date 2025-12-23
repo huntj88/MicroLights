@@ -85,7 +85,9 @@ export const SerialLogPage = () => {
           Read Modes
         </StyledButton>
         <StyledButton
-          onClick={() => { setIsSettingsModalOpen(true); }}
+          onClick={() => {
+            setIsSettingsModalOpen(true);
+          }}
           disabled={status !== 'connected'}
         >
           Settings
@@ -102,7 +104,9 @@ export const SerialLogPage = () => {
 
       <SettingsModal
         isOpen={isSettingsModalOpen}
-        onClose={() => { setIsSettingsModalOpen(false); }}
+        onClose={() => {
+          setIsSettingsModalOpen(false);
+        }}
       />
     </section>
   );

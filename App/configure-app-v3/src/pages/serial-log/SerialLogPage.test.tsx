@@ -69,12 +69,14 @@ describe('SerialLogPage', () => {
     let dataListener: ((line: string, json: unknown) => void) | undefined;
 
     // Update mock to capture listener
-    (serialManager.on as Mock).mockImplementation((event: string, listener: (line: string, json: unknown) => void) => {
-      if (event === 'data') {
-        dataListener = listener;
-      }
-      return () => undefined;
-    });
+    (serialManager.on as Mock).mockImplementation(
+      (event: string, listener: (line: string, json: unknown) => void) => {
+        if (event === 'data') {
+          dataListener = listener;
+        }
+        return () => undefined;
+      },
+    );
 
     render(<SerialLogPage />);
     fireEvent.click(screen.getByText('Settings'));
