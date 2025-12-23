@@ -216,9 +216,9 @@ static uint32_t calculateTickMultiplier() {
  * @brief Converts chip ticks to milliseconds using fixed-point arithmetic optimization.
  *
  * Traditional approach:
- *   ms = ticks * millisecondsPerTick
+ *   ms = (int)ticks * (float)millisecondsPerTick
  *   or
- *   ms = (ticks * microsecondsPerTick) / 1000
+ *   ms = ((int)ticks * (int)microsecondsPerTick) / 1000
  *
  * This requires either floating point math (slow/large code size) or integer division (slow).
  *

@@ -27,7 +27,9 @@ bool bq25180Init(
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial,
     RGBLed *caseLed) {
-    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) return false;
+    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) {
+        return false;
+    }
 
     chargerIC->readRegister = readRegCb;
     chargerIC->writeRegister = writeCb;
@@ -114,19 +116,19 @@ enum ChargeState getChargingState(BQ25180 *chargerIC) {
     if ((regResult & 0b01000000) > 0) {
         if ((regResult & 0b00100000) > 0) {
             return done;
-        } else {
-            return constantVoltage;
         }
-    } else if ((regResult & 0b00100000) > 0) {
+        return constantVoltage;
+    }
+
+    if ((regResult & 0b00100000) > 0) {
         return constantCurrent;
     }
 
     // check if plugged in
     if ((regResult & 0b00000001) > 0) {
         return notCharging;
-    } else {
-        return notConnected;
     }
+    return notConnected;
 }
 
 void configureRegister_IC_CTRL(BQ25180 *chargerIC) {

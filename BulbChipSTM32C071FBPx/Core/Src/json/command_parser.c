@@ -13,7 +13,7 @@
 #include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
 
-static uint32_t jsonLength(uint8_t buf[], uint32_t count) {
+static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
         char current = buf[i];
         if (current == '\n' || current == '\0') {
@@ -28,17 +28,20 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
 
     uint8_t parsedProperties = 0;
 
-    if ((t = lwjson_find(lwjson, "modeCount")) != NULL) {
+    t = lwjson_find(lwjson, "modeCount");
+    if (t != NULL) {
         settings->modeCount = t->u.num_int;
         parsedProperties++;
     }
 
-    if ((t = lwjson_find(lwjson, "minutesUntilAutoOff")) != NULL) {
+    t = lwjson_find(lwjson, "minutesUntilAutoOff");
+    if (t != NULL) {
         settings->minutesUntilAutoOff = t->u.num_int;
         parsedProperties++;
     }
 
-    if ((t = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff")) != NULL) {
+    t = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff");
+    if (t != NULL) {
         settings->minutesUntilLockAfterAutoOff = t->u.num_int;
         parsedProperties++;
     }
@@ -46,7 +49,7 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
     return parsedProperties == 3;
 }
 
-void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
+void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
 
@@ -85,7 +88,8 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
         const lwjson_token_t *t;
         char command[32] = {0};
 
-        if ((t = lwjson_find(&lwjson, "command")) != NULL) {
+        t = lwjson_find(&lwjson, "command");
+        if (t != NULL) {
             const char *nameRaw = t->u.str.token_value;
             for (uint8_t i = 0; i < t->u.str.token_value_len; i++) {
                 command[i] = nameRaw[i];
@@ -100,12 +104,14 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
             input->errorContext.path[0] = '\0';
             input->errorContext.error = MODE_PARSER_OK;
 
-            if ((t = lwjson_find(&lwjson, "mode")) != NULL) {
+            t = lwjson_find(&lwjson, "mode");
+            if (t != NULL) {
                 didParseMode = parseMode(&lwjson, (lwjson_token_t *)t, &mode, &input->errorContext);
                 input->mode = mode;
             }
 
-            if ((t = lwjson_find(&lwjson, "index")) != NULL) {
+            t = lwjson_find(&lwjson, "index");
+            if (t != NULL) {
                 input->modeIndex = t->u.num_int;
                 didParseIndex = true;
             }
@@ -114,7 +120,8 @@ void parseJson(uint8_t buf[], uint32_t count, CliInput *input) {
                 input->parsedType = parseWriteMode;
             }
         } else if (strncmp(command, "readMode", 8) == 0) {
-            if ((t = lwjson_find(&lwjson, "index")) != NULL) {
+            t = lwjson_find(&lwjson, "index");
+            if (t != NULL) {
                 input->modeIndex = t->u.num_int;
                 input->parsedType = parseReadMode;
             }

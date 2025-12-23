@@ -25,7 +25,7 @@ void configureChipState(
     Button *button,
     BQ25180 *chargerIC,
     MC3479 *accel,
-    RGBLed *rgb,
+    RGBLed *caseLed,
     WriteToUsbSerial *writeUsbSerial,
     void (*writeBulbLedPin)(uint8_t state),
     uint32_t (*convertTicksToMs)(uint32_t ticks),

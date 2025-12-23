@@ -6,6 +6,12 @@ if ! command -v cppcheck &> /dev/null; then
     exit 1
 fi
 
+# Check if clang-tidy is installed
+if ! command -v clang-tidy &> /dev/null; then
+    echo "clang-tidy could not be found. Please install it (e.g., sudo apt install clang-tidy)."
+    exit 1
+fi
+
 echo "Running cppcheck..."
 
 # Define include paths
@@ -29,3 +35,15 @@ cppcheck --enable=warning,performance,portability \
          --quiet \
          $INCLUDES \
          Core/Src Core/Inc
+
+echo "Running clang-tidy..."
+
+# Find all C source files in Core/Src
+SOURCES=$(find Core/Src -name "*.c")
+
+# Run clang-tidy
+# -checks=...: Select checks
+# --: Separator for compiler flags
+clang-tidy $SOURCES \
+    -checks='-*,readability-*,performance-*,bugprone-*,-performance-no-int-to-ptr,-bugprone-reserved-identifier,-readability-magic-numbers' \
+    -- $INCLUDES -DSTM32C071xx -DUSE_HAL_DRIVER
