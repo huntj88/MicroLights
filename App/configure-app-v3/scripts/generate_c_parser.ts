@@ -515,6 +515,7 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
     return false;
 }
 
+// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 static bool parseStringField(const lwjson_token_t *t, char *out, size_t min, size_t max, ModeErrorContext *ctx, const char *fieldName) {
     if (t->u.str.token_value_len > max) {
         ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
@@ -559,6 +560,7 @@ static bool parseUInt8Field(const lwjson_token_t *t, uint8_t *out, uint8_t min, 
     *out = (uint8_t)t->u.num_int;
     return true;
 }
+// NOLINTEND(bugprone-easily-swappable-parameters)
 
 static bool parseBooleanField(const lwjson_token_t *t, bool *out) {
     if (t->type == LWJSON_TYPE_TRUE) {

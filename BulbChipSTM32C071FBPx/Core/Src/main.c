@@ -105,6 +105,7 @@ static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
     return receive_buffer[0];
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
     uint8_t writeBuffer[2] = {0};
     writeBuffer[0] = reg;

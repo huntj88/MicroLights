@@ -103,6 +103,7 @@ static bool parseSimpleOutput(
     return false;
 }
 
+// NOLINTBEGIN(bugprone-easily-swappable-parameters)
 static bool parseStringField(
     const lwjson_token_t *t,
     char *out,
@@ -165,6 +166,7 @@ static bool parseUInt8Field(
     *out = (uint8_t)t->u.num_int;
     return true;
 }
+// NOLINTEND(bugprone-easily-swappable-parameters)
 
 static bool parseBooleanField(const lwjson_token_t *t, bool *out) {
     if (t->type == LWJSON_TYPE_TRUE) {
