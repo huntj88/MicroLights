@@ -40,12 +40,8 @@ typedef struct {
 
 static ChipState state = {0};
 
-static void loadModeIndex(uint8_t modeIndex) {
-    loadMode(state.modeManager, modeIndex);
-}
-
 static void shutdownFake() {
-    loadModeIndex(FAKE_OFF_MODE_INDEX);
+    loadMode(state.modeManager, FAKE_OFF_MODE_INDEX);
     if (getChargingState(state.chargerIC) != notConnected) {
         state.startLedTimers();
     }
@@ -76,7 +72,7 @@ void configureChipState(
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
     if (chargeState == notConnected) {
-        loadModeIndex(0);
+        loadMode(state.modeManager, 0);
     } else {
         shutdownFake();
     }
@@ -97,7 +93,7 @@ void stateTask() {
             if (newModeIndex >= state.settings->modeCount) {
                 newModeIndex = 0;
             }
-            loadModeIndex(newModeIndex);
+            loadMode(state.modeManager, newModeIndex);
             const char *blah = "clicked\n";
             state.writeUsbSerial(0, blah, strlen(blah));
             break;
