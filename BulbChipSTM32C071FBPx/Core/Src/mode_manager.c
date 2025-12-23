@@ -22,23 +22,30 @@ static const char *defaultMode =
 bool modeManagerInit(
     ModeManager *manager,
     MC3479 *accel,
+    RGBLed *caseLed,
     void (*startLedTimers)(),
     void (*stopLedTimers)(),
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length)) {
-    if (!manager || !accel || !startLedTimers || !stopLedTimers || !readBulbModeFromFlash) {
+    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
+    void (*writeBulbLedPin)(uint8_t state)) {
+    if (!manager || !accel || !caseLed || !startLedTimers || !stopLedTimers ||
+        !readBulbModeFromFlash || !writeBulbLedPin) {
         return false;
     }
     manager->accel = accel;
+    manager->caseLed = caseLed;
     manager->startLedTimers = startLedTimers;
     manager->stopLedTimers = stopLedTimers;
     manager->readBulbModeFromFlash = readBulbModeFromFlash;
+    manager->writeBulbLedPin = writeBulbLedPin;
     manager->currentModeIndex = 0;
+    manager->shouldResetState = true;
     return true;
 }
 
 void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
+    manager->shouldResetState = true;
 
     if (manager->currentModeIndex == FAKE_OFF_MODE_INDEX) {
         manager->stopLedTimers();
@@ -85,4 +92,91 @@ void loadMode(ModeManager *manager, uint8_t index) {
 
 bool isFakeOff(ModeManager *manager) {
     return manager->currentModeIndex == FAKE_OFF_MODE_INDEX;
+}
+
+typedef struct {
+    ModeComponent *frontComp;
+    ModeComponentState *frontState;
+    ModeComponent *caseComp;
+    ModeComponentState *caseState;
+} ActiveComponents;
+
+static ActiveComponents resolveActiveComponents(ModeManager *manager) {
+    ActiveComponents active = {0};
+
+    if (manager->currentMode.hasFront) {
+        active.frontComp = &manager->currentMode.front;
+        active.frontState = &manager->modeState.front;
+    }
+
+    if (manager->currentMode.hasCaseComp) {
+        active.caseComp = &manager->currentMode.caseComp;
+        active.caseState = &manager->modeState.case_comp;
+    }
+
+    if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
+        uint8_t triggerCount = manager->currentMode.accel.triggersCount;
+        if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
+            triggerCount = MODE_ACCEL_TRIGGER_MAX;
+        }
+
+        for (uint8_t i = 0; i < triggerCount; i++) {
+            ModeAccelTrigger *trigger = &manager->currentMode.accel.triggers[i];
+            if (isOverThreshold(manager->accel, trigger->threshold)) {
+                ModeAccelTriggerState *triggerState = &manager->modeState.accel[i];
+
+                if (trigger->hasFront) {
+                    active.frontComp = &trigger->front;
+                    active.frontState = &triggerState->front;
+                }
+
+                if (trigger->hasCaseComp) {
+                    active.caseComp = &trigger->caseComp;
+                    active.caseState = &triggerState->case_comp;
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    return active;
+}
+
+void modeManagerUpdate(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+    if (manager->shouldResetState) {
+        modeStateReset(&manager->modeState, ms);
+        manager->shouldResetState = false;
+    }
+
+    modeStateAdvance(&manager->modeState, &manager->currentMode, ms);
+
+    ActiveComponents active = resolveActiveComponents(manager);
+
+    if (active.frontComp && active.frontState) {
+        SimpleOutput output;
+        if (modeStateGetSimpleOutput(active.frontState, active.frontComp, &output)) {
+            if (output.type == BULB) {
+                manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
+            } else {
+                // TODO: RGB front component support
+                manager->writeBulbLedPin(0);
+            }
+        }
+    } else {
+        manager->writeBulbLedPin(0);
+    }
+
+    // Update Case LED only if not evaluating button press, need to show shutdown/lock status
+    if (canUpdateCaseLed) {
+        if (active.caseComp && active.caseState) {
+            SimpleOutput output;
+            if (modeStateGetSimpleOutput(active.caseState, active.caseComp, &output) &&
+                output.type == RGB) {
+                rgbShowUserColor(
+                    manager->caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
+            }
+        } else {
+            rgbShowUserColor(manager->caseLed, 0, 0, 0);
+        }
+    }
 }

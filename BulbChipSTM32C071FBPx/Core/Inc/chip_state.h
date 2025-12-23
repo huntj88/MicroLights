@@ -27,7 +27,6 @@ void configureChipState(
     MC3479 *accel,
     RGBLed *caseLed,
     WriteToUsbSerial *writeUsbSerial,
-    void (*writeBulbLedPin)(uint8_t state),
     uint32_t (*convertTicksToMs)(uint32_t ticks),
     void (*startLedTimers)(),
     void (*stopLedTimers)());

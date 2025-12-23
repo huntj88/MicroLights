@@ -289,7 +289,13 @@ int main(void) {
     // different timer, bulb LEDS should continue to work but on a new pin.
 
     if (!modeManagerInit(
-            &modeManager, &accel, startLedTimers, stopLedTimers, readBulbModeFromFlash)) {
+            &modeManager,
+            &accel,
+            &caseLed,
+            startLedTimers,
+            stopLedTimers,
+            readBulbModeFromFlash,
+            writeBulbLed)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
@@ -336,7 +342,6 @@ int main(void) {
         &accel,
         &caseLed,
         writeToSerial,
-        writeBulbLed,
         convertTicksToMs,
         startLedTimers,
         stopLedTimers);

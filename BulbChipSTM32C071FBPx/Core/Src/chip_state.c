@@ -33,20 +33,15 @@ typedef struct {
 
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
-    void (*writeBulbLedPin)(uint8_t state);
     uint32_t (*convertTicksToMs)(uint32_t ticks);
     void (*startLedTimers)();
     void (*stopLedTimers)();
-
-    ModeState modeState;
 } ChipState;
 
 static ChipState state = {0};
 
 static void loadModeIndex(uint8_t modeIndex) {
     loadMode(state.modeManager, modeIndex);
-    uint32_t initialMs = state.convertTicksToMs(state.chipTick);
-    modeStateReset(&state.modeState, initialMs);
 }
 
 static void shutdownFake() {
@@ -64,7 +59,6 @@ void configureChipState(
     MC3479 *_accel,
     RGBLed *_caseLed,
     WriteToUsbSerial *_writeUsbSerial,
-    void (*_writeBulbLedPin)(uint8_t state),
     uint32_t (*_convertTicksToMs)(uint32_t ticks),
     void (*_startLedTimers)(),
     void (*_stopLedTimers)()) {
@@ -75,7 +69,6 @@ void configureChipState(
     state.chargerIC = _chargerIC;
     state.accel = _accel;
     state.writeUsbSerial = _writeUsbSerial;
-    state.writeBulbLedPin = _writeBulbLedPin;
     state.convertTicksToMs = _convertTicksToMs;
     state.startLedTimers = _startLedTimers;
     state.stopLedTimers = _stopLedTimers;
@@ -89,96 +82,10 @@ void configureChipState(
     }
 }
 
-typedef struct {
-    ModeComponent *frontComp;
-    ModeComponentState *frontState;
-    ModeComponent *caseComp;
-    ModeComponentState *caseState;
-} ActiveComponents;
-
-static ActiveComponents resolveActiveComponents() {
-    ActiveComponents active = {0};
-
-    if (state.modeManager->currentMode.hasFront) {
-        active.frontComp = &state.modeManager->currentMode.front;
-        active.frontState = &state.modeState.front;
-    }
-
-    if (state.modeManager->currentMode.hasCaseComp) {
-        active.caseComp = &state.modeManager->currentMode.caseComp;
-        active.caseState = &state.modeState.case_comp;
-    }
-
-    if (state.modeManager->currentMode.hasAccel &&
-        state.modeManager->currentMode.accel.triggersCount > 0) {
-        uint8_t triggerCount = state.modeManager->currentMode.accel.triggersCount;
-        if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
-            triggerCount = MODE_ACCEL_TRIGGER_MAX;
-        }
-
-        for (uint8_t i = 0; i < triggerCount; i++) {
-            ModeAccelTrigger *trigger = &state.modeManager->currentMode.accel.triggers[i];
-            if (isOverThreshold(state.accel, trigger->threshold)) {
-                ModeAccelTriggerState *triggerState = &state.modeState.accel[i];
-
-                if (trigger->hasFront) {
-                    active.frontComp = &trigger->front;
-                    active.frontState = &triggerState->front;
-                }
-
-                if (trigger->hasCaseComp) {
-                    active.caseComp = &trigger->caseComp;
-                    active.caseState = &triggerState->case_comp;
-                }
-            } else {
-                break;
-            }
-        }
-    }
-    return active;
-}
-
-// If timing issues cause mode to not display right (try bulb with first color only),
-// move updateMode to chipTick interrupt to confirm. Interrupt will guarantee proper timing.
-// If moving fixed the bug, that indicates something is slow
-static void updateMode(uint32_t ms) {
-    modeStateAdvance(&state.modeState, &state.modeManager->currentMode, ms);
-
-    ActiveComponents active = resolveActiveComponents();
-
-    if (active.frontComp && active.frontState) {
-        SimpleOutput output;
-        if (modeStateGetSimpleOutput(active.frontState, active.frontComp, &output)) {
-            if (output.type == BULB) {
-                state.writeBulbLedPin(output.data.bulb == high ? 1 : 0);
-            } else {
-                // TODO: RGB front component support
-                state.writeBulbLedPin(0);
-            }
-        }
-    } else {
-        state.writeBulbLedPin(0);
-    }
-
-    // Update Case LED only if not evaluating button press, need to show shutdown/lock status
-    if (!isEvaluatingButtonPress(state.button)) {
-        if (active.caseComp && active.caseState) {
-            SimpleOutput output;
-            if (modeStateGetSimpleOutput(active.caseState, active.caseComp, &output) &&
-                output.type == RGB) {
-                rgbShowUserColor(
-                    state.caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
-            }
-        } else {
-            rgbShowUserColor(state.caseLed, 0, 0, 0);
-        }
-    }
-}
-
 void stateTask() {
     uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-    updateMode(ms);
+    modeManagerUpdate(state.modeManager, ms, !isEvaluatingButtonPress(state.button));
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
     switch (buttonResult) {
