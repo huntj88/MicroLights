@@ -43,6 +43,6 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer);
 bool isFakeOff(ModeManager *manager);
-void modeManagerUpdate(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed);
+void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed);
 
 #endif /* INC_MODE_MANAGER_H_ */

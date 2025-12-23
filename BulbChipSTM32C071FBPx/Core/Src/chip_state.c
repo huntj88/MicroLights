@@ -85,7 +85,7 @@ void configureChipState(
 void stateTask() {
     uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-    modeManagerUpdate(state.modeManager, ms, !isEvaluatingButtonPress(state.button));
+    modeTask(state.modeManager, ms, !isEvaluatingButtonPress(state.button));
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
     switch (buttonResult) {

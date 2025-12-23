@@ -142,7 +142,7 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeManagerUpdate(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
         modeStateReset(&manager->modeState, ms);
         manager->shouldResetState = false;
