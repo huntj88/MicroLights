@@ -142,7 +142,7 @@ struct SimplePattern {
     char name[32];
     uint32_t duration;
     PatternChange changeAt[32];
-    uint8_t changeAt_count;
+    uint8_t changeAtCount;
 };
 
 struct EquationSection {
@@ -152,7 +152,7 @@ struct EquationSection {
 
 struct ChannelConfig {
     EquationSection sections[3];
-    uint8_t sections_count;
+    uint8_t sectionsCount;
     bool loopAfterDuration;
 };
 
@@ -179,24 +179,24 @@ struct ModeComponent {
 struct ModeAccelTrigger {
     uint8_t threshold;
     ModeComponent front;
-    bool has_front;
-    ModeComponent case_comp;
-    bool has_case_comp;
+    bool hasFront;
+    ModeComponent caseComp;
+    bool hasCaseComp;
 };
 
 struct ModeAccel {
     ModeAccelTrigger triggers[2];
-    uint8_t triggers_count;
+    uint8_t triggersCount;
 };
 
 struct Mode {
     char name[32];
     ModeComponent front;
-    bool has_front;
-    ModeComponent case_comp;
-    bool has_case_comp;
+    bool hasFront;
+    ModeComponent caseComp;
+    bool hasCaseComp;
     ModeAccel accel;
-    bool has_accel;
+    bool hasAccel;
 };
 
 #endif  // MODE_MODEL_H

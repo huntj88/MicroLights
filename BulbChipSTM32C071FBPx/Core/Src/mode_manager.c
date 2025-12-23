@@ -46,7 +46,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
         manager->startLedTimers();
     }
 
-    if (manager->currentMode.has_accel && manager->currentMode.accel.triggers_count > 0) {
+    if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
     } else {
         mc3479Disable(manager->accel);

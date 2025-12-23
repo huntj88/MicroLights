@@ -99,19 +99,19 @@ typedef struct {
 static ActiveComponents resolveActiveComponents() {
     ActiveComponents active = {0};
 
-    if (state.modeManager->currentMode.has_front) {
+    if (state.modeManager->currentMode.hasFront) {
         active.frontComp = &state.modeManager->currentMode.front;
         active.frontState = &state.modeState.front;
     }
 
-    if (state.modeManager->currentMode.has_case_comp) {
-        active.caseComp = &state.modeManager->currentMode.case_comp;
+    if (state.modeManager->currentMode.hasCaseComp) {
+        active.caseComp = &state.modeManager->currentMode.caseComp;
         active.caseState = &state.modeState.case_comp;
     }
 
-    if (state.modeManager->currentMode.has_accel &&
-        state.modeManager->currentMode.accel.triggers_count > 0) {
-        uint8_t triggerCount = state.modeManager->currentMode.accel.triggers_count;
+    if (state.modeManager->currentMode.hasAccel &&
+        state.modeManager->currentMode.accel.triggersCount > 0) {
+        uint8_t triggerCount = state.modeManager->currentMode.accel.triggersCount;
         if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
             triggerCount = MODE_ACCEL_TRIGGER_MAX;
         }
@@ -121,13 +121,13 @@ static ActiveComponents resolveActiveComponents() {
             if (isOverThreshold(state.accel, trigger->threshold)) {
                 ModeAccelTriggerState *triggerState = &state.modeState.accel[i];
 
-                if (trigger->has_front) {
+                if (trigger->hasFront) {
                     active.frontComp = &trigger->front;
                     active.frontState = &triggerState->front;
                 }
 
-                if (trigger->has_case_comp) {
-                    active.caseComp = &trigger->case_comp;
+                if (trigger->hasCaseComp) {
+                    active.caseComp = &trigger->caseComp;
                     active.caseState = &triggerState->case_comp;
                 }
             } else {

@@ -246,7 +246,7 @@ const schema: Record<string, SchemaDef> = {
       blue: { type: 'ChannelConfig' },
     },
     refine: {
-      expr: 'out->red.sections_count > 0 || out->green.sections_count > 0 || out->blue.sections_count > 0',
+      expr: 'out->red.sectionsCount > 0 || out->green.sectionsCount > 0 || out->blue.sectionsCount > 0',
       field: 'red',
     },
   },
@@ -271,7 +271,7 @@ const schema: Record<string, SchemaDef> = {
       front: { type: 'ModeComponent', optional: true },
       case: { type: 'ModeComponent', optional: true },
     },
-    refine: { expr: 'out->has_front || out->has_case_comp', field: 'front' },
+    refine: { expr: 'out->hasFront || out->hasCaseComp', field: 'front' },
   },
   ModeAccel: {
     type: 'struct',
@@ -287,7 +287,7 @@ const schema: Record<string, SchemaDef> = {
       case: { type: 'ModeComponent', optional: true },
       accel: { type: 'ModeAccel', optional: true },
     },
-    refine: { expr: 'out->has_front || out->has_case_comp', field: 'front' },
+    refine: { expr: 'out->hasFront || out->hasCaseComp', field: 'front' },
   },
 };
 
@@ -339,7 +339,7 @@ struct SimpleOutput {
     out += `struct ${name} {\n`;
     if (def.type === 'struct') {
       for (const [fieldName, fieldDef] of Object.entries(def.fields)) {
-        const cName = fieldName === 'case' ? 'case_comp' : fieldName;
+        const cName = fieldName === 'case' ? 'caseComp' : fieldName;
         if (fieldDef.type === 'string') {
           out += `    char ${cName}[${String(fieldDef.max + 1)}];\n`;
         } else if (fieldDef.type === 'uint8') {
@@ -350,14 +350,15 @@ struct SimpleOutput {
           out += `    bool ${cName};\n`;
         } else if (fieldDef.type === 'array') {
           out += `    ${fieldDef.item} ${cName}[${String(fieldDef.max)}];\n`;
-          out += `    uint8_t ${cName}_count;\n`;
+          out += `    uint8_t ${cName}Count;\n`;
         } else {
           // Struct type
           out += `    ${fieldDef.type} ${cName};\n`;
         }
 
         if (fieldDef.optional) {
-          out += `    bool has_${cName};\n`;
+          const capName = cName.charAt(0).toUpperCase() + cName.slice(1);
+          out += `    bool has${capName};\n`;
         }
       }
 
@@ -470,15 +471,15 @@ const char *modeParserErrorToString(ModeParserError err) {
     }
 }
 
-static uint8_t hexCharToInt(char hex_char) {
-    if (hex_char >= '0' && hex_char <= '9') {
-        return hex_char - '0';
+static uint8_t hexCharToInt(char hexChar) {
+    if (hexChar >= '0' && hexChar <= '9') {
+        return hexChar - '0';
     }
-    if (hex_char >= 'A' && hex_char <= 'F') {
-        return hex_char - 'A' + 10;
+    if (hexChar >= 'A' && hexChar <= 'F') {
+        return hexChar - 'A' + 10;
     }
-    if (hex_char >= 'a' && hex_char <= 'f') {
-        return hex_char - 'a' + 10;
+    if (hexChar >= 'a' && hexChar <= 'f') {
+        return hexChar - 'a' + 10;
     }
     return 0;
 }
@@ -585,52 +586,53 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
   for (const [name, def] of Object.entries(schema)) {
     const prefix = name === 'Mode' ? '' : 'static ';
     out += `${prefix}bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx) {\n`;
-    out += `    const lwjson_token_t *token_field;\n`;
+    out += `    const lwjson_token_t *tokenField;\n`;
 
     if (def.type === 'struct') {
       // Initialize optional flags
       for (const [fieldName, fieldDef] of Object.entries(def.fields)) {
-        const cName = fieldName === 'case' ? 'case_comp' : fieldName;
+        const cName = fieldName === 'case' ? 'caseComp' : fieldName;
         if (fieldDef.optional) {
-          out += `    out->has_${cName} = false;\n`;
+          const capName = cName.charAt(0).toUpperCase() + cName.slice(1);
+          out += `    out->has${capName} = false;\n`;
         }
         if (fieldDef.type === 'array') {
-          out += `    out->${cName}_count = 0;\n`;
+          out += `    out->${cName}Count = 0;\n`;
         }
       }
 
       for (const [fieldName, fieldDef] of Object.entries(def.fields)) {
-        const cName = fieldName === 'case' ? 'case_comp' : fieldName;
+        const cName = fieldName === 'case' ? 'caseComp' : fieldName;
 
-        out += `    token_field = lwjson_find_ex(lwjson, token, "${fieldName}");\n`;
-        out += `    if (token_field != NULL) {\n`;
+        out += `    tokenField = lwjson_find_ex(lwjson, token, "${fieldName}");\n`;
+        out += `    if (tokenField != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
-          out += `        if (!parseStringField(token_field, out->${cName}, ${String(fieldDef.min || 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min || 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint32') {
-          out += `        if (!parseUInt32Field(token_field, &out->${cName}, ${String(fieldDef.min || 0)}, 4294967295U, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseUInt32Field(tokenField, &out->${cName}, ${String(fieldDef.min || 0)}, 4294967295U, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint8') {
-          out += `        if (!parseUInt8Field(token_field, &out->${cName}, ${String(fieldDef.min || 0)}, 255, ctx, "${fieldName}")) {\n`;
+          out += `        if (!parseUInt8Field(tokenField, &out->${cName}, ${String(fieldDef.min || 0)}, 255, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'boolean') {
-          out += `        parseBooleanField(token_field, &out->${cName});\n`;
+          out += `        parseBooleanField(tokenField, &out->${cName});\n`;
         } else if (fieldDef.type === 'array') {
-          out += `        const lwjson_token_t *child = lwjson_get_first_child(token_field);\n`;
-          out += `        while (child != NULL && out->${cName}_count < ${String(fieldDef.max)}) {\n`;
-          out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t *)child, &out->${cName}[out->${cName}_count], ctx)) {\n`;
-          out += `                prependContext(ctx, "${fieldName}", out->${cName}_count);\n`;
+          out += `        const lwjson_token_t *child = lwjson_get_first_child(tokenField);\n`;
+          out += `        while (child != NULL && out->${cName}Count < ${String(fieldDef.max)}) {\n`;
+          out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t *)child, &out->${cName}[out->${cName}Count], ctx)) {\n`;
+          out += `                prependContext(ctx, "${fieldName}", out->${cName}Count);\n`;
           out += `                return false;\n`;
           out += `            }\n`;
-          out += `            out->${cName}_count++;\n`;
+          out += `            out->${cName}Count++;\n`;
           out += `            child = child->next;\n`;
           out += `        }\n`;
           if (fieldDef.min) {
-            out += `        if (out->${cName}_count < ${String(fieldDef.min)}) {\n`;
+            out += `        if (out->${cName}Count < ${String(fieldDef.min)}) {\n`;
             out += `            ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
             out += `            return false;\n`;
@@ -638,14 +640,15 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
           }
         } else {
           // Struct type
-          out += `        if (!parse${fieldDef.type}(lwjson, (lwjson_token_t *)token_field, &out->${cName}, ctx)) {\n`;
+          out += `        if (!parse${fieldDef.type}(lwjson, (lwjson_token_t *)tokenField, &out->${cName}, ctx)) {\n`;
           out += `            prependContext(ctx, "${fieldName}", -1);\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         }
 
         if (fieldDef.optional) {
-          out += `        out->has_${cName} = true;\n`;
+          const capName = cName.charAt(0).toUpperCase() + cName.slice(1);
+          out += `        out->has${capName} = true;\n`;
         }
 
         out += `    }`;
@@ -678,10 +681,10 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
 
       // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     } else if (def.type === 'discriminatedUnion') {
-      out += `    token_field = lwjson_find_ex(lwjson, token, "${def.discriminator}");\n`;
-      out += `    if (token_field != NULL) {\n`;
+      out += `    tokenField = lwjson_find_ex(lwjson, token, "${def.discriminator}");\n`;
+      out += `    if (tokenField != NULL) {\n`;
       out += `        char typeStr[32];\n`;
-      out += `        if (!parseStringField(token_field, typeStr, 1, 31, ctx, "${def.discriminator}")) {\n`;
+      out += `        if (!parseStringField(tokenField, typeStr, 1, 31, ctx, "${def.discriminator}")) {\n`;
       out += `            return false;\n`;
       out += `        }\n`;
 

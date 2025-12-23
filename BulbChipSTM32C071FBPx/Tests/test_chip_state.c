@@ -290,10 +290,10 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
         mock_stopLedTimers);
 
     // Setup a simple pattern: High at 0ms, Low at 500ms
-    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.hasFront = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 2;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAtCount = 2;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = high;
@@ -326,10 +326,10 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
         mock_startLedTimers,
         mock_stopLedTimers);
 
-    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.hasFront = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.front.pattern.data.simple.duration = 2000;
-    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 2;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAtCount = 2;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = high;
@@ -337,13 +337,13 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[1].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[1].output.data.bulb = low;
 
-    mockModeManager.currentMode.has_accel = true;
-    mockModeManager.currentMode.accel.triggers_count = 1;
+    mockModeManager.currentMode.hasAccel = true;
+    mockModeManager.currentMode.accel.triggersCount = 1;
     mockModeManager.currentMode.accel.triggers[0].threshold = 10;
-    mockModeManager.currentMode.accel.triggers[0].has_front = true;
+    mockModeManager.currentMode.accel.triggers[0].hasFront = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 100;
-    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
         .front.pattern.data.simple.changeAt[0]
@@ -417,15 +417,15 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
         mock_stopLedTimers);
 
     // Setup a simple pattern for Case LED
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 128;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 128;
 
     mockIsEvaluatingButtonPress = false;
 
@@ -452,7 +452,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
         mock_startLedTimers,
         mock_stopLedTimers);
 
-    mockModeManager.currentMode.has_case_comp = false;
+    mockModeManager.currentMode.hasCaseComp = false;
     mockIsEvaluatingButtonPress = false;
 
     // Set last RGB to something else
@@ -483,15 +483,15 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
         mock_stopLedTimers);
 
     // Setup pattern
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 255;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 255;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 255;
 
     mockIsEvaluatingButtonPress = true;
 
@@ -524,31 +524,31 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
         mock_stopLedTimers);
 
     // Setup a simple pattern for Case LED
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 2000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 3;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 2000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 3;
 
     // 0ms: Red
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
 
     // 500ms: Green
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[1].ms = 500;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[1].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[1].output.data.rgb.r = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[1].output.data.rgb.g = 255;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[1].output.data.rgb.b = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[1].ms = 500;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[1].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[1].output.data.rgb.r = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[1].output.data.rgb.g = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[1].output.data.rgb.b = 0;
 
     // 1000ms: Blue
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[2].ms = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[2].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[2].output.data.rgb.r = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[2].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[2].output.data.rgb.b = 255;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[2].ms = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.r = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.b = 255;
 
     mockIsEvaluatingButtonPress = false;
 
@@ -596,33 +596,33 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF, Case OFF
-    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.hasFront = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = low;
 
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
 
     // Setup Accel Trigger: Front ON, Case RED
-    mockModeManager.currentMode.has_accel = true;
-    mockModeManager.currentMode.accel.triggers_count = 1;
+    mockModeManager.currentMode.hasAccel = true;
+    mockModeManager.currentMode.accel.triggersCount = 1;
     mockModeManager.currentMode.accel.triggers[0].threshold = 10;
 
-    mockModeManager.currentMode.accel.triggers[0].has_front = true;
+    mockModeManager.currentMode.accel.triggers[0].hasFront = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
         .front.pattern.data.simple.changeAt[0]
@@ -631,22 +631,22 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         .front.pattern.data.simple.changeAt[0]
         .output.data.bulb = high;
 
-    mockModeManager.currentMode.accel.triggers[0].has_case_comp = true;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[0].hasCaseComp = true;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.type = RGB;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 255;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.g = 0;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
     // Trigger the accel
@@ -677,21 +677,21 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
         mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF
-    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.hasFront = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = low;
 
     // Setup Accel Trigger: Front ON
-    mockModeManager.currentMode.has_accel = true;
-    mockModeManager.currentMode.accel.triggers_count = 1;
-    mockModeManager.currentMode.accel.triggers[0].has_front = true;
+    mockModeManager.currentMode.hasAccel = true;
+    mockModeManager.currentMode.accel.triggersCount = 1;
+    mockModeManager.currentMode.accel.triggers[0].hasFront = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
         .front.pattern.data.simple.changeAt[0]
@@ -725,32 +725,32 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         mock_stopLedTimers);
 
     // Setup Default Mode: Front OFF, Case BLUE
-    mockModeManager.currentMode.has_front = true;
+    mockModeManager.currentMode.hasFront = true;
     mockModeManager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.type = BULB;
     mockModeManager.currentMode.front.pattern.data.simple.changeAt[0].output.data.bulb = low;
 
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 255;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 255;
 
     // Setup Accel Trigger: Front ON, NO Case override
-    mockModeManager.currentMode.has_accel = true;
-    mockModeManager.currentMode.accel.triggers_count = 1;
+    mockModeManager.currentMode.hasAccel = true;
+    mockModeManager.currentMode.accel.triggersCount = 1;
 
-    mockModeManager.currentMode.accel.triggers[0].has_front = true;
+    mockModeManager.currentMode.accel.triggers[0].hasFront = true;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.type = PATTERN_TYPE_SIMPLE;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt_count = 1;
+    mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAtCount = 1;
     mockModeManager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
         .front.pattern.data.simple.changeAt[0]
@@ -759,7 +759,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         .front.pattern.data.simple.changeAt[0]
         .output.data.bulb = high;
 
-    mockModeManager.currentMode.accel.triggers[0].has_case_comp = false;  // No override
+    mockModeManager.currentMode.accel.triggers[0].hasCaseComp = false;  // No override
 
     // Trigger the accel
     mockAccelMagnitude = 20.0f;
@@ -789,57 +789,57 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         mock_stopLedTimers);
 
     // Setup Default Mode: Case OFF
-    mockModeManager.currentMode.has_case_comp = true;
-    mockModeManager.currentMode.case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].ms = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.type = RGB;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
-    mockModeManager.currentMode.case_comp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
+    mockModeManager.currentMode.hasCaseComp = true;
+    mockModeManager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
+    mockModeManager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 0;
 
-    mockModeManager.currentMode.has_accel = true;
-    mockModeManager.currentMode.accel.triggers_count = 2;
+    mockModeManager.currentMode.hasAccel = true;
+    mockModeManager.currentMode.accel.triggersCount = 2;
 
     // Trigger 0: Low Threshold (10) -> BLUE
     mockModeManager.currentMode.accel.triggers[0].threshold = 10;
-    mockModeManager.currentMode.accel.triggers[0].has_case_comp = true;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.accel.triggers[0].case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[0].hasCaseComp = true;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.accel.triggers[0].caseComp.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.type = RGB;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 0;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.g = 0;
     mockModeManager.currentMode.accel.triggers[0]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 255;
 
     // Trigger 1: High Threshold (20) -> RED
     mockModeManager.currentMode.accel.triggers[1].threshold = 20;
-    mockModeManager.currentMode.accel.triggers[1].has_case_comp = true;
-    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.type = PATTERN_TYPE_SIMPLE;
-    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.duration = 1000;
-    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt_count = 1;
-    mockModeManager.currentMode.accel.triggers[1].case_comp.pattern.data.simple.changeAt[0].ms = 0;
+    mockModeManager.currentMode.accel.triggers[1].hasCaseComp = true;
+    mockModeManager.currentMode.accel.triggers[1].caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    mockModeManager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.duration = 1000;
+    mockModeManager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.changeAtCount = 1;
+    mockModeManager.currentMode.accel.triggers[1].caseComp.pattern.data.simple.changeAt[0].ms = 0;
     mockModeManager.currentMode.accel.triggers[1]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.type = RGB;
     mockModeManager.currentMode.accel.triggers[1]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.r = 255;
     mockModeManager.currentMode.accel.triggers[1]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.g = 0;
     mockModeManager.currentMode.accel.triggers[1]
-        .case_comp.pattern.data.simple.changeAt[0]
+        .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
     // Case A: Accel = 5 (Below both) -> Default (OFF)
