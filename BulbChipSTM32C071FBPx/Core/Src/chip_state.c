@@ -39,23 +39,22 @@ typedef struct {
 static ChipState state = {0};
 
 void configureChipState(
-    ModeManager *_modeManager,
-    ChipSettings *_settings,
-    Button *_button,
-    BQ25180 *_chargerIC,
-    MC3479 *_accel,
-    RGBLed *_caseLed,
-    WriteToUsbSerial *_writeUsbSerial,
-    uint32_t (*_convertTicksToMs)(uint32_t ticks)) {
-    state.modeManager = _modeManager;
-    state.settings = _settings;
-    state.button = _button;
-    state.caseLed = _caseLed;
-    state.chargerIC = _chargerIC;
-    state.accel = _accel;
-    state.writeUsbSerial = _writeUsbSerial;
-    state.convertTicksToMs = _convertTicksToMs;
-
+    ModeManager *modeManager,
+    ChipSettings *settings,
+    Button *button,
+    BQ25180 *chargerIC,
+    MC3479 *accel,
+    RGBLed *caseLed,
+    WriteToUsbSerial *writeUsbSerial,
+    uint32_t (*convertTicksToMs)(uint32_t ticks)) {
+    state.modeManager = modeManager;
+    state.settings = settings;
+    state.button = button;
+    state.caseLed = caseLed;
+    state.chargerIC = chargerIC;
+    state.accel = accel;
+    state.writeUsbSerial = writeUsbSerial;
+    state.convertTicksToMs = convertTicksToMs;
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
     if (chargeState == notConnected) {
