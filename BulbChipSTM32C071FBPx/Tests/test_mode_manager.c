@@ -16,7 +16,7 @@ static bool ledTimersStopped = false;
 static bool accelEnabled = false;
 static bool accelDisabled = false;
 static uint8_t lastReadModeIndex = 255;
-static char lastReadBuffer[1024];
+static char lastReadBuffer[PAGE_SECTOR];
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
 static float mockAccelMagnitude = 0.0f;

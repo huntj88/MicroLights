@@ -80,7 +80,7 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
             break;
         }
         case parseReadMode: {
-            char flashReadBuffer[1024];
+            char flashReadBuffer[PAGE_SECTOR];
             loadModeFromBuffer(usbManager->modeManager, cliInput.modeIndex, flashReadBuffer);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
@@ -95,7 +95,7 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            char flashReadBuffer[1024];
+            char flashReadBuffer[PAGE_SECTOR];
             settingsManagerLoadFromBuffer(usbManager->settingsManager, flashReadBuffer);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
@@ -111,7 +111,7 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
 }
 
 void usbCdcTask(USBManager *usbManager) {
-    static uint8_t jsonBuf[1024];
+    static uint8_t jsonBuf[PAGE_SECTOR];
     static uint16_t jsonIndex = 0;
     uint8_t itf;
 

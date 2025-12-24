@@ -9,7 +9,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "device/rgb_led.h"
 
 // more than one chargerIC not likely,
 // if handling multiple chargers would need to pass in function pointer that get bool for specific
@@ -22,8 +21,8 @@ void handleChargerInterrupt() {
 
 bool bq25180Init(
     BQ25180 *chargerIC,
-    BQ25180ReadRegister *readRegCb,
-    BQ25180WriteRegister *writeCb,
+    I2CReadRegister *readRegCb,
+    I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial,
     RGBLed *caseLed) {
@@ -111,7 +110,7 @@ void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool l
 }
 
 enum ChargeState getChargingState(BQ25180 *chargerIC) {
-    uint8_t regResult = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
+    uint8_t regResult = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0);
 
     if ((regResult & 0b01000000) > 0) {
         if ((regResult & 0b00100000) > 0) {
@@ -135,13 +134,13 @@ void configureRegister_IC_CTRL(BQ25180 *chargerIC) {
     uint8_t newConfig = IC_CTRL_DEFAULT;
     uint8_t tsEnabledMask = 0b10000000;
     newConfig &= ~tsEnabledMask;  // disable ts current changes (no thermistor on my project?)
-    chargerIC->writeRegister(chargerIC, BQ25180_IC_CTRL, newConfig);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_IC_CTRL, newConfig);
 }
 
 void configureRegister_ICHG_CTRL(BQ25180 *chargerIC) {
     // enable charging = bit 7 in data sheet 0
     // 70 milliamp max charge current
-    chargerIC->writeRegister(chargerIC, BQ25180_ICHG_CTRL, 0b00100010);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_ICHG_CTRL, 0b00100010);
 }
 
 void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
@@ -149,7 +148,7 @@ void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
     //	 chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01010000);
 
     // 4.4v, (3.5v) + (90 * 10mV), 90 = 0b1011010
-    chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01011010);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_VBAT_CTRL, 0b01011010);
 }
 
 void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
@@ -163,7 +162,7 @@ void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
     // Mask ILIM Fault Interrupt = OFF 1b1
     // Mask VINDPM and VDPPM Interrupt = OFF 1b1, TODO: turn back on?, 1b0
 
-    chargerIC->writeRegister(chargerIC, BQ25180_CHARGECTRL1, 0b00000011);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_CHARGECTRL1, 0b00000011);
 }
 
 void configureRegister_SYS_REG(BQ25180 *chargerIC) {
@@ -180,7 +179,7 @@ void configureRegister_SYS_REG(BQ25180 *chargerIC) {
     // lowest SYS voltage will be 3.8v even if battery is at 3.0v
     newConfig &= ~systemRegulationMask;
 
-    chargerIC->writeRegister(chargerIC, BQ25180_SYS_REG, newConfig);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SYS_REG, newConfig);
 }
 
 void configureRegister_MASK_ID(BQ25180 *chargerIC) {
@@ -203,7 +202,7 @@ void configureRegister_MASK_ID(BQ25180 *chargerIC) {
     // Device_ID: A 4-bit field indicating the device ID.
     //   4b0000: Device ID for the BQ25180.
 
-    chargerIC->writeRegister(chargerIC, BQ25180_MASK_ID, 0b00000000);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_MASK_ID, 0b00000000);
 }
 
 void configureChargerIC(BQ25180 *chargerIC) {
@@ -267,24 +266,26 @@ void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
 
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     BQ25180Registers registerValues;
-    registerValues.stat0 = chargerIC->readRegister(chargerIC, BQ25180_STAT0);
-    registerValues.stat1 = chargerIC->readRegister(chargerIC, BQ25180_STAT1);
-    registerValues.flag0 = chargerIC->readRegister(chargerIC, BQ25180_FLAG0);
-    registerValues.vbat_ctrl = chargerIC->readRegister(chargerIC, BQ25180_VBAT_CTRL);
-    registerValues.ichg_ctrl = chargerIC->readRegister(chargerIC, BQ25180_ICHG_CTRL);
-    registerValues.chargectrl0 = chargerIC->readRegister(chargerIC, BQ25180_CHARGECTRL0);
-    registerValues.chargectrl1 = chargerIC->readRegister(chargerIC, BQ25180_CHARGECTRL1);
-    registerValues.ic_ctrl = chargerIC->readRegister(chargerIC, BQ25180_IC_CTRL);
-    registerValues.tmr_ilim = chargerIC->readRegister(chargerIC, BQ25180_TMR_ILIM);
-    registerValues.ship_rst = chargerIC->readRegister(chargerIC, BQ25180_SHIP_RST);
-    registerValues.sys_reg = chargerIC->readRegister(chargerIC, BQ25180_SYS_REG);
-    registerValues.ts_control = chargerIC->readRegister(chargerIC, BQ25180_TS_CONTROL);
-    registerValues.mask_id = chargerIC->readRegister(chargerIC, BQ25180_MASK_ID);
+    registerValues.stat0 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0);
+    registerValues.stat1 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT1);
+    registerValues.flag0 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_FLAG0);
+    registerValues.vbat_ctrl = chargerIC->readRegister(chargerIC->devAddress, BQ25180_VBAT_CTRL);
+    registerValues.ichg_ctrl = chargerIC->readRegister(chargerIC->devAddress, BQ25180_ICHG_CTRL);
+    registerValues.chargectrl0 =
+        chargerIC->readRegister(chargerIC->devAddress, BQ25180_CHARGECTRL0);
+    registerValues.chargectrl1 =
+        chargerIC->readRegister(chargerIC->devAddress, BQ25180_CHARGECTRL1);
+    registerValues.ic_ctrl = chargerIC->readRegister(chargerIC->devAddress, BQ25180_IC_CTRL);
+    registerValues.tmr_ilim = chargerIC->readRegister(chargerIC->devAddress, BQ25180_TMR_ILIM);
+    registerValues.ship_rst = chargerIC->readRegister(chargerIC->devAddress, BQ25180_SHIP_RST);
+    registerValues.sys_reg = chargerIC->readRegister(chargerIC->devAddress, BQ25180_SYS_REG);
+    registerValues.ts_control = chargerIC->readRegister(chargerIC->devAddress, BQ25180_TS_CONTROL);
+    registerValues.mask_id = chargerIC->readRegister(chargerIC->devAddress, BQ25180_MASK_ID);
     return registerValues;
 }
 
 void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
-    uint8_t regValue = chargerIC->readRegister(chargerIC, reg);
+    uint8_t regValue = chargerIC->readRegister(chargerIC->devAddress, reg);
 
     print(chargerIC, "register");
     print(chargerIC, " ");
@@ -344,11 +345,11 @@ static void enableShipMode(BQ25180 *chargerIC) {
     // 1b0 = Disable
     // 1b1 = Enable
 
-    chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01000001);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SHIP_RST, 0b01000001);
 }
 
 static void hardwareReset(BQ25180 *chargerIC) {
-    chargerIC->writeRegister(chargerIC, BQ25180_SHIP_RST, 0b01100001);
+    chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SHIP_RST, 0b01100001);
 }
 
 void lock(BQ25180 *chargerIC) {

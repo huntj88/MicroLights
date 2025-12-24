@@ -158,7 +158,7 @@ size_t board_get_unique_id(uint8_t id[], size_t max_len) {
     return len;
 }
 
-int board_uart_read(uint8_t *buf, int len) { // NOLINT(readability-non-const-parameter)
+int board_uart_read(uint8_t *buf, int len) {  // NOLINT(readability-non-const-parameter)
     (void)buf;
     (void)len;
     return 0;

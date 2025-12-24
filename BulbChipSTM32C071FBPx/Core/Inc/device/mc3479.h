@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "device/i2c.h"
 #include "model/serial.h"
 
 #define MC3479_I2CADDR_DEFAULT 0x99  // 8-bit address
@@ -33,15 +34,9 @@
 
 typedef struct MC3479 MC3479;  // forward declaration
 
-// Read multiple consecutive registers. Returns true on success.
-typedef bool MC3479ReadRegisters(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len);
-
-// Write a single 8-bit register.
-typedef void MC3479WriteRegister(MC3479 *dev, uint8_t reg, uint8_t value);
-
 struct MC3479 {
-    MC3479ReadRegisters *readRegisters;
-    MC3479WriteRegister *writeRegister;
+    I2CReadRegisters *readRegisters;
+    I2CWriteRegister *writeRegister;
     WriteToUsbSerial *writeToUsbSerial;
 
     uint8_t devAddress;
@@ -61,8 +56,8 @@ struct MC3479 {
 
 bool mc3479Init(
     MC3479 *dev,
-    MC3479ReadRegisters *readRegsCb,
-    MC3479WriteRegister *writeCb,
+    I2CReadRegisters *readRegsCb,
+    I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial);
 

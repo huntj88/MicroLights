@@ -61,26 +61,25 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
 }
 
 void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
-    manager->readBulbModeFromFlash(index, buffer, 1024);
-    parseJson((uint8_t *)buffer, 1024, &cliInput);
+    manager->readBulbModeFromFlash(index, buffer, PAGE_SECTOR);
+    parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
 
     if (cliInput.parsedType != parseWriteMode) {
         // fallback to default
-        parseJson((uint8_t *)defaultMode, 1024, &cliInput);
+        parseJson((uint8_t *)defaultMode, PAGE_SECTOR, &cliInput);
     }
 }
 
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
-        parseJson((uint8_t *)fakeOffMode, 1024, &cliInput);
+        parseJson((uint8_t *)fakeOffMode, PAGE_SECTOR, &cliInput);
     } else {
-        char flashReadBuffer[1024];
-        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-        parseJson((uint8_t *)flashReadBuffer, 1024, &cliInput);
-
+        char flashReadBuffer[PAGE_SECTOR];
+        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, PAGE_SECTOR);
+        parseJson((uint8_t *)flashReadBuffer, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
-            parseJson((uint8_t *)defaultMode, 1024, &cliInput);
+            parseJson((uint8_t *)defaultMode, PAGE_SECTOR, &cliInput);
         }
     }
 }

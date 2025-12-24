@@ -9,11 +9,11 @@ static uint8_t lastWrittenReg;
 static uint8_t lastWrittenValue;
 static bool writeCalled = false;
 
-uint8_t mock_readRegister(BQ25180 *chargerIC, uint8_t reg) {
+uint8_t mock_readRegister(uint8_t devAddress, uint8_t reg) {
     return mockRegisters[reg];
 }
 
-void mock_writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
+void mock_writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     lastWrittenReg = reg;
     lastWrittenValue = value;
     writeCalled = true;

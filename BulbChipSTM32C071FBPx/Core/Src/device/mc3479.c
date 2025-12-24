@@ -20,8 +20,8 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
 
 bool mc3479Init(
     MC3479 *dev,
-    MC3479ReadRegisters *readRegsCb,
-    MC3479WriteRegister *writeCb,
+    I2CReadRegisters *readRegsCb,
+    I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial) {
     if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) {
@@ -37,7 +37,7 @@ bool mc3479Init(
     mc3479Disable(dev);
 
     // set +/- 16g
-    dev->writeRegister(dev, MC3479_REG_RANGE, 0b00110000);
+    dev->writeRegister(dev->devAddress, MC3479_REG_RANGE, 0b00110000);
     return true;
 }
 
@@ -47,7 +47,7 @@ void mc3479Enable(MC3479 *dev) {
     }
 
     // put into WAKE mode
-    dev->writeRegister(dev, MC3479_REG_CTRL1, 0b00000001);
+    dev->writeRegister(dev->devAddress, MC3479_REG_CTRL1, 0b00000001);
     dev->enabled = true;
 
     // reset last sample tick so the task may sample immediately on next mc3479Task call
@@ -65,7 +65,7 @@ void mc3479Disable(MC3479 *dev) {
     }
 
     // Put the sensor into low-power / standby if supported
-    dev->writeRegister(dev, MC3479_REG_CTRL1, 0x00);
+    dev->writeRegister(dev->devAddress, MC3479_REG_CTRL1, 0x00);
     dev->enabled = false;
 
     // reset the sample time and clear the cached magnitude
@@ -86,7 +86,7 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     uint8_t buf[6] = {0};
     if (dev->readRegisters) {
         // readRegisters should read 6 bytes starting at MC3479_REG_XOUT_L
-        bool read_ok = dev->readRegisters(dev, MC3479_REG_XOUT_L, buf, 6);
+        bool read_ok = dev->readRegisters(dev->devAddress, MC3479_REG_XOUT_L, buf, 6);
         if (!read_ok) {
             return false;
         }

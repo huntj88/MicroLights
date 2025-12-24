@@ -93,50 +93,39 @@ static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
     usbWriteToSerial(&usbManager, itf, buf, count);
 }
 
-static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
+static uint8_t readRegister(uint8_t devAddress, uint8_t reg) {
     uint8_t receive_buffer[1] = {0};
 
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, chargerIC->devAddress, &reg, 1, 1000);
+    HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1, devAddress, &reg, 1, 1000);
 
     HAL_StatusTypeDef statusReceive =
-        HAL_I2C_Master_Receive(&hi2c1, chargerIC->devAddress, &receive_buffer, 1, 1000);
+        HAL_I2C_Master_Receive(&hi2c1, devAddress, &receive_buffer, 1, 1000);
 
     return receive_buffer[0];
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
+static void writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     uint8_t writeBuffer[2] = {0};
     writeBuffer[0] = reg;
     writeBuffer[1] = value;
 
-    HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(
-        &hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
+    HAL_StatusTypeDef statusTransmit =
+        HAL_I2C_Master_Transmit(&hi2c1, devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
-// Read multiple consecutive registers from MC3479 (for efficient axis reads)
-static bool readRegistersAccel(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len) {
+// Read multiple consecutive registers. Used with MC3479 (for efficient axis reads)
+static bool readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
     HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, dev->devAddress, &startReg, 1, 1000);
+        HAL_I2C_Master_Transmit(&hi2c1, devAddress, &startReg, 1, 1000);
 
     if (statusTransmit != HAL_OK) {
         return false;
     }
 
-    HAL_StatusTypeDef statusReceive =
-        HAL_I2C_Master_Receive(&hi2c1, dev->devAddress, buf, len, 1000);
+    HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress, buf, len, 1000);
 
     return statusReceive == HAL_OK;
-}
-
-static void writeRegisterAccel(MC3479 *dev, uint8_t reg, uint8_t value) {
-    uint8_t writeBuffer[2] = {0};
-    writeBuffer[0] = reg;
-    writeBuffer[1] = value;
-
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, dev->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
 static void writeRgbPwmCaseLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty) {
@@ -325,12 +314,7 @@ int main(void) {
         Error_Handler();
     }
 
-    if (!mc3479Init(
-            &accel,
-            readRegistersAccel,
-            writeRegisterAccel,
-            MC3479_I2CADDR_DEFAULT,
-            writeToSerial)) {
+    if (!mc3479Init(&accel, readRegisters, writeRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
         Error_Handler();
     }
 
