@@ -10,19 +10,14 @@ static Button button;
 static RGBLed mockCaseLed;
 static uint8_t mockButtonPinState = 1;  // 1 = released, 0 = pressed
 static bool timerStarted = false;
-static bool timerStopped = false;
 
 // Mock Functions
 uint8_t mock_readButtonPin() {
     return mockButtonPinState;
 }
 
-void mock_startButtonTimer() {
-    timerStarted = true;
-}
-
-void mock_stopButtonTimer() {
-    timerStopped = true;
+void mock_enableTimers(bool enable) {
+    timerStarted = enable;
 }
 
 // RGB Mocks
@@ -54,15 +49,13 @@ void setUp(void) {
     memset(&mockCaseLed, 0, sizeof(RGBLed));
     mockButtonPinState = 1;
     timerStarted = false;
-    timerStopped = false;
     rgbNoColorCalled = false;
     rgbLockedCalled = false;
     rgbShutdownCalled = false;
     rgbSuccessCalled = false;
     processButtonInterrupt = false;
 
-    buttonInit(
-        &button, mock_readButtonPin, mock_startButtonTimer, mock_stopButtonTimer, &mockCaseLed);
+    buttonInit(&button, mock_readButtonPin, mock_enableTimers, &mockCaseLed);
 }
 
 void tearDown(void) {
@@ -130,8 +123,8 @@ void test_ButtonInputTask_UpdatesCaseLed_DuringPress(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ButtonInputTask_ReturnsIgnore_Idle);
     RUN_TEST(test_ButtonInputTask_ReturnsClicked_AfterShortPress);
+    RUN_TEST(test_ButtonInputTask_ReturnsIgnore_Idle);
     RUN_TEST(test_ButtonInputTask_ReturnsShutdown_AfterLongPress);
     RUN_TEST(test_ButtonInputTask_UpdatesCaseLed_DuringPress);
     return UNITY_END();

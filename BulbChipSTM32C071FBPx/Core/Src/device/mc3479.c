@@ -20,8 +20,8 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
 
 bool mc3479Init(
     MC3479 *dev,
-    MC3479ReadRegisters *readRegsCb,
-    MC3479WriteRegister *writeCb,
+    I2CReadRegisters *readRegsCb,
+    I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial) {
     if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) {
@@ -37,7 +37,7 @@ bool mc3479Init(
     mc3479Disable(dev);
 
     // set +/- 16g
-    dev->writeRegister(dev, MC3479_REG_RANGE, 0b00110000);
+    dev->writeRegister(dev->devAddress, MC3479_REG_RANGE, 0b00110000);
     return true;
 }
 
@@ -47,7 +47,7 @@ void mc3479Enable(MC3479 *dev) {
     }
 
     // put into WAKE mode
-    dev->writeRegister(dev, MC3479_REG_CTRL1, 0b00000001);
+    dev->writeRegister(dev->devAddress, MC3479_REG_CTRL1, 0b00000001);
     dev->enabled = true;
 
     // reset last sample tick so the task may sample immediately on next mc3479Task call
@@ -65,7 +65,7 @@ void mc3479Disable(MC3479 *dev) {
     }
 
     // Put the sensor into low-power / standby if supported
-    dev->writeRegister(dev, MC3479_REG_CTRL1, 0x00);
+    dev->writeRegister(dev->devAddress, MC3479_REG_CTRL1, 0x00);
     dev->enabled = false;
 
     // reset the sample time and clear the cached magnitude
@@ -77,7 +77,7 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastRawZ = 0;
 }
 
-bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
+bool mc3479SampleNow(MC3479 *dev, uint32_t milliseconds) {
     if (!dev || !dev->enabled) {
         return false;
     }
@@ -86,7 +86,7 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     uint8_t buf[6] = {0};
     if (dev->readRegisters) {
         // readRegisters should read 6 bytes starting at MC3479_REG_XOUT_L
-        bool read_ok = dev->readRegisters(dev, MC3479_REG_XOUT_L, buf, 6);
+        bool read_ok = dev->readRegisters(dev->devAddress, MC3479_REG_XOUT_L, buf, 6);
         if (!read_ok) {
             return false;
         }
@@ -99,8 +99,8 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
 
     // Compute jerk (derivative of acceleration). This driver measures and
     // stores jerk in units of g per ms (caller ms are used directly).
-    if (dev->lastSampleMs != 0 && ms > dev->lastSampleMs) {
-        uint32_t dt_ms = ms - dev->lastSampleMs;
+    if (dev->lastSampleMs != 0 && milliseconds > dev->lastSampleMs) {
+        uint32_t dt_ms = milliseconds - dev->lastSampleMs;
         if (dt_ms > 0) {
             int32_t dax = (int32_t)raw_x - dev->lastRawX;
             int32_t day = (int32_t)raw_y - dev->lastRawY;
@@ -123,27 +123,27 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     dev->lastRawY = raw_y;
     dev->lastRawZ = raw_z;
 
-    dev->lastSampleMs = ms;
+    dev->lastSampleMs = milliseconds;
 
     return true;
 }
 
-void mc3479Task(MC3479 *dev, uint32_t ms) {
+void mc3479Task(MC3479 *dev, uint32_t milliseconds) {
     if (!dev || !dev->enabled) {
         return;
     }
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    uint32_t elapsed = ms - dev->lastSampleMs;
+    uint32_t elapsed = milliseconds - dev->lastSampleMs;
     bool samplePeriodElapsed = elapsed >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, ms)) {
+        if (mc3479SampleNow(dev, milliseconds)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleMs = ms;
+            dev->lastSampleMs = milliseconds;
         }
     }
 }

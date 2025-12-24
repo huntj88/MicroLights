@@ -10,11 +10,11 @@
 #include "json/command_parser.h"
 #include "storage.h"
 
-static const char *fakeOffMode =
+static const char *fakeOffModeJson =
     "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{"
     "\"pattern\":{\"type\":\"simple\",\"name\":\"off\",\"duration\":100,\"changeAt\":[{\"ms\":0,"
     "\"output\":\"low\"}]}}}}";
-static const char *defaultMode =
+static const char *defaultModeJson =
     "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full "
     "on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,"
     "\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
@@ -23,18 +23,16 @@ bool modeManagerInit(
     ModeManager *manager,
     MC3479 *accel,
     RGBLed *caseLed,
-    void (*startLedTimers)(),
-    void (*stopLedTimers)(),
+    void (*enableTimers)(bool enable),
     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
     void (*writeBulbLedPin)(uint8_t state)) {
-    if (!manager || !accel || !caseLed || !startLedTimers || !stopLedTimers ||
-        !readBulbModeFromFlash || !writeBulbLedPin) {
+    if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||
+        !writeBulbLedPin) {
         return false;
     }
     manager->accel = accel;
     manager->caseLed = caseLed;
-    manager->startLedTimers = startLedTimers;
-    manager->stopLedTimers = stopLedTimers;
+    manager->enableTimers = enableTimers;
     manager->readBulbModeFromFlash = readBulbModeFromFlash;
     manager->writeBulbLedPin = writeBulbLedPin;
     manager->currentModeIndex = 0;
@@ -46,12 +44,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
-
-    if (manager->currentModeIndex == FAKE_OFF_MODE_INDEX) {
-        manager->stopLedTimers();
-    } else {
-        manager->startLedTimers();
-    }
+    manager->enableTimers(true);
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
@@ -60,27 +53,16 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     }
 }
 
-void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
-    manager->readBulbModeFromFlash(index, buffer, 1024);
-    parseJson((uint8_t *)buffer, 1024, &cliInput);
-
-    if (cliInput.parsedType != parseWriteMode) {
-        // fallback to default
-        parseJson((uint8_t *)defaultMode, 1024, &cliInput);
-    }
-}
-
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
-        parseJson((uint8_t *)fakeOffMode, 1024, &cliInput);
+        parseJson((uint8_t *)fakeOffModeJson, PAGE_SECTOR, &cliInput);
     } else {
-        char flashReadBuffer[1024];
-        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, 1024);
-        parseJson((uint8_t *)flashReadBuffer, 1024, &cliInput);
-
+        char flashReadBuffer[PAGE_SECTOR];
+        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, PAGE_SECTOR);
+        parseJson((uint8_t *)flashReadBuffer, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
-            parseJson((uint8_t *)defaultMode, 1024, &cliInput);
+            parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
         }
     }
 }
@@ -88,6 +70,18 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
 void loadMode(ModeManager *manager, uint8_t index) {
     readBulbMode(manager, index);
     setMode(manager, &cliInput.mode, index);
+}
+
+/// @brief switch modes to fakeOff mode, an intermediate mode before the chips lock, enables
+/// switching back on without holding button to get out of lock.
+/// @param manager
+/// @param enableLedTimers true if usb is plugged in to show charging status
+void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+    loadMode(manager, FAKE_OFF_MODE_INDEX);
+    if (!enableLedTimers) {
+        // used for fake off mode when not charging
+        manager->enableTimers(false);
+    }
 }
 
 bool isFakeOff(ModeManager *manager) {
@@ -142,13 +136,13 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
-        modeStateReset(&manager->modeState, ms);
+        modeStateReset(&manager->modeState, milliseconds);
         manager->shouldResetState = false;
     }
 
-    modeStateAdvance(&manager->modeState, &manager->currentMode, ms);
+    modeStateAdvance(&manager->modeState, &manager->currentMode, milliseconds);
 
     ActiveComponents active = resolveActiveComponents(manager);
 

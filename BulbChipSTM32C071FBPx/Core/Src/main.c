@@ -93,52 +93,44 @@ static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
     usbWriteToSerial(&usbManager, itf, buf, count);
 }
 
-static uint8_t readRegister(BQ25180 *chargerIC, uint8_t reg) {
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+static uint8_t readRegister(uint8_t devAddress, uint8_t reg) {
     uint8_t receive_buffer[1] = {0};
 
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, chargerIC->devAddress, &reg, 1, 1000);
+    HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1, devAddress, &reg, 1, 1000);
 
     HAL_StatusTypeDef statusReceive =
-        HAL_I2C_Master_Receive(&hi2c1, chargerIC->devAddress, &receive_buffer, 1, 1000);
+        HAL_I2C_Master_Receive(&hi2c1, devAddress, &receive_buffer, 1, 1000);
 
     return receive_buffer[0];
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-static void writeRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value) {
+static void writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     uint8_t writeBuffer[2] = {0};
     writeBuffer[0] = reg;
     writeBuffer[1] = value;
 
-    HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(
-        &hi2c1, chargerIC->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
+    HAL_StatusTypeDef statusTransmit =
+        HAL_I2C_Master_Transmit(&hi2c1, devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
 }
 
-// Read multiple consecutive registers from MC3479 (for efficient axis reads)
-static bool readRegistersAccel(MC3479 *dev, uint8_t startReg, uint8_t *buf, size_t len) {
+// Read multiple consecutive registers. Used with MC3479 (for efficient axis reads)
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+static bool readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
     HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, dev->devAddress, &startReg, 1, 1000);
+        HAL_I2C_Master_Transmit(&hi2c1, devAddress, &startReg, 1, 1000);
 
     if (statusTransmit != HAL_OK) {
         return false;
     }
 
-    HAL_StatusTypeDef statusReceive =
-        HAL_I2C_Master_Receive(&hi2c1, dev->devAddress, buf, len, 1000);
+    HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress, buf, len, 1000);
 
     return statusReceive == HAL_OK;
 }
 
-static void writeRegisterAccel(MC3479 *dev, uint8_t reg, uint8_t value) {
-    uint8_t writeBuffer[2] = {0};
-    writeBuffer[0] = reg;
-    writeBuffer[1] = value;
-
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, dev->devAddress, &writeBuffer, sizeof(writeBuffer), 1000);
-}
-
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 static void writeRgbPwmCaseLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty) {
     TIM1->CCR1 = redDuty;
     TIM1->CCR2 = greenDuty;
@@ -154,31 +146,28 @@ static uint8_t readButtonPin() {
 }
 
 static void writeBulbLed(uint8_t state) {
-    if (state == 0) {
-        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+}
+
+// enables or disables all timers used for leds and chip tick
+static void enableTimers(bool enable) {
+    if (enable) {
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+        HAL_TIM_Base_Start_IT(&htim2);
     } else {
-        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_SET);
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+        HAL_TIM_Base_Stop_IT(&htim2);
+
+        // turn leds off
+        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
     }
-}
-
-static void startLedTimers() {
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_Base_Start_IT(&htim2);
-}
-
-static void stopLedTimers() {
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_Base_Stop_IT(&htim2);
-
-    // turn leds off
-    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
 }
 
 static uint32_t calculateTickMultiplier() {
@@ -235,7 +224,7 @@ static uint32_t calculateTickMultiplier() {
  *   2^20 is chosen to provide sufficient precision while keeping the multiplier within uint32_t
  *   (assuming millisecondsPerTick < ~4000ms) and the intermediate result within uint64_t.
  */
-static uint32_t convertTicksToMs(uint32_t ticks) {
+static uint32_t convertTicksToMilliseconds(uint32_t ticks) {
     static uint32_t multiplier = 0;
     if (multiplier == 0) {
         multiplier = calculateTickMultiplier();
@@ -288,14 +277,21 @@ int main(void) {
     // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
     // different timer, bulb LEDS should continue to work but on a new pin.
 
+    // TODO: will need another when adding front rgb led, split up led timers.
+    if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
+        Error_Handler();
+    }
+
+    if (!buttonInit(&button, readButtonPin, enableTimers, &caseLed)) {
+        Error_Handler();
+    }
+
+    if (!mc3479Init(&accel, readRegisters, writeRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
+        Error_Handler();
+    }
+
     if (!modeManagerInit(
-            &modeManager,
-            &accel,
-            &caseLed,
-            startLedTimers,
-            stopLedTimers,
-            readBulbModeFromFlash,
-            writeBulbLed)) {
+            &modeManager, &accel, &caseLed, enableTimers, readBulbModeFromFlash, writeBulbLed)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
@@ -305,32 +301,14 @@ int main(void) {
         Error_Handler();
     }
 
-    // TODO: will need another when adding front rgb led, split up led timers.
-    if (!rgbInit(
-            &caseLed,
-            writeRgbPwmCaseLed,
-            (uint16_t)htim1.Init.Period,
-            startLedTimers,
-            stopLedTimers)) {
-        Error_Handler();
-    }
-
     if (!bq25180Init(
-            &chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
-        Error_Handler();
-    }
-
-    // TODO: button timers
-    if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
-        Error_Handler();
-    }
-
-    if (!mc3479Init(
-            &accel,
-            readRegistersAccel,
-            writeRegisterAccel,
-            MC3479_I2CADDR_DEFAULT,
-            writeToSerial)) {
+            &chargerIC,
+            readRegister,
+            writeRegister,
+            (0x6A << 1),
+            writeToSerial,
+            &caseLed,
+            enableTimers)) {
         Error_Handler();
     }
 
@@ -342,9 +320,7 @@ int main(void) {
         &accel,
         &caseLed,
         writeToSerial,
-        convertTicksToMs,
-        startLedTimers,
-        stopLedTimers);
+        convertTicksToMilliseconds);
 
     HAL_TIM_Base_Start_IT(&htim3);  // auto off timer
 

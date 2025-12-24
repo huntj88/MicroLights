@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Auto-update test runners
+python3 manage_tests.py
+if [ $? -ne 0 ]; then
+    echo "Test management script failed. Aborting."
+    exit 1
+fi
+
 # Create output directory
 mkdir -p Tests/build
 rm -f Tests/build/*
@@ -43,6 +50,10 @@ run_test() {
 echo "Compiling and running test_chip_state..."
 gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC -o Tests/build/test_chip_state
 run_test ./Tests/build/test_chip_state
+
+echo "Compiling and running test_settings_manager..."
+gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC -o Tests/build/test_settings_manager
+run_test ./Tests/build/test_settings_manager
 
 echo "Compiling and running test_mode_manager..."
 gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c -o Tests/build/test_mode_manager

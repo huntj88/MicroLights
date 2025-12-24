@@ -19,8 +19,7 @@ typedef struct SettingsManager {
 
 bool settingsManagerInit(
     SettingsManager *manager, void (*readSettingsFromFlash)(char *buffer, uint32_t length));
-void settingsManagerLoad(SettingsManager *manager);
-void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer);
-void settingsManagerUpdate(SettingsManager *manager, ChipSettings *newSettings);
+void loadSettingsFromFlash(SettingsManager *manager, char *buffer);
+void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */

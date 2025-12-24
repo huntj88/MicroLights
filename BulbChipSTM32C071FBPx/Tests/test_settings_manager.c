@@ -1,0 +1,128 @@
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "unity.h"
+
+#include "chip_state.h"
+#include "device/bq25180.h"
+#include "device/button.h"
+#include "device/mc3479.h"
+#include "device/rgb_led.h"
+#include "mode_manager.h"
+#include "model/cli_model.h"
+#include "settings_manager.h"
+
+// Mock Data
+static ModeManager mockModeManager;
+static Button mockButton;
+static BQ25180 mockCharger;
+static MC3479 mockAccel;
+static RGBLed mockCaseLed;
+static char lastSerialOutput[100];
+
+// Mocks for settings_manager.c
+CliInput cliInput;
+void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
+    // parsing tested in test_command_parser
+    TEST_ASSERT_TRUE(false);
+}
+
+// Mocks for chip_state.c
+uint32_t mock_convertTicksToMs(uint32_t ticks) {
+    return ticks * 10;
+}
+
+void mock_writeUsbSerial(uint8_t itf, const char *buf, uint32_t count) {
+    strncpy(lastSerialOutput, buf, count);
+    lastSerialOutput[count] = '\0';
+}
+
+enum ChargeState getChargingState(BQ25180 *dev) {
+    return notConnected;
+}
+void loadMode(ModeManager *manager, uint8_t index) {
+}
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
+    return ignore;
+}
+void rgbShowSuccess(RGBLed *led) {
+}
+void lock(BQ25180 *dev) {
+}
+void rgbTask(RGBLed *led, uint32_t ms) {
+}
+void mc3479Task(MC3479 *dev, uint32_t ms) {
+}
+void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
+}
+void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+}
+bool isFakeOff(ModeManager *manager) {
+    return false;
+}
+bool isEvaluatingButtonPress(Button *button) {
+    return false;
+}
+void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+}
+
+// Include source files under test
+#include "../Core/Src/chip_state.c"
+#include "../Core/Src/model/mode_state.c"
+#include "../Core/Src/settings_manager.c"
+
+void setUp(void) {
+    memset(&mockModeManager, 0, sizeof(ModeManager));
+    memset(&mockButton, 0, sizeof(Button));
+    memset(&mockCharger, 0, sizeof(BQ25180));
+    memset(&mockAccel, 0, sizeof(MC3479));
+    memset(&mockCaseLed, 0, sizeof(RGBLed));
+    state = (ChipState){0};
+}
+
+void tearDown(void) {
+}
+
+void test_UpdateSettings_UpdatesChipStateSettings(void) {
+    // 1. Setup SettingsManager
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+
+    // Initialize currentSettings manually
+    settingsManager.currentSettings.modeCount = 5;
+    settingsManager.currentSettings.minutesUntilAutoOff = 10;
+
+    // 2. Configure ChipState with pointer to settingsManager.currentSettings
+    configureChipState(
+        &mockModeManager,
+        &settingsManager.currentSettings,  // Pass the pointer!
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_convertTicksToMs);
+
+    // 3. Verify initial state
+    TEST_ASSERT_EQUAL_UINT8(5, state.settings->modeCount);
+
+    // 4. Create new settings
+    ChipSettings newSettings;
+    memset(&newSettings, 0, sizeof(ChipSettings));
+    newSettings.modeCount = 10;
+    newSettings.minutesUntilAutoOff = 20;
+    newSettings.minutesUntilLockAfterAutoOff = 5;
+
+    // 5. Call updateSettings
+    updateSettings(&settingsManager, &newSettings);
+
+    // 6. Verify ChipState sees the change
+    TEST_ASSERT_EQUAL_UINT8(10, state.settings->modeCount);
+    TEST_ASSERT_EQUAL_UINT16(20, state.settings->minutesUntilAutoOff);
+}
+
+int main(void) {
+    UNITY_BEGIN();
+    RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
+    return UNITY_END();
+}

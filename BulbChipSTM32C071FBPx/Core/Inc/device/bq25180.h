@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "device/i2c.h"
 #include "device/rgb_led.h"
 #include "model/serial.h"
 
@@ -47,15 +48,13 @@ enum ChargeState { notConnected, notCharging, constantCurrent, constantVoltage, 
 
 typedef struct BQ25180 BQ25180;  // forward declaration
 
-typedef uint8_t BQ25180ReadRegister(BQ25180 *chargerIC, uint8_t reg);
-typedef void BQ25180WriteRegister(BQ25180 *chargerIC, uint8_t reg, uint8_t value);
-
 typedef struct BQ25180 {
-    BQ25180ReadRegister *readRegister;
-    BQ25180WriteRegister *writeRegister;
+    I2CReadRegister *readRegister;
+    I2CWriteRegister *writeRegister;
     WriteToUsbSerial *writeToUsbSerial;
     uint8_t devAddress;
     RGBLed *caseLed;
+    void (*enableTimers)(bool enable);
 
     enum ChargeState chargingState;
     uint32_t checkedAtMs;
@@ -79,15 +78,17 @@ typedef struct BQ25180Registers {
 
 bool bq25180Init(
     BQ25180 *chargerIC,
-    BQ25180ReadRegister *readRegCb,
-    BQ25180WriteRegister *writeCb,
+    I2CReadRegister *readRegCb,
+    I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial,
-    RGBLed *caseLed);
+    RGBLed *caseLed,
+    void (*enableTimers)(bool enable));
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
-void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled);
+void chargerTask(
+    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled);
 void lock(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);

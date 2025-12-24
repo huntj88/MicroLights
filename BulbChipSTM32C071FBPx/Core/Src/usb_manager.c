@@ -18,16 +18,16 @@
 bool usbInit(
     USBManager *usbManager,
     UART_HandleTypeDef *huart,
-    ModeManager *_modeManager,
-    SettingsManager *_settingsManager,
-    void (*_enterDFU)()) {
-    if (!usbManager || !huart || !_modeManager || !_settingsManager || !_enterDFU) {
+    ModeManager *modeManager,
+    SettingsManager *settingsManager,
+    void (*enterDFU)()) {
+    if (!usbManager || !huart || !modeManager || !settingsManager || !enterDFU) {
         return false;
     }
     usbManager->huart = huart;
-    usbManager->modeManager = _modeManager;
-    usbManager->settingsManager = _settingsManager;
-    usbManager->enterDFU = _enterDFU;
+    usbManager->modeManager = modeManager;
+    usbManager->settingsManager = settingsManager;
+    usbManager->enterDFU = enterDFU;
 
     tusb_init();
     return true;
@@ -80,8 +80,9 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
             break;
         }
         case parseReadMode: {
-            char flashReadBuffer[1024];
-            loadModeFromBuffer(usbManager->modeManager, cliInput.modeIndex, flashReadBuffer);
+            char flashReadBuffer[PAGE_SECTOR];
+            usbManager->modeManager->readBulbModeFromFlash(
+                cliInput.modeIndex, flashReadBuffer, PAGE_SECTOR);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
             flashReadBuffer[len + 1] = '\0';
@@ -91,12 +92,12 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
             writeSettingsToFlash(buf, cliInput.jsonLength);
-            settingsManagerUpdate(usbManager->settingsManager, &settings);
+            updateSettings(usbManager->settingsManager, &settings);
             break;
         }
         case parseReadSettings: {
-            char flashReadBuffer[1024];
-            settingsManagerLoadFromBuffer(usbManager->settingsManager, flashReadBuffer);
+            char flashReadBuffer[PAGE_SECTOR];
+            loadSettingsFromFlash(usbManager->settingsManager, flashReadBuffer);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
             flashReadBuffer[len + 1] = '\0';
@@ -111,7 +112,7 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
 }
 
 void usbCdcTask(USBManager *usbManager) {
-    static uint8_t jsonBuf[1024];
+    static uint8_t jsonBuf[PAGE_SECTOR];
     static uint16_t jsonIndex = 0;
     uint8_t itf;
 

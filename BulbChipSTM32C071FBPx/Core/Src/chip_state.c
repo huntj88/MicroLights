@@ -33,57 +33,45 @@ typedef struct {
 
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
-    uint32_t (*convertTicksToMs)(uint32_t ticks);
-    void (*startLedTimers)();
-    void (*stopLedTimers)();
+    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
 static ChipState state = {0};
 
-static void shutdownFake() {
-    loadMode(state.modeManager, FAKE_OFF_MODE_INDEX);
-    if (getChargingState(state.chargerIC) != notConnected) {
-        state.startLedTimers();
-    }
-}
-
 void configureChipState(
-    ModeManager *_modeManager,
-    ChipSettings *_settings,
-    Button *_button,
-    BQ25180 *_chargerIC,
-    MC3479 *_accel,
-    RGBLed *_caseLed,
-    WriteToUsbSerial *_writeUsbSerial,
-    uint32_t (*_convertTicksToMs)(uint32_t ticks),
-    void (*_startLedTimers)(),
-    void (*_stopLedTimers)()) {
-    state.modeManager = _modeManager;
-    state.settings = _settings;
-    state.button = _button;
-    state.caseLed = _caseLed;
-    state.chargerIC = _chargerIC;
-    state.accel = _accel;
-    state.writeUsbSerial = _writeUsbSerial;
-    state.convertTicksToMs = _convertTicksToMs;
-    state.startLedTimers = _startLedTimers;
-    state.stopLedTimers = _stopLedTimers;
-
+    ModeManager *modeManager,
+    ChipSettings *settings,
+    Button *button,
+    BQ25180 *chargerIC,
+    MC3479 *accel,
+    RGBLed *caseLed,
+    WriteToUsbSerial *writeUsbSerial,
+    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks)) {
+    state.modeManager = modeManager;
+    state.settings = settings;
+    state.button = button;
+    state.caseLed = caseLed;
+    state.chargerIC = chargerIC;
+    state.accel = accel;
+    state.writeUsbSerial = writeUsbSerial;
+    state.convertTicksToMilliseconds = convertTicksToMilliseconds;
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
     if (chargeState == notConnected) {
         loadMode(state.modeManager, 0);
     } else {
-        shutdownFake();
+        // Enter fake off mode when charging, show led status by enabling led timers
+        fakeOffMode(state.modeManager, true);
     }
 }
 
 void stateTask() {
-    uint32_t ms = state.convertTicksToMs(state.chipTick);
+    uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
 
-    modeTask(state.modeManager, ms, !isEvaluatingButtonPress(state.button));
+    bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
+    modeTask(state.modeManager, milliseconds, canUpdateCaseLed);
 
-    enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
+    enum ButtonResult buttonResult = buttonInputTask(state.button, milliseconds);
     switch (buttonResult) {
         case ignore:
             break;
@@ -98,7 +86,8 @@ void stateTask() {
             state.writeUsbSerial(0, blah, strlen(blah));
             break;
         case shutdown:
-            shutdownFake();
+            bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
+            fakeOffMode(state.modeManager, enableLedTimers);
             break;
         case lockOrHardwareReset:
             lock(state.chargerIC);
@@ -109,12 +98,12 @@ void stateTask() {
         state.ticksSinceLastUserActivity = 0;
     }
 
-    rgbTask(state.caseLed, ms);
-    mc3479Task(state.accel, ms);
+    rgbTask(state.caseLed, milliseconds);
+    mc3479Task(state.accel, milliseconds);
 
     bool unplugLockEnabled = isFakeOff(state.modeManager);
-    bool chargeLedEnabled = isFakeOff(state.modeManager) && !isEvaluatingButtonPress(state.button);
-    chargerTask(state.chargerIC, ms, unplugLockEnabled, chargeLedEnabled);
+    bool chargeLedEnabled = isFakeOff(state.modeManager) && canUpdateCaseLed;
+    chargerTask(state.chargerIC, milliseconds, unplugLockEnabled, chargeLedEnabled);
 }
 
 // TODO: Rate of chipTick interrupt should be configurable
@@ -141,9 +130,12 @@ void autoOffTimerInterrupt() {
             if (isFakeOff(state.modeManager)) {
                 lock(state.chargerIC);
             } else {
-                state.ticksSinceLastUserActivity =
-                    0;  // restart timer to transition from fakeOff to shipMode
-                shutdownFake();
+                // restart timer for transition from fakeOff to shipMode
+                state.ticksSinceLastUserActivity = 0;
+
+                // enter fake off mode
+                bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
+                fakeOffMode(state.modeManager, enableLedTimers);
             }
         }
     }

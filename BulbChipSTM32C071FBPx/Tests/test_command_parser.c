@@ -76,10 +76,10 @@ void test_ParseJson_InvalidJson_DoesNotCrash(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ParseJson_WriteMode_ParsesIndexAndData);
-    RUN_TEST(test_ParseJson_ReadMode_SetsReadAction);
-    RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
     RUN_TEST(test_ParseJson_Dfu_SetsDfuAction);
     RUN_TEST(test_ParseJson_InvalidJson_DoesNotCrash);
+    RUN_TEST(test_ParseJson_ReadMode_SetsReadAction);
+    RUN_TEST(test_ParseJson_WriteMode_ParsesIndexAndData);
+    RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
     return UNITY_END();
 }

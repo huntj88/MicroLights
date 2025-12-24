@@ -69,16 +69,16 @@ void modeStateReset(ModeState *state, uint32_t initialMs) {
     state->lastPatternUpdateMs = initialMs;
 }
 
-void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t ms) {
+void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds) {
     if (!state || !mode) {
         return;
     }
 
     uint32_t deltaMs = 0U;
-    if (ms >= state->lastPatternUpdateMs) {
-        deltaMs = ms - state->lastPatternUpdateMs;
+    if (milliseconds >= state->lastPatternUpdateMs) {
+        deltaMs = milliseconds - state->lastPatternUpdateMs;
     }
-    state->lastPatternUpdateMs = ms;
+    state->lastPatternUpdateMs = milliseconds;
     if (deltaMs == 0U) {
         return;
     }

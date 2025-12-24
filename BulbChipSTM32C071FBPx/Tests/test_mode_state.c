@@ -191,11 +191,11 @@ void test_ModeStateGetSimpleOutput_FalseWhenNoChanges(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ModeStateReset_SeedsInitialTime);
-    RUN_TEST(test_ModeStateAdvance_FrontPatternAdvancesAndWraps);
     RUN_TEST(test_ModeStateAdvance_CaseAndTriggersAdvance);
+    RUN_TEST(test_ModeStateAdvance_FrontPatternAdvancesAndWraps);
     RUN_TEST(test_ModeStateAdvance_IgnoresEquationPatterns);
     RUN_TEST(test_ModeStateAdvance_IgnoresNonMonotonicTime);
     RUN_TEST(test_ModeStateGetSimpleOutput_FalseWhenNoChanges);
+    RUN_TEST(test_ModeStateReset_SeedsInitialTime);
     return UNITY_END();
 }
