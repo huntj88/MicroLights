@@ -93,6 +93,7 @@ static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
     usbWriteToSerial(&usbManager, itf, buf, count);
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 static uint8_t readRegister(uint8_t devAddress, uint8_t reg) {
     uint8_t receive_buffer[1] = {0};
 
@@ -115,6 +116,7 @@ static void writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
 }
 
 // Read multiple consecutive registers. Used with MC3479 (for efficient axis reads)
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 static bool readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
     HAL_StatusTypeDef statusTransmit =
         HAL_I2C_Master_Transmit(&hi2c1, devAddress, &startReg, 1, 1000);
@@ -144,11 +146,7 @@ static uint8_t readButtonPin() {
 }
 
 static void writeBulbLed(uint8_t state) {
-    if (state == 0) {
-        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
-    } else {
-        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_SET);
-    }
+    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 }
 
 // enables or disables all timers used for leds and chip tick
