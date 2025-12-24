@@ -81,7 +81,8 @@ void configureChipState(
 void stateTask() {
     uint32_t ms = state.convertTicksToMs(state.chipTick);
 
-    modeTask(state.modeManager, ms, !isEvaluatingButtonPress(state.button));
+    bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
+    modeTask(state.modeManager, ms, canUpdateCaseLed);
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
     switch (buttonResult) {
@@ -113,7 +114,7 @@ void stateTask() {
     mc3479Task(state.accel, ms);
 
     bool unplugLockEnabled = isFakeOff(state.modeManager);
-    bool chargeLedEnabled = isFakeOff(state.modeManager) && !isEvaluatingButtonPress(state.button);
+    bool chargeLedEnabled = isFakeOff(state.modeManager) && canUpdateCaseLed;
     chargerTask(state.chargerIC, ms, unplugLockEnabled, chargeLedEnabled);
 }
 
@@ -141,8 +142,8 @@ void autoOffTimerInterrupt() {
             if (isFakeOff(state.modeManager)) {
                 lock(state.chargerIC);
             } else {
-                state.ticksSinceLastUserActivity =
-                    0;  // restart timer to transition from fakeOff to shipMode
+                // restart timer for transition from fakeOff to shipMode
+                state.ticksSinceLastUserActivity = 0;
                 shutdownFake();
             }
         }

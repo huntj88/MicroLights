@@ -277,6 +277,25 @@ int main(void) {
     // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
     // different timer, bulb LEDS should continue to work but on a new pin.
 
+    // TODO: will need another when adding front rgb led, split up led timers.
+    if (!rgbInit(
+            &caseLed,
+            writeRgbPwmCaseLed,
+            (uint16_t)htim1.Init.Period,
+            startLedTimers,
+            stopLedTimers)) {
+        Error_Handler();
+    }
+
+    // TODO: button timers
+    if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
+        Error_Handler();
+    }
+
+    if (!mc3479Init(&accel, readRegisters, writeRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
+        Error_Handler();
+    }
+
     if (!modeManagerInit(
             &modeManager,
             &accel,
@@ -294,27 +313,8 @@ int main(void) {
         Error_Handler();
     }
 
-    // TODO: will need another when adding front rgb led, split up led timers.
-    if (!rgbInit(
-            &caseLed,
-            writeRgbPwmCaseLed,
-            (uint16_t)htim1.Init.Period,
-            startLedTimers,
-            stopLedTimers)) {
-        Error_Handler();
-    }
-
     if (!bq25180Init(
             &chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
-        Error_Handler();
-    }
-
-    // TODO: button timers
-    if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
-        Error_Handler();
-    }
-
-    if (!mc3479Init(&accel, readRegisters, writeRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
         Error_Handler();
     }
 

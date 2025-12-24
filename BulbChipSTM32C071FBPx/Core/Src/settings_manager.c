@@ -26,8 +26,8 @@ void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer) {
     manager->currentSettings.minutesUntilAutoOff = 90;
     manager->currentSettings.minutesUntilLockAfterAutoOff = 10;
 
-    manager->readSettingsFromFlash(buffer, 1024);
-    parseJson((uint8_t *)buffer, 1024, &cliInput);
+    manager->readSettingsFromFlash(buffer, PAGE_SECTOR);
+    parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
 
     if (cliInput.parsedType == parseWriteSettings) {
         manager->currentSettings = cliInput.settings;
@@ -35,7 +35,7 @@ void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer) {
 }
 
 void settingsManagerLoad(SettingsManager *manager) {
-    char flashReadBuffer[1024];
+    char flashReadBuffer[PAGE_SECTOR];
     settingsManagerLoadFromBuffer(manager, flashReadBuffer);
 }
 
