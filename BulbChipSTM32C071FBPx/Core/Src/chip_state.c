@@ -33,7 +33,7 @@ typedef struct {
 
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
-    uint32_t (*convertTicksToMs)(uint32_t ticks);
+    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
 static ChipState state = {0};
@@ -46,7 +46,7 @@ void configureChipState(
     MC3479 *accel,
     RGBLed *caseLed,
     WriteToUsbSerial *writeUsbSerial,
-    uint32_t (*convertTicksToMs)(uint32_t ticks)) {
+    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks)) {
     state.modeManager = modeManager;
     state.settings = settings;
     state.button = button;
@@ -54,7 +54,7 @@ void configureChipState(
     state.chargerIC = chargerIC;
     state.accel = accel;
     state.writeUsbSerial = writeUsbSerial;
-    state.convertTicksToMs = convertTicksToMs;
+    state.convertTicksToMilliseconds = convertTicksToMilliseconds;
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
     if (chargeState == notConnected) {
@@ -66,12 +66,12 @@ void configureChipState(
 }
 
 void stateTask() {
-    uint32_t ms = state.convertTicksToMs(state.chipTick);
+    uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
 
     bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
-    modeTask(state.modeManager, ms, canUpdateCaseLed);
+    modeTask(state.modeManager, milliseconds, canUpdateCaseLed);
 
-    enum ButtonResult buttonResult = buttonInputTask(state.button, ms);
+    enum ButtonResult buttonResult = buttonInputTask(state.button, milliseconds);
     switch (buttonResult) {
         case ignore:
             break;
@@ -98,12 +98,12 @@ void stateTask() {
         state.ticksSinceLastUserActivity = 0;
     }
 
-    rgbTask(state.caseLed, ms);
-    mc3479Task(state.accel, ms);
+    rgbTask(state.caseLed, milliseconds);
+    mc3479Task(state.accel, milliseconds);
 
     bool unplugLockEnabled = isFakeOff(state.modeManager);
     bool chargeLedEnabled = isFakeOff(state.modeManager) && canUpdateCaseLed;
-    chargerTask(state.chargerIC, ms, unplugLockEnabled, chargeLedEnabled);
+    chargerTask(state.chargerIC, milliseconds, unplugLockEnabled, chargeLedEnabled);
 }
 
 // TODO: Rate of chipTick interrupt should be configurable

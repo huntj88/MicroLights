@@ -34,7 +34,7 @@ enum ButtonResult {
     lockOrHardwareReset  // hardware reset occurs when usb is plugged in
 };
 
-enum ButtonResult buttonInputTask(Button *button, uint32_t ms);
+enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds);
 bool isEvaluatingButtonPress(Button *button);
 
 #endif /* INC_DEVICE_BUTTON_H_ */

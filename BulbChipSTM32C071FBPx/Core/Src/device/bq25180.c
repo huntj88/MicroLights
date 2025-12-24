@@ -66,12 +66,13 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
     }
 }
 
-void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled) {
+void chargerTask(
+    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled) {
     enum ChargeState previousState = chargerIC->chargingState;
     uint32_t elapsedMillis = 0;
 
     if (chargerIC->checkedAtMs != 0) {
-        elapsedMillis = ms - chargerIC->checkedAtMs;
+        elapsedMillis = milliseconds - chargerIC->checkedAtMs;
     }
 
     // charger i2c watchdog timer will reset if not communicated
@@ -83,11 +84,11 @@ void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool l
         // printAllRegisters(chargerIC);
 
         chargerIC->chargingState = getChargingState(chargerIC);
-        chargerIC->checkedAtMs = ms;
+        chargerIC->checkedAtMs = milliseconds;
     }
 
     // flash charging state to user every ~1 second (1024ms, 2^10)
-    if (ledEnabled && chargerIC->chargingState != notConnected && (ms & 0x3FF) < 50) {
+    if (ledEnabled && chargerIC->chargingState != notConnected && (milliseconds & 0x3FF) < 50) {
         showChargingState(chargerIC, chargerIC->chargingState);
     }
 
@@ -97,7 +98,7 @@ void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool l
         chargerIC->chargingState = state;
 
         bool wasDisconnected = previousState != notConnected && state == notConnected;
-        if (ms != 0 && wasDisconnected && unplugLockEnabled) {
+        if (milliseconds != 0 && wasDisconnected && unplugLockEnabled) {
             // if in fake off mode and power is unplugged, put into ship mode
             lock(chargerIC);
         }

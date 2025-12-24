@@ -27,7 +27,7 @@ void configureChipState(
     MC3479 *accel,
     RGBLed *caseLed,
     WriteToUsbSerial *writeUsbSerial,
-    uint32_t (*convertTicksToMs)(uint32_t ticks));
+    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
 void stateTask();
 void chipTickInterrupt();

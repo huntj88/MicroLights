@@ -27,7 +27,7 @@ typedef struct RGBLed {
 
 bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period);
 
-void rgbTask(RGBLed *device, uint32_t ms);
+void rgbTask(RGBLed *device, uint32_t milliseconds);
 void rgbShowNoColor(RGBLed *device);
 void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue);
 void rgbShowSuccess(RGBLed *device);

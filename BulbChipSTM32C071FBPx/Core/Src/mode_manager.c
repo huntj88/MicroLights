@@ -142,13 +142,13 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
-        modeStateReset(&manager->modeState, ms);
+        modeStateReset(&manager->modeState, milliseconds);
         manager->shouldResetState = false;
     }
 
-    modeStateAdvance(&manager->modeState, &manager->currentMode, ms);
+    modeStateAdvance(&manager->modeState, &manager->currentMode, milliseconds);
 
     ActiveComponents active = resolveActiveComponents(manager);
 

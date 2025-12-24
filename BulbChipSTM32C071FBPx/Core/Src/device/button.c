@@ -33,10 +33,10 @@ bool buttonInit(
     return true;
 }
 
-enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds) {
     // shadow evalStartMs to avoid multiple reads of volatile
     if (processButtonInterrupt && button->evalStartMs == 0) {
-        button->evalStartMs = ms;
+        button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
         // Timers interrupts needed to properly detect input
         button->enableTimers(true);
@@ -44,7 +44,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
 
     uint32_t elapsedMillis = 0;
     if (button->evalStartMs != 0) {
-        elapsedMillis = ms - button->evalStartMs;
+        elapsedMillis = milliseconds - button->evalStartMs;
     }
 
     uint8_t state = button->readButtonPin();

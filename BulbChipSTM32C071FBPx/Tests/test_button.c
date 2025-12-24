@@ -17,7 +17,7 @@ uint8_t mock_readButtonPin() {
 }
 
 void mock_enableTimers(bool enable) {
-   timerStarted = enable;
+    timerStarted = enable;
 }
 
 // RGB Mocks

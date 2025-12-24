@@ -87,7 +87,8 @@ bool bq25180Init(
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
-void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool ledEnabled);
+void chargerTask(
+    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled);
 void lock(BQ25180 *chargerIC);
 void printAllRegisters(BQ25180 *chargerIC);
 BQ25180Registers readAllRegisters(BQ25180 *chargerIC);

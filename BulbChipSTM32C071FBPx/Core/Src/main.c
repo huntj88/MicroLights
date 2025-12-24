@@ -226,7 +226,7 @@ static uint32_t calculateTickMultiplier() {
  *   2^20 is chosen to provide sufficient precision while keeping the multiplier within uint32_t
  *   (assuming millisecondsPerTick < ~4000ms) and the intermediate result within uint64_t.
  */
-static uint32_t convertTicksToMs(uint32_t ticks) {
+static uint32_t convertTicksToMilliseconds(uint32_t ticks) {
     static uint32_t multiplier = 0;
     if (multiplier == 0) {
         multiplier = calculateTickMultiplier();
@@ -323,7 +323,7 @@ int main(void) {
         &accel,
         &caseLed,
         writeToSerial,
-        convertTicksToMs);
+        convertTicksToMilliseconds);
 
     HAL_TIM_Base_Start_IT(&htim3);  // auto off timer
 

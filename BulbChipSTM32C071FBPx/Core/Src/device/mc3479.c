@@ -77,7 +77,7 @@ void mc3479Disable(MC3479 *dev) {
     dev->lastRawZ = 0;
 }
 
-bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
+bool mc3479SampleNow(MC3479 *dev, uint32_t milliseconds) {
     if (!dev || !dev->enabled) {
         return false;
     }
@@ -99,8 +99,8 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
 
     // Compute jerk (derivative of acceleration). This driver measures and
     // stores jerk in units of g per ms (caller ms are used directly).
-    if (dev->lastSampleMs != 0 && ms > dev->lastSampleMs) {
-        uint32_t dt_ms = ms - dev->lastSampleMs;
+    if (dev->lastSampleMs != 0 && milliseconds > dev->lastSampleMs) {
+        uint32_t dt_ms = milliseconds - dev->lastSampleMs;
         if (dt_ms > 0) {
             int32_t dax = (int32_t)raw_x - dev->lastRawX;
             int32_t day = (int32_t)raw_y - dev->lastRawY;
@@ -123,27 +123,27 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
     dev->lastRawY = raw_y;
     dev->lastRawZ = raw_z;
 
-    dev->lastSampleMs = ms;
+    dev->lastSampleMs = milliseconds;
 
     return true;
 }
 
-void mc3479Task(MC3479 *dev, uint32_t ms) {
+void mc3479Task(MC3479 *dev, uint32_t milliseconds) {
     if (!dev || !dev->enabled) {
         return;
     }
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
-    uint32_t elapsed = ms - dev->lastSampleMs;
+    uint32_t elapsed = milliseconds - dev->lastSampleMs;
     bool samplePeriodElapsed = elapsed >= 50;
     if (samplePeriodElapsed) {
         // Try to sample; if it fails, we leave the previous value intact
-        if (mc3479SampleNow(dev, ms)) {
+        if (mc3479SampleNow(dev, milliseconds)) {
             // sample_now updates last_sample_tick
         } else {
             mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
-            dev->lastSampleMs = ms;
+            dev->lastSampleMs = milliseconds;
         }
     }
 }
