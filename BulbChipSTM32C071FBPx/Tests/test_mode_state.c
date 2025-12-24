@@ -57,7 +57,7 @@ void tearDown(void) {
 }
 
 void test_ModeStateReset_SeedsInitialTime(void) {
-    modeStateReset(&state, 1234U);
+    modeStateReset(&state, &mode, 1234U);
     TEST_ASSERT_EQUAL_UINT32(1234U, state.lastPatternUpdateMs);
     TEST_ASSERT_EQUAL_UINT8(0, state.front.simple.changeIndex);
 }
@@ -72,7 +72,7 @@ void test_ModeStateAdvance_FrontPatternAdvancesAndWraps(void) {
     TEST_ASSERT_EQUAL_UINT32(0U, mode.front.pattern.data.simple.changeAt[0].ms);
     TEST_ASSERT_EQUAL_UINT32(50U, mode.front.pattern.data.simple.changeAt[1].ms);
 
-    modeStateReset(&state, 0U);
+    modeStateReset(&state, &mode, 0U);
     TEST_ASSERT_EQUAL_UINT32(0U, state.front.simple.elapsedMs);
 
     advance_to_ms(10U);
@@ -118,7 +118,7 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     add_rgb_change(&mode.accel.triggers[0].caseComp.pattern.data.simple, 0, 0U, 255, 0, 0);
     add_rgb_change(&mode.accel.triggers[0].caseComp.pattern.data.simple, 1, 10U, 255, 255, 0);
 
-    modeStateReset(&state, 0U);
+    modeStateReset(&state, &mode, 0U);
     advance_to_ms(10U);
     TEST_ASSERT_TRUE(
         modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output));
@@ -146,19 +146,92 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
 }
 
-void test_ModeStateAdvance_IgnoresEquationPatterns(void) {
+void test_equation_pattern(void) {
+    memset(&mode, 0, sizeof(mode));
     mode.hasFront = true;
     mode.front.pattern.type = PATTERN_TYPE_EQUATION;
-    state.front.simple.changeIndex = 5U;
-    state.front.simple.elapsedMs = 42U;
+    EquationPattern *eq = &mode.front.pattern.data.equation;
+    eq->duration = 2000;
+    
+    // Red: t * 100
+    eq->red.sectionsCount = 1;
+    strcpy(eq->red.sections[0].equation, "t * 100");
+    eq->red.sections[0].duration = 2000;
+    eq->red.loopAfterDuration = true;
+    
+    // Green: 255 - t * 100
+    eq->green.sectionsCount = 1;
+    strcpy(eq->green.sections[0].equation, "255 - t * 100");
+    eq->green.sections[0].duration = 2000;
+    eq->green.loopAfterDuration = true;
+    
+    // Blue: 0
+    eq->blue.sectionsCount = 0;
+    
+    modeStateReset(&state, &mode, 0);
+    
+    // t = 0
+    modeStateAdvance(&state, &mode, 0);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL(RGB, output.type);
+    TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
+    TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
+    
+    // t = 1.0s
+    modeStateAdvance(&state, &mode, 1000);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(155, output.data.rgb.g);
+    
+    // t = 2.0s (loop)
+    modeStateAdvance(&state, &mode, 2000);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
+}
 
-    modeStateReset(&state, 0U);
-    state.front.simple.changeIndex = 5U;
-    state.front.simple.elapsedMs = 42U;
-
-    modeStateAdvance(&state, &mode, 100U);
-    TEST_ASSERT_EQUAL_UINT8(0, state.front.simple.changeIndex);
-    TEST_ASSERT_EQUAL_UINT32(0U, state.front.simple.elapsedMs);
+void test_equation_multi_section(void) {
+    memset(&mode, 0, sizeof(mode));
+    mode.hasFront = true;
+    mode.front.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *eq = &mode.front.pattern.data.equation;
+    eq->duration = 0; // Infinite
+    
+    // Red: 0-1s: 100, 1-2s: 200
+    eq->red.sectionsCount = 2;
+    strcpy(eq->red.sections[0].equation, "100");
+    eq->red.sections[0].duration = 1000;
+    strcpy(eq->red.sections[1].equation, "200");
+    eq->red.sections[1].duration = 1000;
+    eq->red.loopAfterDuration = true;
+    
+    modeStateReset(&state, &mode, 0);
+    
+    // t = 0
+    modeStateAdvance(&state, &mode, 0);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
+    
+    // t = 500ms
+    modeStateAdvance(&state, &mode, 500);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
+    
+    // t = 1000ms (switch to section 1)
+    modeStateAdvance(&state, &mode, 1000);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(200, output.data.rgb.r);
+    
+    // t = 1500ms
+    modeStateAdvance(&state, &mode, 1500);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(200, output.data.rgb.r);
+    
+    // t = 2000ms (loop back to section 0)
+    modeStateAdvance(&state, &mode, 2000);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
 }
 
 void test_ModeStateAdvance_IgnoresNonMonotonicTime(void) {
@@ -168,7 +241,7 @@ void test_ModeStateAdvance_IgnoresNonMonotonicTime(void) {
     add_bulb_change(&mode.front.pattern.data.simple, 0, 0U, high);
     add_bulb_change(&mode.front.pattern.data.simple, 1, 50U, low);
 
-    modeStateReset(&state, 0U);
+    modeStateReset(&state, &mode, 0U);
     modeStateAdvance(&state, &mode, 60U);
     TEST_ASSERT_EQUAL_UINT8(1, state.front.simple.changeIndex);
 
@@ -184,18 +257,19 @@ void test_ModeStateGetSimpleOutput_FalseWhenNoChanges(void) {
 
     TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
 
-    component.pattern.type = PATTERN_TYPE_EQUATION;
-    component.pattern.data.simple.changeAtCount = 1U;
-    TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
+    // component.pattern.type = PATTERN_TYPE_EQUATION;
+    // component.pattern.data.simple.changeAtCount = 1U;
+    // TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
 }
 
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ModeStateAdvance_CaseAndTriggersAdvance);
     RUN_TEST(test_ModeStateAdvance_FrontPatternAdvancesAndWraps);
-    RUN_TEST(test_ModeStateAdvance_IgnoresEquationPatterns);
     RUN_TEST(test_ModeStateAdvance_IgnoresNonMonotonicTime);
     RUN_TEST(test_ModeStateGetSimpleOutput_FalseWhenNoChanges);
     RUN_TEST(test_ModeStateReset_SeedsInitialTime);
+    RUN_TEST(test_equation_multi_section);
+    RUN_TEST(test_equation_pattern);
     return UNITY_END();
 }

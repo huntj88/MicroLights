@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "model/mode.h"
+#include "tinyexpr.h"
 
 typedef struct {
     uint32_t elapsedMs;
@@ -12,7 +13,22 @@ typedef struct {
 } SimplePatternState;
 
 typedef struct {
+    uint8_t currentSectionIndex;
+    uint32_t sectionElapsedMs;
+    te_expr *compiledExprs[3];
+    double t_var;
+} EquationChannelState;
+
+typedef struct {
+    uint32_t elapsedMs;
+    EquationChannelState red;
+    EquationChannelState green;
+    EquationChannelState blue;
+} EquationPatternState;
+
+typedef struct {
     SimplePatternState simple;
+    EquationPatternState equation;
 } ModeComponentState;
 
 typedef struct {
@@ -29,7 +45,7 @@ typedef struct {
     uint32_t lastPatternUpdateMs;
 } ModeState;
 
-void modeStateReset(ModeState *state, uint32_t initialMs);
+void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds);
 bool modeStateGetSimpleOutput(
     const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);

@@ -221,7 +221,7 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
     manager.currentMode.front.pattern.data.simple.changeAt[1].output.data.bulb = low;
 
     // Reset state
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Test at 100ms (should be High)
@@ -266,7 +266,7 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
         high;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     mockAccelMagnitude = 0.0f;
@@ -306,7 +306,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
     manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
     manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 128;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Test at 100ms
@@ -334,7 +334,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
     lastRgbG = 10;
     lastRgbB = 10;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     modeTask(&manager, 100, true);
@@ -370,7 +370,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
     lastRgbG = 50;
     lastRgbB = 50;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Pass false for canUpdateCaseLed
@@ -419,7 +419,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
     manager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.g = 0;
     manager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.b = 255;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Test at 100ms (Should be Red)
@@ -507,7 +507,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Trigger the accel
@@ -553,7 +553,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
         high;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Do NOT trigger the accel
@@ -609,7 +609,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
 
     manager.currentMode.accel.triggers[0].hasCaseComp = false;  // No override
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Trigger the accel
@@ -686,7 +686,7 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
     // Case A: Accel = 5 (Below both) -> Default (OFF)

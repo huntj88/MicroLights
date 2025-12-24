@@ -37,6 +37,7 @@ bool modeManagerInit(
     manager->writeBulbLedPin = writeBulbLedPin;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
+    memset(&manager->modeState, 0, sizeof(manager->modeState));
     return true;
 }
 
@@ -138,7 +139,7 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 
 void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
-        modeStateReset(&manager->modeState, milliseconds);
+        modeStateReset(&manager->modeState, &manager->currentMode, milliseconds);
         manager->shouldResetState = false;
     }
 

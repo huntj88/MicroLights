@@ -16,9 +16,11 @@ rm -f Tests/build/*
 # - Core/Inc: for project headers (including lwjson_opts.h)
 # - libs/Unity/src: for Unity
 # - libs/lwjson/lwjson/src/include: for lwjson.h
-CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -DUNIT_TEST"
+# - libs/tinyexpr: for tinyexpr.h
+CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -DUNIT_TEST"
 UNITY_SRC="libs/Unity/src/unity.c"
 LWJSON_SRC="libs/lwjson/lwjson/src/lwjson/lwjson.c"
+TINYEXPR_SRC="libs/tinyexpr/tinyexpr.c"
 
 TOTAL_TESTS=0
 TOTAL_FAILURES=0
@@ -48,19 +50,19 @@ run_test() {
 }
 
 echo "Compiling and running test_chip_state..."
-gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC -o Tests/build/test_chip_state
+gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_chip_state
 run_test ./Tests/build/test_chip_state
 
 echo "Compiling and running test_settings_manager..."
-gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC -o Tests/build/test_settings_manager
+gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_settings_manager
 run_test ./Tests/build/test_settings_manager
 
 echo "Compiling and running test_mode_manager..."
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c -o Tests/build/test_mode_manager
+gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
 echo "Compiling and running test_mode_state..."
-gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c -o Tests/build/test_mode_state
+gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
 run_test ./Tests/build/test_mode_state
 
 echo "Compiling and running test_button..."
