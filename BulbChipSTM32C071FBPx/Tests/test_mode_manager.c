@@ -21,12 +21,8 @@ static uint8_t lastRgbR, lastRgbG, lastRgbB;
 static float mockAccelMagnitude = 0.0f;
 
 // Mock Functions
-void mock_startLedTimers() {
-    ledTimersStarted = true;
-}
-
-void mock_stopLedTimers() {
-    ledTimersStarted = false;
+void mock_enableTimers(bool enable) {
+    ledTimersStarted = enable;
 }
 
 void mc3479Enable(MC3479 *dev) {
@@ -110,8 +106,7 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -128,8 +123,7 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -146,8 +140,7 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -164,8 +157,7 @@ void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -182,8 +174,7 @@ void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -198,8 +189,7 @@ void test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
@@ -214,8 +204,7 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -250,8 +239,7 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -303,8 +291,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -336,8 +323,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -364,8 +350,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -403,8 +388,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -469,8 +453,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -545,8 +528,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -589,8 +571,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 
@@ -649,8 +630,7 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_startLedTimers,
-        mock_stopLedTimers,
+        mock_enableTimers,
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin);
 

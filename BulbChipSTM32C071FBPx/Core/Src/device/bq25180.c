@@ -25,8 +25,9 @@ bool bq25180Init(
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial,
-    RGBLed *caseLed) {
-    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed) {
+    RGBLed *caseLed,
+    void (*enableTimers)(bool enable)) {
+    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed || !enableTimers) {
         return false;
     }
 
@@ -35,6 +36,7 @@ bool bq25180Init(
     chargerIC->devAddress = devAddress;
     chargerIC->writeToUsbSerial = writeToUsbSerial;
     chargerIC->caseLed = caseLed;
+    chargerIC->enableTimers = enableTimers;
 
     chargerIC->chargingState = notConnected;
     chargerIC->checkedAtMs = 0;
@@ -103,7 +105,7 @@ void chargerTask(BQ25180 *chargerIC, uint32_t ms, bool unplugLockEnabled, bool l
         // only update LED from interrupt when plugged in for immediate feedback.
         bool wasConnected = previousState == notConnected && state != notConnected;
         if (wasConnected && ledEnabled) {
-            chargerIC->caseLed->startLedTimers();  // show charging status led
+            chargerIC->enableTimers(true);  // timers needed to show charging status led
             showChargingState(chargerIC, state);
         }
     }

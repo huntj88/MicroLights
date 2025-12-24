@@ -150,24 +150,25 @@ static void writeBulbLed(uint8_t state) {
     }
 }
 
-static void startLedTimers() {
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_Base_Start_IT(&htim2);
-}
+// enables or disables all timers used for leds and chip tick
+static void enableTimers(bool enable) {
+    if (enable) {
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+        HAL_TIM_Base_Start_IT(&htim2);
+    } else {
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+        HAL_TIM_Base_Stop_IT(&htim2);
 
-static void stopLedTimers() {
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
-    HAL_TIM_Base_Stop_IT(&htim2);
-
-    // turn leds off
-    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
+        // turn leds off
+        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
+    }
 }
 
 static uint32_t calculateTickMultiplier() {
@@ -278,17 +279,12 @@ int main(void) {
     // different timer, bulb LEDS should continue to work but on a new pin.
 
     // TODO: will need another when adding front rgb led, split up led timers.
-    if (!rgbInit(
-            &caseLed,
-            writeRgbPwmCaseLed,
-            (uint16_t)htim1.Init.Period,
-            startLedTimers,
-            stopLedTimers)) {
+    if (!rgbInit(&caseLed, writeRgbPwmCaseLed, (uint16_t)htim1.Init.Period)) {
         Error_Handler();
     }
 
     // TODO: button timers
-    if (!buttonInit(&button, readButtonPin, startLedTimers, stopLedTimers, &caseLed)) {
+    if (!buttonInit(&button, readButtonPin, enableTimers, &caseLed)) {
         Error_Handler();
     }
 
@@ -297,13 +293,7 @@ int main(void) {
     }
 
     if (!modeManagerInit(
-            &modeManager,
-            &accel,
-            &caseLed,
-            startLedTimers,
-            stopLedTimers,
-            readBulbModeFromFlash,
-            writeBulbLed)) {
+            &modeManager, &accel, &caseLed, enableTimers, readBulbModeFromFlash, writeBulbLed)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
@@ -314,7 +304,13 @@ int main(void) {
     }
 
     if (!bq25180Init(
-            &chargerIC, readRegister, writeRegister, (0x6A << 1), writeToSerial, &caseLed)) {
+            &chargerIC,
+            readRegister,
+            writeRegister,
+            (0x6A << 1),
+            writeToSerial,
+            &caseLed,
+            enableTimers)) {
         Error_Handler();
     }
 

@@ -23,18 +23,16 @@ bool modeManagerInit(
     ModeManager *manager,
     MC3479 *accel,
     RGBLed *caseLed,
-    void (*startLedTimers)(),
-    void (*stopLedTimers)(),
+    void (*enableTimers)(bool enable),
     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
     void (*writeBulbLedPin)(uint8_t state)) {
-    if (!manager || !accel || !caseLed || !startLedTimers || !stopLedTimers ||
-        !readBulbModeFromFlash || !writeBulbLedPin) {
+    if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||
+        !writeBulbLedPin) {
         return false;
     }
     manager->accel = accel;
     manager->caseLed = caseLed;
-    manager->startLedTimers = startLedTimers;
-    manager->stopLedTimers = stopLedTimers;
+    manager->enableTimers = enableTimers;
     manager->readBulbModeFromFlash = readBulbModeFromFlash;
     manager->writeBulbLedPin = writeBulbLedPin;
     manager->currentModeIndex = 0;
@@ -46,7 +44,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
-    manager->startLedTimers();
+    manager->enableTimers(true);
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
@@ -88,7 +86,7 @@ void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
     loadMode(manager, FAKE_OFF_MODE_INDEX);
     if (!enableLedTimers) {
         // used for fake off mode when not charging
-        manager->stopLedTimers();
+        manager->enableTimers(false);
     }
 }
 

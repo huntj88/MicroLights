@@ -54,6 +54,7 @@ typedef struct BQ25180 {
     WriteToUsbSerial *writeToUsbSerial;
     uint8_t devAddress;
     RGBLed *caseLed;
+    void (*enableTimers)(bool enable);
 
     enum ChargeState chargingState;
     uint32_t checkedAtMs;
@@ -81,7 +82,8 @@ bool bq25180Init(
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToUsbSerial *writeToUsbSerial,
-    RGBLed *caseLed);
+    RGBLed *caseLed,
+    void (*enableTimers)(bool enable));
 
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);

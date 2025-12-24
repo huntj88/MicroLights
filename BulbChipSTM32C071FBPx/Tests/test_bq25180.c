@@ -50,16 +50,19 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 static BQ25180 charger;
 static RGBLed mockLed;
 
-void mock_startLedTimers() {
-}
-void mock_stopLedTimers() {
+static bool enableTimersCalled = false;
+static bool lastEnableTimersArg = false;
+
+void mock_enableTimers(bool enable) {
+    enableTimersCalled = true;
+    lastEnableTimersArg = enable;
 }
 
 void setUp(void) {
     memset(&charger, 0, sizeof(BQ25180));
     memset(&mockLed, 0, sizeof(RGBLed));
-    mockLed.startLedTimers = mock_startLedTimers;
-    mockLed.stopLedTimers = mock_stopLedTimers;
+    enableTimersCalled = false;
+    lastEnableTimersArg = false;
 
     memset(mockRegisters, 0, sizeof(mockRegisters));
     writeCalled = false;
@@ -72,7 +75,13 @@ void setUp(void) {
     rgbDoneChargingCalled = false;
 
     bq25180Init(
-        &charger, mock_readRegister, mock_writeRegister, 0x6A, mock_writeToUsbSerial, &mockLed);
+        &charger,
+        mock_readRegister,
+        mock_writeRegister,
+        0x6A,
+        mock_writeToUsbSerial,
+        &mockLed,
+        mock_enableTimers);
 
     // Reset write flag after init, as init performs writes
     writeCalled = false;
@@ -149,6 +158,8 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
 
     // Should show new state
     TEST_ASSERT_TRUE(rgbDoneChargingCalled);
+    TEST_ASSERT_TRUE(enableTimersCalled);
+    TEST_ASSERT_TRUE(lastEnableTimersArg);
 }
 
 int main(void) {
