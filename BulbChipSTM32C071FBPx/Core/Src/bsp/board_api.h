@@ -87,7 +87,7 @@ void board_led_write(bool state);
 uint32_t board_button_read(void);
 
 // Get board unique ID for USB serial number. Return number of bytes. Note max_len is typically 16
-TU_ATTR_WEAK size_t board_get_unique_id(uint8_t id[], size_t max_len);
+TU_ATTR_WEAK size_t board_get_unique_id(uint8_t uid[], size_t max_len);
 
 // Get characters from UART. Return number of read bytes
 int board_uart_read(uint8_t *buf, int len);
