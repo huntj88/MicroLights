@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Auto-update test runners
+python3 manage_tests.py
+if [ $? -ne 0 ]; then
+    echo "Test management script failed. Aborting."
+    exit 1
+fi
+
 # Create output directory
 mkdir -p Tests/build
 rm -f Tests/build/*

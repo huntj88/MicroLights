@@ -710,21 +710,21 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
+    RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
     RUN_TEST(test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex);
+    RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);
+    RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash);
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning);
-    RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);
-    RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);
-    RUN_TEST(test_UpdateMode_FrontLed_FollowsSimplePattern);
-    RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
-    RUN_TEST(test_UpdateMode_CaseLed_FollowsSimplePattern);
-    RUN_TEST(test_UpdateMode_CaseLed_Off_WhenNoPattern);
-    RUN_TEST(test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating);
-    RUN_TEST(test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges);
-    RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
+    RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
+    RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_PartialOverride);
     RUN_TEST(test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOrder);
+    RUN_TEST(test_UpdateMode_CaseLed_FollowsSimplePattern);
+    RUN_TEST(test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges);
+    RUN_TEST(test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating);
+    RUN_TEST(test_UpdateMode_CaseLed_Off_WhenNoPattern);
+    RUN_TEST(test_UpdateMode_FrontLed_FollowsSimplePattern);
     return UNITY_END();
 }

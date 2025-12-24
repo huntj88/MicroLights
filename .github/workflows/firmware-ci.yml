@@ -22,10 +22,10 @@ jobs:
       working-directory: App/configure-app-v3
       run: npm ci
 
-    - name: Install clang-format
+    - name: Install Linting Tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y clang-format
+        sudo apt-get install -y clang-format clang-tidy cppcheck
 
     - name: Generate C Parser
       working-directory: App/configure-app-v3
@@ -58,3 +58,9 @@ jobs:
           echo "Please run ./format_files.sh in BulbChipSTM32C071FBPx/ to fix formatting."
           exit 1
         fi
+
+    - name: Run Linting
+      working-directory: BulbChipSTM32C071FBPx
+      run: |
+        chmod +x lint_files.sh
+        python3 generate_lint_report.py

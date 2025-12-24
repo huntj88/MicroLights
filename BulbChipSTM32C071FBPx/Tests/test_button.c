@@ -123,8 +123,8 @@ void test_ButtonInputTask_UpdatesCaseLed_DuringPress(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ButtonInputTask_ReturnsIgnore_Idle);
     RUN_TEST(test_ButtonInputTask_ReturnsClicked_AfterShortPress);
+    RUN_TEST(test_ButtonInputTask_ReturnsIgnore_Idle);
     RUN_TEST(test_ButtonInputTask_ReturnsShutdown_AfterLongPress);
     RUN_TEST(test_ButtonInputTask_UpdatesCaseLed_DuringPress);
     return UNITY_END();

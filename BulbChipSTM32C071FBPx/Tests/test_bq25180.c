@@ -164,8 +164,8 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
+    RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);
     return UNITY_END();

@@ -402,16 +402,16 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_ConfigureChipState_WhenNotCharging_LoadsModeZero);
-    RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);
-    RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
-    RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers);
-    RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
-    RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
+    RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);
+    RUN_TEST(test_ConfigureChipState_WhenNotCharging_LoadsModeZero);
     RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
     RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
+    RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
+    RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
+    RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
+    RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers);
     return UNITY_END();
 }
