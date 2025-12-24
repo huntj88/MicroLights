@@ -128,6 +128,7 @@ static bool readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, si
     return statusReceive == HAL_OK;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 static void writeRgbPwmCaseLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty) {
     TIM1->CCR1 = redDuty;
     TIM1->CCR2 = greenDuty;

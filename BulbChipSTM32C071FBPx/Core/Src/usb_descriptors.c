@@ -135,6 +135,7 @@ static uint16_t _desc_str[32 + 1];
 // Invoked when received GET STRING DESCRIPTOR request
 // Application return pointer to descriptor, whose contents must exist long enough for transfer to
 // complete
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     (void)langid;
     size_t chr_count;
