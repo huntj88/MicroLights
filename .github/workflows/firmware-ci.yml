@@ -63,4 +63,11 @@ jobs:
       working-directory: BulbChipSTM32C071FBPx
       run: |
         chmod +x lint_files.sh
+        set +e
         python3 generate_lint_report.py
+        EXIT_CODE=$?
+        set -e
+        if [ -f lint_report.md ]; then
+          cat lint_report.md
+        fi
+        exit $EXIT_CODE
