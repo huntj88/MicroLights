@@ -10,11 +10,11 @@
 #include "json/command_parser.h"
 #include "storage.h"
 
-static const char *fakeOffMode =
+static const char *fakeOffModeJson =
     "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{"
     "\"pattern\":{\"type\":\"simple\",\"name\":\"off\",\"duration\":100,\"changeAt\":[{\"ms\":0,"
     "\"output\":\"low\"}]}}}}";
-static const char *defaultMode =
+static const char *defaultModeJson =
     "{\"command\":\"writeMode\",\"index\":0,\"mode\":{\"name\":\"full "
     "on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,"
     "\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
@@ -46,12 +46,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
-
-    if (manager->currentModeIndex == FAKE_OFF_MODE_INDEX) {
-        manager->stopLedTimers();
-    } else {
-        manager->startLedTimers();
-    }
+    manager->startLedTimers();
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
@@ -66,20 +61,20 @@ void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
 
     if (cliInput.parsedType != parseWriteMode) {
         // fallback to default
-        parseJson((uint8_t *)defaultMode, PAGE_SECTOR, &cliInput);
+        parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
     }
 }
 
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
-        parseJson((uint8_t *)fakeOffMode, PAGE_SECTOR, &cliInput);
+        parseJson((uint8_t *)fakeOffModeJson, PAGE_SECTOR, &cliInput);
     } else {
         char flashReadBuffer[PAGE_SECTOR];
         manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, PAGE_SECTOR);
         parseJson((uint8_t *)flashReadBuffer, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
-            parseJson((uint8_t *)defaultMode, PAGE_SECTOR, &cliInput);
+            parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
         }
     }
 }
@@ -87,6 +82,14 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
 void loadMode(ModeManager *manager, uint8_t index) {
     readBulbMode(manager, index);
     setMode(manager, &cliInput.mode, index);
+}
+
+void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+    loadMode(manager, FAKE_OFF_MODE_INDEX);
+    if (!enableLedTimers) {
+        // used for fake off mode when not charging
+        manager->stopLedTimers();
+    }
 }
 
 bool isFakeOff(ModeManager *manager) {

@@ -34,18 +34,9 @@ typedef struct {
     // Callbacks
     WriteToUsbSerial *writeUsbSerial;
     uint32_t (*convertTicksToMs)(uint32_t ticks);
-    void (*startLedTimers)();
-    void (*stopLedTimers)();
 } ChipState;
 
 static ChipState state = {0};
-
-static void shutdownFake() {
-    loadMode(state.modeManager, FAKE_OFF_MODE_INDEX);
-    if (getChargingState(state.chargerIC) != notConnected) {
-        state.startLedTimers();
-    }
-}
 
 void configureChipState(
     ModeManager *_modeManager,
@@ -55,9 +46,7 @@ void configureChipState(
     MC3479 *_accel,
     RGBLed *_caseLed,
     WriteToUsbSerial *_writeUsbSerial,
-    uint32_t (*_convertTicksToMs)(uint32_t ticks),
-    void (*_startLedTimers)(),
-    void (*_stopLedTimers)()) {
+    uint32_t (*_convertTicksToMs)(uint32_t ticks)) {
     state.modeManager = _modeManager;
     state.settings = _settings;
     state.button = _button;
@@ -66,15 +55,14 @@ void configureChipState(
     state.accel = _accel;
     state.writeUsbSerial = _writeUsbSerial;
     state.convertTicksToMs = _convertTicksToMs;
-    state.startLedTimers = _startLedTimers;
-    state.stopLedTimers = _stopLedTimers;
 
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
     if (chargeState == notConnected) {
         loadMode(state.modeManager, 0);
     } else {
-        shutdownFake();
+        // Enter fake off mode when charging, show led status by enabling led timers
+        fakeOffMode(state.modeManager, true);
     }
 }
 
@@ -99,7 +87,8 @@ void stateTask() {
             state.writeUsbSerial(0, blah, strlen(blah));
             break;
         case shutdown:
-            shutdownFake();
+            bool enabledLedTimers = getChargingState(state.chargerIC) != notConnected;
+            fakeOffMode(state.modeManager, enabledLedTimers);
             break;
         case lockOrHardwareReset:
             lock(state.chargerIC);
@@ -144,7 +133,10 @@ void autoOffTimerInterrupt() {
             } else {
                 // restart timer for transition from fakeOff to shipMode
                 state.ticksSinceLastUserActivity = 0;
-                shutdownFake();
+
+                // enter fake off mode
+                bool enabledLedTimers = getChargingState(state.chargerIC) != notConnected;
+                fakeOffMode(state.modeManager, enabledLedTimers);
             }
         }
     }

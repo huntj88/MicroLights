@@ -326,9 +326,7 @@ int main(void) {
         &accel,
         &caseLed,
         writeToSerial,
-        convertTicksToMs,
-        startLedTimers,
-        stopLedTimers);
+        convertTicksToMs);
 
     HAL_TIM_Base_Start_IT(&htim3);  // auto off timer
 

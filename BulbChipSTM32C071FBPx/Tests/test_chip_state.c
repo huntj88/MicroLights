@@ -23,7 +23,6 @@ static RGBLed mockCaseLed;
 static float mockMillisPerTick = 10.0f;
 static uint32_t mockMsPerTickMultiplier = 0;
 static bool ledTimersStarted = false;
-static bool ledTimersStopped = false;
 static char lastSerialOutput[100];
 
 // Mock Function Implementations
@@ -33,14 +32,6 @@ uint32_t mock_convertTicksToMs(uint32_t ticks) {
             (uint32_t)(mockMillisPerTick * 1048576.0f);  // 2^20 for fixed point
     }
     return (uint32_t)(((uint64_t)ticks * mockMsPerTickMultiplier) >> 20);
-}
-
-void mock_startLedTimers() {
-    ledTimersStarted = true;
-}
-
-void mock_stopLedTimers() {
-    ledTimersStopped = true;
 }
 
 void mock_writeUsbSerial(uint8_t itf, const char *buf, uint32_t count) {
@@ -58,6 +49,7 @@ uint8_t lastLoadedModeIndex = 255;
 void loadMode(ModeManager *manager, uint8_t index) {
     lastLoadedModeIndex = index;
     manager->currentModeIndex = index;
+    ledTimersStarted = true;
 }
 
 enum ButtonResult mockButtonResult = ignore;
@@ -94,6 +86,12 @@ bool isEvaluatingButtonPress(Button *button) {
     return mockIsEvaluatingButtonPress;
 }
 
+void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+    // Mock implementation
+    loadMode(manager, FAKE_OFF_MODE_INDEX);
+    ledTimersStarted = enableLedTimers;
+}
+
 // Include the source files under test to access static state
 #include "../Core/Src/chip_state.c"
 #include "../Core/Src/model/mode_state.c"
@@ -110,7 +108,6 @@ void setUp(void) {
     mockMillisPerTick = 10.0f;
     mockMsPerTickMultiplier = 0;
     ledTimersStarted = false;
-    ledTimersStopped = false;
     memset(lastSerialOutput, 0, sizeof(lastSerialOutput));
 
     mockChargeState = notConnected;
@@ -139,9 +136,7 @@ void test_ConfigureChipState_WhenNotCharging_LoadsModeZero(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 }
@@ -156,9 +151,7 @@ void test_ConfigureChipState_WhenCharging_EntersFakeOff(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_TRUE(ledTimersStarted);
@@ -173,9 +166,7 @@ void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockModeManager.currentModeIndex = 1;
     mockSettings.modeCount = 5;
@@ -196,9 +187,7 @@ void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockModeManager.currentModeIndex = 4;
     mockSettings.modeCount = 5;
@@ -209,7 +198,7 @@ void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 }
 
-void test_StateTask_ButtonResult_Shutdown_EntersFakeOff(void) {
+void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers(void) {
     configureChipState(
         &mockModeManager,
         &mockSettings,
@@ -218,15 +207,37 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+    ledTimersStarted = true;
 
     stateTask();
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_FALSE(ledTimersStarted);
+}
+
+void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers(void) {
+    configureChipState(
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_writeUsbSerial,
+        mock_convertTicksToMs);
+
+    mockButtonResult = shutdown;
+    mockChargeState = constantCurrent;
+    ledTimersStarted = false;
+
+    stateTask();
+
+    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_TRUE(ledTimersStarted);
 }
 
 void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
@@ -238,9 +249,7 @@ void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockButtonResult = lockOrHardwareReset;
 
@@ -258,9 +267,7 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockSettings.minutesUntilAutoOff = 1;  // 1 minute
     mockChargeState = notConnected;
@@ -276,6 +283,7 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
     autoOffTimerInterrupt();
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_FALSE(ledTimersStarted);
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
@@ -287,9 +295,7 @@ void test_Settings_ModeCount_LimitsModeCycling(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     // Case 1: Mode Count 3, Current 2 -> Should wrap to 0
     mockSettings.modeCount = 3;
@@ -317,9 +323,7 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockChargeState = notConnected;
     mockIsFakeOff = false;
@@ -362,9 +366,7 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
         &mockAccel,
         &mockCaseLed,
         mock_writeUsbSerial,
-        mock_convertTicksToMs,
-        mock_startLedTimers,
-        mock_stopLedTimers);
+        mock_convertTicksToMs);
 
     mockChargeState = notConnected;
     mockIsFakeOff = true;  // Already in fake off
@@ -404,7 +406,8 @@ int main(void) {
     RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);

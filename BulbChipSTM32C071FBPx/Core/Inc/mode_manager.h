@@ -41,7 +41,10 @@ bool modeManagerInit(
     void (*writeBulbLedPin)(uint8_t state));
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
+
+// TODO: rename loadModeWithBuffer?
 void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer);
+void fakeOffMode(ModeManager *manager, bool enableLedTimers);
 bool isFakeOff(ModeManager *manager);
 void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed);
 

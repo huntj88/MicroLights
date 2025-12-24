@@ -12,7 +12,6 @@
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 static bool ledTimersStarted = false;
-static bool ledTimersStopped = false;
 static bool accelEnabled = false;
 static bool accelDisabled = false;
 static uint8_t lastReadModeIndex = 255;
@@ -27,7 +26,7 @@ void mock_startLedTimers() {
 }
 
 void mock_stopLedTimers() {
-    ledTimersStopped = true;
+    ledTimersStarted = false;
 }
 
 void mc3479Enable(MC3479 *dev) {
@@ -91,7 +90,6 @@ void setUp(void) {
     memset(&mockAccel, 0, sizeof(MC3479));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
     ledTimersStarted = false;
-    ledTimersStopped = false;
     accelEnabled = false;
     accelDisabled = false;
     lastReadModeIndex = 255;
@@ -153,11 +151,29 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
         mock_readBulbModeFromFlash,
         mock_writeBulbLedPin));
 
-    loadMode(&manager, FAKE_OFF_MODE_INDEX);
+    fakeOffMode(&manager, false);
 
     TEST_ASSERT_EQUAL_UINT8(255, lastReadModeIndex);  // Should not have changed from init value
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, manager.currentModeIndex);
-    TEST_ASSERT_TRUE(ledTimersStopped);
+    TEST_ASSERT_FALSE(ledTimersStarted);
+}
+
+void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
+    ModeManager manager;
+    TEST_ASSERT_TRUE(modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        mock_startLedTimers,
+        mock_stopLedTimers,
+        mock_readBulbModeFromFlash,
+        mock_writeBulbLedPin));
+
+    fakeOffMode(&manager, true);
+
+    TEST_ASSERT_EQUAL_UINT8(255, lastReadModeIndex);  // Should not have changed from init value
+    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, manager.currentModeIndex);
+    TEST_ASSERT_TRUE(ledTimersStarted);
 }
 
 void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
@@ -717,6 +733,7 @@ int main(void) {
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex);
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash);
+    RUN_TEST(test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning);
     RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);
     RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);
     RUN_TEST(test_UpdateMode_FrontLed_FollowsSimplePattern);
