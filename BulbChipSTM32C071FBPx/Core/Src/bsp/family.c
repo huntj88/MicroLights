@@ -158,7 +158,7 @@ size_t board_get_unique_id(uint8_t id[], size_t max_len) {
     return len;
 }
 
-int board_uart_read(const uint8_t *buf, int len) {
+int board_uart_read(uint8_t *buf, int len) {
     (void)buf;
     (void)len;
     return 0;

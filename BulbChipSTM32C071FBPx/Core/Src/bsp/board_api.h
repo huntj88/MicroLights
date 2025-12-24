@@ -90,7 +90,7 @@ uint32_t board_button_read(void);
 TU_ATTR_WEAK size_t board_get_unique_id(uint8_t id[], size_t max_len);
 
 // Get characters from UART. Return number of read bytes
-int board_uart_read(const uint8_t *buf, int len);
+int board_uart_read(uint8_t *buf, int len);
 
 // Send characters to UART. Return number of sent bytes
 int board_uart_write(void const *buf, int len);
