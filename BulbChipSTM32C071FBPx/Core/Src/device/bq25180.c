@@ -236,7 +236,7 @@ void printBinary(BQ25180 *chargerIC, uint8_t num) {
     chargerIC->writeToUsbSerial(0, buffer, sizeof(buffer));
 }
 
-static void bq25180regsToJson(const BQ25180Registers r, char *jsonOutput) {
+static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput) {
     if (!jsonOutput) {
         return;
     }
@@ -246,19 +246,19 @@ static void bq25180regsToJson(const BQ25180Registers r, char *jsonOutput) {
         "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
         "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
         "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
-        r.stat0,
-        r.stat1,
-        r.flag0,
-        r.vbat_ctrl,
-        r.ichg_ctrl,
-        r.chargectrl0,
-        r.chargectrl1,
-        r.ic_ctrl,
-        r.tmr_ilim,
-        r.ship_rst,
-        r.sys_reg,
-        r.ts_control,
-        r.mask_id);
+        registers.stat0,
+        registers.stat1,
+        registers.flag0,
+        registers.vbat_ctrl,
+        registers.ichg_ctrl,
+        registers.chargectrl0,
+        registers.chargectrl1,
+        registers.ic_ctrl,
+        registers.tmr_ilim,
+        registers.ship_rst,
+        registers.sys_reg,
+        registers.ts_control,
+        registers.mask_id);
 }
 
 void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
