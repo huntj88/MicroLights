@@ -16,11 +16,13 @@ bool settingsManagerInit(
         return false;
     }
     manager->readSettingsFromFlash = readSettingsFromFlash;
-    settingsManagerLoad(manager);
+
+    char flashReadBuffer[PAGE_SECTOR];
+    loadSettingsFromFlash(manager, flashReadBuffer);
     return true;
 }
 
-void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer) {
+void loadSettingsFromFlash(SettingsManager *manager, char *buffer) {
     // Set defaults first in case load fails
     manager->currentSettings.modeCount = 0;
     manager->currentSettings.minutesUntilAutoOff = 90;
@@ -30,15 +32,10 @@ void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer) {
     parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
 
     if (cliInput.parsedType == parseWriteSettings) {
-        manager->currentSettings = cliInput.settings;
+        updateSettings(manager, &cliInput.settings);
     }
 }
 
-void settingsManagerLoad(SettingsManager *manager) {
-    char flashReadBuffer[PAGE_SECTOR];
-    settingsManagerLoadFromBuffer(manager, flashReadBuffer);
-}
-
-void settingsManagerUpdate(SettingsManager *manager, ChipSettings *newSettings) {
+void updateSettings(SettingsManager *manager, ChipSettings *newSettings) {
     manager->currentSettings = *newSettings;
 }

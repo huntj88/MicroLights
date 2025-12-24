@@ -284,7 +284,6 @@ int main(void) {
         Error_Handler();
     }
 
-    // TODO: button timers
     if (!buttonInit(&button, readButtonPin, enableTimers, &caseLed)) {
         Error_Handler();
     }

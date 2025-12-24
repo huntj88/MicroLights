@@ -10,7 +10,3 @@ void readSettingsFromFlash(char *buffer, uint32_t length);
 
 void writeBulbModeToFlash(uint8_t mode, uint8_t buf[], uint32_t bufCount);
 void readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length);
-
-// TODO: flash page is 2048 bytes, only reading half, have it hardcode as 2048.
-//       Also should validate json size? Anything to do here?
-//       Use less flash for modes and put two modes per page?

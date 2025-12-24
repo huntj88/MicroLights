@@ -81,7 +81,8 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
         }
         case parseReadMode: {
             char flashReadBuffer[PAGE_SECTOR];
-            loadModeFromBuffer(usbManager->modeManager, cliInput.modeIndex, flashReadBuffer);
+            usbManager->modeManager->readBulbModeFromFlash(
+                cliInput.modeIndex, flashReadBuffer, PAGE_SECTOR);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
             flashReadBuffer[len + 1] = '\0';
@@ -91,12 +92,12 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
             writeSettingsToFlash(buf, cliInput.jsonLength);
-            settingsManagerUpdate(usbManager->settingsManager, &settings);
+            updateSettings(usbManager->settingsManager, &settings);
             break;
         }
         case parseReadSettings: {
             char flashReadBuffer[PAGE_SECTOR];
-            settingsManagerLoadFromBuffer(usbManager->settingsManager, flashReadBuffer);
+            loadSettingsFromFlash(usbManager->settingsManager, flashReadBuffer);
             uint16_t len = strlen(flashReadBuffer);
             flashReadBuffer[len] = '\n';
             flashReadBuffer[len + 1] = '\0';

@@ -53,16 +53,6 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     }
 }
 
-void loadModeFromBuffer(ModeManager *manager, uint8_t index, char *buffer) {
-    manager->readBulbModeFromFlash(index, buffer, PAGE_SECTOR);
-    parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
-
-    if (cliInput.parsedType != parseWriteMode) {
-        // fallback to default
-        parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
-    }
-}
-
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
         parseJson((uint8_t *)fakeOffModeJson, PAGE_SECTOR, &cliInput);
