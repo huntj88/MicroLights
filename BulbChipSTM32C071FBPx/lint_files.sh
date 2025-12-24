@@ -55,5 +55,6 @@ SOURCES=$(find Core/Src -name "*.c" \
 # -checks=...: Select checks
 # --: Separator for compiler flags
 clang-tidy $SOURCES \
+    -header-filter='Core/Inc/.*' \
     -checks='-*,readability-*,performance-*,bugprone-*,-performance-no-int-to-ptr,-bugprone-reserved-identifier,-readability-magic-numbers' \
     -- $INCLUDES -DSTM32C071xx -DUSE_HAL_DRIVER

@@ -18,16 +18,16 @@
 bool usbInit(
     USBManager *usbManager,
     UART_HandleTypeDef *huart,
-    ModeManager *_modeManager,
-    SettingsManager *_settingsManager,
-    void (*_enterDFU)()) {
-    if (!usbManager || !huart || !_modeManager || !_settingsManager || !_enterDFU) {
+    ModeManager *modeManager,
+    SettingsManager *settingsManager,
+    void (*enterDFU)()) {
+    if (!usbManager || !huart || !modeManager || !settingsManager || !enterDFU) {
         return false;
     }
     usbManager->huart = huart;
-    usbManager->modeManager = _modeManager;
-    usbManager->settingsManager = _settingsManager;
-    usbManager->enterDFU = _enterDFU;
+    usbManager->modeManager = modeManager;
+    usbManager->settingsManager = settingsManager;
+    usbManager->enterDFU = enterDFU;
 
     tusb_init();
     return true;

@@ -25,8 +25,8 @@ typedef struct USBManager {
 bool usbInit(
     USBManager *usbManager,
     UART_HandleTypeDef *huart,
-    ModeManager *mm,
-    SettingsManager *sm,
+    ModeManager *modeManager,
+    SettingsManager *settingsManager,
     void (*enterDFU)());
 
 void usbCdcTask(USBManager *usbManager);
