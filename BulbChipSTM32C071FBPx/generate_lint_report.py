@@ -42,6 +42,17 @@ def generate_report():
             # Make path relative to Cwd if possible
             if file_path.startswith(os.getcwd()):
                 file_path = os.path.relpath(file_path, os.getcwd())
+
+            # Explicitly ignore specific errors, STM32 drivers don't check checked into git
+            ignored_errors = [
+                ("Core/Src/bootloader.c", "'stm32c0xx.h' file not found"),
+                ("Core/Src/bsp/family.c", "'stm32c0xx_hal.h' file not found"),
+                ("Core/Src/storage.c", "'stm32c0xx.h' file not found"),
+                ("Core/Inc/main.h", "'stm32c0xx_hal.h' file not found"),
+            ]
+            
+            if any(ign_file in file_path and ign_msg in message for ign_file, ign_msg in ignored_errors):
+                continue
             
             clang_tidy_checks[check_name].append({
                 'file': file_path,
