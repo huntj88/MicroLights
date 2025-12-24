@@ -54,7 +54,7 @@ jobs:
         chmod +x format_files.sh
         ./format_files.sh
         if ! git diff --exit-code; then
-          git diff | cat
+          echo $(git diff)
           echo "Error: Code formatting check failed."
           echo "Please run ./format_files.sh in BulbChipSTM32C071FBPx/ to fix formatting."
           exit 1
