@@ -86,8 +86,8 @@ void stateTask() {
             state.writeUsbSerial(0, blah, strlen(blah));
             break;
         case shutdown:
-            bool enabledLedTimers = getChargingState(state.chargerIC) != notConnected;
-            fakeOffMode(state.modeManager, enabledLedTimers);
+            bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
+            fakeOffMode(state.modeManager, enableLedTimers);
             break;
         case lockOrHardwareReset:
             lock(state.chargerIC);
@@ -134,8 +134,8 @@ void autoOffTimerInterrupt() {
                 state.ticksSinceLastUserActivity = 0;
 
                 // enter fake off mode
-                bool enabledLedTimers = getChargingState(state.chargerIC) != notConnected;
-                fakeOffMode(state.modeManager, enabledLedTimers);
+                bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
+                fakeOffMode(state.modeManager, enableLedTimers);
             }
         }
     }

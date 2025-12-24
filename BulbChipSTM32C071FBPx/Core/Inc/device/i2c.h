@@ -8,7 +8,8 @@
 #ifndef INC_DEVICE_I2C_H_
 #define INC_DEVICE_I2C_H_
 
-#include <stdio.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 // write to single register
 typedef void I2CWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value);

@@ -43,7 +43,7 @@ def generate_report():
             if file_path.startswith(os.getcwd()):
                 file_path = os.path.relpath(file_path, os.getcwd())
 
-            # Explicitly ignore specific errors, STM32 drivers don't check checked into git
+            # Explicitly ignore specific errors, STM32 drivers aren't checked into git
             ignored_errors = [
                 ("Core/Src/bootloader.c", "'stm32c0xx.h' file not found"),
                 ("Core/Src/bsp/family.c", "'stm32c0xx_hal.h' file not found"),

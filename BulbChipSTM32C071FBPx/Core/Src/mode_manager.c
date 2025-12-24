@@ -72,6 +72,10 @@ void loadMode(ModeManager *manager, uint8_t index) {
     setMode(manager, &cliInput.mode, index);
 }
 
+/// @brief switch modes to fakeOff mode, an intermediate mode before the chips lock, enables
+/// switching back on without holding button to get out of lock.
+/// @param manager
+/// @param enableLedTimers true if usb is plugged in to show charging status
 void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
     loadMode(manager, FAKE_OFF_MODE_INDEX);
     if (!enableLedTimers) {
