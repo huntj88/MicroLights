@@ -22,8 +22,8 @@ typedef struct {
     char path[128];
 } ModeErrorContext;
 
-const char* modeParserErrorToString(ModeParserError err);
+const char *modeParserErrorToString(ModeParserError err);
 
 bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);
 
-#endif // MODE_PARSER_H
+#endif  // MODE_PARSER_H

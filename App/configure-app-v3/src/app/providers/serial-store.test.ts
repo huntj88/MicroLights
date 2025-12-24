@@ -118,9 +118,11 @@ describe('useSerialStore', () => {
 
     const logs = useSerialStore.getState().logs;
     expect(logs).toHaveLength(MAX_LOGS);
-    // Should have dropped the first one (id '0'), so first one should be id '1'
-    expect(logs[0].id).toBe('1');
-    expect(logs[MAX_LOGS - 1].id).toBe('500');
+    // Should have dropped the first one (id '0').
+    // Logs are prepended, so index 0 is the newest (id '500')
+    expect(logs[0].id).toBe('500');
+    // And the last one is the oldest remaining (id '1')
+    expect(logs[MAX_LOGS - 1].id).toBe('1');
   });
 
   it('should clear logs when clearLogs is called', () => {

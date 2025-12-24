@@ -1,6 +1,6 @@
-#include "unity.h"
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
+#include "unity.h"
 
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
@@ -23,13 +23,14 @@ void setUp(void) {
     parseModeResult = true;
 }
 
-void tearDown(void) {}
+void tearDown(void) {
+}
 
 void test_ParseJson_WriteMode_ParsesIndexAndData(void) {
     char *json = "{\"command\":\"writeMode\",\"index\":5,\"mode\":{}}";
-    
-    parseJson((uint8_t*)json, strlen(json) + 1, &cliInput);
-    
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
     TEST_ASSERT_EQUAL(parseWriteMode, cliInput.parsedType);
     TEST_ASSERT_EQUAL_UINT8(5, cliInput.modeIndex);
     TEST_ASSERT_TRUE(parseModeCalled);
@@ -37,18 +38,20 @@ void test_ParseJson_WriteMode_ParsesIndexAndData(void) {
 
 void test_ParseJson_ReadMode_SetsReadAction(void) {
     char *json = "{\"command\":\"readMode\",\"index\":3}";
-    
-    parseJson((uint8_t*)json, strlen(json) + 1, &cliInput);
-    
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
     TEST_ASSERT_EQUAL(parseReadMode, cliInput.parsedType);
     TEST_ASSERT_EQUAL_UINT8(3, cliInput.modeIndex);
 }
 
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
-    char *json = "{\"command\":\"writeSettings\",\"modeCount\":10,\"minutesUntilAutoOff\":20,\"minutesUntilLockAfterAutoOff\":30}";
-    
-    parseJson((uint8_t*)json, strlen(json) + 1, &cliInput);
-    
+    char *json =
+        "{\"command\":\"writeSettings\",\"modeCount\":10,\"minutesUntilAutoOff\":20,"
+        "\"minutesUntilLockAfterAutoOff\":30}";
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
     TEST_ASSERT_EQUAL(parseWriteSettings, cliInput.parsedType);
     TEST_ASSERT_EQUAL_UINT8(10, cliInput.settings.modeCount);
     TEST_ASSERT_EQUAL_UINT8(20, cliInput.settings.minutesUntilAutoOff);
@@ -57,17 +60,17 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
 
 void test_ParseJson_Dfu_SetsDfuAction(void) {
     char *json = "{\"command\":\"dfu\"}";
-    
-    parseJson((uint8_t*)json, strlen(json) + 1, &cliInput);
-    
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
     TEST_ASSERT_EQUAL(parseDfu, cliInput.parsedType);
 }
 
 void test_ParseJson_InvalidJson_DoesNotCrash(void) {
     char *json = "{invalid json";
-    
-    parseJson((uint8_t*)json, strlen(json) + 1, &cliInput);
-    
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
     TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
 }
 

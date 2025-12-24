@@ -2,10 +2,12 @@
 
 #include <string.h>
 
-static void advanceSimplePattern(SimplePatternState *state, const SimplePattern *pattern, uint32_t deltaMs) {
-    if (!state || !pattern || pattern->changeAt_count == 0U || deltaMs == 0U) {
-        if (state && pattern && pattern->changeAt_count > 0U && state->changeIndex >= pattern->changeAt_count) {
-            state->changeIndex = pattern->changeAt_count - 1U;
+static void advanceSimplePattern(
+    SimplePatternState *state, const SimplePattern *pattern, uint32_t deltaMs) {
+    if (!state || !pattern || pattern->changeAtCount == 0U || deltaMs == 0U) {
+        if (state && pattern && pattern->changeAtCount > 0U &&
+            state->changeIndex >= pattern->changeAtCount) {
+            state->changeIndex = pattern->changeAtCount - 1U;
         }
         return;
     }
@@ -25,18 +27,18 @@ static void advanceSimplePattern(SimplePatternState *state, const SimplePattern 
 
     state->elapsedMs = elapsed;
 
-    while ((state->changeIndex + 1U) < pattern->changeAt_count &&
+    while ((state->changeIndex + 1U) < pattern->changeAtCount &&
            pattern->changeAt[state->changeIndex + 1U].ms <= state->elapsedMs) {
         state->changeIndex++;
     }
 
-    while (state->changeIndex > 0U &&
-           pattern->changeAt[state->changeIndex].ms > state->elapsedMs) {
+    while (state->changeIndex > 0U && pattern->changeAt[state->changeIndex].ms > state->elapsedMs) {
         state->changeIndex--;
     }
 }
 
-static void advanceComponentState(ModeComponentState *componentState, const ModeComponent *component, uint32_t deltaMs) {
+static void advanceComponentState(
+    ModeComponentState *componentState, const ModeComponent *component, uint32_t deltaMs) {
     if (!componentState || !component) {
         return;
     }
@@ -49,7 +51,7 @@ static void advanceComponentState(ModeComponentState *componentState, const Mode
     }
 
     const SimplePattern *pattern = &component->pattern.data.simple;
-    if (pattern->changeAt_count == 0U) {
+    if (pattern->changeAtCount == 0U) {
         componentState->simple.elapsedMs = 0U;
         componentState->simple.changeIndex = 0U;
         return;
@@ -81,33 +83,38 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t ms) {
         return;
     }
 
-    if (mode->has_front) {
+    if (mode->hasFront) {
         advanceComponentState(&state->front, &mode->front, deltaMs);
     }
 
-    if (mode->has_case_comp) {
-        advanceComponentState(&state->case_comp, &mode->case_comp, deltaMs);
+    if (mode->hasCaseComp) {
+        advanceComponentState(&state->case_comp, &mode->caseComp, deltaMs);
     }
 
-    if (mode->has_accel) {
-        uint8_t triggerCount = mode->accel.triggers_count;
+    if (mode->hasAccel) {
+        uint8_t triggerCount = mode->accel.triggersCount;
         if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
             triggerCount = MODE_ACCEL_TRIGGER_MAX;
         }
 
         for (uint8_t i = 0; i < triggerCount; i++) {
-            if (mode->accel.triggers[i].has_front) {
-                advanceComponentState(&state->accel[i].front, &mode->accel.triggers[i].front, deltaMs);
+            if (mode->accel.triggers[i].hasFront) {
+                advanceComponentState(
+                    &state->accel[i].front, &mode->accel.triggers[i].front, deltaMs);
             }
 
-            if (mode->accel.triggers[i].has_case_comp) {
-                advanceComponentState(&state->accel[i].case_comp, &mode->accel.triggers[i].case_comp, deltaMs);
+            if (mode->accel.triggers[i].hasCaseComp) {
+                advanceComponentState(
+                    &state->accel[i].case_comp, &mode->accel.triggers[i].caseComp, deltaMs);
             }
         }
     }
 }
 
-bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output) {
+bool modeStateGetSimpleOutput(
+    const ModeComponentState *componentState,
+    const ModeComponent *component,
+    SimpleOutput *output) {
     if (!componentState || !component || !output) {
         return false;
     }
@@ -117,12 +124,12 @@ bool modeStateGetSimpleOutput(const ModeComponentState *componentState, const Mo
     }
 
     const SimplePattern *pattern = &component->pattern.data.simple;
-    if (pattern->changeAt_count == 0U) {
+    if (pattern->changeAtCount == 0U) {
         return false;
     }
 
     uint8_t index = componentState->simple.changeIndex;
-    if (index >= pattern->changeAt_count) {
+    if (index >= pattern->changeAtCount) {
         index = 0U;
     }
 

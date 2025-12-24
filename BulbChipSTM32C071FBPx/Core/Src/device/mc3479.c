@@ -18,8 +18,15 @@ static void mc3479Log(MC3479 *dev, const char *msg) {
     dev->writeToUsbSerial(0, msg, strlen(msg));
 }
 
-bool mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegister *writeCb, uint8_t devAddress, WriteToUsbSerial *writeToUsbSerial) {
-    if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) return false;
+bool mc3479Init(
+    MC3479 *dev,
+    MC3479ReadRegisters *readRegsCb,
+    MC3479WriteRegister *writeCb,
+    uint8_t devAddress,
+    WriteToUsbSerial *writeToUsbSerial) {
+    if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) {
+        return false;
+    }
 
     dev->readRegisters = readRegsCb;
     dev->writeRegister = writeCb;
@@ -35,7 +42,9 @@ bool mc3479Init(MC3479 *dev, MC3479ReadRegisters *readRegsCb, MC3479WriteRegiste
 }
 
 void mc3479Enable(MC3479 *dev) {
-    if (!dev || !dev->writeRegister) return;
+    if (!dev || !dev->writeRegister) {
+        return;
+    }
 
     // put into WAKE mode
     dev->writeRegister(dev, MC3479_REG_CTRL1, 0b00000001);
@@ -51,7 +60,9 @@ void mc3479Enable(MC3479 *dev) {
 }
 
 void mc3479Disable(MC3479 *dev) {
-    if (!dev || !dev->writeRegister) return;
+    if (!dev || !dev->writeRegister) {
+        return;
+    }
 
     // Put the sensor into low-power / standby if supported
     dev->writeRegister(dev, MC3479_REG_CTRL1, 0x00);
@@ -67,14 +78,18 @@ void mc3479Disable(MC3479 *dev) {
 }
 
 bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
-    if (!dev || !dev->enabled) return false;
+    if (!dev || !dev->enabled) {
+        return false;
+    }
 
     // read all 6 bytes
     uint8_t buf[6] = {0};
     if (dev->readRegisters) {
         // readRegisters should read 6 bytes starting at MC3479_REG_XOUT_L
-    	bool read_ok = dev->readRegisters(dev, MC3479_REG_XOUT_L, buf, 6);
-    	if (!read_ok) return false;
+        bool read_ok = dev->readRegisters(dev, MC3479_REG_XOUT_L, buf, 6);
+        if (!read_ok) {
+            return false;
+        }
     }
 
     // Assemble as signed 16-bit two's complement
@@ -91,7 +106,8 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
             int32_t day = (int32_t)raw_y - dev->lastRawY;
             int32_t daz = (int32_t)raw_z - dev->lastRawZ;
 
-            dev->currentJerkSquaredSum = (uint64_t)dax*dax + (uint64_t)day*day + (uint64_t)daz*daz;
+            dev->currentJerkSquaredSum =
+                (uint64_t)dax * dax + (uint64_t)day * day + (uint64_t)daz * daz;
             dev->lastDtMs = dt_ms;
         } else {
             dev->currentJerkSquaredSum = 0;
@@ -113,8 +129,9 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t ms) {
 }
 
 void mc3479Task(MC3479 *dev, uint32_t ms) {
-    if (!dev) return;
-    if (!dev->enabled) return;
+    if (!dev || !dev->enabled) {
+        return;
+    }
 
     // If at least 50 milliseconds have elapsed since the last sample, take a new one
     uint32_t elapsed = ms - dev->lastSampleMs;
@@ -132,9 +149,9 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 
 bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
-	if (!dev) return false;
-	if (!dev->enabled) return false;
-    if (dev->lastDtMs == 0) return false;
+    if (!dev || !dev->enabled || dev->lastDtMs == 0) {
+        return false;
+    }
 
     // Threshold is in G/s.
     // We want to check if:
@@ -142,10 +159,11 @@ bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
     //
     // Squaring both sides:
     // sum_sq_diff * 1000000 > (threshold * 2048 * dt_ms)^2
-    
+
     uint64_t lhs = dev->currentJerkSquaredSum * 1000000ULL;
-    uint64_t rhs_term = (uint64_t)threshold * MC3479_SENSITIVITY_LSB_PER_G * (uint64_t)dev->lastDtMs;
+    uint64_t rhs_term =
+        (uint64_t)threshold * MC3479_SENSITIVITY_LSB_PER_G * (uint64_t)dev->lastDtMs;
     uint64_t rhs = rhs_term * rhs_term;
 
-	return lhs > rhs;
+    return lhs > rhs;
 }

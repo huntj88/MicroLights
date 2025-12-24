@@ -80,9 +80,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800">
-        <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">
-          Configure Settings
-        </h2>
+        <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Configure Settings</h2>
 
         {isLoading ? (
           <div className="flex justify-center py-8">
@@ -98,9 +96,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 value={data.modeCount}
-                onChange={e =>
-                  { setData({ ...data, modeCount: parseInt(e.target.value) || 0 }); }
-                }
+                onChange={e => {
+                  setData({ ...data, modeCount: parseInt(e.target.value) || 0 });
+                }}
               />
             </div>
 
@@ -112,12 +110,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 value={data.minutesUntilAutoOff}
-                onChange={e =>
-                  { setData({
+                onChange={e => {
+                  setData({
                     ...data,
                     minutesUntilAutoOff: parseInt(e.target.value) || 0,
-                  }); }
-                }
+                  });
+                }}
               />
             </div>
 
@@ -129,12 +127,12 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 value={data.minutesUntilLockAfterAutoOff}
-                onChange={e =>
-                  { setData({
+                onChange={e => {
+                  setData({
                     ...data,
                     minutesUntilLockAfterAutoOff: parseInt(e.target.value) || 0,
-                  }); }
-                }
+                  });
+                }}
               />
             </div>
           </div>
@@ -144,11 +142,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           <StyledButton onClick={onClose} variant="secondary">
             {t('common.actions.cancel')}
           </StyledButton>
-          <StyledButton
-            onClick={() => void handleSave()}
-            variant="primary"
-            disabled={isLoading}
-          >
+          <StyledButton onClick={() => void handleSave()} variant="primary" disabled={isLoading}>
             {t('common.actions.save')}
           </StyledButton>
         </div>

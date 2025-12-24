@@ -117,11 +117,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
         </button>
       </div>
 
-      <div
-        aria-live="polite"
-        className="theme-panel theme-border rounded-xl border p-4"
-        role="log"
-      >
+      <div aria-live="polite" className="theme-panel theme-border rounded-xl border p-4" role="log">
         {value.entries.length === 0 ? (
           <p className="theme-muted text-sm">{t('serialLog.empty')}</p>
         ) : (

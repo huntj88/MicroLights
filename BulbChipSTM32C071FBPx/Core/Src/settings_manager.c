@@ -6,11 +6,12 @@
  */
 
 #include "settings_manager.h"
-#include "storage.h"
-#include "json/command_parser.h"
 #include <string.h>
+#include "json/command_parser.h"
+#include "storage.h"
 
-bool settingsManagerInit(SettingsManager *manager, void (*readSettingsFromFlash)(char *buffer, uint32_t length)) {
+bool settingsManagerInit(
+    SettingsManager *manager, void (*readSettingsFromFlash)(char *buffer, uint32_t length)) {
     if (!manager || !readSettingsFromFlash) {
         return false;
     }
@@ -26,7 +27,7 @@ void settingsManagerLoadFromBuffer(SettingsManager *manager, char *buffer) {
     manager->currentSettings.minutesUntilLockAfterAutoOff = 10;
 
     manager->readSettingsFromFlash(buffer, 1024);
-    parseJson((uint8_t*)buffer, 1024, &cliInput);
+    parseJson((uint8_t *)buffer, 1024, &cliInput);
 
     if (cliInput.parsedType == parseWriteSettings) {
         manager->currentSettings = cliInput.settings;

@@ -96,22 +96,14 @@
 #ifndef MODE_MODEL_H
 #define MODE_MODEL_H
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-typedef enum {
-    PATTERN_TYPE_SIMPLE,
-    PATTERN_TYPE_EQUATION
-} PatternType;
+typedef enum { PATTERN_TYPE_SIMPLE, PATTERN_TYPE_EQUATION } PatternType;
 
-typedef enum SimpleOutputType {
-	BULB,
-	RGB
-} SimpleOutputType;
+typedef enum SimpleOutputType { BULB, RGB } SimpleOutputType;
 
-typedef enum BulbSimpleOutput {
-	low, high
-} BulbSimpleOutput;
+typedef enum BulbSimpleOutput { low, high } BulbSimpleOutput;
 
 typedef struct RGBSimpleOutput RGBSimpleOutput;
 typedef struct SimpleOutput SimpleOutput;
@@ -128,17 +120,17 @@ typedef struct ModeAccel ModeAccel;
 typedef struct Mode Mode;
 
 struct RGBSimpleOutput {
-	uint8_t r; // 0 - 255
-	uint8_t g; // 0 - 255
-	uint8_t b; // 0 - 255
+    uint8_t r;  // 0 - 255
+    uint8_t g;  // 0 - 255
+    uint8_t b;  // 0 - 255
 };
 
 struct SimpleOutput {
-	SimpleOutputType type;
-	union {
-		BulbSimpleOutput bulb;
-		RGBSimpleOutput rgb;
-	} data;
+    SimpleOutputType type;
+    union {
+        BulbSimpleOutput bulb;
+        RGBSimpleOutput rgb;
+    } data;
 };
 
 struct PatternChange {
@@ -150,7 +142,7 @@ struct SimplePattern {
     char name[32];
     uint32_t duration;
     PatternChange changeAt[32];
-    uint8_t changeAt_count;
+    uint8_t changeAtCount;
 };
 
 struct EquationSection {
@@ -160,7 +152,7 @@ struct EquationSection {
 
 struct ChannelConfig {
     EquationSection sections[3];
-    uint8_t sections_count;
+    uint8_t sectionsCount;
     bool loopAfterDuration;
 };
 
@@ -187,24 +179,24 @@ struct ModeComponent {
 struct ModeAccelTrigger {
     uint8_t threshold;
     ModeComponent front;
-    bool has_front;
-    ModeComponent case_comp;
-    bool has_case_comp;
+    bool hasFront;
+    ModeComponent caseComp;
+    bool hasCaseComp;
 };
 
 struct ModeAccel {
     ModeAccelTrigger triggers[2];
-    uint8_t triggers_count;
+    uint8_t triggersCount;
 };
 
 struct Mode {
     char name[32];
     ModeComponent front;
-    bool has_front;
-    ModeComponent case_comp;
-    bool has_case_comp;
+    bool hasFront;
+    ModeComponent caseComp;
+    bool hasCaseComp;
     ModeAccel accel;
-    bool has_accel;
+    bool hasAccel;
 };
 
-#endif // MODE_MODEL_H
+#endif  // MODE_MODEL_H

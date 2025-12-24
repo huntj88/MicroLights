@@ -165,9 +165,12 @@ describe('SerialTestButton', () => {
     rerender(<SerialTestButton data={updatedMode} type="mode" disabled={false} />);
 
     // Should send update (debounced)
-    await waitFor(() => {
-      expect(mockSend).toHaveBeenCalledTimes(2);
-    }, { timeout: 1000 });
+    await waitFor(
+      () => {
+        expect(mockSend).toHaveBeenCalledTimes(2);
+      },
+      { timeout: 1000 },
+    );
 
     // Stop auto-sync
     fireEvent.click(screen.getByText('common.actions.stopTest'));

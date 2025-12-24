@@ -8,26 +8,31 @@
 #ifndef INC_RGB_LED_H_
 #define INC_RGB_LED_H_
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef void RGBWritePwm(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty);
 
 typedef struct RGBLed {
-	RGBWritePwm *writePwm;
-	uint16_t period; // TODO: set period from config?
-	void (*startLedTimers)();
-	void (*stopLedTimers)();
+    RGBWritePwm *writePwm;
+    uint16_t period;  // TODO: set period from config?
+    void (*startLedTimers)();
+    void (*stopLedTimers)();
 
-	uint32_t ms;
-	uint32_t msOfColorChange;
-	bool showingTransientStatus;
-	uint8_t userRed;
-	uint8_t userGreen;
-	uint8_t userBlue;
+    uint32_t ms;
+    uint32_t msOfColorChange;
+    bool showingTransientStatus;
+    uint8_t userRed;
+    uint8_t userGreen;
+    uint8_t userBlue;
 } RGBLed;
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period, void (*startLedTimers)(), void (*stopLedTimers)());
+bool rgbInit(
+    RGBLed *device,
+    RGBWritePwm *writeFn,
+    uint16_t period,
+    void (*startLedTimers)(),
+    void (*stopLedTimers)());
 
 void rgbTask(RGBLed *device, uint32_t ms);
 void rgbShowNoColor(RGBLed *device);
