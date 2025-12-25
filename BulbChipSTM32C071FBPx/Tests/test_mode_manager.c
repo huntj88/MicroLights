@@ -18,7 +18,7 @@ static uint8_t lastReadModeIndex = 255;
 static char lastReadBuffer[PAGE_SECTOR];
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
-static float mockAccelMagnitude = 0.0f;
+static uint8_t mockAccelMagnitude = 0;
 
 // Mock Functions
 void mock_enableTimers(bool enable) {
@@ -94,7 +94,7 @@ void setUp(void) {
     lastRgbR = 0;
     lastRgbG = 0;
     lastRgbB = 0;
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
 }
 
 void tearDown(void) {
@@ -269,18 +269,18 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     modeStateReset(&manager.modeState, &manager.currentMode, 0);
     manager.shouldResetState = false;
 
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
     modeTask(&manager, 100, true);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    mockAccelMagnitude = 20.0f;
+    mockAccelMagnitude = 20;
     modeTask(&manager, 600, true);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     modeTask(&manager, 1200, true);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
     modeTask(&manager, 1300, true);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
@@ -511,7 +511,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     manager.shouldResetState = false;
 
     // Trigger the accel
-    mockAccelMagnitude = 20.0f;
+    mockAccelMagnitude = 20;
 
     modeTask(&manager, 100, true);
 
@@ -557,7 +557,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     manager.shouldResetState = false;
 
     // Do NOT trigger the accel
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
 
     modeTask(&manager, 100, true);
 
@@ -613,7 +613,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     manager.shouldResetState = false;
 
     // Trigger the accel
-    mockAccelMagnitude = 20.0f;
+    mockAccelMagnitude = 20;
 
     modeTask(&manager, 100, true);
 
@@ -690,19 +690,19 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     manager.shouldResetState = false;
 
     // Case A: Accel = 5 (Below both) -> Default (OFF)
-    mockAccelMagnitude = 5.0f;
+    mockAccelMagnitude = 5;
     modeTask(&manager, 100, true);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Case B: Accel = 15 (Above Trigger 0, Below Trigger 1) -> Trigger 0 (BLUE)
-    mockAccelMagnitude = 15.0f;
+    mockAccelMagnitude = 15;
     modeTask(&manager, 200, true);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Case C: Accel = 25 (Above both) -> Trigger 1 (RED)
-    mockAccelMagnitude = 25.0f;
+    mockAccelMagnitude = 25;
     modeTask(&manager, 300, true);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
