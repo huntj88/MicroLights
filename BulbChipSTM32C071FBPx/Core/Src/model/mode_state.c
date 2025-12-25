@@ -83,7 +83,7 @@ static void advanceEquationChannel(
     }
     
     // Update t_var (in seconds)
-    state->t_var = (double)state->sectionElapsedMs / 1000.0;
+    state->t_var = (float)state->sectionElapsedMs / 1000.0f;
 }
 
 static void advanceEquationPattern(
@@ -257,7 +257,7 @@ static uint8_t evalChannel(const EquationChannelState *state) {
     te_expr *expr = state->compiledExprs[state->currentSectionIndex];
     if (!expr) return 0;
     
-    double val = te_eval(expr);
+    float val = te_eval(expr);
     if (val < 0) val = 0;
     if (val > 255) val = 255;
     return (uint8_t)val;

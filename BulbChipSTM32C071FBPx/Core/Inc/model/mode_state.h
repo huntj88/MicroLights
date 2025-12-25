@@ -16,7 +16,7 @@ typedef struct {
     uint8_t currentSectionIndex;
     uint32_t sectionElapsedMs;
     te_expr *compiledExprs[3];
-    double t_var;
+    float t_var;
 } EquationChannelState;
 
 typedef struct {
