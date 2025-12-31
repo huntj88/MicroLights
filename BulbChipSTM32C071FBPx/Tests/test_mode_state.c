@@ -262,6 +262,28 @@ void test_ModeStateGetSimpleOutput_FalseWhenNoChanges(void) {
     // TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
 }
 
+void test_equation_case_insensitive(void) {
+    memset(&mode, 0, sizeof(mode));
+    mode.hasFront = true;
+    mode.front.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *eq = &mode.front.pattern.data.equation;
+    eq->duration = 1000;
+    
+    // Red: ABS(SIN(t * 8 + PI / 3 * 2)) * 255
+    eq->red.sectionsCount = 1;
+    strcpy(eq->red.sections[0].equation, "ABS(SIN(t * 8 + PI / 3 * 2)) * 255");
+    eq->red.sections[0].duration = 1000;
+    
+    modeStateReset(&state, &mode, 0);
+    
+    // Check if it compiled (compiledExprs should not be NULL)
+    TEST_ASSERT_NOT_NULL(state.front.equation.red.compiledExprs[0]);
+    
+    // Advance and check output to ensure it evaluates
+    modeStateAdvance(&state, &mode, 100);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ModeStateAdvance_CaseAndTriggersAdvance);
@@ -269,6 +291,7 @@ int main(void) {
     RUN_TEST(test_ModeStateAdvance_IgnoresNonMonotonicTime);
     RUN_TEST(test_ModeStateGetSimpleOutput_FalseWhenNoChanges);
     RUN_TEST(test_ModeStateReset_SeedsInitialTime);
+    RUN_TEST(test_equation_case_insensitive);
     RUN_TEST(test_equation_multi_section);
     RUN_TEST(test_equation_pattern);
     return UNITY_END();

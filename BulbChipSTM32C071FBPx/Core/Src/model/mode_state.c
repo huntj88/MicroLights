@@ -1,6 +1,7 @@
 #include "model/mode_state.h"
 
 #include <string.h>
+#include <ctype.h>
 
 static void freeEquationChannel(EquationChannelState *state) {
     for (int i = 0; i < 3; i++) {
@@ -157,7 +158,16 @@ static void compileEquationChannel(EquationChannelState *state, const ChannelCon
     for (int i = 0; i < config->sectionsCount && i < 3; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
-        state->compiledExprs[i] = te_compile(config->sections[i].equation, vars, 1, &err);
+        
+        char buffer[64];
+        strncpy(buffer, config->sections[i].equation, sizeof(buffer));
+        buffer[sizeof(buffer) - 1] = '\0';
+        
+        for (int j = 0; buffer[j]; j++) {
+            buffer[j] = tolower((unsigned char)buffer[j]);
+        }
+        
+        state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
     }
 }
 
