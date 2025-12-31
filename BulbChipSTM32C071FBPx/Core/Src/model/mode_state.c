@@ -85,12 +85,14 @@ static void advanceEquationChannel(
     }
 
     // Update t_var (in seconds)
-    state->t_var = (float)state->sectionElapsedMs / 1000.0f;
+    state->t_var = (float)state->sectionElapsedMs / 1000.0F;
 }
 
 static void advanceEquationPattern(
     EquationPatternState *state, const EquationPattern *pattern, uint32_t deltaMs) {
-    if (!state || !pattern) return;
+    if (!state || !pattern) {
+        return;
+    }
 
     uint32_t duration = pattern->duration;
     bool looped = false;
@@ -152,18 +154,20 @@ static void advanceComponentState(
 }
 
 static void compileEquationChannel(EquationChannelState *state, const ChannelConfig *config) {
-    if (!state || !config) return;
+    if (!state || !config) {
+        return;
+    }
 
     for (int i = 0; i < config->sectionsCount && i < 3; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
 
-        char buffer[64];
+        unsigned char buffer[64];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
         buffer[sizeof(buffer) - 1] = '\0';
 
         for (int j = 0; buffer[j]; j++) {
-            buffer[j] = tolower((unsigned char)buffer[j]);
+            buffer[j] = tolower(buffer[j]);
         }
 
         state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
@@ -171,14 +175,18 @@ static void compileEquationChannel(EquationChannelState *state, const ChannelCon
 }
 
 static void compileEquationPattern(EquationPatternState *state, const EquationPattern *pattern) {
-    if (!state || !pattern) return;
+    if (!state || !pattern) {
+        return;
+    }
     compileEquationChannel(&state->red, &pattern->red);
     compileEquationChannel(&state->green, &pattern->green);
     compileEquationChannel(&state->blue, &pattern->blue);
 }
 
 static void compileComponentState(ModeComponentState *state, const ModeComponent *component) {
-    if (!state || !component) return;
+    if (!state || !component) {
+        return;
+    }
     if (component->pattern.type == PATTERN_TYPE_EQUATION) {
         compileEquationPattern(&state->equation, &component->pattern.data.equation);
     }
@@ -263,13 +271,21 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds)
 }
 
 static uint8_t evalChannel(const EquationChannelState *state) {
-    if (state->currentSectionIndex >= 3) return 0;
+    if (state->currentSectionIndex >= 3) {
+        return 0;
+    }
     te_expr *expr = state->compiledExprs[state->currentSectionIndex];
-    if (!expr) return 0;
+    if (!expr) {
+        return 0;
+    }
 
     float val = te_eval(expr);
-    if (val < 0) val = 0;
-    if (val > 255) val = 255;
+    if (val < 0) {
+        val = 0;
+    }
+    if (val > 255) {
+        val = 255;
+    }
     return (uint8_t)val;
 }
 
