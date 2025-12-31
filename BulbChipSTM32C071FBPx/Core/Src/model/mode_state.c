@@ -65,7 +65,13 @@ static void advanceEquationChannel(
 
     state->sectionElapsedMs += deltaMs;
 
-    if (state->currentSectionIndex < config->sectionsCount) {
+    // Only check for section transitions if not on the last section,
+    // or if looping is enabled. When on last section with looping disabled,
+    // let it continue indefinitely.
+    bool isLastSection = (state->currentSectionIndex >= config->sectionsCount - 1);
+    bool shouldCheckDuration = !isLastSection || config->loopAfterDuration;
+
+    if (shouldCheckDuration && state->currentSectionIndex < config->sectionsCount) {
         const EquationSection *section = &config->sections[state->currentSectionIndex];
         // Check if we need to move to next section
         if (state->sectionElapsedMs >= section->duration) {
@@ -73,12 +79,7 @@ static void advanceEquationChannel(
 
             state->currentSectionIndex++;
             if (state->currentSectionIndex >= config->sectionsCount) {
-                if (config->loopAfterDuration) {
-                    state->currentSectionIndex = 0;
-                } else {
-                    state->currentSectionIndex = config->sectionsCount - 1;
-                    state->sectionElapsedMs = section->duration;  // Clamp at end
-                }
+                state->currentSectionIndex = 0;
             }
         }
     }
@@ -137,9 +138,6 @@ static void advanceComponentState(
     }
 
     if (component->pattern.type == PATTERN_TYPE_SIMPLE) {
-        // Ensure equation state is freed if we switched types
-        // freeEquationPattern(&componentState->equation); // Handled by modeStateReset
-
         const SimplePattern *pattern = &component->pattern.data.simple;
         if (pattern->changeAtCount == 0U) {
             componentState->simple.elapsedMs = 0U;
