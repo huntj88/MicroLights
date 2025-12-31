@@ -310,7 +310,9 @@ bool modeStateGetSimpleOutput(
 
         *output = pattern->changeAt[index].output;
         return true;
-    } else if (component->pattern.type == PATTERN_TYPE_EQUATION) {
+    }
+    
+    if (component->pattern.type == PATTERN_TYPE_EQUATION) {
         const EquationPatternState *state = &componentState->equation;
         output->type = RGB;
         output->data.rgb.r = evalChannel(&state->red);
