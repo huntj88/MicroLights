@@ -1,7 +1,7 @@
 #include "model/mode_state.h"
 
-#include <string.h>
 #include <ctype.h>
+#include <string.h>
 
 static void freeEquationChannel(EquationChannelState *state) {
     for (int i = 0; i < 3; i++) {
@@ -70,19 +70,19 @@ static void advanceEquationChannel(
         // Check if we need to move to next section
         if (state->sectionElapsedMs >= section->duration) {
             state->sectionElapsedMs -= section->duration;
-            
+
             state->currentSectionIndex++;
             if (state->currentSectionIndex >= config->sectionsCount) {
                 if (config->loopAfterDuration) {
                     state->currentSectionIndex = 0;
                 } else {
                     state->currentSectionIndex = config->sectionsCount - 1;
-                    state->sectionElapsedMs = section->duration; // Clamp at end
+                    state->sectionElapsedMs = section->duration;  // Clamp at end
                 }
             }
         }
     }
-    
+
     // Update t_var (in seconds)
     state->t_var = (float)state->sectionElapsedMs / 1000.0f;
 }
@@ -99,19 +99,19 @@ static void advanceEquationPattern(
         if (nextElapsed >= duration) {
             looped = true;
             state->elapsedMs = nextElapsed % duration;
-            
+
             // Reset channels
             // freeEquationPattern(state); // No longer needed as we pre-compile
-            
+
             state->red.currentSectionIndex = 0;
             state->red.sectionElapsedMs = 0;
-            
+
             state->green.currentSectionIndex = 0;
             state->green.sectionElapsedMs = 0;
-            
+
             state->blue.currentSectionIndex = 0;
             state->blue.sectionElapsedMs = 0;
-            
+
             // Advance by the remainder
             advanceEquationChannel(&state->red, &pattern->red, state->elapsedMs);
             advanceEquationChannel(&state->green, &pattern->green, state->elapsedMs);
@@ -122,7 +122,7 @@ static void advanceEquationPattern(
     } else {
         state->elapsedMs += deltaMs;
     }
-    
+
     if (!looped) {
         advanceEquationChannel(&state->red, &pattern->red, deltaMs);
         advanceEquationChannel(&state->green, &pattern->green, deltaMs);
@@ -139,7 +139,7 @@ static void advanceComponentState(
     if (component->pattern.type == PATTERN_TYPE_SIMPLE) {
         // Ensure equation state is freed if we switched types
         // freeEquationPattern(&componentState->equation); // Handled by modeStateReset
-        
+
         const SimplePattern *pattern = &component->pattern.data.simple;
         if (pattern->changeAtCount == 0U) {
             componentState->simple.elapsedMs = 0U;
@@ -148,25 +148,26 @@ static void advanceComponentState(
         }
         advanceSimplePattern(&componentState->simple, pattern, deltaMs);
     } else if (component->pattern.type == PATTERN_TYPE_EQUATION) {
-        advanceEquationPattern(&componentState->equation, &component->pattern.data.equation, deltaMs);
+        advanceEquationPattern(
+            &componentState->equation, &component->pattern.data.equation, deltaMs);
     }
 }
 
 static void compileEquationChannel(EquationChannelState *state, const ChannelConfig *config) {
     if (!state || !config) return;
-    
+
     for (int i = 0; i < config->sectionsCount && i < 3; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
-        
+
         char buffer[64];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
         buffer[sizeof(buffer) - 1] = '\0';
-        
+
         for (int j = 0; buffer[j]; j++) {
             buffer[j] = tolower((unsigned char)buffer[j]);
         }
-        
+
         state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
     }
 }
@@ -199,7 +200,7 @@ void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs) {
 
     memset(state, 0, sizeof(*state));
     state->lastPatternUpdateMs = initialMs;
-    
+
     if (mode) {
         if (mode->hasFront) {
             compileComponentState(&state->front, &mode->front);
@@ -213,7 +214,8 @@ void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs) {
                     compileComponentState(&state->accel[i].front, &mode->accel.triggers[i].front);
                 }
                 if (mode->accel.triggers[i].hasCaseComp) {
-                    compileComponentState(&state->accel[i].case_comp, &mode->accel.triggers[i].caseComp);
+                    compileComponentState(
+                        &state->accel[i].case_comp, &mode->accel.triggers[i].caseComp);
                 }
             }
         }
@@ -266,7 +268,7 @@ static uint8_t evalChannel(const EquationChannelState *state) {
     if (state->currentSectionIndex >= 3) return 0;
     te_expr *expr = state->compiledExprs[state->currentSectionIndex];
     if (!expr) return 0;
-    
+
     float val = te_eval(expr);
     if (val < 0) val = 0;
     if (val > 255) val = 255;

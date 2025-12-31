@@ -10,8 +10,8 @@
 #include <string.h>
 
 #include "json/command_parser.h"
-#include "json/mode_parser.h"
 #include "json/json_buf.h"
+#include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
 
 static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
@@ -141,7 +141,6 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
         input->parsedType = parseError;
         return;
     }
-
 
     if (buf != jsonBuf) {
         memcpy(jsonBuf, buf, indexOfTerminalChar);

@@ -13,5 +13,4 @@
 
 extern uint8_t jsonBuf[PAGE_SECTOR];
 
-
 #endif /* INC_JSON_JSON_BUF_H_ */

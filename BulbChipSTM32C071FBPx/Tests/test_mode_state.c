@@ -152,24 +152,24 @@ void test_equation_pattern(void) {
     mode.front.pattern.type = PATTERN_TYPE_EQUATION;
     EquationPattern *eq = &mode.front.pattern.data.equation;
     eq->duration = 2000;
-    
+
     // Red: t * 100
     eq->red.sectionsCount = 1;
     strcpy(eq->red.sections[0].equation, "t * 100");
     eq->red.sections[0].duration = 2000;
     eq->red.loopAfterDuration = true;
-    
+
     // Green: 255 - t * 100
     eq->green.sectionsCount = 1;
     strcpy(eq->green.sections[0].equation, "255 - t * 100");
     eq->green.sections[0].duration = 2000;
     eq->green.loopAfterDuration = true;
-    
+
     // Blue: 0
     eq->blue.sectionsCount = 0;
-    
+
     modeStateReset(&state, &mode, 0);
-    
+
     // t = 0
     modeStateAdvance(&state, &mode, 0);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
@@ -177,13 +177,13 @@ void test_equation_pattern(void) {
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.r);
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
-    
+
     // t = 1.0s
     modeStateAdvance(&state, &mode, 1000);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
     TEST_ASSERT_EQUAL_UINT8(155, output.data.rgb.g);
-    
+
     // t = 2.0s (loop)
     modeStateAdvance(&state, &mode, 2000);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
@@ -196,8 +196,8 @@ void test_equation_multi_section(void) {
     mode.hasFront = true;
     mode.front.pattern.type = PATTERN_TYPE_EQUATION;
     EquationPattern *eq = &mode.front.pattern.data.equation;
-    eq->duration = 0; // Infinite
-    
+    eq->duration = 0;  // Infinite
+
     // Red: 0-1s: 100, 1-2s: 200
     eq->red.sectionsCount = 2;
     strcpy(eq->red.sections[0].equation, "100");
@@ -205,29 +205,29 @@ void test_equation_multi_section(void) {
     strcpy(eq->red.sections[1].equation, "200");
     eq->red.sections[1].duration = 1000;
     eq->red.loopAfterDuration = true;
-    
+
     modeStateReset(&state, &mode, 0);
-    
+
     // t = 0
     modeStateAdvance(&state, &mode, 0);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
-    
+
     // t = 500ms
     modeStateAdvance(&state, &mode, 500);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(100, output.data.rgb.r);
-    
+
     // t = 1000ms (switch to section 1)
     modeStateAdvance(&state, &mode, 1000);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(200, output.data.rgb.r);
-    
+
     // t = 1500ms
     modeStateAdvance(&state, &mode, 1500);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
     TEST_ASSERT_EQUAL_UINT8(200, output.data.rgb.r);
-    
+
     // t = 2000ms (loop back to section 0)
     modeStateAdvance(&state, &mode, 2000);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
@@ -268,17 +268,17 @@ void test_equation_case_insensitive(void) {
     mode.front.pattern.type = PATTERN_TYPE_EQUATION;
     EquationPattern *eq = &mode.front.pattern.data.equation;
     eq->duration = 1000;
-    
+
     // Red: ABS(SIN(t * 8 + PI / 3 * 2)) * 255
     eq->red.sectionsCount = 1;
     strcpy(eq->red.sections[0].equation, "ABS(SIN(t * 8 + PI / 3 * 2)) * 255");
     eq->red.sections[0].duration = 1000;
-    
+
     modeStateReset(&state, &mode, 0);
-    
+
     // Check if it compiled (compiledExprs should not be NULL)
     TEST_ASSERT_NOT_NULL(state.front.equation.red.compiledExprs[0]);
-    
+
     // Advance and check output to ensure it evaluates
     modeStateAdvance(&state, &mode, 100);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
