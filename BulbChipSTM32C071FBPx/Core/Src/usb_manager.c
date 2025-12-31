@@ -11,6 +11,7 @@
 #include "bootloader.h"
 #include "chip_state.h"
 #include "json/command_parser.h"
+#include "json/json_buf.h"
 #include "storage.h"
 #include "tusb.h"
 
@@ -51,6 +52,7 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
 }
 
 static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
+
     parseJson(buf, count, &cliInput);
 
     switch (cliInput.parsedType) {
@@ -80,13 +82,12 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
             break;
         }
         case parseReadMode: {
-            char flashReadBuffer[PAGE_SECTOR];
             usbManager->modeManager->readBulbModeFromFlash(
-                cliInput.modeIndex, flashReadBuffer, PAGE_SECTOR);
-            uint16_t len = strlen(flashReadBuffer);
-            flashReadBuffer[len] = '\n';
-            flashReadBuffer[len + 1] = '\0';
-            usbWriteToSerial(usbManager, 0, flashReadBuffer, strlen(flashReadBuffer));
+                cliInput.modeIndex, (char *)buf, PAGE_SECTOR);
+            uint16_t len = strlen((char *)buf);
+            buf[len] = '\n';
+            buf[len + 1] = '\0';
+            usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
             break;
         }
         case parseWriteSettings: {
@@ -96,12 +97,11 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            char flashReadBuffer[PAGE_SECTOR];
-            loadSettingsFromFlash(usbManager->settingsManager, flashReadBuffer);
-            uint16_t len = strlen(flashReadBuffer);
-            flashReadBuffer[len] = '\n';
-            flashReadBuffer[len + 1] = '\0';
-            usbWriteToSerial(usbManager, 0, flashReadBuffer, strlen(flashReadBuffer));
+            loadSettingsFromFlash(usbManager->settingsManager, (char *)buf);
+            uint16_t len = strlen((char *)buf);
+            buf[len] = '\n';
+            buf[len + 1] = '\0';
+            usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
             break;
         }
         case parseDfu: {
@@ -112,7 +112,6 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
 }
 
 void usbCdcTask(USBManager *usbManager) {
-    static uint8_t jsonBuf[PAGE_SECTOR];
     static uint16_t jsonIndex = 0;
     uint8_t itf;
 
@@ -127,7 +126,7 @@ void usbCdcTask(USBManager *usbManager) {
                 uint8_t buf[64];
                 // cast count as uint8_t, buf is only 64 bytes
                 uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
-                if (jsonIndex + count > sizeof(jsonBuf)) {
+                if (jsonIndex + count > PAGE_SECTOR) {
                     char error[] = "{\"error\":\"payload too long\"}\n";
                     usbWriteToSerial(usbManager, itf, error, strlen(error));
                     jsonIndex = 0;

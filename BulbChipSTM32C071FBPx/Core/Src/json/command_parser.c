@@ -11,6 +11,7 @@
 
 #include "json/command_parser.h"
 #include "json/mode_parser.h"
+#include "json/json_buf.h"
 #include "lwjson/lwjson.h"
 
 static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
@@ -136,20 +137,18 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
     }
 
     uint32_t indexOfTerminalChar = jsonLength(buf, count);
-    if (indexOfTerminalChar == -1) {
+    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= PAGE_SECTOR - 1) {
         input->parsedType = parseError;
         return;
     }
 
-    uint8_t includeTerimalChar = 1;
-    uint8_t bufJson[indexOfTerminalChar + includeTerimalChar];
 
-    for (uint32_t i = 0; i < indexOfTerminalChar + includeTerimalChar; i++) {
-        bufJson[i] = buf[i];
+    if (buf != jsonBuf) {
+        memcpy(jsonBuf, buf, indexOfTerminalChar);
     }
 
     // ensure terminal character is \0 and not \n
-    bufJson[indexOfTerminalChar] = '\0';
+    jsonBuf[indexOfTerminalChar] = '\0';
     input->jsonLength = indexOfTerminalChar;
 
     input->parsedType = parseError;  // provide error default, override when successful
@@ -157,7 +156,7 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
     input->errorContext.path[0] = '\0';
 
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-    if (lwjson_parse(&lwjson, (const char *)bufJson) == lwjsonOK) {
+    if (lwjson_parse(&lwjson, (const char *)jsonBuf) == lwjsonOK) {
         processCommand(&lwjson, input);
     }
     lwjson_free(&lwjson);

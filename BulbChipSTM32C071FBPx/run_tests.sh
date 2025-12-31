@@ -58,7 +58,7 @@ gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/
 run_test ./Tests/build/test_settings_manager
 
 echo "Compiling and running test_mode_manager..."
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
+gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c Core/Src/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
 echo "Compiling and running test_mode_state..."
@@ -71,7 +71,7 @@ run_test ./Tests/build/test_button
 
 echo "Compiling and running test_command_parser..."
 # Needs lwjson.c linked
-gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cli_model.c -o Tests/build/test_command_parser
+gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cli_model.c Core/Src/json/json_buf.c -o Tests/build/test_command_parser
 run_test ./Tests/build/test_command_parser
 
 echo "Compiling and running test_bq25180..."
