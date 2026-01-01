@@ -28,6 +28,13 @@ export type EquationRgbPatternAction =
       loopAfterDuration: boolean;
     };
 
+const calculateTotalDuration = (p: EquationPattern) => {
+  const calc = (sections: EquationSection[]) =>
+    sections.reduce((acc, s) => acc + (Number.isNaN(s.duration) ? 0 : s.duration), 0);
+  const d = Math.max(calc(p.red.sections), calc(p.green.sections), calc(p.blue.sections));
+  return d > 0 ? d : 1000;
+};
+
 export interface EquationRgbPatternPanelProps {
   pattern: EquationPattern;
   onChange: (state: EquationPattern, action: EquationRgbPatternAction) => void;
@@ -104,6 +111,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         sections: nextSections,
       },
     };
+    nextPattern.duration = calculateTotalDuration(nextPattern);
 
     onChange(nextPattern, { type: 'add-section', channel, section: newSection });
   };
@@ -127,6 +135,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         sections: nextSections,
       },
     };
+    nextPattern.duration = calculateTotalDuration(nextPattern);
 
     onChange(nextPattern, { type: 'update-section', channel, index, section: updatedSection });
   };
@@ -141,6 +150,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         sections: nextSections,
       },
     };
+    nextPattern.duration = calculateTotalDuration(nextPattern);
 
     onChange(nextPattern, { type: 'remove-section', channel, index });
   };
