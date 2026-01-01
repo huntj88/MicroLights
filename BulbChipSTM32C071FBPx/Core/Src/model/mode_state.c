@@ -53,6 +53,15 @@ static void freeComponentState(ModeComponentState *state) {
     freeEquationPattern(&state->equation);
 }
 
+static bool equationPatternAllowsLoop(const EquationPattern *pattern) {
+    if (!pattern) {
+        return false;
+    }
+
+    return pattern->red.loopAfterDuration && pattern->green.loopAfterDuration &&
+           pattern->blue.loopAfterDuration;
+}
+
 static void advanceSimplePattern(
     SimplePatternState *state, const SimplePattern *pattern, uint32_t deltaMs) {
     if (!state || !pattern || pattern->changeAtCount == 0U || deltaMs == 0U) {
@@ -130,9 +139,10 @@ static void advanceEquationPattern(
     }
 
     uint32_t duration = pattern->duration;
+    bool allowLoop = (duration > 0U) && equationPatternAllowsLoop(pattern);
     bool looped = false;
 
-    if (duration > 0) {
+    if (allowLoop) {
         uint32_t nextElapsed = state->elapsedMs + deltaMs;
         if (nextElapsed >= duration) {
             looped = true;
