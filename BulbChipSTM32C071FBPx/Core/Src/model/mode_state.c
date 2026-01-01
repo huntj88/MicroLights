@@ -158,16 +158,16 @@ static void compileEquationChannel(EquationChannelState *state, const ChannelCon
         return;
     }
 
-    for (int i = 0; i < config->sectionsCount && i < 3; i++) {
+    for (uint8_t i = 0; i < config->sectionsCount && i < 3; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
 
-        unsigned char buffer[64];
+        char buffer[64];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
         buffer[sizeof(buffer) - 1] = '\0';
 
         for (int j = 0; buffer[j]; j++) {
-            buffer[j] = tolower(buffer[j]);
+            buffer[j] = (char)tolower(buffer[j]);
         }
 
         state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
