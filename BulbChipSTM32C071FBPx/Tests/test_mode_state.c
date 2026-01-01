@@ -313,10 +313,6 @@ void test_ModeStateGetSimpleOutput_FalseWhenNoChanges(void) {
     component.pattern.data.simple.changeAtCount = 0U;
 
     TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
-
-    // component.pattern.type = PATTERN_TYPE_EQUATION;
-    // component.pattern.data.simple.changeAtCount = 1U;
-    // TEST_ASSERT_FALSE(modeStateGetSimpleOutput(&state.front, &component, &output));
 }
 
 void test_equation_case_insensitive(void) {
