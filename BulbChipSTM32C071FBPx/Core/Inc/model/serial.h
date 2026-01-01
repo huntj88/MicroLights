@@ -8,6 +8,7 @@
 #ifndef INC_MODEL_SERIAL_H_
 #define INC_MODEL_SERIAL_H_
 
+// TODO: rename to just WriteToSerial? update usages to match
 typedef void WriteToUsbSerial(uint8_t itf, const char *buf, uint32_t count);
 
 #endif /* INC_MODEL_SERIAL_H_ */

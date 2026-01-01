@@ -148,6 +148,7 @@ interface StringFieldDef extends BaseFieldDef {
   type: 'string';
   min?: number;
   max: number;
+  maxDefine?: string;
 }
 
 interface Uint8FieldDef extends BaseFieldDef {
@@ -169,6 +170,7 @@ interface ArrayFieldDef extends BaseFieldDef {
   item: string;
   min?: number;
   max: number;
+  maxDefine?: string;
 }
 
 interface StructFieldDef extends BaseFieldDef {
@@ -223,29 +225,45 @@ const schema: Record<string, SchemaDef> = {
   SimplePattern: {
     type: 'struct',
     fields: {
-      name: { type: 'string', min: 1, max: 31 },
+      name: { type: 'string', min: 1, max: 31, maxDefine: 'MODE_NAME_MAX_LEN' },
       duration: { type: 'uint32', min: 1 },
-      changeAt: { type: 'array', item: 'PatternChange', min: 1, max: 32 },
+      changeAt: {
+        type: 'array',
+        item: 'PatternChange',
+        min: 1,
+        max: 32,
+        maxDefine: 'SIMPLE_PATTERN_CHANGES_MAX',
+      },
     },
   },
   EquationSection: {
     type: 'struct',
     fields: {
-      equation: { type: 'string', min: 1, max: 63 },
+      equation: {
+        type: 'string',
+        min: 1,
+        max: 63,
+        maxDefine: 'EQUATION_SECTION_EQUATION_MAX_LEN',
+      },
       duration: { type: 'uint32', min: 1 },
     },
   },
   ChannelConfig: {
     type: 'struct',
     fields: {
-      sections: { type: 'array', item: 'EquationSection', max: 3 },
+      sections: {
+        type: 'array',
+        item: 'EquationSection',
+        max: 3,
+        maxDefine: 'CHANNEL_CONFIG_SECTIONS_MAX',
+      },
       loopAfterDuration: { type: 'boolean' },
     },
   },
   EquationPattern: {
     type: 'struct',
     fields: {
-      name: { type: 'string', min: 1, max: 31 },
+      name: { type: 'string', min: 1, max: 31, maxDefine: 'MODE_NAME_MAX_LEN' },
       duration: { type: 'uint32', min: 0 },
       red: { type: 'ChannelConfig' },
       green: { type: 'ChannelConfig' },
@@ -282,13 +300,19 @@ const schema: Record<string, SchemaDef> = {
   ModeAccel: {
     type: 'struct',
     fields: {
-      triggers: { type: 'array', item: 'ModeAccelTrigger', min: 1, max: 2 },
+      triggers: {
+        type: 'array',
+        item: 'ModeAccelTrigger',
+        min: 1,
+        max: 2,
+        maxDefine: 'MODE_ACCEL_TRIGGERS_MAX',
+      },
     },
   },
   Mode: {
     type: 'struct',
     fields: {
-      name: { type: 'string', min: 1, max: 31 },
+      name: { type: 'string', min: 1, max: 31, maxDefine: 'MODE_NAME_MAX_LEN' },
       front: { type: 'ModeComponent', optional: true },
       case: { type: 'ModeComponent', optional: true },
       accel: { type: 'ModeAccel', optional: true },
@@ -310,7 +334,27 @@ ${examplesComment}
 
 typedef enum { PATTERN_TYPE_SIMPLE, PATTERN_TYPE_EQUATION } PatternType;
 
-typedef enum SimpleOutputType { BULB, RGB } SimpleOutputType;
+`;
+
+  // Collect defines
+  const defines = new Map<string, number>();
+  for (const def of Object.values(schema)) {
+    if (def.type === 'struct') {
+      for (const field of Object.values(def.fields)) {
+        if ((field.type === 'string' || field.type === 'array') && field.maxDefine) {
+          const val = field.type === 'string' ? field.max + 1 : field.max;
+          defines.set(field.maxDefine, val);
+        }
+      }
+    }
+  }
+
+  for (const [name, val] of defines) {
+    out += `#define ${name} ${String(val)}\n`;
+  }
+  out += '\n';
+
+  out += `typedef enum SimpleOutputType { BULB, RGB } SimpleOutputType;
 
 typedef enum BulbSimpleOutput { low, high } BulbSimpleOutput;
 
@@ -347,7 +391,8 @@ struct SimpleOutput {
       for (const [fieldName, fieldDef] of Object.entries(def.fields)) {
         const cName = fieldName === 'case' ? 'caseComp' : fieldName;
         if (fieldDef.type === 'string') {
-          out += `    char ${cName}[${String(fieldDef.max + 1)}];\n`;
+          const lenStr = fieldDef.maxDefine ?? String(fieldDef.max + 1);
+          out += `    char ${cName}[${lenStr}];\n`;
         } else if (fieldDef.type === 'uint8') {
           out += `    uint8_t ${cName};\n`;
         } else if (fieldDef.type === 'uint32') {
@@ -355,7 +400,8 @@ struct SimpleOutput {
         } else if (fieldDef.type === 'boolean') {
           out += `    bool ${cName};\n`;
         } else if (fieldDef.type === 'array') {
-          out += `    ${fieldDef.item} ${cName}[${String(fieldDef.max)}];\n`;
+          const lenStr = fieldDef.maxDefine ?? String(fieldDef.max);
+          out += `    ${fieldDef.item} ${cName}[${lenStr}];\n`;
           out += `    uint8_t ${cName}Count;\n`;
         } else {
           // Struct type
@@ -614,7 +660,8 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
         out += `    if (tokenField != NULL) {\n`;
 
         if (fieldDef.type === 'string') {
-          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min ?? 0)}, ${String(fieldDef.max)}, ctx, "${fieldName}")) {\n`;
+          const maxStr = fieldDef.maxDefine ? `${fieldDef.maxDefine} - 1` : String(fieldDef.max);
+          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min ?? 0)}, ${maxStr}, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint32') {
@@ -628,8 +675,9 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
         } else if (fieldDef.type === 'boolean') {
           out += `        parseBooleanField(tokenField, &out->${cName});\n`;
         } else if (fieldDef.type === 'array') {
+          const maxStr = fieldDef.maxDefine ?? String(fieldDef.max);
           out += `        const lwjson_token_t *child = lwjson_get_first_child(tokenField);\n`;
-          out += `        while (child != NULL && out->${cName}Count < ${String(fieldDef.max)}) {\n`;
+          out += `        while (child != NULL && out->${cName}Count < ${maxStr}) {\n`;
           out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t *)child, &out->${cName}[out->${cName}Count], ctx)) {\n`;
           out += `                prependContext(ctx, "${fieldName}", out->${cName}Count);\n`;
           out += `                return false;\n`;

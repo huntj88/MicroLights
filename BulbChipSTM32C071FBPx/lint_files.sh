@@ -20,6 +20,7 @@ INCLUDES="-I Core/Inc \
           -I Drivers/CMSIS/Device/ST/STM32C0xx/Include \
           -I Drivers/CMSIS/Include \
           -I libs/lwjson/lwjson/src/include \
+          -I libs/tinyexpr \
           -I libs/tinyusb/src"
 
 # Run cppcheck

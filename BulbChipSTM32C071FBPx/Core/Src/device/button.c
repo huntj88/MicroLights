@@ -58,7 +58,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds) {
         }
     }
 
-    if (!buttonCurrentlyDown && elapsedMillis > 20) {
+    if (!buttonCurrentlyDown && elapsedMillis > 50) {
         enum ButtonResult buttonState = clicked;
         if (elapsedMillis > 2000) {
             buttonState = lockOrHardwareReset;

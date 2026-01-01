@@ -291,7 +291,13 @@ int main(void) {
     }
 
     if (!modeManagerInit(
-            &modeManager, &accel, &caseLed, enableTimers, readBulbModeFromFlash, writeBulbLed)) {
+            &modeManager,
+            &accel,
+            &caseLed,
+            enableTimers,
+            readBulbModeFromFlash,
+            writeBulbLed,
+            writeToSerial)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
@@ -443,7 +449,7 @@ static void MX_TIM1_Init(void) {
     htim1.Instance = TIM1;
     htim1.Init.Prescaler = 2;
     htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim1.Init.Period = 1000;
+    htim1.Init.Period = 500;
     htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
