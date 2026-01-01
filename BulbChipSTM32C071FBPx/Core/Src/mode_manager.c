@@ -6,6 +6,7 @@
  */
 
 #include "mode_manager.h"
+#include <stdio.h>
 #include <string.h>
 #include "json/command_parser.h"
 #include "storage.h"
@@ -25,9 +26,10 @@ bool modeManagerInit(
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
     void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
-    void (*writeBulbLedPin)(uint8_t state)) {
+    void (*writeBulbLedPin)(uint8_t state),
+    WriteToUsbSerial *writeUsbSerial) {
     if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||
-        !writeBulbLedPin) {
+        !writeBulbLedPin || !writeUsbSerial) {
         return false;
     }
     manager->accel = accel;
@@ -35,6 +37,7 @@ bool modeManagerInit(
     manager->enableTimers = enableTimers;
     manager->readBulbModeFromFlash = readBulbModeFromFlash;
     manager->writeBulbLedPin = writeBulbLedPin;
+    manager->writeUsbSerial = writeUsbSerial;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
     memset(&manager->modeState, 0, sizeof(manager->modeState));
@@ -96,6 +99,31 @@ typedef struct {
     ModeComponentState *caseState;
 } ActiveComponents;
 
+static void reportEquationError(const ModeManager *manager, const ModeEquationError *error) {
+    if (!manager || !manager->writeUsbSerial || !error || !error->hasError) {
+        return;
+    }
+
+    const char *path = error->path[0] != '\0' ? error->path : "unknown";
+    const char *equation = error->equation[0] != '\0' ? error->equation : "unknown";
+    char message[256];
+    int written = snprintf(
+        message,
+        sizeof(message),
+        "{\"error\":\"Equation compile error\",\"path\":\"%s\",\"position\":%d,"
+        "\"equation\":\"%s\"}\n",
+        path,
+        error->errorPosition,
+        equation);
+    if (written < 0) {
+        return;
+    }
+    if (written > (int)sizeof(message)) {
+        written = (int)sizeof(message);
+    }
+    manager->writeUsbSerial(0, message, (uint32_t)written);
+}
+
 static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     ActiveComponents active = {0};
 
@@ -139,8 +167,13 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 
 void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
-        modeStateReset(&manager->modeState, &manager->currentMode, milliseconds);
+        ModeEquationError equationError = {0};
+        bool resetOk = modeStateReset(
+            &manager->modeState, &manager->currentMode, milliseconds, &equationError);
         manager->shouldResetState = false;
+        if (!resetOk) {
+            reportEquationError(manager, &equationError);
+        }
     }
 
     modeStateAdvance(&manager->modeState, &manager->currentMode, milliseconds);

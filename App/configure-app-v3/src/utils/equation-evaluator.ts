@@ -13,6 +13,7 @@ export const evaluateEquation = (equation: string, t: number, duration: number):
     // Clamp to 0-255
     return Math.max(0, Math.min(255, result));
   } catch (e) {
+    // TODO: surface error to user
     console.error('Error evaluating equation:', e);
     return 0;
   }

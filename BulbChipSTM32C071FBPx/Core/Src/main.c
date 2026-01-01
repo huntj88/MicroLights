@@ -291,7 +291,13 @@ int main(void) {
     }
 
     if (!modeManagerInit(
-            &modeManager, &accel, &caseLed, enableTimers, readBulbModeFromFlash, writeBulbLed)) {
+            &modeManager,
+            &accel,
+            &caseLed,
+            enableTimers,
+            readBulbModeFromFlash,
+            writeBulbLed,
+            writeToSerial)) {
         Error_Handler();
     }
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {

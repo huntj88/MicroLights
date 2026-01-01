@@ -45,7 +45,15 @@ typedef struct {
     uint32_t lastPatternUpdateMs;
 } ModeState;
 
-void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs);
+typedef struct {
+    bool hasError;
+    char path[128];
+    int errorPosition;
+    char equation[64];
+} ModeEquationError;
+
+bool modeStateReset(
+    ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds);
 bool modeStateGetSimpleOutput(
     const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);

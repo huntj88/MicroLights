@@ -1,7 +1,35 @@
 #include "model/mode_state.h"
 
+#include <assert.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <string.h>
+
+enum { MODE_EQUATION_PATH_MAX = sizeof(((ModeEquationError *)0)->path) };
+
+static void buildChildPath(char *dest, size_t len, const char *parent, const char *child) {
+    if (!dest || len == 0) {
+        return;
+    }
+    if (parent && parent[0] != '\0') {
+        snprintf(dest, len, "%s.%s", parent, child);
+    } else {
+        snprintf(dest, len, "%s", child);
+    }
+    dest[len - 1U] = '\0';
+}
+
+static void buildSectionPath(char *dest, size_t len, const char *base, uint8_t sectionIndex) {
+    if (!dest || len == 0) {
+        return;
+    }
+    if (base && base[0] != '\0') {
+        snprintf(dest, len, "%s.sections[%u]", base, sectionIndex);
+    } else {
+        snprintf(dest, len, "sections[%u]", sectionIndex);
+    }
+    dest[len - 1U] = '\0';
+}
 
 static void freeEquationChannel(EquationChannelState *state) {
     if (!state) {
@@ -153,48 +181,111 @@ static void advanceComponentState(
     }
 }
 
-static void compileEquationChannel(EquationChannelState *state, const ChannelConfig *config) {
-    if (!state || !config) {
+static void captureEquationError(
+    ModeEquationError *error, const char *path, int errorPosition, const char *expression) {
+    if (!error || error->hasError) {
         return;
     }
 
-    for (uint8_t i = 0; i < config->sectionsCount && i < 3; i++) {
+    error->hasError = true;
+    if (path) {
+        strncpy(error->path, path, sizeof(error->path) - 1U);
+        error->path[sizeof(error->path) - 1U] = '\0';
+    } else {
+        error->path[0] = '\0';
+    }
+    if (expression) {
+        strncpy(error->equation, expression, sizeof(error->equation) - 1U);
+        error->equation[sizeof(error->equation) - 1U] = '\0';
+    }
+    error->errorPosition = errorPosition;
+}
+
+static bool compileEquationChannel(
+    EquationChannelState *state,
+    const ChannelConfig *config,
+    const char *channelPath,
+    ModeEquationError *error) {
+    assert(state != NULL);
+    assert(config != NULL);
+    if (!state || !config) {
+        return false;
+    }
+
+    bool success = true;
+    for (int i = 0; i < config->sectionsCount && i < 3; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
 
+        // TODO: make mode #define for length of the equation string to avoid buffer overflow
         char buffer[64];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
-        buffer[sizeof(buffer) - 1] = '\0';
 
-        for (int j = 0; buffer[j]; j++) {
-            buffer[j] = (char)tolower(buffer[j]);
+        for (size_t j = 0; j < sizeof(buffer) && buffer[j] != '\0'; j++) {
+            buffer[j] = (char)tolower((unsigned char)buffer[j]);
         }
 
         state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
+        if (!state->compiledExprs[i]) {
+            success = false;
+            char sectionPath[MODE_EQUATION_PATH_MAX];
+            buildSectionPath(sectionPath, sizeof(sectionPath), channelPath, (uint8_t)i);
+            captureEquationError(error, sectionPath, err, config->sections[i].equation);
+        }
     }
+
+    return success;
 }
 
-static void compileEquationPattern(EquationPatternState *state, const EquationPattern *pattern) {
+static bool compileEquationPattern(
+    EquationPatternState *state,
+    const EquationPattern *pattern,
+    const char *componentPath,
+    ModeEquationError *error) {
+    assert(state != NULL);
+    assert(pattern != NULL);
     if (!state || !pattern) {
-        return;
+        return false;
     }
-    compileEquationChannel(&state->red, &pattern->red);
-    compileEquationChannel(&state->green, &pattern->green);
-    compileEquationChannel(&state->blue, &pattern->blue);
+
+    bool success = true;
+    char channelPath[MODE_EQUATION_PATH_MAX];
+
+    buildChildPath(channelPath, sizeof(channelPath), componentPath, "red");
+    success &= compileEquationChannel(&state->red, &pattern->red, channelPath, error);
+
+    buildChildPath(channelPath, sizeof(channelPath), componentPath, "green");
+    success &= compileEquationChannel(&state->green, &pattern->green, channelPath, error);
+
+    buildChildPath(channelPath, sizeof(channelPath), componentPath, "blue");
+    success &= compileEquationChannel(&state->blue, &pattern->blue, channelPath, error);
+    return success;
 }
 
-static void compileComponentState(ModeComponentState *state, const ModeComponent *component) {
+static bool compileComponentState(
+    ModeComponentState *state,
+    const ModeComponent *component,
+    const char *componentPath,
+    ModeEquationError *error) {
+    assert(state != NULL);
+    assert(component != NULL);
     if (!state || !component) {
-        return;
+        return false;
     }
     if (component->pattern.type == PATTERN_TYPE_EQUATION) {
-        compileEquationPattern(&state->equation, &component->pattern.data.equation);
+        return compileEquationPattern(
+            &state->equation, &component->pattern.data.equation, componentPath, error);
     }
+    return true;
 }
 
-void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs) {
+bool modeStateReset(
+    ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error) {
     if (!state) {
-        return;
+        return false;
+    }
+    if (error) {
+        memset(error, 0, sizeof(*error));
     }
 
     freeComponentState(&state->front);
@@ -207,25 +298,36 @@ void modeStateReset(ModeState *state, const Mode *mode, uint32_t initialMs) {
     memset(state, 0, sizeof(*state));
     state->lastPatternUpdateMs = initialMs;
 
+    bool success = true;
     if (mode) {
         if (mode->hasFront) {
-            compileComponentState(&state->front, &mode->front);
+            success &= compileComponentState(&state->front, &mode->front, "front", error);
         }
         if (mode->hasCaseComp) {
-            compileComponentState(&state->case_comp, &mode->caseComp);
+            success &= compileComponentState(&state->case_comp, &mode->caseComp, "caseComp", error);
         }
         if (mode->hasAccel) {
             for (int i = 0; i < mode->accel.triggersCount && i < MODE_ACCEL_TRIGGER_MAX; i++) {
                 if (mode->accel.triggers[i].hasFront) {
-                    compileComponentState(&state->accel[i].front, &mode->accel.triggers[i].front);
+                    char label[32];
+                    snprintf(label, sizeof(label), "accel[%d].front", i);
+                    success &= compileComponentState(
+                        &state->accel[i].front, &mode->accel.triggers[i].front, label, error);
                 }
                 if (mode->accel.triggers[i].hasCaseComp) {
-                    compileComponentState(
-                        &state->accel[i].case_comp, &mode->accel.triggers[i].caseComp);
+                    char label[32];
+                    snprintf(label, sizeof(label), "accel[%d].caseComp", i);
+                    success &= compileComponentState(
+                        &state->accel[i].case_comp,
+                        &mode->accel.triggers[i].caseComp,
+                        label,
+                        error);
                 }
             }
         }
     }
+
+    return success;
 }
 
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds) {
@@ -311,7 +413,7 @@ bool modeStateGetSimpleOutput(
         *output = pattern->changeAt[index].output;
         return true;
     }
-    
+
     if (component->pattern.type == PATTERN_TYPE_EQUATION) {
         const EquationPatternState *state = &componentState->equation;
         output->type = RGB;
