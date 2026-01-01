@@ -7,6 +7,7 @@
 
 enum { MODE_EQUATION_PATH_MAX = sizeof(((ModeEquationError *)0)->path) };
 
+// used to build error paths represented in json dot notation
 static void buildChildPath(char *dest, size_t len, const char *parent, const char *child) {
     if (!dest || len == 0) {
         return;
@@ -19,6 +20,7 @@ static void buildChildPath(char *dest, size_t len, const char *parent, const cha
     dest[len - 1U] = '\0';
 }
 
+// used to build error paths represented in json dot notation
 static void buildSectionPath(char *dest, size_t len, const char *base, uint8_t sectionIndex) {
     if (!dest || len == 0) {
         return;
@@ -71,6 +73,7 @@ static void advanceSimplePattern(
     }
 
     uint32_t elapsed = state->elapsedMs + deltaMs;
+    // Wrap elapsed time back into the pattern duration and jump to first change.
     while (elapsed >= duration) {
         elapsed -= duration;
         state->changeIndex = 0U;
@@ -78,11 +81,13 @@ static void advanceSimplePattern(
 
     state->elapsedMs = elapsed;
 
+    // If time moved forward, walk the change index forward until the next change lies ahead.
     while ((state->changeIndex + 1U) < pattern->changeAtCount &&
            pattern->changeAt[state->changeIndex + 1U].ms <= state->elapsedMs) {
         state->changeIndex++;
     }
 
+    // If time moved backward (e.g., wrap elapsed time by duration shrink loop), walk the change index backward.
     while (state->changeIndex > 0U && pattern->changeAt[state->changeIndex].ms > state->elapsedMs) {
         state->changeIndex--;
     }
