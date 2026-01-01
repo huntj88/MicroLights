@@ -14,8 +14,8 @@
 #include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
 
-static uint32_t jsonLength(const uint8_t buf[], uint32_t count) {
-    for (uint32_t i = 0; i < count; i++) {
+static int32_t jsonLength(const uint8_t buf[], uint32_t count) {
+    for (int32_t i = 0; i < count; i++) {
         uint8_t current = buf[i];
         if (current == '\n' || current == '\0') {
             return i;
@@ -136,7 +136,7 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
         return;
     }
 
-    uint32_t indexOfTerminalChar = jsonLength(buf, count);
+    int32_t indexOfTerminalChar = jsonLength(buf, count);
     if (indexOfTerminalChar == -1 || indexOfTerminalChar >= PAGE_SECTOR - 1) {
         input->parsedType = parseError;
         return;
