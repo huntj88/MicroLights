@@ -31,19 +31,19 @@ if [ ! -d "tinyusb" ]; then
     curl -L "https://github.com/hathach/tinyusb/archive/$TINYUSB_COMMIT.tar.gz" > tinyusb.tar.gz &&
     tar -xzf tinyusb.tar.gz &&
     rm tinyusb.tar.gz &&
-    mv "tinyusb-$TINYUSB_COMMIT" tinyusb
+    mv "tinyusb-$TINYUSB_COMMIT" tinyusb &&
+
+    python3 tinyusb/tools/get_deps.py stm32c0
 else
     echo "tinyusb already exists, skipping download."
 fi &&
-
-python3 tinyusb/tools/get_deps.py stm32c0 &&
 
 if [ ! -d "tinyexpr" ]; then
     echo "Downloading tinyexpr ($TINYEXPR_COMMIT)..." &&
     curl -L "https://github.com/huntj88/tinyexpr/archive/$TINYEXPR_COMMIT.tar.gz" > tinyexpr.tar.gz &&
     tar -xzf tinyexpr.tar.gz &&
     rm tinyexpr.tar.gz &&
-    mv "tinyexpr-$TINYEXPR_COMMIT"* tinyexpr
+    mv "tinyexpr-$TINYEXPR_COMMIT" tinyexpr
 else
     echo "tinyexpr already exists, skipping download."
 fi &&
