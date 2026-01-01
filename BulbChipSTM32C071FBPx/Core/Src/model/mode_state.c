@@ -4,8 +4,11 @@
 #include <string.h>
 
 static void freeEquationChannel(EquationChannelState *state) {
+    if (!state) {
+        return;
+    }
     for (int i = 0; i < 3; i++) {
-        if (state->compiledExprs[i]) {
+        if (state->compiledExprs[i] != NULL) {
             te_free(state->compiledExprs[i]);
             state->compiledExprs[i] = NULL;
         }
@@ -102,9 +105,6 @@ static void advanceEquationPattern(
         if (nextElapsed >= duration) {
             looped = true;
             state->elapsedMs = nextElapsed % duration;
-
-            // Reset channels
-            // freeEquationPattern(state); // No longer needed as we pre-compile
 
             state->red.currentSectionIndex = 0;
             state->red.sectionElapsedMs = 0;
