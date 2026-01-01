@@ -52,7 +52,13 @@ typedef struct {
     char equation[64];
 } ModeEquationError;
 
-bool modeStateReset(
+/**
+ * Initializes a `ModeState` instance so it can evaluate the provided `Mode`.
+ * Frees any previously compiled expressions, zeroes the runtime state, seeds
+ * `lastPatternUpdateMs` with `initialMs`, and compiles all required equations.
+ * Returns false and populates `error` when an equation fails to compile.
+ */
+bool modeStateInitialize(
     ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds);
 bool modeStateGetSimpleOutput(

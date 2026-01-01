@@ -326,7 +326,7 @@ static bool compileModeState(ModeState *state, const Mode *mode, ModeEquationErr
     return success;
 }
 
-bool modeStateReset(
+bool modeStateInitialize(
     ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error) {
     if (!state) {
         return false;

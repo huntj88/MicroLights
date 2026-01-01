@@ -168,10 +168,10 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
     if (manager->shouldResetState) {
         ModeEquationError equationError = {0};
-        bool resetOk = modeStateReset(
+        bool initOk = modeStateInitialize(
             &manager->modeState, &manager->currentMode, milliseconds, &equationError);
         manager->shouldResetState = false;
-        if (!resetOk) {
+        if (!initOk) {
             reportEquationError(manager, &equationError);
         }
     }
