@@ -47,10 +47,22 @@ static void add_rgb_change(
     }
 }
 
+static void init_equation_channel(ChannelConfig *channel, const char *equation, uint32_t duration) {
+    memset(channel, 0, sizeof(*channel));
+    channel->sectionsCount = 1;
+    strncpy(channel->sections[0].equation, equation, sizeof(channel->sections[0].equation) - 1U);
+    channel->sections[0].equation[sizeof(channel->sections[0].equation) - 1U] = '\0';
+    channel->sections[0].duration = duration;
+    channel->loopAfterDuration = true;
+}
+
 void setUp(void) {
     memset(&mode, 0, sizeof(mode));
     memset(&state, 0, sizeof(state));
     memset(&output, 0, sizeof(output));
+    
+    // used for validating no memory leaks in equation patterns
+    modeStateTest_resetEquationFreeCounter();
 }
 
 void tearDown(void) {
@@ -367,6 +379,62 @@ void test_ModeStateInitialize_ReportsAccelEquationError(void) {
     TEST_ASSERT_EQUAL_STRING("??invalid", error.equation);
 }
 
+void test_ModeStateInitialize_FreesFrontAndCaseEquationsOnReinit(void) {
+    TEST_ASSERT_TRUE(modeStateTest_getEquationFreeCounter() == 0U);
+    memset(&mode, 0, sizeof(mode));
+    mode.hasFront = true;
+    mode.front.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *front = &mode.front.pattern.data.equation;
+    init_equation_channel(&front->red, "10", 1000);
+    init_equation_channel(&front->green, "20", 1000);
+    init_equation_channel(&front->blue, "30", 1000);
+
+    mode.hasCaseComp = true;
+    mode.caseComp.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *caseComp = &mode.caseComp.pattern.data.equation;
+    init_equation_channel(&caseComp->red, "40", 1000);
+    init_equation_channel(&caseComp->green, "50", 1000);
+    init_equation_channel(&caseComp->blue, "60", 1000);
+
+    TEST_ASSERT_TRUE(modeStateInitialize(&state, &mode, 0, NULL));
+    // 0 equations freed on first init
+    TEST_ASSERT_EQUAL_UINT32(0U, modeStateTest_getEquationFreeCounter());
+
+    TEST_ASSERT_TRUE(modeStateInitialize(&state, &mode, 0, NULL));
+    TEST_ASSERT_EQUAL_UINT32(6U, modeStateTest_getEquationFreeCounter());
+}
+
+void test_ModeStateInitialize_FreesAccelEquationsOnReinit(void) {
+    TEST_ASSERT_TRUE(modeStateTest_getEquationFreeCounter() == 0U);
+    memset(&mode, 0, sizeof(mode));
+    mode.hasAccel = true;
+    mode.accel.triggersCount = 2;
+
+    for (uint8_t i = 0; i < mode.accel.triggersCount; i++) {
+        ModeAccelTrigger *trigger = &mode.accel.triggers[i];
+        trigger->hasFront = true;
+        trigger->front.pattern.type = PATTERN_TYPE_EQUATION;
+        EquationPattern *frontEq = &trigger->front.pattern.data.equation;
+        init_equation_channel(&frontEq->red, "t", 500);
+        init_equation_channel(&frontEq->green, "t * 2", 500);
+        init_equation_channel(&frontEq->blue, "t * 3", 500);
+
+        trigger->hasCaseComp = true;
+        trigger->caseComp.pattern.type = PATTERN_TYPE_EQUATION;
+        EquationPattern *caseEq = &trigger->caseComp.pattern.data.equation;
+        init_equation_channel(&caseEq->red, "t * 4", 500);
+        init_equation_channel(&caseEq->green, "t * 5", 500);
+        init_equation_channel(&caseEq->blue, "t * 6", 500);
+    }
+
+    TEST_ASSERT_TRUE(modeStateInitialize(&state, &mode, 0, NULL));
+    // 0 equations freed on first init
+    TEST_ASSERT_EQUAL_UINT32(0U, modeStateTest_getEquationFreeCounter());
+
+    TEST_ASSERT_TRUE(modeStateInitialize(&state, &mode, 0, NULL));
+    TEST_ASSERT_EQUAL_UINT32(12U, modeStateTest_getEquationFreeCounter());
+}
+
 void test_equation_loopAfterDuration_false_continues_indefinitely(void) {
     memset(&mode, 0, sizeof(mode));
     mode.hasFront = true;
@@ -541,6 +609,8 @@ int main(void) {
     RUN_TEST(test_ModeStateAdvance_IgnoresNonMonotonicTime);
     RUN_TEST(test_ModeStateGetSimpleOutput_FalseWhenNoChanges);
     RUN_TEST(test_ModeStateInitialize_FailsOnInvalidEquation);
+    RUN_TEST(test_ModeStateInitialize_FreesAccelEquationsOnReinit);
+    RUN_TEST(test_ModeStateInitialize_FreesFrontAndCaseEquationsOnReinit);
     RUN_TEST(test_ModeStateInitialize_ReportsAccelEquationError);
     RUN_TEST(test_ModeStateInitialize_SeedsInitialTime);
     RUN_TEST(test_equation_case_insensitive);

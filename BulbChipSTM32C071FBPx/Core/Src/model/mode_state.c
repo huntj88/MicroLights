@@ -5,6 +5,25 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef UNIT_TEST
+static uint32_t g_equationFreeCounter;
+
+void modeStateTest_resetEquationFreeCounter(void) {
+    g_equationFreeCounter = 0U;
+}
+
+uint32_t modeStateTest_getEquationFreeCounter(void) {
+    return g_equationFreeCounter;
+}
+
+static inline void modeStateTest_noteEquationFree(void) {
+    g_equationFreeCounter++;
+}
+#else
+static inline void modeStateTest_noteEquationFree(void) {
+}
+#endif
+
 enum { MODE_EQUATION_PATH_MAX = sizeof(((ModeEquationError *)0)->path) };
 
 static void prependEquationContext(ModeEquationError *error, const char *segment, int32_t index) {
@@ -37,6 +56,7 @@ static void freeEquationChannel(EquationChannelState *state) {
     }
     for (int i = 0; i < CHANNEL_CONFIG_SECTIONS_MAX; i++) {
         if (state->compiledExprs[i] != NULL) {
+            modeStateTest_noteEquationFree();
             te_free(state->compiledExprs[i]);
             state->compiledExprs[i] = NULL;
         }

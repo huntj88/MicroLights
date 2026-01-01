@@ -62,4 +62,9 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds)
 bool modeStateGetSimpleOutput(
     const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);
 
+#ifdef UNIT_TEST
+void modeStateTest_resetEquationFreeCounter(void);
+uint32_t modeStateTest_getEquationFreeCounter(void);
+#endif
+
 #endif /* MODE_STATE_H */
