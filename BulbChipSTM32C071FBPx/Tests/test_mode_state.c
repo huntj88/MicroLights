@@ -60,7 +60,7 @@ void setUp(void) {
     memset(&mode, 0, sizeof(mode));
     memset(&state, 0, sizeof(state));
     memset(&output, 0, sizeof(output));
-    
+
     // used for validating no memory leaks in equation patterns
     modeStateTest_resetEquationFreeCounter();
 }
