@@ -231,7 +231,7 @@ static bool parseSimplePattern(
     out->changeAtCount = 0;
     tokenField = lwjson_find_ex(lwjson, token, "name");
     if (tokenField != NULL) {
-        if (!parseStringField(tokenField, out->name, 1, 31, ctx, "name")) {
+        if (!parseStringField(tokenField, out->name, 1, MODE_NAME_MAX_LEN - 1, ctx, "name")) {
             return false;
         }
     } else {
@@ -252,7 +252,7 @@ static bool parseSimplePattern(
     tokenField = lwjson_find_ex(lwjson, token, "changeAt");
     if (tokenField != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(tokenField);
-        while (child != NULL && out->changeAtCount < 32) {
+        while (child != NULL && out->changeAtCount < SIMPLE_PATTERN_CHANGES_MAX) {
             if (!parsePatternChange(
                     lwjson, (lwjson_token_t *)child, &out->changeAt[out->changeAtCount], ctx)) {
                 prependContext(ctx, "changeAt", out->changeAtCount);
@@ -279,7 +279,13 @@ static bool parseEquationSection(
     const lwjson_token_t *tokenField;
     tokenField = lwjson_find_ex(lwjson, token, "equation");
     if (tokenField != NULL) {
-        if (!parseStringField(tokenField, out->equation, 1, 63, ctx, "equation")) {
+        if (!parseStringField(
+                tokenField,
+                out->equation,
+                1,
+                EQUATION_SECTION_EQUATION_MAX_LEN - 1,
+                ctx,
+                "equation")) {
             return false;
         }
     } else {
@@ -307,7 +313,7 @@ static bool parseChannelConfig(
     tokenField = lwjson_find_ex(lwjson, token, "sections");
     if (tokenField != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(tokenField);
-        while (child != NULL && out->sectionsCount < 3) {
+        while (child != NULL && out->sectionsCount < CHANNEL_CONFIG_SECTIONS_MAX) {
             if (!parseEquationSection(
                     lwjson, (lwjson_token_t *)child, &out->sections[out->sectionsCount], ctx)) {
                 prependContext(ctx, "sections", out->sectionsCount);
@@ -337,7 +343,7 @@ static bool parseEquationPattern(
     const lwjson_token_t *tokenField;
     tokenField = lwjson_find_ex(lwjson, token, "name");
     if (tokenField != NULL) {
-        if (!parseStringField(tokenField, out->name, 1, 31, ctx, "name")) {
+        if (!parseStringField(tokenField, out->name, 1, MODE_NAME_MAX_LEN - 1, ctx, "name")) {
             return false;
         }
     } else {
@@ -492,7 +498,7 @@ static bool parseModeAccel(
     tokenField = lwjson_find_ex(lwjson, token, "triggers");
     if (tokenField != NULL) {
         const lwjson_token_t *child = lwjson_get_first_child(tokenField);
-        while (child != NULL && out->triggersCount < 2) {
+        while (child != NULL && out->triggersCount < MODE_ACCEL_TRIGGERS_MAX) {
             if (!parseModeAccelTrigger(
                     lwjson, (lwjson_token_t *)child, &out->triggers[out->triggersCount], ctx)) {
                 prependContext(ctx, "triggers", out->triggersCount);
@@ -521,7 +527,7 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorCont
     out->hasAccel = false;
     tokenField = lwjson_find_ex(lwjson, token, "name");
     if (tokenField != NULL) {
-        if (!parseStringField(tokenField, out->name, 1, 31, ctx, "name")) {
+        if (!parseStringField(tokenField, out->name, 1, MODE_NAME_MAX_LEN - 1, ctx, "name")) {
             return false;
         }
     } else {

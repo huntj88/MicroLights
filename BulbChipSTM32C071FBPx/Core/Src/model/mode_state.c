@@ -35,7 +35,7 @@ static void freeEquationChannel(EquationChannelState *state) {
     if (!state) {
         return;
     }
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < CHANNEL_CONFIG_SECTIONS_MAX; i++) {
         if (state->compiledExprs[i] != NULL) {
             te_free(state->compiledExprs[i]);
             state->compiledExprs[i] = NULL;
@@ -221,12 +221,11 @@ static bool compileEquationChannel(
     }
 
     bool success = true;
-    for (int i = 0; i < config->sectionsCount && i < 3; i++) {
+    for (int i = 0; i < config->sectionsCount && i < CHANNEL_CONFIG_SECTIONS_MAX; i++) {
         int err;
         te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
 
-        // TODO: make mode #define for length of the equation string to avoid buffer overflow
-        char buffer[64];
+        char buffer[EQUATION_SECTION_EQUATION_MAX_LEN];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
 
         for (size_t j = 0; j < sizeof(buffer) && buffer[j] != '\0'; j++) {
@@ -303,7 +302,7 @@ static bool compileModeState(ModeState *state, const Mode *mode, ModeEquationErr
         }
     }
     if (mode->hasAccel) {
-        for (int i = 0; i < mode->accel.triggersCount && i < MODE_ACCEL_TRIGGER_MAX; i++) {
+        for (int i = 0; i < mode->accel.triggersCount && i < MODE_ACCEL_TRIGGERS_MAX; i++) {
             if (mode->accel.triggers[i].hasFront) {
                 if (!compileComponentState(
                         &state->accel[i].front, &mode->accel.triggers[i].front, error)) {
@@ -337,7 +336,7 @@ bool modeStateInitialize(
 
     freeComponentState(&state->front);
     freeComponentState(&state->case_comp);
-    for (int i = 0; i < MODE_ACCEL_TRIGGER_MAX; i++) {
+    for (int i = 0; i < MODE_ACCEL_TRIGGERS_MAX; i++) {
         freeComponentState(&state->accel[i].front);
         freeComponentState(&state->accel[i].case_comp);
     }
@@ -372,8 +371,8 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds)
 
     if (mode->hasAccel) {
         uint8_t triggerCount = mode->accel.triggersCount;
-        if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
-            triggerCount = MODE_ACCEL_TRIGGER_MAX;
+        if (triggerCount > MODE_ACCEL_TRIGGERS_MAX) {
+            triggerCount = MODE_ACCEL_TRIGGERS_MAX;
         }
 
         for (uint8_t i = 0; i < triggerCount; i++) {
@@ -391,7 +390,7 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds)
 }
 
 static uint8_t evalChannel(const EquationChannelState *state) {
-    if (state->currentSectionIndex >= 3) {
+    if (state->currentSectionIndex >= CHANNEL_CONFIG_SECTIONS_MAX) {
         return 0;
     }
     te_expr *expr = state->compiledExprs[state->currentSectionIndex];

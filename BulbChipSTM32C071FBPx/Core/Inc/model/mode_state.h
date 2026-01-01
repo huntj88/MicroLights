@@ -15,7 +15,7 @@ typedef struct {
 typedef struct {
     uint8_t currentSectionIndex;
     uint32_t sectionElapsedMs;
-    te_expr *compiledExprs[3];
+    te_expr *compiledExprs[CHANNEL_CONFIG_SECTIONS_MAX];
     float t_var;
 } EquationChannelState;
 
@@ -36,12 +36,10 @@ typedef struct {
     ModeComponentState case_comp;
 } ModeAccelTriggerState;
 
-enum { MODE_ACCEL_TRIGGER_MAX = sizeof(((ModeAccel *)0)->triggers) / sizeof(ModeAccelTrigger) };
-
 typedef struct {
     ModeComponentState front;
     ModeComponentState case_comp;
-    ModeAccelTriggerState accel[MODE_ACCEL_TRIGGER_MAX];
+    ModeAccelTriggerState accel[MODE_ACCEL_TRIGGERS_MAX];
     uint32_t lastPatternUpdateMs;
 } ModeState;
 
@@ -49,7 +47,7 @@ typedef struct {
     bool hasError;
     char path[128];
     int errorPosition;
-    char equation[64];
+    char equation[EQUATION_SECTION_EQUATION_MAX_LEN];
 } ModeEquationError;
 
 /**

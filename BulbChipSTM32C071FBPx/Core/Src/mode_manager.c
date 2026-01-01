@@ -139,8 +139,8 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         uint8_t triggerCount = manager->currentMode.accel.triggersCount;
-        if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
-            triggerCount = MODE_ACCEL_TRIGGER_MAX;
+        if (triggerCount > MODE_ACCEL_TRIGGERS_MAX) {
+            triggerCount = MODE_ACCEL_TRIGGERS_MAX;
         }
 
         for (uint8_t i = 0; i < triggerCount; i++) {
