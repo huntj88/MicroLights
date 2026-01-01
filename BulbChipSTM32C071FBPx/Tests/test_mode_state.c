@@ -191,6 +191,51 @@ void test_equation_pattern(void) {
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
 }
 
+void test_equation_pattern_respects_channel_loop_flags(void) {
+    memset(&mode, 0, sizeof(mode));
+    mode.hasFront = true;
+    mode.front.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *eq = &mode.front.pattern.data.equation;
+    eq->duration = 1000;
+
+    // Red disables looping
+    eq->red.sectionsCount = 1;
+    strcpy(eq->red.sections[0].equation, "t * 100");
+    eq->red.sections[0].duration = 1000;
+    eq->red.loopAfterDuration = false;
+
+    // Green continues looping to prove per-channel loops still work
+    eq->green.sectionsCount = 1;
+    strcpy(eq->green.sections[0].equation, "t * 100");
+    eq->green.sections[0].duration = 1000;
+    eq->green.loopAfterDuration = true;
+
+    TEST_ASSERT_TRUE(modeStateReset(&state, &mode, 0, NULL));
+
+    modeStateAdvance(&state, &mode, 0);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.g);
+
+    // 500ms -> both channels report 50
+    modeStateAdvance(&state, &mode, 500);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(50, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(50, output.data.rgb.g);
+
+    // 1500ms -> pattern duration exceeded, red keeps growing, green loops
+    modeStateAdvance(&state, &mode, 1500);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(150, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(50, output.data.rgb.g);
+
+    // 2500ms -> red continues, green still loops
+    modeStateAdvance(&state, &mode, 2500);
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(&state.front, &mode.front, &output));
+    TEST_ASSERT_EQUAL_UINT8(250, output.data.rgb.r);
+    TEST_ASSERT_EQUAL_UINT8(50, output.data.rgb.g);
+}
+
 void test_equation_multi_section(void) {
     memset(&mode, 0, sizeof(mode));
     mode.hasFront = true;
@@ -505,5 +550,6 @@ int main(void) {
     RUN_TEST(test_equation_loopAfterDuration_true_loops_back);
     RUN_TEST(test_equation_multi_section);
     RUN_TEST(test_equation_pattern);
+    RUN_TEST(test_equation_pattern_respects_channel_loop_flags);
     return UNITY_END();
 }
