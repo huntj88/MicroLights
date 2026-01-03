@@ -17,6 +17,8 @@ typedef struct {
     uint32_t sectionElapsedMs;
     te_expr *compiledExprs[CHANNEL_CONFIG_SECTIONS_MAX];
     float t_var;
+    uint32_t lastEvalMs;
+    uint8_t cachedOutput;
 } EquationChannelState;
 
 typedef struct {
