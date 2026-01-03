@@ -69,7 +69,11 @@ void stateTask() {
     uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
 
     bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
-    modeTask(state.modeManager, milliseconds, canUpdateCaseLed);
+    modeTask(
+        state.modeManager,
+        milliseconds,
+        canUpdateCaseLed,
+        state.settings->equationEvalIntervalMs);
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, milliseconds);
     switch (buttonResult) {

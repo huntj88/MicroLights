@@ -22,9 +22,15 @@ static char lastSerialOutput[100];
 
 // Mocks for settings_manager.c
 CliInput cliInput;
+bool parseJsonCalled = false;
 void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
-    // parsing tested in test_command_parser
-    TEST_ASSERT_TRUE(false);
+    parseJsonCalled = true;
+    // Do nothing, simulating empty/invalid flash or just checking defaults before parse
+}
+
+void mock_readSettingsFromFlash(char *buffer, uint32_t length) {
+    // Simulate empty flash
+    memset(buffer, 0, length);
 }
 
 // Mocks for chip_state.c
@@ -55,7 +61,7 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
 }
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
 }
 bool isFakeOff(ModeManager *manager) {
     return false;
@@ -112,6 +118,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     newSettings.modeCount = 10;
     newSettings.minutesUntilAutoOff = 20;
     newSettings.minutesUntilLockAfterAutoOff = 5;
+    newSettings.equationEvalIntervalMs = 50;
 
     // 5. Call updateSettings
     updateSettings(&settingsManager, &newSettings);
@@ -119,10 +126,28 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     // 6. Verify ChipState sees the change
     TEST_ASSERT_EQUAL_UINT8(10, state.settings->modeCount);
     TEST_ASSERT_EQUAL_UINT16(20, state.settings->minutesUntilAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(50, state.settings->equationEvalIntervalMs);
+}
+
+void test_SettingsManagerInit_SetsDefaults(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+
+    // Reset mock state
+    parseJsonCalled = false;
+    cliInput.parsedType = parseError; // Ensure parseJson doesn't trigger updateSettings
+
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);
+
+    TEST_ASSERT_EQUAL_UINT8(0, settingsManager.currentSettings.modeCount);
+    TEST_ASSERT_EQUAL_UINT8(90, settingsManager.currentSettings.minutesUntilAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(10, settingsManager.currentSettings.minutesUntilLockAfterAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SettingsManagerInit_SetsDefaults);
     RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
     return UNITY_END();
 }

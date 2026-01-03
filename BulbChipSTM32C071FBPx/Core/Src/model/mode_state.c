@@ -452,9 +452,9 @@ void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds)
     }
 }
 
-static uint8_t evalChannel(EquationChannelState *state) {
+static uint8_t evalChannel(EquationChannelState *state, uint8_t equationEvalIntervalMs) {
     if ((state->sectionElapsedMs > 0) && (state->sectionElapsedMs >= state->lastEvalMs) &&
-        ((state->sectionElapsedMs - state->lastEvalMs) < 50)) {
+        ((state->sectionElapsedMs - state->lastEvalMs) < equationEvalIntervalMs)) {
         return state->cachedOutput;
     }
 
@@ -483,7 +483,8 @@ static uint8_t evalChannel(EquationChannelState *state) {
 bool modeStateGetSimpleOutput(
     const ModeComponentState *componentState,
     const ModeComponent *component,
-    SimpleOutput *output) {
+    SimpleOutput *output,
+    uint8_t equationEvalIntervalMs) {
     if (!componentState || !component || !output) {
         return false;
     }
@@ -507,9 +508,9 @@ bool modeStateGetSimpleOutput(
         const EquationPatternState *state = &componentState->equation;
         output->type = RGB;
         // Cast away const to allow caching in evalChannel
-        output->data.rgb.r = evalChannel((EquationChannelState *)&state->red);
-        output->data.rgb.g = evalChannel((EquationChannelState *)&state->green);
-        output->data.rgb.b = evalChannel((EquationChannelState *)&state->blue);
+        output->data.rgb.r = evalChannel((EquationChannelState *)&state->red, equationEvalIntervalMs);
+        output->data.rgb.g = evalChannel((EquationChannelState *)&state->green, equationEvalIntervalMs);
+        output->data.rgb.b = evalChannel((EquationChannelState *)&state->blue, equationEvalIntervalMs);
         return true;
     }
 

@@ -165,7 +165,8 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
+void modeTask(
+    ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
     if (manager->shouldResetState) {
         ModeEquationError equationError = {0};
         bool initOk = modeStateInitialize(
@@ -182,7 +183,8 @@ void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed
 
     if (active.frontComp && active.frontState) {
         SimpleOutput output;
-        if (modeStateGetSimpleOutput(active.frontState, active.frontComp, &output)) {
+        if (modeStateGetSimpleOutput(
+                active.frontState, active.frontComp, &output, equationEvalIntervalMs)) {
             if (output.type == BULB) {
                 manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
             } else {
@@ -198,7 +200,8 @@ void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed
     if (canUpdateCaseLed) {
         if (active.caseComp && active.caseState) {
             SimpleOutput output;
-            if (modeStateGetSimpleOutput(active.caseState, active.caseComp, &output) &&
+            if (modeStateGetSimpleOutput(
+                    active.caseState, active.caseComp, &output, equationEvalIntervalMs) &&
                 output.type == RGB) {
                 rgbShowUserColor(
                     manager->caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);

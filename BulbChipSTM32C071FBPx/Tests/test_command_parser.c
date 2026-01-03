@@ -48,7 +48,7 @@ void test_ParseJson_ReadMode_SetsReadAction(void) {
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":10,\"minutesUntilAutoOff\":20,"
-        "\"minutesUntilLockAfterAutoOff\":30}";
+        "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50}";
 
     parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
 
@@ -56,6 +56,7 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     TEST_ASSERT_EQUAL_UINT8(10, cliInput.settings.modeCount);
     TEST_ASSERT_EQUAL_UINT8(20, cliInput.settings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(30, cliInput.settings.minutesUntilLockAfterAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(50, cliInput.settings.equationEvalIntervalMs);
 }
 
 void test_ParseJson_Dfu_SetsDfuAction(void) {

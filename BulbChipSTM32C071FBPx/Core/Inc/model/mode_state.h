@@ -62,7 +62,10 @@ bool modeStateInitialize(
     ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds);
 bool modeStateGetSimpleOutput(
-    const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);
+    const ModeComponentState *componentState,
+    const ModeComponent *component,
+    SimpleOutput *output,
+    uint8_t equationEvalIntervalMs);
 
 #ifdef UNIT_TEST
 void modeStateTest_resetEquationFreeCounter(void);

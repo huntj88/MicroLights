@@ -251,11 +251,11 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
     manager.shouldResetState = false;
 
     // Test at 100ms (should be High)
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     // Test at 600ms (should be Low)
-    modeTask(&manager, 600, true);
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -297,18 +297,18 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     manager.shouldResetState = false;
 
     mockAccelMagnitude = 0;
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     mockAccelMagnitude = 20;
-    modeTask(&manager, 600, true);
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    modeTask(&manager, 1200, true);
+    modeTask(&manager, 1200, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     mockAccelMagnitude = 0;
-    modeTask(&manager, 1300, true);
+    modeTask(&manager, 1300, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -338,7 +338,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
     manager.shouldResetState = false;
 
     // Test at 100ms
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -366,7 +366,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
     modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -404,7 +404,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
     manager.shouldResetState = false;
 
     // Pass false for canUpdateCaseLed
-    modeTask(&manager, 100, false);
+    modeTask(&manager, 100, false, 50);
 
     // Should NOT have updated to 255, 255, 255
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbR);
@@ -454,25 +454,25 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
     manager.shouldResetState = false;
 
     // Test at 100ms (Should be Red)
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 600ms (Should be Green)
-    modeTask(&manager, 600, true);
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 1500ms (Should be Blue)
-    modeTask(&manager, 1500, true);
+    modeTask(&manager, 1500, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Test at 2100ms (Should be Red - loop back to 100ms)
-    modeTask(&manager, 2100, true);
+    modeTask(&manager, 2100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
@@ -545,7 +545,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
     // Trigger the accel
     mockAccelMagnitude = 20;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be High and Red
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -592,7 +592,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     // Do NOT trigger the accel
     mockAccelMagnitude = 0;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be Low (Default)
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
@@ -649,7 +649,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
     // Trigger the accel
     mockAccelMagnitude = 20;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be High (Triggered) and Blue (Default)
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -726,19 +726,19 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
 
     // Case A: Accel = 5 (Below both) -> Default (OFF)
     mockAccelMagnitude = 5;
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Case B: Accel = 15 (Above Trigger 0, Below Trigger 1) -> Trigger 0 (BLUE)
     mockAccelMagnitude = 15;
-    modeTask(&manager, 200, true);
+    modeTask(&manager, 200, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Case C: Accel = 25 (Above both) -> Trigger 1 (RED)
     mockAccelMagnitude = 25;
-    modeTask(&manager, 300, true);
+    modeTask(&manager, 300, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
@@ -761,7 +761,7 @@ void test_ModeManager_LogsEquationCompileError(void) {
     strcpy(pattern->red.sections[0].equation, "bad +");
     pattern->red.sections[0].duration = 1000;
 
-    modeTask(&manager, 0, true);
+    modeTask(&manager, 0, true, 50);
 
     TEST_ASSERT_TRUE(writeToSerialCalled);
     TEST_ASSERT_NOT_EQUAL_UINT32(0, lastSerialCount);

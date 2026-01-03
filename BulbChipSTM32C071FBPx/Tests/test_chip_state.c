@@ -72,7 +72,7 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
 }
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
 }
 
 bool mockIsFakeOff = false;

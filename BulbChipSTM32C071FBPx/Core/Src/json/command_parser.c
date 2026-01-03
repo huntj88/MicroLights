@@ -47,7 +47,13 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings) {
         parsedProperties++;
     }
 
-    return parsedProperties == 3;
+    token = lwjson_find(lwjson, "equationEvalIntervalMs");
+    if (token != NULL) {
+        settings->equationEvalIntervalMs = token->u.num_int;
+        parsedProperties++;
+    }
+
+    return parsedProperties == 4;
 }
 
 static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {

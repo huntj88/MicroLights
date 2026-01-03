@@ -27,6 +27,7 @@ void loadSettingsFromFlash(SettingsManager *manager, char *buffer) {
     manager->currentSettings.modeCount = 0;
     manager->currentSettings.minutesUntilAutoOff = 90;
     manager->currentSettings.minutesUntilLockAfterAutoOff = 10;
+    manager->currentSettings.equationEvalIntervalMs = 20;
 
     manager->readSettingsFromFlash(buffer, PAGE_SECTOR);
     parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
