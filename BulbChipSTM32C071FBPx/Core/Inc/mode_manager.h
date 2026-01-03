@@ -46,6 +46,9 @@ void loadMode(ModeManager *manager, uint8_t index);
 void fakeOffMode(ModeManager *manager, bool enableLedTimers);
 bool isFakeOff(ModeManager *manager);
 void modeTask(
-    ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs);
+    ModeManager *manager,
+    uint32_t milliseconds,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs);
 
 #endif /* INC_MODE_MANAGER_H_ */

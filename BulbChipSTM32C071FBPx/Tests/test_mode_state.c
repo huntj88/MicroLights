@@ -132,8 +132,8 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
 
     TEST_ASSERT_TRUE(modeStateInitialize(&state, &mode, 0U, NULL));
     advance_to_ms(10U);
-    TEST_ASSERT_TRUE(
-        modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output, 50));
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
+        &state.accel[0].front, &mode.accel.triggers[0].front, &output, 50));
     TEST_ASSERT_EQUAL_UINT8(high, output.data.bulb);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
         &state.accel[0].case_comp, &mode.accel.triggers[0].caseComp, &output, 50));
@@ -148,8 +148,8 @@ void test_ModeStateAdvance_CaseAndTriggersAdvance(void) {
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.r);
     TEST_ASSERT_EQUAL_UINT8(255, output.data.rgb.g);
     TEST_ASSERT_EQUAL_UINT8(0, output.data.rgb.b);
-    TEST_ASSERT_TRUE(
-        modeStateGetSimpleOutput(&state.accel[0].front, &mode.accel.triggers[0].front, &output, 50));
+    TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
+        &state.accel[0].front, &mode.accel.triggers[0].front, &output, 50));
     TEST_ASSERT_EQUAL_UINT8(low, output.data.bulb);
     TEST_ASSERT_TRUE(modeStateGetSimpleOutput(
         &state.accel[0].case_comp, &mode.accel.triggers[0].caseComp, &output, 50));

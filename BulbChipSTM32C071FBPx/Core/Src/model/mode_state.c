@@ -508,9 +508,12 @@ bool modeStateGetSimpleOutput(
         const EquationPatternState *state = &componentState->equation;
         output->type = RGB;
         // Cast away const to allow caching in evalChannel
-        output->data.rgb.r = evalChannel((EquationChannelState *)&state->red, equationEvalIntervalMs);
-        output->data.rgb.g = evalChannel((EquationChannelState *)&state->green, equationEvalIntervalMs);
-        output->data.rgb.b = evalChannel((EquationChannelState *)&state->blue, equationEvalIntervalMs);
+        output->data.rgb.r =
+            evalChannel((EquationChannelState *)&state->red, equationEvalIntervalMs);
+        output->data.rgb.g =
+            evalChannel((EquationChannelState *)&state->green, equationEvalIntervalMs);
+        output->data.rgb.b =
+            evalChannel((EquationChannelState *)&state->blue, equationEvalIntervalMs);
         return true;
     }
 

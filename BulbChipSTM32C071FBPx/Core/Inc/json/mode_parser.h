@@ -2,28 +2,10 @@
 #ifndef MODE_PARSER_H
 #define MODE_PARSER_H
 
+#include "json/parser.h"
 #include "lwjson/lwjson.h"
 #include "model/mode.h"
 
-typedef enum {
-    MODE_PARSER_OK = 0,
-    MODE_PARSER_ERR_MISSING_FIELD,
-    MODE_PARSER_ERR_STRING_TOO_SHORT,
-    MODE_PARSER_ERR_STRING_TOO_LONG,
-    MODE_PARSER_ERR_VALUE_TOO_SMALL,
-    MODE_PARSER_ERR_VALUE_TOO_LARGE,
-    MODE_PARSER_ERR_ARRAY_TOO_SHORT,
-    MODE_PARSER_ERR_INVALID_VARIANT,
-    MODE_PARSER_ERR_VALIDATION_FAILED
-} ModeParserError;
-
-typedef struct {
-    ModeParserError error;
-    char path[128];
-} ModeErrorContext;
-
-const char *modeParserErrorToString(ModeParserError err);
-
-bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);
+bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ParserErrorContext *ctx);
 
 #endif  // MODE_PARSER_H

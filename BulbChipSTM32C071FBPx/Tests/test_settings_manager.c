@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include "unity.h"
 
@@ -11,6 +12,7 @@
 #include "mode_manager.h"
 #include "model/cli_model.h"
 #include "settings_manager.h"
+#include "storage.h"
 
 // Mock Data
 static ModeManager mockModeManager;
@@ -19,6 +21,7 @@ static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 static char lastSerialOutput[100];
+uint8_t jsonBuf[PAGE_SECTOR];
 
 // Mocks for settings_manager.c
 CliInput cliInput;
@@ -61,7 +64,8 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
 }
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+void modeTask(
+    ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
 }
 bool isFakeOff(ModeManager *manager) {
     return false;
@@ -135,7 +139,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
 
     // Reset mock state
     parseJsonCalled = false;
-    cliInput.parsedType = parseError; // Ensure parseJson doesn't trigger updateSettings
+    cliInput.parsedType = parseError;  // Ensure parseJson doesn't trigger updateSettings
 
     settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);
 
@@ -145,8 +149,50 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
+void mock_readSettingsFromFlash_Matching(char *buffer, uint32_t length) {
+    snprintf(buffer, length, "{\"modeCount\":0,\"equationEvalIntervalMs\":20}");
+}
+
+void test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+
+    // Reset mock state
+    parseJsonCalled = false;
+    cliInput.parsedType = parseError;
+
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
+}
+
+void mock_readSettingsFromFlash_OldVersion(char *buffer, uint32_t length) {
+    snprintf(buffer, length, "{\"modeCount\":5}");
+}
+
+void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+
+    // Reset mock state
+    parseJsonCalled = false;
+
+    // Simulate successful parse of the OLD version
+    // The parser would see "modeCount":5, but miss "equationEvalIntervalMs".
+    // So it would produce a struct with modeCount=5 and equationEvalIntervalMs=DEFAULT(20).
+    cliInput.parsedType = parseWriteSettings;
+    cliInput.settings.modeCount = 5;
+    cliInput.settings.equationEvalIntervalMs = 20;  // Default
+
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_OldVersion);
+
+    // Verify loaded settings are correct (merged)
+    TEST_ASSERT_EQUAL_UINT8(5, settingsManager.currentSettings.modeCount);
+    TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches);
+    RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);
     RUN_TEST(test_SettingsManagerInit_SetsDefaults);
     RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
     return UNITY_END();

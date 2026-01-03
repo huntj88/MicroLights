@@ -70,10 +70,7 @@ void stateTask() {
 
     bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
     modeTask(
-        state.modeManager,
-        milliseconds,
-        canUpdateCaseLed,
-        state.settings->equationEvalIntervalMs);
+        state.modeManager, milliseconds, canUpdateCaseLed, state.settings->equationEvalIntervalMs);
 
     enum ButtonResult buttonResult = buttonInputTask(state.button, milliseconds);
     switch (buttonResult) {

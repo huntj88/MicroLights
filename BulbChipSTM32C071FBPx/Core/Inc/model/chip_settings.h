@@ -15,4 +15,16 @@ typedef struct {
     uint8_t equationEvalIntervalMs;
 } ChipSettings;
 
+#define DEFAULT_MODE_COUNT 0
+#define DEFAULT_MINUTES_UNTIL_AUTO_OFF 90
+#define DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF 10
+#define DEFAULT_EQUATION_EVAL_INTERVAL_MS 20
+
+static inline void chipSettingsInitDefaults(ChipSettings *settings) {
+    settings->modeCount = DEFAULT_MODE_COUNT;
+    settings->minutesUntilAutoOff = DEFAULT_MINUTES_UNTIL_AUTO_OFF;
+    settings->minutesUntilLockAfterAutoOff = DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF;
+    settings->equationEvalIntervalMs = DEFAULT_EQUATION_EVAL_INTERVAL_MS;
+}
+
 #endif /* INC_MODEL_CHIP_SETTINGS_H_ */

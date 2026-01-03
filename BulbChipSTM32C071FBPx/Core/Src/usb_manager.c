@@ -57,12 +57,12 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
     switch (cliInput.parsedType) {
         case parseError: {
             char errorBuf[256];
-            if (cliInput.errorContext.error != MODE_PARSER_OK) {
+            if (cliInput.errorContext.error != PARSER_OK) {
                 snprintf(
                     errorBuf,
                     sizeof(errorBuf),
                     "{\"error\":\"%s\",\"path\":\"%s\"}\n",
-                    modeParserErrorToString(cliInput.errorContext.error),
+                    parserErrorToString(cliInput.errorContext.error),
                     cliInput.errorContext.path);
             } else {
                 snprintf(errorBuf, sizeof(errorBuf), "{\"error\":\"unable to parse json\"}\n");
@@ -75,7 +75,7 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
                 // do not write to flash for transient test
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             } else {
-                writeBulbModeToFlash(cliInput.modeIndex, buf, cliInput.jsonLength);
+                writeBulbModeToFlash(cliInput.modeIndex, buf, strlen((char *)buf));
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             }
             break;
@@ -91,16 +91,36 @@ static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
-            writeSettingsToFlash(buf, cliInput.jsonLength);
+            writeSettingsToFlash(buf, strlen((char *)buf));
             updateSettings(usbManager->settingsManager, &settings);
             break;
         }
         case parseReadSettings: {
             loadSettingsFromFlash(usbManager->settingsManager, (char *)buf);
-            uint16_t len = strlen((char *)buf);
-            buf[len] = '\n';
-            buf[len + 1] = '\0';
-            usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
+
+            usbWriteToSerial(usbManager, 0, "{\"settings\":", 12);
+
+            if (cliInput.parsedType == parseWriteSettings) {
+                usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
+            } else {
+                usbWriteToSerial(usbManager, 0, "null", 4);
+            }
+
+            ChipSettings defaultSettings;
+            chipSettingsInitDefaults(&defaultSettings);
+
+            char defaultsBuf[256];
+            int len = snprintf(
+                defaultsBuf,
+                sizeof(defaultsBuf),
+                ",\"defaults\":{\"modeCount\":%d,\"minutesUntilAutoOff\":%d,"
+                "\"minutesUntilLockAfterAutoOff\":%d,\"equationEvalIntervalMs\":%d}}\n",
+                defaultSettings.modeCount,
+                defaultSettings.minutesUntilAutoOff,
+                defaultSettings.minutesUntilLockAfterAutoOff,
+                defaultSettings.equationEvalIntervalMs);
+
+            usbWriteToSerial(usbManager, 0, defaultsBuf, len);
             break;
         }
         case parseDfu: {

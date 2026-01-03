@@ -435,29 +435,11 @@ function generateParserHeader() {
 #ifndef MODE_PARSER_H
 #define MODE_PARSER_H
 
+#include "json/parser.h"
 #include "lwjson/lwjson.h"
 #include "model/mode.h"
 
-typedef enum {
-    MODE_PARSER_OK = 0,
-    MODE_PARSER_ERR_MISSING_FIELD,
-    MODE_PARSER_ERR_STRING_TOO_SHORT,
-    MODE_PARSER_ERR_STRING_TOO_LONG,
-    MODE_PARSER_ERR_VALUE_TOO_SMALL,
-    MODE_PARSER_ERR_VALUE_TOO_LARGE,
-    MODE_PARSER_ERR_ARRAY_TOO_SHORT,
-    MODE_PARSER_ERR_INVALID_VARIANT,
-    MODE_PARSER_ERR_VALIDATION_FAILED
-} ModeParserError;
-
-typedef struct {
-    ModeParserError error;
-    char path[128];
-} ModeErrorContext;
-
-const char *modeParserErrorToString(ModeParserError err);
-
-bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ModeErrorContext *ctx);
+bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ParserErrorContext *ctx);
 
 #endif  // MODE_PARSER_H
 `;
@@ -479,7 +461,7 @@ static void copyString(char *dest, const lwjson_token_t *token, size_t maxLen) {
     dest[len] = '\\0';
 }
 
-static void prependContext(ModeErrorContext *ctx, const char *prefix, int32_t index) {
+static void prependContext(ParserErrorContext *ctx, const char *prefix, int32_t index) {
     char tmp[256];
     if (ctx->path[0] == '\\0') {
         if (index >= 0) {
@@ -498,30 +480,7 @@ static void prependContext(ModeErrorContext *ctx, const char *prefix, int32_t in
     ctx->path[sizeof(ctx->path) - 1] = '\\0';
 }
 
-const char *modeParserErrorToString(ModeParserError err) {
-    switch (err) {
-        case MODE_PARSER_OK:
-            return "Success";
-        case MODE_PARSER_ERR_MISSING_FIELD:
-            return "Missing required field";
-        case MODE_PARSER_ERR_STRING_TOO_SHORT:
-            return "String is too short";
-        case MODE_PARSER_ERR_STRING_TOO_LONG:
-            return "String is too long";
-        case MODE_PARSER_ERR_VALUE_TOO_SMALL:
-            return "Value is too small";
-        case MODE_PARSER_ERR_VALUE_TOO_LARGE:
-            return "Value is too large";
-        case MODE_PARSER_ERR_ARRAY_TOO_SHORT:
-            return "Array has too few items";
-        case MODE_PARSER_ERR_INVALID_VARIANT:
-            return "Invalid variant type";
-        case MODE_PARSER_ERR_VALIDATION_FAILED:
-            return "Validation failed";
-        default:
-            return "Unknown error";
-    }
-}
+
 
 static uint8_t hexCharToInt(char hexChar) {
     if (hexChar >= '0' && hexChar <= '9') {
@@ -536,9 +495,10 @@ static uint8_t hexCharToInt(char hexChar) {
     return 0;
 }
 
-static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ModeErrorContext *ctx) {
+static bool parseSimpleOutput(
+    lwjson_t *lwjson, lwjson_token_t *token, SimpleOutput *out, ParserErrorContext *ctx) {
     if (token->type != LWJSON_TYPE_STRING) {
-        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
+        ctx->error = PARSER_ERR_VALIDATION_FAILED;
         return false;
     }
 
@@ -564,34 +524,46 @@ static bool parseSimpleOutput(lwjson_t *lwjson, lwjson_token_t *token, SimpleOut
         return true;
     }
 
-    ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;
+    ctx->error = PARSER_ERR_VALIDATION_FAILED;
     return false;
 }
 
 // NOLINTBEGIN(bugprone-easily-swappable-parameters)
-static bool parseStringField(const lwjson_token_t *token, char *out, size_t min, size_t max, ModeErrorContext *ctx, const char *fieldName) {
+static bool parseStringField(
+    const lwjson_token_t *token,
+    char *out,
+    size_t min,
+    size_t max,
+    ParserErrorContext *ctx,
+    const char *fieldName) {
     if (token->u.str.token_value_len > max) {
-        ctx->error = MODE_PARSER_ERR_STRING_TOO_LONG;
+        ctx->error = PARSER_ERR_STRING_TOO_LONG;
         strcpy(ctx->path, fieldName);
         return false;
     }
     copyString(out, token, max);
     if (strlen(out) < min) {
-        ctx->error = MODE_PARSER_ERR_STRING_TOO_SHORT;
+        ctx->error = PARSER_ERR_STRING_TOO_SHORT;
         strcpy(ctx->path, fieldName);
         return false;
     }
     return true;
 }
 
-static bool parseUInt32Field(const lwjson_token_t *token, uint32_t *out, uint32_t min, uint32_t max, ModeErrorContext *ctx, const char *fieldName) {
+static bool parseUInt32Field(
+    const lwjson_token_t *token,
+    uint32_t *out,
+    uint32_t min,
+    uint32_t max,
+    ParserErrorContext *ctx,
+    const char *fieldName) {
     if (token->u.num_int < (lwjson_int_t)min) {
-        ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
+        ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
         strcpy(ctx->path, fieldName);
         return false;
     }
     if (token->u.num_int > (lwjson_int_t)max) {
-        ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+        ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
         strcpy(ctx->path, fieldName);
         return false;
     }
@@ -599,14 +571,20 @@ static bool parseUInt32Field(const lwjson_token_t *token, uint32_t *out, uint32_
     return true;
 }
 
-static bool parseUInt8Field(const lwjson_token_t *token, uint8_t *out, uint8_t min, uint8_t max, ModeErrorContext *ctx, const char *fieldName) {
+static bool parseUInt8Field(
+    const lwjson_token_t *token,
+    uint8_t *out,
+    uint8_t min,
+    uint8_t max,
+    ParserErrorContext *ctx,
+    const char *fieldName) {
     if (token->u.num_int < (lwjson_int_t)min) {
-        ctx->error = MODE_PARSER_ERR_VALUE_TOO_SMALL;
+        ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
         strcpy(ctx->path, fieldName);
         return false;
     }
     if (token->u.num_int > (lwjson_int_t)max) {
-        ctx->error = MODE_PARSER_ERR_VALUE_TOO_LARGE;
+        ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
         strcpy(ctx->path, fieldName);
         return false;
     }
@@ -631,13 +609,13 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
   // Forward declarations
   for (const name of Object.keys(schema)) {
     if (name === 'Mode') continue;
-    out += `static bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx);\n`;
+    out += `static bool parse${name}(\n    lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ParserErrorContext *ctx);\n`;
   }
   out += '\n';
 
   for (const [name, def] of Object.entries(schema)) {
     const prefix = name === 'Mode' ? '' : 'static ';
-    out += `${prefix}bool parse${name}(lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ModeErrorContext *ctx) {\n`;
+    out += `${prefix}bool parse${name}(\n    lwjson_t *lwjson, lwjson_token_t *token, ${name} *out, ParserErrorContext *ctx) {\n`;
     out += `    const lwjson_token_t *tokenField;\n`;
 
     if (def.type === 'struct') {
@@ -661,7 +639,7 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
 
         if (fieldDef.type === 'string') {
           const maxStr = fieldDef.maxDefine ? `${fieldDef.maxDefine} - 1` : String(fieldDef.max);
-          out += `        if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min ?? 0)}, ${maxStr}, ctx, "${fieldName}")) {\n`;
+          out += `       if (!parseStringField(tokenField, out->${cName}, ${String(fieldDef.min ?? 0)}, ${maxStr}, ctx, "${fieldName}")) {\n`;
           out += `            return false;\n`;
           out += `        }\n`;
         } else if (fieldDef.type === 'uint32') {
@@ -678,7 +656,7 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
           const maxStr = fieldDef.maxDefine ?? String(fieldDef.max);
           out += `        const lwjson_token_t *child = lwjson_get_first_child(tokenField);\n`;
           out += `        while (child != NULL && out->${cName}Count < ${maxStr}) {\n`;
-          out += `            if (!parse${fieldDef.item}(lwjson, (lwjson_token_t *)child, &out->${cName}[out->${cName}Count], ctx)) {\n`;
+          out += `           if (!parse${fieldDef.item}(\n                    lwjson, (lwjson_token_t *)child, &out->${cName}[out->${cName}Count], ctx)) {\n`;
           out += `                prependContext(ctx, "${fieldName}", out->${cName}Count);\n`;
           out += `                return false;\n`;
           out += `            }\n`;
@@ -687,7 +665,7 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
           out += `        }\n`;
           if (fieldDef.min) {
             out += `        if (out->${cName}Count < ${String(fieldDef.min)}) {\n`;
-            out += `            ctx->error = MODE_PARSER_ERR_ARRAY_TOO_SHORT;\n`;
+            out += `            ctx->error = PARSER_ERR_ARRAY_TOO_SHORT;\n`;
             out += `            strcpy(ctx->path, "${fieldName}");\n`;
             out += `            return false;\n`;
             out += `        }\n`;
@@ -708,7 +686,7 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
         out += `    }`;
         if (!fieldDef.optional) {
           out += ` else {\n`;
-          out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
+          out += `        ctx->error = PARSER_ERR_MISSING_FIELD;\n`;
           out += `        strcpy(ctx->path, "${fieldName}");\n`;
           out += `        return false;\n`;
           out += `    }\n`;
@@ -723,7 +701,7 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
           typeof def.refine === 'object' && def.refine.field ? def.refine.field : null;
 
         out += `    if (!(${refineExpr})) {\n`;
-        out += `        ctx->error = MODE_PARSER_ERR_VALIDATION_FAILED;\n`;
+        out += `        ctx->error = PARSER_ERR_VALIDATION_FAILED;\n`;
         if (refineField) {
           out += `        strcpy(ctx->path, "${refineField}");\n`;
         } else {
@@ -756,12 +734,12 @@ static bool parseBooleanField(const lwjson_token_t *token, bool *out) {
         first = false;
       }
       out += `        } else {\n`;
-      out += `            ctx->error = MODE_PARSER_ERR_INVALID_VARIANT;\n`;
+      out += `            ctx->error = PARSER_ERR_INVALID_VARIANT;\n`;
       out += `            strcpy(ctx->path, "${def.discriminator}");\n`;
       out += `            return false;\n`;
       out += `        }\n`;
       out += `    } else {\n`;
-      out += `        ctx->error = MODE_PARSER_ERR_MISSING_FIELD;\n`;
+      out += `        ctx->error = PARSER_ERR_MISSING_FIELD;\n`;
       out += `        strcpy(ctx->path, "${def.discriminator}");\n`;
       out += `        return false;\n`;
       out += `    }\n`;

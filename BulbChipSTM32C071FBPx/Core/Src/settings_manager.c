@@ -8,6 +8,7 @@
 #include "settings_manager.h"
 #include <string.h>
 #include "json/command_parser.h"
+#include "json/json_buf.h"
 #include "storage.h"
 
 bool settingsManagerInit(
@@ -17,19 +18,16 @@ bool settingsManagerInit(
     }
     manager->readSettingsFromFlash = readSettingsFromFlash;
 
-    char flashReadBuffer[PAGE_SECTOR];
-    loadSettingsFromFlash(manager, flashReadBuffer);
+    loadSettingsFromFlash(manager, jsonBuf);
     return true;
 }
 
 void loadSettingsFromFlash(SettingsManager *manager, char *buffer) {
     // Set defaults first in case load fails
-    manager->currentSettings.modeCount = 0;
-    manager->currentSettings.minutesUntilAutoOff = 90;
-    manager->currentSettings.minutesUntilLockAfterAutoOff = 10;
-    manager->currentSettings.equationEvalIntervalMs = 20;
+    chipSettingsInitDefaults(&manager->currentSettings);
 
     manager->readSettingsFromFlash(buffer, PAGE_SECTOR);
+
     parseJson((uint8_t *)buffer, PAGE_SECTOR, &cliInput);
 
     if (cliInput.parsedType == parseWriteSettings) {

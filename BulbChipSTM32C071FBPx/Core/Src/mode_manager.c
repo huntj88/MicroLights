@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "json/command_parser.h"
+#include "json/json_buf.h"
 #include "storage.h"
 
 static const char *fakeOffModeJson =
@@ -61,9 +62,8 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
         parseJson((uint8_t *)fakeOffModeJson, PAGE_SECTOR, &cliInput);
     } else {
-        char flashReadBuffer[PAGE_SECTOR];
-        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, PAGE_SECTOR);
-        parseJson((uint8_t *)flashReadBuffer, PAGE_SECTOR, &cliInput);
+        manager->readBulbModeFromFlash(modeIndex, jsonBuf, PAGE_SECTOR);
+        parseJson((uint8_t *)jsonBuf, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
             parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
@@ -166,7 +166,10 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 }
 
 void modeTask(
-    ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+    ModeManager *manager,
+    uint32_t milliseconds,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs) {
     if (manager->shouldResetState) {
         ModeEquationError equationError = {0};
         bool initOk = modeStateInitialize(
