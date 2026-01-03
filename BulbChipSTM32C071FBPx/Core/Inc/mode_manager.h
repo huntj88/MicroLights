@@ -25,7 +25,7 @@ typedef struct ModeManager {
     MC3479 *accel;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length);
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length);
     void (*writeBulbLedPin)(uint8_t state);
     WriteToUsbSerial *writeUsbSerial;
     ModeState modeState;
@@ -37,7 +37,7 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
     void (*writeBulbLedPin)(uint8_t state),
     WriteToUsbSerial *writeUsbSerial);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);

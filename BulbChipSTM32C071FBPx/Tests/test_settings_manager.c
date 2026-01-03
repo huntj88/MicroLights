@@ -31,7 +31,7 @@ void parseJson(const char buf[], uint32_t count, CliInput *input) {
     // Do nothing, simulating empty/invalid flash or just checking defaults before parse
 }
 
-void mock_readSettingsFromFlash(char *buffer, uint32_t length) {
+void mock_readSettingsFromFlash(char buffer[], uint32_t length) {
     // Simulate empty flash
     memset(buffer, 0, length);
 }
@@ -149,7 +149,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
-void mock_readSettingsFromFlash_Matching(char *buffer, uint32_t length) {
+void mock_readSettingsFromFlash_Matching(char buffer[], uint32_t length) {
     snprintf(buffer, length, "{\"modeCount\":0,\"equationEvalIntervalMs\":20}");
 }
 
@@ -164,7 +164,7 @@ void test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches(void) {
     settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
 }
 
-void mock_readSettingsFromFlash_OldVersion(char *buffer, uint32_t length) {
+void mock_readSettingsFromFlash_OldVersion(char buffer[], uint32_t length) {
     snprintf(buffer, length, "{\"modeCount\":5}");
 }
 

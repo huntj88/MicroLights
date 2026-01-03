@@ -75,28 +75,27 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
                 // do not write to flash for transient test
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             } else {
-                writeBulbModeToFlash(cliInput.modeIndex, buf, strlen((char *)buf));
+                writeBulbModeToFlash(cliInput.modeIndex, buf, strlen(buf));
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             }
             break;
         }
         case parseReadMode: {
-            usbManager->modeManager->readBulbModeFromFlash(
-                cliInput.modeIndex, (char *)buf, PAGE_SECTOR);
-            uint16_t len = strlen((char *)buf);
+            usbManager->modeManager->readBulbModeFromFlash(cliInput.modeIndex, buf, PAGE_SECTOR);
+            uint16_t len = strlen(buf);
             buf[len] = '\n';
             buf[len + 1] = '\0';
-            usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
+            usbWriteToSerial(usbManager, 0, buf, strlen(buf));
             break;
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
-            writeSettingsToFlash(buf, strlen((char *)buf));
+            writeSettingsToFlash(buf, strlen(buf));
             updateSettings(usbManager->settingsManager, &settings);
             break;
         }
         case parseReadSettings: {
-            loadSettingsFromFlash(usbManager->settingsManager, (char *)buf);
+            loadSettingsFromFlash(usbManager->settingsManager, buf);
 
             usbWriteToSerial(usbManager, 0, "{\"settings\":", 12);
 
@@ -146,7 +145,7 @@ void usbCdcTask(USBManager *usbManager) {
                 // cast count as uint8_t, buf is only 64 bytes
                 uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
                 if (jsonIndex + count > PAGE_SECTOR) {
-                    char error[] = "{\"error\":\"payload too long\"}\n";
+                    const char *error = "{\"error\":\"payload too long\"}\n";
                     usbWriteToSerial(usbManager, itf, error, strlen(error));
                     jsonIndex = 0;
                 } else {

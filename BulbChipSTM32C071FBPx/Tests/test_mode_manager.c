@@ -62,7 +62,7 @@ void mock_writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
     lastSerialCount = count;
 }
 
-void mock_readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
+void mock_readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
     lastReadModeIndex = mode;
     if (mode == 1) {
         // Standard valid mode

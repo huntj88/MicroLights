@@ -297,13 +297,13 @@ void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
 
     printBinary(chargerIC, regValue);
 
-    char newLine[1] = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, sizeof(newLine));
+    const char *newLine = "\n";
+    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
 }
 
 void printAllRegisters(BQ25180 *chargerIC) {
-    char newLine[1] = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, sizeof(newLine));
+    const char *newLine = "\n";
+    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
 
     printRegister(chargerIC, BQ25180_STAT0, "STAT0");
     printRegister(chargerIC, BQ25180_STAT1, "STAT1");

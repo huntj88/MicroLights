@@ -26,7 +26,7 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
     void (*writeBulbLedPin)(uint8_t state),
     WriteToUsbSerial *writeUsbSerial) {
     if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||

@@ -21,14 +21,12 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
     return hexAddress;
 }
 
-static void readBytes(uint32_t page, char *buffer, uint32_t length) {
+static void readBytes(uint32_t page, char buffer[], uint32_t length) {
     uint32_t address = getHexAddressOfPage(page);
     memcpy(buffer, (void *)address, length);
 }
 
-static void writeBytes(uint32_t page, const uint8_t buf[], uint32_t bufCount) {
-    // TODO: only write if bytes are different.
-
+static void writeBytes(uint32_t page, const char buf[], uint32_t bufCount) {
     uint8_t numBytesToWrite = 8;
     memoryPageErase(page);
 
@@ -62,24 +60,24 @@ static void writeBytes(uint32_t page, const uint8_t buf[], uint32_t bufCount) {
     HAL_FLASH_Lock();
 }
 
-void writeSettingsToFlash(uint8_t buf[], uint32_t bufCount) {
+void writeSettingsToFlash(const char buf[], uint32_t bufCount) {
     __disable_irq();
     writeBytes(SETTINGS_PAGE, buf, bufCount);
     __enable_irq();
 }
 
-void readSettingsFromFlash(char *buffer, uint32_t length) {
+void readSettingsFromFlash(char buffer[], uint32_t length) {
     readBytes(SETTINGS_PAGE, buffer, length);
 }
 
-void writeBulbModeToFlash(uint8_t mode, uint8_t buf[], uint32_t bufCount) {
+void writeBulbModeToFlash(uint8_t mode, const char buf[], uint32_t bufCount) {
     uint32_t page = BULB_PAGE_0 + mode;
     __disable_irq();
     writeBytes(page, buf, bufCount);
     __enable_irq();
 }
 
-void readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
+void readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     readBytes(page, buffer, length);
 }
