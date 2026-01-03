@@ -46,7 +46,7 @@ jobs:
       working-directory: BulbChipSTM32C071FBPx
       run: |
         chmod +x run_tests.sh
-        ./run_tests.sh --all
+        ./run_tests.sh --verbose
 
     - name: Check Formatting
       working-directory: BulbChipSTM32C071FBPx

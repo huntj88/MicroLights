@@ -29,7 +29,7 @@ SHOW_ALL=0
 
 while [ $# -gt 0 ]; do
     case "$1" in
-        --all)
+        --verbose)
             SHOW_ALL=1
             shift
             ;;
