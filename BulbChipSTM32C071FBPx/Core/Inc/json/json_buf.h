@@ -11,6 +11,6 @@
 #include <stdint.h>
 #include "storage.h"
 
-extern uint8_t jsonBuf[PAGE_SECTOR];
+extern char jsonBuf[PAGE_SECTOR];
 
 #endif /* INC_JSON_JSON_BUF_H_ */

@@ -15,9 +15,9 @@
 #include "json/mode_parser.h"
 #include "lwjson/lwjson.h"
 
-static int32_t jsonLength(const uint8_t buf[], uint32_t count) {
+static int32_t jsonLength(const char buf[], uint32_t count) {
     for (int32_t i = 0; i < count; i++) {
-        uint8_t current = buf[i];
+        char current = buf[i];
         if (current == '\n' || current == '\0') {
             return i;
         }
@@ -165,7 +165,7 @@ static void processCommand(lwjson_t *lwjson, CliInput *input) {
     }
 }
 
-void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
+void parseJson(const char buf[], uint32_t count, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
 
@@ -196,7 +196,7 @@ void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
     input->errorContext.path[0] = '\0';
 
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-    if (lwjson_parse(&lwjson, (const char *)jsonBuf) == lwjsonOK) {
+    if (lwjson_parse(&lwjson, jsonBuf) == lwjsonOK) {
         processCommand(&lwjson, input);
     }
     lwjson_free(&lwjson);

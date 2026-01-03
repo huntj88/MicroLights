@@ -21,12 +21,12 @@ static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 static char lastSerialOutput[100];
-uint8_t jsonBuf[PAGE_SECTOR];
+char jsonBuf[PAGE_SECTOR];
 
 // Mocks for settings_manager.c
 CliInput cliInput;
 bool parseJsonCalled = false;
-void parseJson(const uint8_t buf[], uint32_t count, CliInput *input) {
+void parseJson(const char buf[], uint32_t count, CliInput *input) {
     parseJsonCalled = true;
     // Do nothing, simulating empty/invalid flash or just checking defaults before parse
 }

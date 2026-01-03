@@ -51,7 +51,7 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
     }
 }
 
-static void handleJson(USBManager *usbManager, uint8_t buf[], uint32_t count) {
+static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
     parseJson(buf, count, &cliInput);
 
     switch (cliInput.parsedType) {
