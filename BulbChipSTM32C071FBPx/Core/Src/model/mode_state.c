@@ -150,7 +150,9 @@ static void advanceEquationChannel(
     }
 
     // Update t_var (in seconds)
-    state->t_var = (float)state->sectionElapsedMs / 1000.0F;
+    // Optimization: instead of dividing millis by 1000, multiply by reciprocal
+    // to avoid expensive float division on Cortex-M0+
+    state->t_var = (float)state->sectionElapsedMs * 0.001F;
 }
 
 static void advanceEquationPattern(
