@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -186,6 +187,13 @@ static void advanceEquationPattern(
         }
     } else {
         state->elapsedMs += deltaMs;
+
+        // Set a cap on elapsedMs to avoid precision loss in equation eval for very large times.
+        // See reduceAngle(x).
+        // 10,000,000ms = ~2.7 hours, which should be sufficient for most use cases.
+        if (state->elapsedMs > 10000000U) {
+            state->elapsedMs = 0U;
+        }
     }
 
     if (!looped) {
@@ -232,6 +240,35 @@ static void captureEquationError(
     error->errorPosition = errorPosition;
 }
 
+// Optimized trigonometric functions to avoid performance degradation with large arguments
+// on platforms with limited math libraries (like Cortex-M0+ with newlib-nano).
+// Standard sin/cos/tan implementations may use iterative range reduction which becomes
+// O(N) or worse for large inputs.
+static float reduceAngle(float angle) {
+    // 1 / (2 * PI)
+    const float inv_two_pi = 0.15915494309189533576888376337251F;
+    const float two_pi = 6.283185307179586476925286766559F;
+
+    // Reduce angle to [0, 2PI) range using multiplication (faster than fmod)
+    // Note: Precision degrades for very large angle (e.g. > 10^5) due to float mantissa limits,
+    // but this preserves performance.
+    float scaled = angle * inv_two_pi;
+    float frac = scaled - floorf(scaled);
+    return frac * two_pi;
+}
+
+static float optimizedSin(float angle) {
+    return sinf(reduceAngle(angle));
+}
+
+static float optimizedCos(float angle) {
+    return cosf(reduceAngle(angle));
+}
+
+static float optimizedTan(float angle) {
+    return tanf(reduceAngle(angle));
+}
+
 static bool compileEquationChannel(
     EquationChannelState *state, const ChannelConfig *config, ModeEquationError *error) {
     assert(state != NULL);
@@ -243,7 +280,11 @@ static bool compileEquationChannel(
     bool success = true;
     for (int i = 0; i < config->sectionsCount && i < CHANNEL_CONFIG_SECTIONS_MAX; i++) {
         int err;
-        te_variable vars[] = {{"t", &state->t_var, 0, NULL}};
+        te_variable vars[] = {
+            {"t", &state->t_var, TE_VARIABLE, NULL},
+            {"sin", optimizedSin, TE_FUNCTION1, NULL},
+            {"cos", optimizedCos, TE_FUNCTION1, NULL},
+            {"tan", optimizedTan, TE_FUNCTION1, NULL}};
 
         char buffer[EQUATION_SECTION_EQUATION_MAX_LEN];
         strncpy(buffer, config->sections[i].equation, sizeof(buffer));
@@ -252,7 +293,7 @@ static bool compileEquationChannel(
             buffer[j] = (char)tolower((unsigned char)buffer[j]);
         }
 
-        state->compiledExprs[i] = te_compile(buffer, vars, 1, &err);
+        state->compiledExprs[i] = te_compile(buffer, vars, 3, &err);
         if (!state->compiledExprs[i]) {
             success = false;
             captureEquationError(error, err, config->sections[i].equation);
