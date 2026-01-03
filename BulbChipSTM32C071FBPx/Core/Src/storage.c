@@ -26,7 +26,7 @@ static void readBytes(uint32_t page, char buffer[], uint32_t length) {
     memcpy(buffer, (void *)address, length);
 }
 
-static void writeBytes(uint32_t page, const char buf[], uint32_t bufCount) {
+static void writeBytes(uint32_t page, const char buffer[], uint32_t bufCount) {
     uint8_t numBytesToWrite = 8;
     memoryPageErase(page);
 
@@ -38,7 +38,7 @@ static void writeBytes(uint32_t page, const char buf[], uint32_t bufCount) {
     // write 8 bytes at a time, pad with \0 at end if bytes count is not a multiple of 8
     for (int32_t i = 0; i < bufCount + emptyPaddingLength; i++) {
         if (i < bufCount) {
-            dataSpaceBuf[i % numBytesToWrite] = buf[i];
+            dataSpaceBuf[i % numBytesToWrite] = buffer[i];
         } else {
             dataSpaceBuf[i % numBytesToWrite] = '\0';
         }
@@ -60,9 +60,9 @@ static void writeBytes(uint32_t page, const char buf[], uint32_t bufCount) {
     HAL_FLASH_Lock();
 }
 
-void writeSettingsToFlash(const char buf[], uint32_t bufCount) {
+void writeSettingsToFlash(const char buffer[], uint32_t bufCount) {
     __disable_irq();
-    writeBytes(SETTINGS_PAGE, buf, bufCount);
+    writeBytes(SETTINGS_PAGE, buffer, bufCount);
     __enable_irq();
 }
 
@@ -70,10 +70,10 @@ void readSettingsFromFlash(char buffer[], uint32_t length) {
     readBytes(SETTINGS_PAGE, buffer, length);
 }
 
-void writeBulbModeToFlash(uint8_t mode, const char buf[], uint32_t bufCount) {
+void writeBulbModeToFlash(uint8_t mode, const char buffer[], uint32_t bufCount) {
     uint32_t page = BULB_PAGE_0 + mode;
     __disable_irq();
-    writeBytes(page, buf, bufCount);
+    writeBytes(page, buffer, bufCount);
     __enable_irq();
 }
 
