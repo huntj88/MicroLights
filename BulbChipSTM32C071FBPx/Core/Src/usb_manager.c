@@ -90,6 +90,9 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         case parseReadMode: {
             usbManager->modeManager->readBulbModeFromFlash(cliInput.modeIndex, buf, PAGE_SECTOR);
             uint16_t len = strlen(buf);
+            if (len > PAGE_SECTOR - 2) {
+                len = PAGE_SECTOR - 2;
+            }
             buf[len] = '\n';
             buf[len + 1] = '\0';
             usbWriteToSerial(usbManager, 0, buf, strlen(buf));

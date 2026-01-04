@@ -24,6 +24,14 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
 static void readBytes(uint32_t page, char buffer[], uint32_t length) {
     uint32_t address = getHexAddressOfPage(page);
     memcpy(buffer, (void *)address, length);
+    // Ensure null termination
+    if (length > 0) {
+        buffer[length - 1] = '\0';
+    }
+    // Check for erased flash (0xFF) and treat as empty string
+    if ((unsigned char)buffer[0] == 0xFF) {
+        buffer[0] = '\0';
+    }
 }
 
 static void writeBytes(uint32_t page, const char buffer[], uint32_t bufCount) {
