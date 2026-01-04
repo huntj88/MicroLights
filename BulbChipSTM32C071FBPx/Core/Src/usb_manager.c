@@ -49,6 +49,8 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
 
             uint32_t written = tud_cdc_n_write(itf, buf + sent, to_send);
             sent += written;
+        } else {
+        	break;
         }
         tud_task();
     }

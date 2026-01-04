@@ -66,7 +66,7 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
     CHIP_SETTINGS_MAP(X_PRINT)
     #undef X_PRINT
 
-    SAFE_PRINT("}\n");
+    SAFE_PRINT("}}\n");
     
     return offset;
 }
