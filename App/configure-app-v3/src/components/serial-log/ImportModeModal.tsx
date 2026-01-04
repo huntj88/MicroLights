@@ -106,7 +106,9 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
       };
 
       saveMode(updatedMode);
-      newPatternsMap.forEach(p => savePattern(p));
+      newPatternsMap.forEach(p => {
+        savePattern(p);
+      });
 
       toast.success(t('serialLog.importMode.success'));
       onClose();
@@ -150,7 +152,9 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
                 id="modeName"
                 type="text"
                 value={modeName}
-                onChange={e => setModeName(e.target.value)}
+                onChange={e => {
+                  setModeName(e.target.value);
+                }}
                 className="mt-1 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
               />
               {isModeOverwrite && (
@@ -180,9 +184,9 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
                         <input
                           type="text"
                           value={currentName}
-                          onChange={e =>
-                            setPatternNames(prev => ({ ...prev, [pattern.name]: e.target.value }))
-                          }
+                          onChange={e => {
+                            setPatternNames(prev => ({ ...prev, [pattern.name]: e.target.value }));
+                          }}
                           className="w-full rounded border border-gray-300 bg-transparent px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
                         />
                         <span className="whitespace-nowrap text-xs text-gray-500">

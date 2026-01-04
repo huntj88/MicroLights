@@ -85,7 +85,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         // Try buffering
         buffer += line;
         try {
-          const parsed = JSON.parse(buffer);
+          const parsed: unknown = JSON.parse(buffer);
           if (isValidResponse(parsed)) {
             handleResponse(parsed);
           }

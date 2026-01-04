@@ -3,6 +3,7 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { serialManager } from '@/app/providers/serial-manager';
+
 import { SettingsModal } from './SettingsModal';
 
 // Mock dependencies
@@ -33,6 +34,7 @@ describe('SettingsModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Capture the data listener
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     vi.mocked(serialManager.on).mockImplementation((event, callback) => {
       if (event === 'data') {
         dataCallback = callback as (line: string, json: unknown) => void;
@@ -45,6 +47,7 @@ describe('SettingsModal', () => {
     render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
 
     // Verify read command was sent
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     expect(serialManager.send).toHaveBeenCalledWith({ command: 'readSettings' });
 
     // Simulate receiving data
@@ -73,23 +76,23 @@ describe('SettingsModal', () => {
     });
 
     // Check Mode Count (value 3 from settings)
-    const modeCountInput = screen.getByLabelText('Mode Count') as HTMLInputElement;
+    const modeCountInput = screen.getByLabelText('Mode Count');
     expect(modeCountInput.value).toBe('3');
     expect(screen.getByText('Default: 0')).toBeInTheDocument();
 
     // Check Equation Eval Interval (value 0 from settings)
-    const eqInput = screen.getByLabelText('Equation Eval Interval Ms') as HTMLInputElement;
+    const eqInput = screen.getByLabelText('Equation Eval Interval Ms');
     expect(eqInput.value).toBe('0');
     expect(screen.getByText('Default: 20')).toBeInTheDocument();
 
     // Check Minutes Until Auto Off (value 90 from defaults, as it's missing in settings)
-    const autoOffInput = screen.getByLabelText('Minutes Until Auto Off') as HTMLInputElement;
+    const autoOffInput = screen.getByLabelText('Minutes Until Auto Off');
     expect(autoOffInput.value).toBe('90');
     expect(screen.getByText('Default: 90')).toBeInTheDocument();
 
     // Check Enable Charger Serial (boolean)
     // The label might be "Enable Charger Serial"
-    const chargerCheckbox = screen.getByLabelText('Enable Charger Serial') as HTMLInputElement;
+    const chargerCheckbox = screen.getByLabelText('Enable Charger Serial');
     expect(chargerCheckbox).not.toBeChecked(); // default is false, not in settings
     expect(screen.getByText('Default: false')).toBeInTheDocument();
   });
@@ -132,6 +135,7 @@ describe('SettingsModal', () => {
     fireEvent.click(saveButton);
 
     await waitFor(() => {
+      // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(serialManager.send).toHaveBeenCalledWith({
         command: 'writeSettings',
         modeCount: 5,

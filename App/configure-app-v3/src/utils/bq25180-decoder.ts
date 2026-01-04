@@ -49,12 +49,12 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'CHG_DIS',
           value: val[0],
-          description: val[0] === '0' ? 'Enabled' : 'Disabled',
+          description: val.startsWith('0') ? 'Enabled' : 'Disabled',
         },
         {
           name: 'ICHG',
           value: val.slice(1, 8),
-          description: `${ichgCurrent}mA`,
+          description: `${ichgCurrent.toString()}mA`,
         },
       ],
     });
@@ -80,7 +80,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '5% of ICHG',
               '10': '10% of ICHG',
               '11': '20% of ICHG',
-            }[val.slice(2, 4)] || 'Unknown',
+            }[val.slice(2, 4)] ?? 'Unknown',
         },
         {
           name: 'VINDPM',
@@ -91,7 +91,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '4.5 V',
               '10': '4.7 V',
               '11': 'Disabled',
-            }[val.slice(4, 6)] || 'Unknown',
+            }[val.slice(4, 6)] ?? 'Unknown',
         },
         {
           name: 'THERM_REG',
@@ -100,7 +100,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
             {
               '00': '100C',
               '11': 'Disabled',
-            }[val.slice(6, 8)] || 'Unknown',
+            }[val.slice(6, 8)] ?? 'Unknown',
         },
       ],
     });
@@ -121,7 +121,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '1000mA',
               '10': '1500mA',
               '11': 'Disabled',
-            }[val.slice(0, 2)] || 'Unknown',
+            }[val.slice(0, 2)] ?? 'Unknown',
         },
         {
           name: 'BUVLO',
@@ -136,7 +136,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '101': '2.4V',
               '110': '2.2V',
               '111': '2.0V',
-            }[val.slice(2, 5)] || 'Unknown',
+            }[val.slice(2, 5)] ?? 'Unknown',
         },
         {
           name: 'CHG_STATUS_INT_MASK',
@@ -166,7 +166,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'TS_EN',
           value: val[0],
-          description: val[0] === '1' ? 'Enabled' : 'Disabled',
+          description: val.startsWith('1') ? 'Enabled' : 'Disabled',
         },
         {
           name: 'VLOWV_SEL',
@@ -192,7 +192,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '6 hour',
               '10': '12 hour',
               '11': 'Disable',
-            }[val.slice(4, 6)] || 'Unknown',
+            }[val.slice(4, 6)] ?? 'Unknown',
         },
         {
           name: 'WATCHDOG_SEL',
@@ -203,7 +203,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '160s HW_RESET',
               '10': '40s HW_RESET',
               '11': 'Disable',
-            }[val.slice(6, 8)] || 'Unknown',
+            }[val.slice(6, 8)] ?? 'Unknown',
         },
       ],
     });
@@ -224,7 +224,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '10s',
               '10': '15s',
               '11': '20s',
-            }[val.slice(0, 2)] || 'Unknown',
+            }[val.slice(0, 2)] ?? 'Unknown',
         },
         {
           name: 'MR_RESET_VIN',
@@ -240,7 +240,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '1s',
               '10': '2s',
               '11': '4s',
-            }[val.slice(3, 5)] || 'Unknown',
+            }[val.slice(3, 5)] ?? 'Unknown',
         },
         {
           name: 'ILIM',
@@ -255,7 +255,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '101': '500mA',
               '110': '700mA',
               '111': '1100mA',
-            }[val.slice(5, 8)] || 'Unknown',
+            }[val.slice(5, 8)] ?? 'Unknown',
         },
       ],
     });
@@ -270,7 +270,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'REG_RST',
           value: val[0],
-          description: val[0] === '1' ? 'Software Reset' : 'Do nothing',
+          description: val.startsWith('1') ? 'Software Reset' : 'Do nothing',
         },
         {
           name: 'EN_RST_SHIP',
@@ -281,7 +281,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': 'Shutdown (wake on adapter)',
               '10': 'Shipmode (wake on button/adapter)',
               '11': 'Hardware Reset',
-            }[val.slice(1, 3)] || 'Unknown',
+            }[val.slice(1, 3)] ?? 'Unknown',
         },
         {
           name: 'PB_LPRESS_ACTION',
@@ -292,7 +292,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': 'Hardware Reset',
               '10': 'Enable shipmode',
               '11': 'Enable shutdown mode',
-            }[val.slice(3, 5)] || 'Unknown',
+            }[val.slice(3, 5)] ?? 'Unknown',
         },
         {
           name: 'WAKE1_TMR',
@@ -332,7 +332,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '101': '4.8V',
               '110': '4.9V',
               '111': 'Pass-Through',
-            }[val.slice(0, 3)] || 'Unknown',
+            }[val.slice(0, 3)] ?? 'Unknown',
         },
         {
           name: 'SYS_MODE',
@@ -343,7 +343,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': 'SYS from VBAT only',
               '10': 'SYS floating',
               '11': 'SYS pulldown',
-            }[val.slice(4, 6)] || 'Unknown',
+            }[val.slice(4, 6)] ?? 'Unknown',
         },
         {
           name: 'WATCHDOG_15S_ENABLE',
@@ -374,7 +374,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '65C',
               '10': '50C',
               '11': '45C',
-            }[val.slice(0, 2)] || 'Unknown',
+            }[val.slice(0, 2)] ?? 'Unknown',
         },
         {
           name: 'TS_COLD',
@@ -385,7 +385,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': '3C',
               '10': '5C',
               '11': '-3C',
-            }[val.slice(2, 4)] || 'Unknown',
+            }[val.slice(2, 4)] ?? 'Unknown',
         },
         {
           name: 'TS_WARM',
@@ -420,7 +420,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'TS_INT_MASK',
           value: val[0],
-          description: val[0] === '1' ? 'Mask' : 'Enable',
+          description: val.startsWith('1') ? 'Mask' : 'Enable',
         },
         {
           name: 'TREG_INT_MASK',
@@ -473,7 +473,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'TS_FAULT',
           value: val[0],
-          description: val[0] === '1' ? 'Fault detected' : 'Normal',
+          description: val.startsWith('1') ? 'Fault detected' : 'Normal',
         },
         {
           name: 'ILIM_ACTIVE',
@@ -523,7 +523,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'VIN_OVP_STAT',
           value: val[0],
-          description: val[0] === '1' ? 'Active' : 'Normal',
+          description: val.startsWith('1') ? 'Active' : 'Normal',
         },
         {
           name: 'BUVLO_STAT',
@@ -539,7 +539,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': 'VTS < VHOT or VTS > VCOLD',
               '10': 'VCOOL < VTS < VCOLD',
               '11': 'VWARM > VTS > VHOT',
-            }[val.slice(3, 5)] || 'Unknown',
+            }[val.slice(3, 5)] ?? 'Unknown',
         },
         {
           name: 'SAFETY_TMR_FAULT',
@@ -569,7 +569,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
         {
           name: 'TS_OPEN_STAT',
           value: val[0],
-          description: val[0] === '1' ? 'Open' : 'Normal',
+          description: val.startsWith('1') ? 'Open' : 'Normal',
         },
         {
           name: 'CHG_STAT',
@@ -580,7 +580,7 @@ export const decodeBQ25180Registers = (registers: BQ25180Registers): DecodedRegi
               '01': 'Constant Current (CC)',
               '10': 'Constant Voltage (CV)',
               '11': 'Charge Done / Disabled',
-            }[val.slice(1, 3)] || 'Unknown',
+            }[val.slice(1, 3)] ?? 'Unknown',
         },
         {
           name: 'ILIM_ACTIVE_STAT',

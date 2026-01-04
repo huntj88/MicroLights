@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import { type Mode } from '@/app/models/mode';
 import { type BQ25180Registers } from '@/utils/bq25180-decoder';
 
-import { StyledButton } from '../common/StyledButton';
 import { ChargerStatusModal } from './ChargerStatusModal';
 import { ImportModeModal } from './ImportModeModal';
+import { StyledButton } from '../common/StyledButton';
 
 export type SerialLogDirection = 'inbound' | 'outbound';
 
@@ -103,35 +103,42 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       value.entries.map(entry => {
         let actionButton = null;
         try {
-          const data = JSON.parse(entry.payload);
+          const data = JSON.parse(entry.payload) as unknown;
 
-          // Check for charger registers
-          // We check for a few key registers to identify it as charger data
-          if (data.chargectrl0 || data.stat0 || data.ichg_ctrl) {
-            actionButton = (
-              <StyledButton
-                onClick={() => setSelectedChargerRegisters(data)}
-                variant="secondary"
-                className="mt-2 text-xs"
-              >
-                {t('serialLog.actions.viewChargerStatus')}
-              </StyledButton>
-            );
-          }
-          // Check for mode data
-          else if (data.mode && typeof data.mode === 'object') {
-            actionButton = (
-              <StyledButton
-                onClick={() => setSelectedMode(data.mode)}
-                variant="secondary"
-                className="mt-2 text-xs"
-              >
-                {t('serialLog.actions.importMode')}
-              </StyledButton>
-            );
+          if (typeof data === 'object' && data !== null) {
+            const obj = data as Record<string, unknown>;
+            // Check for charger registers
+            // We check for a few key registers to identify it as charger data
+            if ('chargectrl0' in obj || 'stat0' in obj || 'ichg_ctrl' in obj) {
+              actionButton = (
+                <StyledButton
+                  onClick={() => {
+                    setSelectedChargerRegisters(obj as unknown as BQ25180Registers);
+                  }}
+                  variant="secondary"
+                  className="mt-2 text-xs"
+                >
+                  {t('serialLog.actions.viewChargerStatus')}
+                </StyledButton>
+              );
+            }
+            // Check for mode data
+            else if ('mode' in obj && typeof obj.mode === 'object' && obj.mode !== null) {
+              actionButton = (
+                <StyledButton
+                  onClick={() => {
+                    setSelectedMode(obj.mode as Mode);
+                  }}
+                  variant="secondary"
+                  className="mt-2 text-xs"
+                >
+                  {t('serialLog.actions.importMode')}
+                </StyledButton>
+              );
+            }
           }
         } catch {
-          // Not JSON or failed to parse
+          // Ignore parse errors
         }
 
         return (
@@ -200,7 +207,9 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       {selectedChargerRegisters && (
         <ChargerStatusModal
           isOpen={!!selectedChargerRegisters}
-          onClose={() => setSelectedChargerRegisters(null)}
+          onClose={() => {
+            setSelectedChargerRegisters(null);
+          }}
           registers={selectedChargerRegisters}
         />
       )}
@@ -208,7 +217,9 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
       {selectedMode && (
         <ImportModeModal
           isOpen={!!selectedMode}
-          onClose={() => setSelectedMode(null)}
+          onClose={() => {
+            setSelectedMode(null);
+          }}
           mode={selectedMode}
         />
       )}

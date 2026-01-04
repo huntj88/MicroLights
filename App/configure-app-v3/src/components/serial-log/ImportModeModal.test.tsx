@@ -83,10 +83,10 @@ describe('ImportModeModal', () => {
 
     // Check if mode references new pattern name
     const savedMode = useModeStore.getState().getMode('Test Mode');
-    expect(savedMode?.front?.pattern?.name).toBe('New Front Pattern');
+    expect(savedMode?.front?.pattern.name).toBe('New Front Pattern');
   });
 
-  it('shows overwrite warning for existing patterns', async () => {
+  it('shows overwrite warning for existing patterns', () => {
     const onClose = vi.fn();
 
     // Pre-populate store with a conflicting pattern
@@ -106,7 +106,7 @@ describe('ImportModeModal', () => {
     expect(screen.getByText('common.actions.overwrite')).toBeInTheDocument();
   });
 
-  it('shows overwrite warning for existing mode', async () => {
+  it('shows overwrite warning for existing mode', () => {
     const onClose = vi.fn();
 
     // Pre-populate store with a conflicting mode
