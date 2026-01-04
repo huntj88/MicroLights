@@ -89,8 +89,8 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN 0 */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-static void writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
-    usbWriteToSerial(&usbManager, itf, buf, count);
+static void writeToSerial(const char *buf, uint32_t count) {
+    usbWriteToSerial(&usbManager, 0, buf, count);
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)

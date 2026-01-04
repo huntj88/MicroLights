@@ -24,17 +24,17 @@ bool bq25180Init(
     I2CReadRegister *readRegCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial,
+    WriteToSerial *writeToSerial,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed || !enableTimers) {
+    if (!chargerIC || !readRegCb || !writeCb || !writeToSerial || !caseLed || !enableTimers) {
         return false;
     }
 
     chargerIC->readRegister = readRegCb;
     chargerIC->writeRegister = writeCb;
     chargerIC->devAddress = devAddress;
-    chargerIC->writeToUsbSerial = writeToUsbSerial;
+    chargerIC->writeToSerial = writeToSerial;
     chargerIC->caseLed = caseLed;
     chargerIC->enableTimers = enableTimers;
 
@@ -80,7 +80,7 @@ void chargerTask(
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
         // char registerJson[256];
         // readAllRegistersJson(chargerIC, registerJson);
-        // writeUsbSerial(0, registerJson, strlen(registerJson));
+        // chargerIC->writeToSerial(registerJson, strlen(registerJson));
         // printAllRegisters(chargerIC);
 
         chargerIC->chargingState = getChargingState(chargerIC);
@@ -218,7 +218,7 @@ void configureChargerIC(BQ25180 *chargerIC) {
 }
 
 void print(BQ25180 *chargerIC, char *stringToPrint) {
-    chargerIC->writeToUsbSerial(0, stringToPrint, strlen(stringToPrint));
+    chargerIC->writeToSerial(stringToPrint, strlen(stringToPrint));
 }
 
 void printBinary(BQ25180 *chargerIC, uint8_t num) {
@@ -234,7 +234,7 @@ void printBinary(BQ25180 *chargerIC, uint8_t num) {
     sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
     sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
 
-    chargerIC->writeToUsbSerial(0, buffer, sizeof(buffer));
+    chargerIC->writeToSerial(buffer, sizeof(buffer));
 }
 
 static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput) {
@@ -298,12 +298,12 @@ void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
     printBinary(chargerIC, regValue);
 
     const char *newLine = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
+    chargerIC->writeToSerial(newLine, strlen(newLine));
 }
 
 void printAllRegisters(BQ25180 *chargerIC) {
     const char *newLine = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
+    chargerIC->writeToSerial(newLine, strlen(newLine));
 
     printRegister(chargerIC, BQ25180_STAT0, "STAT0");
     printRegister(chargerIC, BQ25180_STAT1, "STAT1");

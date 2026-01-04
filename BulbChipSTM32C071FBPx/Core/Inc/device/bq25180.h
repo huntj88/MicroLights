@@ -51,7 +51,7 @@ typedef struct BQ25180 BQ25180;  // forward declaration
 typedef struct BQ25180 {
     I2CReadRegister *readRegister;
     I2CWriteRegister *writeRegister;
-    WriteToUsbSerial *writeToUsbSerial;
+    WriteToSerial *writeToSerial;
     uint8_t devAddress;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
@@ -81,7 +81,7 @@ bool bq25180Init(
     I2CReadRegister *readRegCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial,
+    WriteToSerial *writeToSerial,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable));
 

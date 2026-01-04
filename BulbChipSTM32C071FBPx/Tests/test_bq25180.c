@@ -20,7 +20,7 @@ void mock_writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     mockRegisters[reg] = value;
 }
 
-void mock_writeToUsbSerial(uint8_t itf, const char *buf, uint32_t count) {
+void mock_writeToSerial(const char *buf, uint32_t count) {
 }
 
 // RGB Mocks
@@ -79,7 +79,7 @@ void setUp(void) {
         mock_readRegister,
         mock_writeRegister,
         0x6A,
-        mock_writeToUsbSerial,
+        mock_writeToSerial,
         &mockLed,
         mock_enableTimers);
 

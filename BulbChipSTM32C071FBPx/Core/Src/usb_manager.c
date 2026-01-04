@@ -54,11 +54,6 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
     }
     tud_cdc_n_write_flush(itf);
     tud_task();
-
-    // also log to uart serial in case usb doesn't work
-    if (usbManager->huart != NULL) {
-        HAL_UART_Transmit(usbManager->huart, (uint8_t *)buf, count, 100);
-    }
 }
 
 static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {

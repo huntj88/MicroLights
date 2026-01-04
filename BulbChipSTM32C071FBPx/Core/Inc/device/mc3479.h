@@ -37,7 +37,7 @@ typedef struct MC3479 MC3479;  // forward declaration
 struct MC3479 {
     I2CReadRegisters *readRegisters;
     I2CWriteRegister *writeRegister;
-    WriteToUsbSerial *writeToUsbSerial;
+    WriteToSerial *writeToSerial;
 
     uint8_t devAddress;
 
@@ -59,7 +59,7 @@ bool mc3479Init(
     I2CReadRegisters *readRegsCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial);
+    WriteToSerial *writeToSerial);
 
 void mc3479Enable(MC3479 *dev);
 void mc3479Disable(MC3479 *dev);
