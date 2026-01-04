@@ -140,7 +140,11 @@ describe('SerialLogPanel', () => {
           id: '1',
           timestamp: new Date().toISOString(),
           direction: 'inbound',
-          payload: JSON.stringify({ chargectrl0: '00101100' }),
+          payload: JSON.stringify({
+            chargectrl0: '00101100',
+            stat0: '00000000',
+            mask_id: '11000000',
+          }),
         },
       ],
       pendingPayload: '',
@@ -163,7 +167,14 @@ describe('SerialLogPanel', () => {
             index: 0,
             mode: {
               name: 'test mode',
-              front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } },
+              front: {
+                pattern: {
+                  type: 'simple',
+                  name: 'test',
+                  duration: 100,
+                  changeAt: [{ ms: 0, output: 'high' }],
+                },
+              },
             },
           }),
         },
@@ -184,7 +195,11 @@ describe('SerialLogPanel', () => {
           id: '1',
           timestamp: new Date().toISOString(),
           direction: 'inbound',
-          payload: JSON.stringify({ chargectrl0: '00101100' }),
+          payload: JSON.stringify({
+            chargectrl0: '00101100',
+            stat0: '00000000',
+            mask_id: '11000000',
+          }),
         },
       ],
       pendingPayload: '',
@@ -211,7 +226,14 @@ describe('SerialLogPanel', () => {
             index: 0,
             mode: {
               name: 'test mode',
-              front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } },
+              front: {
+                pattern: {
+                  type: 'simple',
+                  name: 'test',
+                  duration: 100,
+                  changeAt: [{ ms: 0, output: 'high' }],
+                },
+              },
             },
           }),
         },

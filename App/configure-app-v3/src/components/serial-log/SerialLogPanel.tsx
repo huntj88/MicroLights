@@ -2,8 +2,8 @@ import type { ChangeEvent, FormEvent } from 'react';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import { type Mode } from '@/app/models/mode';
-import { type BQ25180Registers } from '@/utils/bq25180-decoder';
+import { isModeDocument, type Mode } from '@/app/models/mode';
+import { isBQ25180Registers, type BQ25180Registers } from '@/utils/bq25180-decoder';
 
 import { ChargerStatusModal } from './ChargerStatusModal';
 import { ImportModeModal } from './ImportModeModal';
@@ -106,14 +106,13 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
           const data = JSON.parse(entry.payload) as unknown;
 
           if (typeof data === 'object' && data !== null) {
-            const obj = data as Record<string, unknown>;
             // Check for charger registers
             // We check for a few key registers to identify it as charger data
-            if ('chargectrl0' in obj || 'stat0' in obj || 'ichg_ctrl' in obj) {
+            if (isBQ25180Registers(data)) {
               actionButton = (
                 <StyledButton
                   onClick={() => {
-                    setSelectedChargerRegisters(obj as unknown as BQ25180Registers);
+                    setSelectedChargerRegisters(data);
                   }}
                   variant="secondary"
                   className="mt-2 text-xs"
@@ -123,11 +122,11 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
               );
             }
             // Check for mode data
-            else if ('mode' in obj && typeof obj.mode === 'object' && obj.mode !== null) {
+            else if (isModeDocument(data)) {
               actionButton = (
                 <StyledButton
                   onClick={() => {
-                    setSelectedMode(obj.mode as Mode);
+                    setSelectedMode(data.mode);
                   }}
                   variant="secondary"
                   className="mt-2 text-xs"

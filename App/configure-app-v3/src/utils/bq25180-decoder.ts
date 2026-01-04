@@ -14,6 +14,15 @@ export interface BQ25180Registers {
   mask_id?: string;
 }
 
+export const isBQ25180Registers = (data: unknown): data is BQ25180Registers => {
+  if (typeof data !== 'object' || data === null) {
+    return false;
+  }
+  const obj = data as Record<string, unknown>;
+  // Check for presence of key registers
+  return 'stat0' in obj && 'chargectrl0' in obj && 'mask_id' in obj;
+};
+
 export interface DecodedRegisterField {
   name: string;
   value: string;
