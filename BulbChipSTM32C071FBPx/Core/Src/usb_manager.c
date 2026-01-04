@@ -110,19 +110,9 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
                 usbWriteToSerial(usbManager, 0, "null", 4);
             }
 
-            ChipSettings defaultSettings;
-            chipSettingsInitDefaults(&defaultSettings);
-
             char defaultsBuf[256];
-            int len = snprintf(
-                defaultsBuf,
-                sizeof(defaultsBuf),
-                ",\"defaults\":{\"modeCount\":%d,\"minutesUntilAutoOff\":%d,"
-                "\"minutesUntilLockAfterAutoOff\":%d,\"equationEvalIntervalMs\":%d}}\n",
-                defaultSettings.modeCount,
-                defaultSettings.minutesUntilAutoOff,
-                defaultSettings.minutesUntilLockAfterAutoOff,
-                defaultSettings.equationEvalIntervalMs);
+            int len = getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
 
             usbWriteToSerial(usbManager, 0, defaultsBuf, len);
             break;

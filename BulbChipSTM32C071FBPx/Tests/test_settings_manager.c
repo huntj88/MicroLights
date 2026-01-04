@@ -190,8 +190,29 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
+void test_SettingsJson_KeysMatchMacroCount(void) {
+    char buf[PAGE_SECTOR];
+    int len = getSettingsDefaultsJson(buf, sizeof(buf));
+
+    int colonCount = 0;
+    for (int i = 0; i < len; i++) {
+        if (buf[i] == ':') {
+            colonCount++;
+        }
+    }
+    int keyCount = colonCount - 1; // "defaults" is a key
+
+    int macroCount = 0;
+    #define X_COUNT(type, name, def) macroCount++;
+    CHIP_SETTINGS_MAP(X_COUNT)
+    #undef X_COUNT
+
+    TEST_ASSERT_EQUAL_MESSAGE(macroCount, keyCount, "JSON key count mismatch");
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SettingsJson_KeysMatchMacroCount);
     RUN_TEST(test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches);
     RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);
     RUN_TEST(test_SettingsManagerInit_SetsDefaults);
