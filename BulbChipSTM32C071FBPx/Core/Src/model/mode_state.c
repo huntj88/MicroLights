@@ -481,7 +481,7 @@ static uint8_t evalChannel(EquationChannelState *state, uint8_t equationEvalInte
 }
 
 bool modeStateGetSimpleOutput(
-    const ModeComponentState *componentState,
+    ModeComponentState *componentState,
     const ModeComponent *component,
     SimpleOutput *output,
     uint8_t equationEvalIntervalMs) {
@@ -505,15 +505,11 @@ bool modeStateGetSimpleOutput(
     }
 
     if (component->pattern.type == PATTERN_TYPE_EQUATION) {
-        const EquationPatternState *state = &componentState->equation;
+        EquationPatternState *state = &componentState->equation;
         output->type = RGB;
-        // Cast away const to allow caching in evalChannel
-        output->data.rgb.r =
-            evalChannel((EquationChannelState *)&state->red, equationEvalIntervalMs);
-        output->data.rgb.g =
-            evalChannel((EquationChannelState *)&state->green, equationEvalIntervalMs);
-        output->data.rgb.b =
-            evalChannel((EquationChannelState *)&state->blue, equationEvalIntervalMs);
+        output->data.rgb.r = evalChannel(&state->red, equationEvalIntervalMs);
+        output->data.rgb.g = evalChannel(&state->green, equationEvalIntervalMs);
+        output->data.rgb.b = evalChannel(&state->blue, equationEvalIntervalMs);
         return true;
     }
 
