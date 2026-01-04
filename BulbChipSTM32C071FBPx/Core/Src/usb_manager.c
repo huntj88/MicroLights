@@ -37,9 +37,19 @@ bool usbInit(
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count) {
-    for (uint32_t i = 0; i < count; i += 64) {
-        uint32_t countMax64 = MIN(count - i, 64);
-        tud_cdc_n_write(itf, buf + i, countMax64);
+    uint32_t sent = 0;
+
+    while (sent < count) {
+        uint32_t available = tud_cdc_n_write_available(itf);
+        if (available > 0) {
+            uint32_t to_send = count - sent;
+            if (to_send > available) {
+                to_send = available;
+            }
+
+            uint32_t written = tud_cdc_n_write(itf, buf + sent, to_send);
+            sent += written;
+        }
         tud_task();
     }
     tud_cdc_n_write_flush(itf);
@@ -100,7 +110,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             usbWriteToSerial(usbManager, 0, "{\"settings\":", 12);
 
             if (cliInput.parsedType == parseWriteSettings) {
-                usbWriteToSerial(usbManager, 0, (char *)buf, strlen((char *)buf));
+                usbWriteToSerial(usbManager, 0, buf, strlen(buf));
             } else {
                 usbWriteToSerial(usbManager, 0, "null", 4);
             }
@@ -141,7 +151,7 @@ void usbCdcTask(USBManager *usbManager) {
         // if ( tud_cdc_n_connected(itf) )
         {
             if (tud_cdc_n_available(itf)) {
-                uint8_t buf[64];
+                char buf[64];
                 // cast count as uint8_t, buf is only 64 bytes
                 uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
                 if (jsonIndex + count > PAGE_SECTOR) {
