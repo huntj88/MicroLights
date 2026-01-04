@@ -1,6 +1,13 @@
 import type { ChangeEvent, FormEvent } from 'react';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import { type Mode } from '@/app/models/mode';
+import { type BQ25180Registers } from '@/utils/bq25180-decoder';
+
+import { StyledButton } from '../common/StyledButton';
+import { ChargerStatusModal } from './ChargerStatusModal';
+import { ImportModeModal } from './ImportModeModal';
 
 export type SerialLogDirection = 'inbound' | 'outbound';
 
@@ -42,6 +49,8 @@ const createEntry = (payload: string, direction: SerialLogDirection): SerialLogE
 
 export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
   const { t } = useTranslation();
+  const [selectedChargerRegisters, setSelectedChargerRegisters] = useState<BQ25180Registers | null>(null);
+  const [selectedMode, setSelectedMode] = useState<Mode | null>(null);
 
   const handlePayloadChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
     const nextValue = event.target.value;
@@ -89,18 +98,62 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
 
   const renderedEntries = useMemo(
     () =>
-      value.entries.map(entry => (
-        <li
-          key={entry.id}
-          className="flex flex-col gap-1 border-b border-dashed theme-border pb-2 last:border-none last:pb-0"
-        >
-          <span className="font-mono text-xs theme-muted">
-            {timestampFormatter.format(new Date(entry.timestamp))} ·{' '}
-            {t(`serialLog.direction.${entry.direction}`)}
-          </span>
-          <code className="whitespace-pre-wrap break-words text-sm">{entry.payload}</code>
-        </li>
-      )),
+      value.entries.map(entry => {
+        let actionButton = null;
+        try {
+          const data = JSON.parse(entry.payload);
+          
+          // Check for charger registers
+          // We check for a few key registers to identify it as charger data
+          if (data.chargectrl0 || data.stat0 || data.ichg_ctrl) {
+            actionButton = (
+              <StyledButton
+                onClick={() => setSelectedChargerRegisters(data)}
+                variant="secondary"
+                className="mt-2 text-xs"
+              >
+                {t('serialLog.actions.viewChargerStatus')}
+              </StyledButton>
+            );
+          }
+          // Check for mode data
+          else if (data.mode && typeof data.mode === 'object') {
+            actionButton = (
+              <StyledButton
+                onClick={() => setSelectedMode(data.mode)}
+                variant="secondary"
+                className="mt-2 text-xs"
+              >
+                {t('serialLog.actions.importMode')}
+              </StyledButton>
+            );
+          }
+        } catch {
+          // Not JSON or failed to parse
+        }
+
+        return (
+          <li
+            key={entry.id}
+            className="flex flex-col gap-1 border-b border-dashed theme-border pb-2 last:border-none last:pb-0"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-col gap-1 flex-1 min-w-0">
+                <span className="font-mono text-xs theme-muted">
+                  {timestampFormatter.format(new Date(entry.timestamp))} ·{' '}
+                  {t(`serialLog.direction.${entry.direction}`)}
+                </span>
+                <code className="whitespace-pre-wrap break-words text-sm">{entry.payload}</code>
+              </div>
+              {actionButton && (
+                <div className="shrink-0">
+                  {actionButton}
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      }),
     [t, value.entries],
   );
 
@@ -145,6 +198,22 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
           </button>
         </div>
       </form>
+
+      {selectedChargerRegisters && (
+        <ChargerStatusModal
+          isOpen={!!selectedChargerRegisters}
+          onClose={() => setSelectedChargerRegisters(null)}
+          registers={selectedChargerRegisters}
+        />
+      )}
+
+      {selectedMode && (
+        <ImportModeModal
+          isOpen={!!selectedMode}
+          onClose={() => setSelectedMode(null)}
+          mode={selectedMode}
+        />
+      )}
     </div>
   );
 };

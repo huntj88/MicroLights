@@ -5,6 +5,9 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "confirm": "Confirm",
+      "close": "Close",
+      "import": "Import",
+      "overwrite": "Overwrite",
       "test": "Test on Device",
       "stopTest": "Stop Testing",
       "testSuccess": "Test pattern sent to device",
@@ -189,7 +192,20 @@
       "autoscrollOn": "Autoscroll • on",
       "autoscrollOff": "Autoscroll • off",
       "clear": "Clear log",
-      "send": "Send payload"
+      "send": "Send payload",
+      "viewChargerStatus": "View Charger Status",
+      "importMode": "Import Mode"
+    },
+    "chargerStatus": {
+      "title": "Charger Status",
+      "noDecoding": "No decoding available for this register"
+    },
+    "importMode": {
+      "title": "Import Mode",
+      "description": "You are about to import a mode from the serial log.",
+      "overwriteWarning": "A mode with this name already exists. Importing will overwrite it.",
+      "success": "Mode imported successfully",
+      "error": "Failed to import mode"
     },
     "fields": {
       "payloadLabel": "Payload",
