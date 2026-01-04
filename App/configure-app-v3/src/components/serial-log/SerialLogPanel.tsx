@@ -49,7 +49,9 @@ const createEntry = (payload: string, direction: SerialLogDirection): SerialLogE
 
 export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
   const { t } = useTranslation();
-  const [selectedChargerRegisters, setSelectedChargerRegisters] = useState<BQ25180Registers | null>(null);
+  const [selectedChargerRegisters, setSelectedChargerRegisters] = useState<BQ25180Registers | null>(
+    null,
+  );
   const [selectedMode, setSelectedMode] = useState<Mode | null>(null);
 
   const handlePayloadChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
@@ -102,7 +104,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
         let actionButton = null;
         try {
           const data = JSON.parse(entry.payload);
-          
+
           // Check for charger registers
           // We check for a few key registers to identify it as charger data
           if (data.chargectrl0 || data.stat0 || data.ichg_ctrl) {
@@ -145,11 +147,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
                 </span>
                 <code className="whitespace-pre-wrap break-words text-sm">{entry.payload}</code>
               </div>
-              {actionButton && (
-                <div className="shrink-0">
-                  {actionButton}
-                </div>
-              )}
+              {actionButton && <div className="shrink-0">{actionButton}</div>}
             </div>
           </li>
         );

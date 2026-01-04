@@ -26,14 +26,14 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
 
   const patterns = useMemo(() => {
     const uniquePatterns = new Map<string, ModePattern>();
-    
+
     const addPattern = (p?: ModePattern) => {
       if (p) uniquePatterns.set(p.name, p);
     };
 
     addPattern(mode.front?.pattern);
     addPattern(mode.case?.pattern);
-    
+
     mode.accel?.triggers.forEach(trigger => {
       addPattern(trigger.front?.pattern);
       addPattern(trigger.case?.pattern);
@@ -62,10 +62,12 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
   const isPatternOverwrite = overwritingPatterns.length > 0;
   const isOverwrite = isModeOverwrite || isPatternOverwrite;
 
-  const hasEmptyNames = !modeName.trim() || patterns.some(p => {
-    const name = patternNames[p.name] ?? p.name;
-    return !name.trim();
-  });
+  const hasEmptyNames =
+    !modeName.trim() ||
+    patterns.some(p => {
+      const name = patternNames[p.name] ?? p.name;
+      return !name.trim();
+    });
 
   const handleImport = () => {
     if (hasEmptyNames) return;
@@ -105,7 +107,7 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
 
       saveMode(updatedMode);
       newPatternsMap.forEach(p => savePattern(p));
-      
+
       toast.success(t('serialLog.importMode.success'));
       onClose();
     } catch (error) {

@@ -1,9 +1,6 @@
 import { useTranslation } from 'react-i18next';
 
-import {
-  type BQ25180Registers,
-  decodeBQ25180Registers,
-} from '@/utils/bq25180-decoder';
+import { type BQ25180Registers, decodeBQ25180Registers } from '@/utils/bq25180-decoder';
 
 import { StyledButton } from '../common/StyledButton';
 
@@ -13,11 +10,7 @@ interface ChargerStatusModalProps {
   registers: BQ25180Registers;
 }
 
-export const ChargerStatusModal = ({
-  isOpen,
-  onClose,
-  registers,
-}: ChargerStatusModalProps) => {
+export const ChargerStatusModal = ({ isOpen, onClose, registers }: ChargerStatusModalProps) => {
   const { t } = useTranslation();
 
   if (!isOpen) return null;
@@ -40,16 +33,17 @@ export const ChargerStatusModal = ({
         <div className="flex-1 overflow-y-auto pr-2">
           <div className="space-y-6">
             {decodedRegisters.map(reg => (
-              <div key={reg.name} className="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+              <div
+                key={reg.name}
+                className="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+              >
                 <div className="mb-2 flex items-center justify-between">
-                  <h4 className="font-semibold text-blue-600 dark:text-blue-400">
-                    {reg.name}
-                  </h4>
+                  <h4 className="font-semibold text-blue-600 dark:text-blue-400">{reg.name}</h4>
                   <code className="rounded bg-gray-100 px-2 py-0.5 text-xs font-mono dark:bg-gray-900">
                     {reg.raw}
                   </code>
                 </div>
-                
+
                 {reg.fields.length > 0 ? (
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {reg.fields.map(field => (
@@ -73,9 +67,7 @@ export const ChargerStatusModal = ({
         </div>
 
         <footer className="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-700">
-          <StyledButton onClick={onClose}>
-            {t('common.actions.close')}
-          </StyledButton>
+          <StyledButton onClick={onClose}>{t('common.actions.close')}</StyledButton>
         </footer>
       </div>
     </div>

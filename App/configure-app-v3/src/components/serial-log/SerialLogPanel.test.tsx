@@ -161,7 +161,10 @@ describe('SerialLogPanel', () => {
           payload: JSON.stringify({
             command: 'writeMode',
             index: 0,
-            mode: { name: 'test mode', front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } } },
+            mode: {
+              name: 'test mode',
+              front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } },
+            },
           }),
         },
       ],
@@ -206,7 +209,10 @@ describe('SerialLogPanel', () => {
           payload: JSON.stringify({
             command: 'writeMode',
             index: 0,
-            mode: { name: 'test mode', front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } } },
+            mode: {
+              name: 'test mode',
+              front: { pattern: { type: 'simple', name: 'test', duration: 100, changeAt: [] } },
+            },
           }),
         },
       ],

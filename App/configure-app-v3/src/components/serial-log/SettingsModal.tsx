@@ -72,12 +72,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       };
 
       const isValidResponse = (json: unknown): json is SettingsResponse => {
-        return (
-          !!json &&
-          typeof json === 'object' &&
-          'settings' in json &&
-          'defaults' in json
-        );
+        return !!json && typeof json === 'object' && 'settings' in json && 'defaults' in json;
       };
 
       // Setup listener for response

@@ -35,9 +35,7 @@ describe('ImportModeModal', () => {
   });
 
   it('renders correctly', () => {
-    renderWithProviders(
-      <ImportModeModal isOpen={true} onClose={vi.fn()} mode={mockMode} />
-    );
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={vi.fn()} mode={mockMode} />);
 
     expect(screen.getByText('serialLog.importMode.title')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test Mode')).toBeInTheDocument();
@@ -48,10 +46,8 @@ describe('ImportModeModal', () => {
   it('imports full mode and all patterns', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    
-    renderWithProviders(
-      <ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />
-    );
+
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />);
 
     const importButton = screen.getByText('common.actions.import');
     await user.click(importButton);
@@ -69,10 +65,8 @@ describe('ImportModeModal', () => {
   it('renames patterns and updates references', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();
-    
-    renderWithProviders(
-      <ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />
-    );
+
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />);
 
     // Rename Front Pattern
     const frontInput = screen.getByDisplayValue('Front Pattern');
@@ -102,10 +96,8 @@ describe('ImportModeModal', () => {
       duration: 500,
       changeAt: [{ ms: 0, output: 'low' }],
     });
-    
-    renderWithProviders(
-      <ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />
-    );
+
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />);
 
     // Should show warning
     expect(screen.getByText('serialLog.importMode.overwritePatternWarning')).toBeInTheDocument();
@@ -122,10 +114,8 @@ describe('ImportModeModal', () => {
       ...mockMode,
       name: 'Test Mode',
     });
-    
-    renderWithProviders(
-      <ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />
-    );
+
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />);
 
     // Should show warning
     expect(screen.getByText('serialLog.importMode.overwriteWarning')).toBeInTheDocument();

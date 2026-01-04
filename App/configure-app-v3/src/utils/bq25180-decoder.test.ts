@@ -106,18 +106,14 @@ describe('decodeBQ25180Registers', () => {
     let result = decodeBQ25180Registers({ vbat_ctrl: '01000110' });
     let reg = result.find(r => r.name === 'VBAT_CTRL');
     expect(reg).toBeDefined();
-    expect(reg?.fields).toEqual([
-      { name: 'VBATREG', value: '1000110', description: '4.20V' },
-    ]);
+    expect(reg?.fields).toEqual([{ name: 'VBATREG', value: '1000110', description: '4.20V' }]);
 
     // Test case 2: Minimum value (0x00)
     // 0x00 = 00000000 -> VBATREG=0 -> 3.5 + 0 = 3.50V
     result = decodeBQ25180Registers({ vbat_ctrl: '00000000' });
     reg = result.find(r => r.name === 'VBAT_CTRL');
     expect(reg).toBeDefined();
-    expect(reg?.fields).toEqual([
-      { name: 'VBATREG', value: '0000000', description: '3.50V' },
-    ]);
+    expect(reg?.fields).toEqual([{ name: 'VBATREG', value: '0000000', description: '3.50V' }]);
 
     // Test case 3: Maximum value (0x7F)
     // 0x7F = 01111111 -> VBATREG=127 -> 3.5 + 1.27 = 4.77V (Note: Datasheet says max programmable is 4.65V, but formula yields higher)
@@ -125,9 +121,7 @@ describe('decodeBQ25180Registers', () => {
     result = decodeBQ25180Registers({ vbat_ctrl: '01110011' });
     reg = result.find(r => r.name === 'VBAT_CTRL');
     expect(reg).toBeDefined();
-    expect(reg?.fields).toEqual([
-      { name: 'VBATREG', value: '1110011', description: '4.65V' },
-    ]);
+    expect(reg?.fields).toEqual([{ name: 'VBATREG', value: '1110011', description: '4.65V' }]);
   });
 
   it('should decode FLAG0 correctly', () => {
