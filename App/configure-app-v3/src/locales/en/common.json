@@ -202,16 +202,15 @@
     },
     "importMode": {
       "title": "Import Mode",
-      "description": "Select which components to import from the serial log.",
-      "overwriteWarning": "Overwrites existing mode. Does not affect Pattern Library.",
+      "description": "This will save the mode to your Modes list and all its patterns to your Pattern Library.",
+      "overwriteWarning": "Overwrites existing mode.",
       "overwritePatternWarning": "Overwrites existing library pattern.",
       "success": "Import successful",
       "error": "Failed to import",
       "importFullMode": "Save to Modes",
-      "modeHelp": "Saves the mode configuration. Embedded patterns are preserved but not added to your library.",
+      "modeHelp": "The mode configuration will be saved to your Modes list.",
       "patterns": "Save to Pattern Library",
-      "patternsHelp": "Select patterns to save them individually to your library for reuse.",
-      "nothingSelected": "Please select at least one item to import"
+      "patternsHelp": "These patterns will be added to your Pattern Library for reuse."
     },
     "fields": {
       "payloadLabel": "Payload",

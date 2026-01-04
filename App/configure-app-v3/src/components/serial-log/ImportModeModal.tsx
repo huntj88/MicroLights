@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 
-import { type Mode, type ModePattern } from '@/app/models/mode';
+import { type Mode, type ModePattern, type ModeComponent } from '@/app/models/mode';
 import { useModeStore } from '@/app/providers/mode-store';
 import { usePatternStore } from '@/app/providers/pattern-store';
 
@@ -22,8 +22,7 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
   const getPattern = usePatternStore(s => s.getPattern);
 
   const [modeName, setModeName] = useState(mode.name);
-  const [importMode, setImportMode] = useState(true);
-  const [selectedPatterns, setSelectedPatterns] = useState<Set<string>>(new Set());
+  const [patternNames, setPatternNames] = useState<Record<string, string>>({});
 
   const patterns = useMemo(() => {
     const uniquePatterns = new Map<string, ModePattern>();
@@ -43,49 +42,72 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
     return Array.from(uniquePatterns.values());
   }, [mode]);
 
+  useEffect(() => {
+    const names: Record<string, string> = {};
+    patterns.forEach(p => {
+      names[p.name] = p.name;
+    });
+    setPatternNames(names);
+  }, [patterns]);
+
   if (!isOpen) return null;
 
   const existingMode = getMode(modeName);
-  const isModeOverwrite = !!existingMode && importMode;
+  const isModeOverwrite = !!existingMode;
 
-  const overwritingPatterns = patterns.filter(
-    p => selectedPatterns.has(p.name) && !!getPattern(p.name)
-  );
+  const overwritingPatterns = patterns.filter(p => {
+    const currentName = patternNames[p.name] ?? p.name;
+    return !!getPattern(currentName);
+  });
   const isPatternOverwrite = overwritingPatterns.length > 0;
   const isOverwrite = isModeOverwrite || isPatternOverwrite;
 
-  const togglePattern = (name: string) => {
-    const next = new Set(selectedPatterns);
-    if (next.has(name)) {
-      next.delete(name);
-    } else {
-      next.add(name);
-    }
-    setSelectedPatterns(next);
-  };
+  const hasEmptyNames = !modeName.trim() || patterns.some(p => {
+    const name = patternNames[p.name] ?? p.name;
+    return !name.trim();
+  });
 
   const handleImport = () => {
+    if (hasEmptyNames) return;
     try {
-      let importedCount = 0;
-
-      if (importMode) {
-        saveMode({ ...mode, name: modeName });
-        importedCount++;
-      }
-
+      // Create a map of oldName -> newPattern (with new name)
+      const newPatternsMap = new Map<string, ModePattern>();
       patterns.forEach(p => {
-        if (selectedPatterns.has(p.name)) {
-          savePattern(p);
-          importedCount++;
-        }
+        const newName = patternNames[p.name] ?? p.name;
+        newPatternsMap.set(p.name, { ...p, name: newName });
       });
 
-      if (importedCount > 0) {
-        toast.success(t('serialLog.importMode.success'));
-        onClose();
-      } else {
-        toast.error(t('serialLog.importMode.nothingSelected'));
-      }
+      const updateComponent = (comp?: ModeComponent) => {
+        if (!comp?.pattern) return comp;
+        const updatedPattern = newPatternsMap.get(comp.pattern.name);
+        if (updatedPattern) {
+          return { ...comp, pattern: updatedPattern };
+        }
+        return comp;
+      };
+
+      const updatedMode: Mode = {
+        ...mode,
+        name: modeName,
+        front: updateComponent(mode.front),
+        case: updateComponent(mode.case),
+        accel: mode.accel
+          ? {
+              ...mode.accel,
+              triggers: mode.accel.triggers.map(t => ({
+                ...t,
+                front: updateComponent(t.front),
+                case: updateComponent(t.case),
+              })),
+            }
+          : undefined,
+      };
+
+      saveMode(updatedMode);
+      newPatternsMap.forEach(p => savePattern(p));
+      
+      toast.success(t('serialLog.importMode.success'));
+      onClose();
     } catch (error) {
       console.error('Failed to import mode', error);
       toast.error(t('serialLog.importMode.error'));
@@ -112,40 +134,29 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
 
           <div className="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
             <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="importMode"
-                checked={importMode}
-                onChange={e => setImportMode(e.target.checked)}
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <label htmlFor="importMode" className="font-medium">
-                {t('serialLog.importMode.importFullMode')}
-              </label>
+              <span className="font-medium">{t('serialLog.importMode.importFullMode')}</span>
             </div>
-            <p className="ml-6 text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               {t('serialLog.importMode.modeHelp')}
             </p>
 
-            {importMode && (
-              <div className="mt-2 pl-6">
-                <label htmlFor="modeName" className="block text-xs font-medium text-gray-500">
-                  {t('common.labels.name', 'Name')}
-                </label>
-                <input
-                  id="modeName"
-                  type="text"
-                  value={modeName}
-                  onChange={e => setModeName(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
-                />
-                {isModeOverwrite && (
-                  <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
-                    {t('serialLog.importMode.overwriteWarning')}
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="mt-2">
+              <label htmlFor="modeName" className="block text-xs font-medium text-gray-500">
+                {t('common.labels.name', 'Name')}
+              </label>
+              <input
+                id="modeName"
+                type="text"
+                value={modeName}
+                onChange={e => setModeName(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
+              />
+              {isModeOverwrite && (
+                <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+                  {t('serialLog.importMode.overwriteWarning')}
+                </div>
+              )}
+            </div>
           </div>
 
           {patterns.length > 0 && (
@@ -158,23 +169,26 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
               </p>
               <div className="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                 {patterns.map(pattern => {
-                  const exists = !!getPattern(pattern.name);
+                  const currentName = patternNames[pattern.name] ?? pattern.name;
+                  const exists = !!getPattern(currentName);
                   return (
                     <div key={pattern.name} className="flex flex-col gap-1">
                       <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full bg-blue-500" />
                         <input
-                          type="checkbox"
-                          id={`pattern-${pattern.name}`}
-                          checked={selectedPatterns.has(pattern.name)}
-                          onChange={() => togglePattern(pattern.name)}
-                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          type="text"
+                          value={currentName}
+                          onChange={e =>
+                            setPatternNames(prev => ({ ...prev, [pattern.name]: e.target.value }))
+                          }
+                          className="w-full rounded border border-gray-300 bg-transparent px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
                         />
-                        <label htmlFor={`pattern-${pattern.name}`} className="text-sm">
-                          {pattern.name} <span className="text-xs text-gray-500">({pattern.type})</span>
-                        </label>
+                        <span className="whitespace-nowrap text-xs text-gray-500">
+                          ({pattern.type})
+                        </span>
                       </div>
-                      {exists && selectedPatterns.has(pattern.name) && (
-                        <div className="ml-6 text-xs text-yellow-600 dark:text-yellow-400">
+                      {exists && (
+                        <div className="ml-4 text-xs text-yellow-600 dark:text-yellow-400">
                           {t('serialLog.importMode.overwritePatternWarning')}
                         </div>
                       )}
@@ -197,7 +211,7 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
           <StyledButton onClick={onClose} variant="secondary">
             {t('common.actions.cancel')}
           </StyledButton>
-          <StyledButton onClick={handleImport} variant="primary" disabled={!importMode && selectedPatterns.size === 0}>
+          <StyledButton onClick={handleImport} variant="primary" disabled={hasEmptyNames}>
             {isOverwrite ? t('common.actions.overwrite') : t('common.actions.import')}
           </StyledButton>
         </footer>
