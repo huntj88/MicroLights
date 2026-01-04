@@ -17,7 +17,7 @@ rm -f Tests/build/*
 # - libs/Unity/src: for Unity
 # - libs/lwjson/lwjson/src/include: for lwjson.h
 # - libs/tinyexpr: for tinyexpr.h
-CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -DUNIT_TEST"
+CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -I Tests/mocks -DUNIT_TEST"
 UNITY_SRC="libs/Unity/src/unity.c"
 LWJSON_SRC="libs/lwjson/lwjson/src/lwjson/lwjson.c"
 TINYEXPR_SRC="libs/tinyexpr/tinyexpr.c"
@@ -108,6 +108,10 @@ run_test ./Tests/build/test_command_parser
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
 gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_bq25180
 run_test ./Tests/build/test_bq25180
+
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_storage..."; fi
+gcc $CFLAGS Tests/test_storage.c $UNITY_SRC -o Tests/build/test_storage
+run_test ./Tests/build/test_storage
 
 echo "---------------------------------------------------"
 echo "Final Aggregate Report"

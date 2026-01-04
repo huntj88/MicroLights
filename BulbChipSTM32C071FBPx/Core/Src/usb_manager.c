@@ -105,7 +105,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            loadSettingsFromFlash(usbManager->settingsManager, buf);
+            loadSettingsFromFlash(usbManager->settingsManager, buf, &cliInput);
 
             char responseBuf[1024];
             int len;

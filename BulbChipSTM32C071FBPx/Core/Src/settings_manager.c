@@ -20,20 +20,20 @@ bool settingsManagerInit(
     }
     manager->readSettingsFromFlash = readSettingsFromFlash;
 
-    loadSettingsFromFlash(manager, jsonBuf);
+    loadSettingsFromFlash(manager, jsonBuf, &cliInput);
     return true;
 }
 
-void loadSettingsFromFlash(SettingsManager *manager, char buffer[]) {
+void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput) {
     // Set defaults first in case load fails
     chipSettingsInitDefaults(&manager->currentSettings);
 
     manager->readSettingsFromFlash(buffer, PAGE_SECTOR);
 
-    parseJson(buffer, PAGE_SECTOR, &cliInput);
+    parseJson(buffer, PAGE_SECTOR, cliInput);
 
-    if (cliInput.parsedType == parseWriteSettings) {
-        updateSettings(manager, &cliInput.settings);
+    if (cliInput->parsedType == parseWriteSettings) {
+        updateSettings(manager, &cliInput->settings);
     }
 }
 

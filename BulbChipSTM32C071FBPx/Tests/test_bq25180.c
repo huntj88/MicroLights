@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include "device/bq25180.h"
-#include "unity.h"
 #include "lwjson/lwjson.h"
+#include "unity.h"
 
 // Mocks
 static uint8_t mockRegisters[20];
@@ -203,10 +203,13 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
     lwjson_token_t tokens[128];
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
 
-    TEST_ASSERT_EQUAL_MESSAGE(lwjsonOK, lwjson_parse(&lwjson, serialBuffer), "JSON output is invalid, check buffer size");
+    TEST_ASSERT_EQUAL_MESSAGE(
+        lwjsonOK, lwjson_parse(&lwjson, serialBuffer), "JSON output is invalid, check buffer size");
 
-    TEST_ASSERT_TRUE_MESSAGE(serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output exceeds buffer size");
-    TEST_ASSERT_TRUE_MESSAGE(serialBuffer[strlen(serialBuffer)] == '\0', "JSON output exceeds buffer size");
+    TEST_ASSERT_TRUE_MESSAGE(
+        serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output exceeds buffer size");
+    TEST_ASSERT_TRUE_MESSAGE(
+        serialBuffer[strlen(serialBuffer)] == '\0', "JSON output exceeds buffer size");
 }
 
 int main(void) {
