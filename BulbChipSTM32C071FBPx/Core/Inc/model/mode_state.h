@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 #include "model/mode.h"
+#include "tinyexpr.h"
 
 typedef struct {
     uint32_t elapsedMs;
@@ -12,7 +13,24 @@ typedef struct {
 } SimplePatternState;
 
 typedef struct {
+    uint8_t currentSectionIndex;
+    uint32_t sectionElapsedMs;
+    te_expr *compiledExprs[CHANNEL_CONFIG_SECTIONS_MAX];
+    float t_var;
+    uint32_t lastEvalMs;
+    uint8_t cachedOutput;
+} EquationChannelState;
+
+typedef struct {
+    uint32_t elapsedMs;
+    EquationChannelState red;
+    EquationChannelState green;
+    EquationChannelState blue;
+} EquationPatternState;
+
+typedef struct {
     SimplePatternState simple;
+    EquationPatternState equation;
 } ModeComponentState;
 
 typedef struct {
@@ -20,18 +38,38 @@ typedef struct {
     ModeComponentState case_comp;
 } ModeAccelTriggerState;
 
-enum { MODE_ACCEL_TRIGGER_MAX = sizeof(((ModeAccel *)0)->triggers) / sizeof(ModeAccelTrigger) };
-
 typedef struct {
     ModeComponentState front;
     ModeComponentState case_comp;
-    ModeAccelTriggerState accel[MODE_ACCEL_TRIGGER_MAX];
+    ModeAccelTriggerState accel[MODE_ACCEL_TRIGGERS_MAX];
     uint32_t lastPatternUpdateMs;
 } ModeState;
 
-void modeStateReset(ModeState *state, uint32_t initialMs);
+typedef struct {
+    bool hasError;
+    char path[128];
+    int errorPosition;
+    char equation[EQUATION_SECTION_EQUATION_MAX_LEN];
+} ModeEquationError;
+
+/**
+ * Initializes a `ModeState` instance so it can evaluate the provided `Mode`.
+ * Frees any previously compiled expressions, zeroes the runtime state, seeds
+ * `lastPatternUpdateMs` with `initialMs`, and compiles all required equations.
+ * Returns false and populates `error` when an equation fails to compile.
+ */
+bool modeStateInitialize(
+    ModeState *state, const Mode *mode, uint32_t initialMs, ModeEquationError *error);
 void modeStateAdvance(ModeState *state, const Mode *mode, uint32_t milliseconds);
 bool modeStateGetSimpleOutput(
-    const ModeComponentState *componentState, const ModeComponent *component, SimpleOutput *output);
+    ModeComponentState *componentState,
+    const ModeComponent *component,
+    SimpleOutput *output,
+    uint8_t equationEvalIntervalMs);
+
+#ifdef UNIT_TEST
+void modeStateTest_resetEquationFreeCounter(void);
+uint32_t modeStateTest_getEquationFreeCounter(void);
+#endif
 
 #endif /* MODE_STATE_H */

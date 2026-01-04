@@ -14,6 +14,7 @@
 #include "device/rgb_led.h"
 #include "model/cli_model.h"
 #include "model/mode_state.h"
+#include "model/serial.h"
 
 #define FAKE_OFF_MODE_INDEX 255
 
@@ -24,8 +25,9 @@ typedef struct ModeManager {
     MC3479 *accel;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length);
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length);
     void (*writeBulbLedPin)(uint8_t state);
+    WriteToUsbSerial *writeUsbSerial;
     ModeState modeState;
     bool shouldResetState;
 } ModeManager;
@@ -35,13 +37,18 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
-    void (*writeBulbLedPin)(uint8_t state));
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
+    void (*writeBulbLedPin)(uint8_t state),
+    WriteToUsbSerial *writeUsbSerial);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 
 void fakeOffMode(ModeManager *manager, bool enableLedTimers);
 bool isFakeOff(ModeManager *manager);
-void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed);
+void modeTask(
+    ModeManager *manager,
+    uint32_t milliseconds,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs);
 
 #endif /* INC_MODE_MANAGER_H_ */

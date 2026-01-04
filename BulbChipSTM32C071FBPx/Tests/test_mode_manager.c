@@ -18,7 +18,11 @@ static uint8_t lastReadModeIndex = 255;
 static char lastReadBuffer[PAGE_SECTOR];
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
-static float mockAccelMagnitude = 0.0f;
+static uint8_t mockAccelMagnitude = 0;
+static bool writeToSerialCalled = false;
+static char lastSerialBuffer[256];
+static uint32_t lastSerialCount = 0;
+static uint8_t lastSerialItf = 0;
 
 // Mock Functions
 void mock_enableTimers(bool enable) {
@@ -47,7 +51,18 @@ bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
     return mockAccelMagnitude > threshold;
 }
 
-void mock_readBulbModeFromFlash(uint8_t mode, char *buffer, uint32_t length) {
+void mock_writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
+    writeToSerialCalled = true;
+    lastSerialItf = itf;
+    if (count >= sizeof(lastSerialBuffer)) {
+        count = sizeof(lastSerialBuffer) - 1U;
+    }
+    memcpy(lastSerialBuffer, buf, count);
+    lastSerialBuffer[count] = '\0';
+    lastSerialCount = count;
+}
+
+void mock_readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
     lastReadModeIndex = mode;
     if (mode == 1) {
         // Standard valid mode
@@ -94,7 +109,11 @@ void setUp(void) {
     lastRgbR = 0;
     lastRgbG = 0;
     lastRgbB = 0;
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
+    writeToSerialCalled = false;
+    memset(lastSerialBuffer, 0, sizeof(lastSerialBuffer));
+    lastSerialCount = 0;
+    lastSerialItf = 0;
 }
 
 void tearDown(void) {
@@ -108,7 +127,8 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     loadMode(&manager, 1);
 
@@ -125,7 +145,8 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     manager.currentModeIndex = FAKE_OFF_MODE_INDEX;
     TEST_ASSERT_TRUE(isFakeOff(&manager));
@@ -142,7 +163,8 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     fakeOffMode(&manager, false);
 
@@ -159,7 +181,8 @@ void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     fakeOffMode(&manager, true);
 
@@ -176,7 +199,8 @@ void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     loadMode(&manager, 2);  // Mode 2 has accel
 
@@ -191,7 +215,8 @@ void test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin));
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
 
     loadMode(&manager, 3);  // Mode 3 has no accel
 
@@ -206,7 +231,8 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup a simple pattern: High at 0ms, Low at 500ms
     manager.currentMode.hasFront = true;
@@ -221,15 +247,15 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
     manager.currentMode.front.pattern.data.simple.changeAt[1].output.data.bulb = low;
 
     // Reset state
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Test at 100ms (should be High)
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
     // Test at 600ms (should be Low)
-    modeTask(&manager, 600, true);
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -241,7 +267,8 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     manager.currentMode.hasFront = true;
     manager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
@@ -266,22 +293,22 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
         high;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
-    mockAccelMagnitude = 0.0f;
-    modeTask(&manager, 100, true);
+    mockAccelMagnitude = 0;
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    mockAccelMagnitude = 20.0f;
-    modeTask(&manager, 600, true);
+    mockAccelMagnitude = 20;
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    modeTask(&manager, 1200, true);
+    modeTask(&manager, 1200, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
 
-    mockAccelMagnitude = 0.0f;
-    modeTask(&manager, 1300, true);
+    mockAccelMagnitude = 0;
+    modeTask(&manager, 1300, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
 }
 
@@ -293,7 +320,8 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup a simple pattern for Case LED
     manager.currentMode.hasCaseComp = true;
@@ -306,11 +334,11 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
     manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 0;
     manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 128;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Test at 100ms
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -325,7 +353,8 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     manager.currentMode.hasCaseComp = false;
 
@@ -334,10 +363,10 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
     lastRgbG = 10;
     lastRgbB = 10;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
@@ -352,7 +381,8 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup pattern
     manager.currentMode.hasCaseComp = true;
@@ -370,11 +400,11 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
     lastRgbG = 50;
     lastRgbB = 50;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Pass false for canUpdateCaseLed
-    modeTask(&manager, 100, false);
+    modeTask(&manager, 100, false, 50);
 
     // Should NOT have updated to 255, 255, 255
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbR);
@@ -390,7 +420,8 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup a simple pattern for Case LED
     manager.currentMode.hasCaseComp = true;
@@ -419,29 +450,29 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
     manager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.g = 0;
     manager.currentMode.caseComp.pattern.data.simple.changeAt[2].output.data.rgb.b = 255;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Test at 100ms (Should be Red)
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 600ms (Should be Green)
-    modeTask(&manager, 600, true);
+    modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Test at 1500ms (Should be Blue)
-    modeTask(&manager, 1500, true);
+    modeTask(&manager, 1500, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Test at 2100ms (Should be Red - loop back to 100ms)
-    modeTask(&manager, 2100, true);
+    modeTask(&manager, 2100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
@@ -455,7 +486,8 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup Default Mode: Front OFF, Case OFF
     manager.currentMode.hasFront = true;
@@ -507,13 +539,13 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Trigger the accel
-    mockAccelMagnitude = 20.0f;
+    mockAccelMagnitude = 20;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be High and Red
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -530,7 +562,8 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup Default Mode: Front OFF
     manager.currentMode.hasFront = true;
@@ -553,13 +586,13 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
     manager.currentMode.accel.triggers[0].front.pattern.data.simple.changeAt[0].output.data.bulb =
         high;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Do NOT trigger the accel
-    mockAccelMagnitude = 0.0f;
+    mockAccelMagnitude = 0;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be Low (Default)
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
@@ -573,7 +606,8 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup Default Mode: Front OFF, Case BLUE
     manager.currentMode.hasFront = true;
@@ -609,13 +643,13 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
 
     manager.currentMode.accel.triggers[0].hasCaseComp = false;  // No override
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Trigger the accel
-    mockAccelMagnitude = 20.0f;
+    mockAccelMagnitude = 20;
 
-    modeTask(&manager, 100, true);
+    modeTask(&manager, 100, true, 50);
 
     // Should be High (Triggered) and Blue (Default)
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
@@ -632,7 +666,8 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         &mockCaseLed,
         mock_enableTimers,
         mock_readBulbModeFromFlash,
-        mock_writeBulbLedPin);
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
 
     // Setup Default Mode: Case OFF
     manager.currentMode.hasCaseComp = true;
@@ -686,26 +721,53 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         .caseComp.pattern.data.simple.changeAt[0]
         .output.data.rgb.b = 0;
 
-    modeStateReset(&manager.modeState, 0);
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
     // Case A: Accel = 5 (Below both) -> Default (OFF)
-    mockAccelMagnitude = 5.0f;
-    modeTask(&manager, 100, true);
+    mockAccelMagnitude = 5;
+    modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 
     // Case B: Accel = 15 (Above Trigger 0, Below Trigger 1) -> Trigger 0 (BLUE)
-    mockAccelMagnitude = 15.0f;
-    modeTask(&manager, 200, true);
+    mockAccelMagnitude = 15;
+    modeTask(&manager, 200, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbB);
 
     // Case C: Accel = 25 (Above both) -> Trigger 1 (RED)
-    mockAccelMagnitude = 25.0f;
-    modeTask(&manager, 300, true);
+    mockAccelMagnitude = 25;
+    modeTask(&manager, 300, true, 50);
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
+}
+
+void test_ModeManager_LogsEquationCompileError(void) {
+    ModeManager manager;
+    TEST_ASSERT_TRUE(modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableTimers,
+        mock_readBulbModeFromFlash,
+        mock_writeBulbLedPin,
+        mock_writeToSerial));
+
+    manager.currentMode.hasFront = true;
+    manager.currentMode.front.pattern.type = PATTERN_TYPE_EQUATION;
+    EquationPattern *pattern = &manager.currentMode.front.pattern.data.equation;
+    pattern->red.sectionsCount = 1;
+    strcpy(pattern->red.sections[0].equation, "bad +");
+    pattern->red.sections[0].duration = 1000;
+
+    modeTask(&manager, 0, true, 50);
+
+    TEST_ASSERT_TRUE(writeToSerialCalled);
+    TEST_ASSERT_NOT_EQUAL_UINT32(0, lastSerialCount);
+    TEST_ASSERT_NOT_NULL(strstr(lastSerialBuffer, "front"));
+    TEST_ASSERT_NOT_NULL(strstr(lastSerialBuffer, "red"));
+    TEST_ASSERT_EQUAL_UINT8(0, lastSerialItf);
 }
 
 int main(void) {
@@ -717,6 +779,7 @@ int main(void) {
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash);
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning);
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
+    RUN_TEST(test_ModeManager_LogsEquationCompileError);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_PartialOverride);

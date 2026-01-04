@@ -101,6 +101,12 @@
 
 typedef enum { PATTERN_TYPE_SIMPLE, PATTERN_TYPE_EQUATION } PatternType;
 
+#define MODE_NAME_MAX_LEN 32
+#define SIMPLE_PATTERN_CHANGES_MAX 32
+#define EQUATION_SECTION_EQUATION_MAX_LEN 64
+#define CHANNEL_CONFIG_SECTIONS_MAX 3
+#define MODE_ACCEL_TRIGGERS_MAX 2
+
 typedef enum SimpleOutputType { BULB, RGB } SimpleOutputType;
 
 typedef enum BulbSimpleOutput { low, high } BulbSimpleOutput;
@@ -139,25 +145,25 @@ struct PatternChange {
 };
 
 struct SimplePattern {
-    char name[32];
+    char name[MODE_NAME_MAX_LEN];
     uint32_t duration;
-    PatternChange changeAt[32];
+    PatternChange changeAt[SIMPLE_PATTERN_CHANGES_MAX];
     uint8_t changeAtCount;
 };
 
 struct EquationSection {
-    char equation[64];
+    char equation[EQUATION_SECTION_EQUATION_MAX_LEN];
     uint32_t duration;
 };
 
 struct ChannelConfig {
-    EquationSection sections[3];
+    EquationSection sections[CHANNEL_CONFIG_SECTIONS_MAX];
     uint8_t sectionsCount;
     bool loopAfterDuration;
 };
 
 struct EquationPattern {
-    char name[32];
+    char name[MODE_NAME_MAX_LEN];
     uint32_t duration;
     ChannelConfig red;
     ChannelConfig green;
@@ -185,12 +191,12 @@ struct ModeAccelTrigger {
 };
 
 struct ModeAccel {
-    ModeAccelTrigger triggers[2];
+    ModeAccelTrigger triggers[MODE_ACCEL_TRIGGERS_MAX];
     uint8_t triggersCount;
 };
 
 struct Mode {
-    char name[32];
+    char name[MODE_NAME_MAX_LEN];
     ModeComponent front;
     bool hasFront;
     ModeComponent caseComp;

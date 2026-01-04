@@ -6,8 +6,10 @@
  */
 
 #include "mode_manager.h"
+#include <stdio.h>
 #include <string.h>
 #include "json/command_parser.h"
+#include "json/json_buf.h"
 #include "storage.h"
 
 static const char *fakeOffModeJson =
@@ -24,10 +26,11 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char *buffer, uint32_t length),
-    void (*writeBulbLedPin)(uint8_t state)) {
+    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
+    void (*writeBulbLedPin)(uint8_t state),
+    WriteToUsbSerial *writeUsbSerial) {
     if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||
-        !writeBulbLedPin) {
+        !writeBulbLedPin || !writeUsbSerial) {
         return false;
     }
     manager->accel = accel;
@@ -35,8 +38,10 @@ bool modeManagerInit(
     manager->enableTimers = enableTimers;
     manager->readBulbModeFromFlash = readBulbModeFromFlash;
     manager->writeBulbLedPin = writeBulbLedPin;
+    manager->writeUsbSerial = writeUsbSerial;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
+    memset(&manager->modeState, 0, sizeof(manager->modeState));
     return true;
 }
 
@@ -55,14 +60,13 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
 
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
-        parseJson((uint8_t *)fakeOffModeJson, PAGE_SECTOR, &cliInput);
+        parseJson(fakeOffModeJson, PAGE_SECTOR, &cliInput);
     } else {
-        char flashReadBuffer[PAGE_SECTOR];
-        manager->readBulbModeFromFlash(modeIndex, flashReadBuffer, PAGE_SECTOR);
-        parseJson((uint8_t *)flashReadBuffer, PAGE_SECTOR, &cliInput);
+        manager->readBulbModeFromFlash(modeIndex, jsonBuf, PAGE_SECTOR);
+        parseJson(jsonBuf, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
-            parseJson((uint8_t *)defaultModeJson, PAGE_SECTOR, &cliInput);
+            parseJson(defaultModeJson, PAGE_SECTOR, &cliInput);
         }
     }
 }
@@ -95,6 +99,31 @@ typedef struct {
     ModeComponentState *caseState;
 } ActiveComponents;
 
+static void reportEquationError(const ModeManager *manager, const ModeEquationError *error) {
+    if (!manager || !manager->writeUsbSerial || !error || !error->hasError) {
+        return;
+    }
+
+    const char *path = error->path[0] != '\0' ? error->path : "unknown";
+    const char *equation = error->equation[0] != '\0' ? error->equation : "unknown";
+    char message[256];
+    int written = snprintf(
+        message,
+        sizeof(message),
+        "{\"error\":\"Equation compile error\",\"path\":\"%s\",\"position\":%d,"
+        "\"equation\":\"%s\"}\n",
+        path,
+        error->errorPosition,
+        equation);
+    if (written < 0) {
+        return;
+    }
+    if (written > (int)sizeof(message)) {
+        written = (int)sizeof(message);
+    }
+    manager->writeUsbSerial(0, message, (uint32_t)written);
+}
+
 static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     ActiveComponents active = {0};
 
@@ -110,8 +139,8 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         uint8_t triggerCount = manager->currentMode.accel.triggersCount;
-        if (triggerCount > MODE_ACCEL_TRIGGER_MAX) {
-            triggerCount = MODE_ACCEL_TRIGGER_MAX;
+        if (triggerCount > MODE_ACCEL_TRIGGERS_MAX) {
+            triggerCount = MODE_ACCEL_TRIGGERS_MAX;
         }
 
         for (uint8_t i = 0; i < triggerCount; i++) {
@@ -136,10 +165,19 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed) {
+void modeTask(
+    ModeManager *manager,
+    uint32_t milliseconds,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs) {
     if (manager->shouldResetState) {
-        modeStateReset(&manager->modeState, milliseconds);
+        ModeEquationError equationError = {0};
+        bool initOk = modeStateInitialize(
+            &manager->modeState, &manager->currentMode, milliseconds, &equationError);
         manager->shouldResetState = false;
+        if (!initOk) {
+            reportEquationError(manager, &equationError);
+        }
     }
 
     modeStateAdvance(&manager->modeState, &manager->currentMode, milliseconds);
@@ -148,7 +186,8 @@ void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed
 
     if (active.frontComp && active.frontState) {
         SimpleOutput output;
-        if (modeStateGetSimpleOutput(active.frontState, active.frontComp, &output)) {
+        if (modeStateGetSimpleOutput(
+                active.frontState, active.frontComp, &output, equationEvalIntervalMs)) {
             if (output.type == BULB) {
                 manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
             } else {
@@ -164,7 +203,8 @@ void modeTask(ModeManager *manager, uint32_t milliseconds, bool canUpdateCaseLed
     if (canUpdateCaseLed) {
         if (active.caseComp && active.caseState) {
             SimpleOutput output;
-            if (modeStateGetSimpleOutput(active.caseState, active.caseComp, &output) &&
+            if (modeStateGetSimpleOutput(
+                    active.caseState, active.caseComp, &output, equationEvalIntervalMs) &&
                 output.type == RGB) {
                 rgbShowUserColor(
                     manager->caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);

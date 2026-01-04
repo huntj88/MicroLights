@@ -10,20 +10,28 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-interface SettingsData {
+interface Settings {
   modeCount: number;
   minutesUntilAutoOff: number;
   minutesUntilLockAfterAutoOff: number;
+  equationEvalIntervalMs: number;
+}
+
+interface SettingsResponse {
+  settings: Partial<Settings> & { command: string };
+  defaults: Settings;
 }
 
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<SettingsData>({
+  const [settings, setSettings] = useState<Settings>({
     modeCount: 5,
     minutesUntilAutoOff: 30,
     minutesUntilLockAfterAutoOff: 60,
+    equationEvalIntervalMs: 20,
   });
+  const [defaults, setDefaults] = useState<SettingsResponse['defaults'] | null>(null);
 
   // Reset state when opening
   useEffect(() => {
@@ -43,11 +51,22 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         if (
           json &&
           typeof json === 'object' &&
-          'modeCount' in json &&
-          'minutesUntilAutoOff' in json &&
-          'minutesUntilLockAfterAutoOff' in json
+          'settings' in json &&
+          'defaults' in json
         ) {
-          setData(json as SettingsData);
+          const response = json as SettingsResponse;
+          setSettings({
+            modeCount: response.settings.modeCount ?? response.defaults.modeCount,
+            minutesUntilAutoOff:
+              response.settings.minutesUntilAutoOff ?? response.defaults.minutesUntilAutoOff,
+            minutesUntilLockAfterAutoOff:
+              response.settings.minutesUntilLockAfterAutoOff ??
+              response.defaults.minutesUntilLockAfterAutoOff,
+            equationEvalIntervalMs:
+              response.settings.equationEvalIntervalMs ??
+              response.defaults.equationEvalIntervalMs,
+          });
+          setDefaults(response.defaults);
           setIsLoading(false);
           toast.success('Settings loaded');
           clearTimeout(timer);
@@ -63,10 +82,21 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
   const handleSave = async () => {
     try {
-      await serialManager.send({
+      const payload: Record<string, unknown> = {
         command: 'writeSettings',
-        ...data,
-      });
+      };
+
+      if (defaults) {
+        (Object.keys(settings) as (keyof Settings)[]).forEach(key => {
+          if (settings[key] !== defaults[key]) {
+            payload[key] = settings[key];
+          }
+        });
+      } else {
+        Object.assign(payload, settings);
+      }
+
+      await serialManager.send(payload);
       toast.success('Settings saved');
       onClose();
     } catch (error) {
@@ -95,11 +125,16 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               <input
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                value={data.modeCount}
+                value={settings.modeCount}
                 onChange={e => {
-                  setData({ ...data, modeCount: parseInt(e.target.value) || 0 });
+                  setSettings({ ...settings, modeCount: parseInt(e.target.value) || 0 });
                 }}
               />
+              {defaults && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Default: {defaults.modeCount}
+                </p>
+              )}
             </div>
 
             <div>
@@ -109,14 +144,19 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               <input
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                value={data.minutesUntilAutoOff}
+                value={settings.minutesUntilAutoOff}
                 onChange={e => {
-                  setData({
-                    ...data,
+                  setSettings({
+                    ...settings,
                     minutesUntilAutoOff: parseInt(e.target.value) || 0,
                   });
                 }}
               />
+              {defaults && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Default: {defaults.minutesUntilAutoOff}
+                </p>
+              )}
             </div>
 
             <div>
@@ -126,14 +166,41 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
               <input
                 type="number"
                 className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                value={data.minutesUntilLockAfterAutoOff}
+                value={settings.minutesUntilLockAfterAutoOff}
                 onChange={e => {
-                  setData({
-                    ...data,
+                  setSettings({
+                    ...settings,
                     minutesUntilLockAfterAutoOff: parseInt(e.target.value) || 0,
                   });
                 }}
               />
+              {defaults && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Default: {defaults.minutesUntilLockAfterAutoOff}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Equation Eval Interval (ms)
+              </label>
+              <input
+                type="number"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                value={settings.equationEvalIntervalMs}
+                onChange={e => {
+                  setSettings({
+                    ...settings,
+                    equationEvalIntervalMs: parseInt(e.target.value) || 0,
+                  });
+                }}
+              />
+              {defaults && (
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Default: {defaults.equationEvalIntervalMs}
+                </p>
+              )}
             </div>
           </div>
         )}

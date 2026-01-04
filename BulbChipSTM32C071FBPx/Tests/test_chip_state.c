@@ -20,7 +20,7 @@ static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 
-static float mockMillisPerTick = 10.0f;
+static uint32_t mockMillisPerTick = 10;
 static uint32_t mockMsPerTickMultiplier = 0;
 static bool ledTimersStarted = false;
 static char lastSerialOutput[100];
@@ -28,8 +28,7 @@ static char lastSerialOutput[100];
 // Mock Function Implementations
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
     if (mockMsPerTickMultiplier == 0) {
-        mockMsPerTickMultiplier =
-            (uint32_t)(mockMillisPerTick * 1048576.0f);  // 2^20 for fixed point
+        mockMsPerTickMultiplier = (uint32_t)(mockMillisPerTick * 1048576);  // 2^20 for fixed point
     }
     return (uint32_t)(((uint64_t)ticks * mockMsPerTickMultiplier) >> 20);
 }
@@ -73,7 +72,8 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
 }
-void modeTask(ModeManager *manager, uint32_t ms, bool canUpdateCaseLed) {
+void modeTask(
+    ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
 }
 
 bool mockIsFakeOff = false;

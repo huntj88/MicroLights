@@ -9,7 +9,7 @@
 #define INC_MODEL_CLI_MODEL_H_
 
 #include <stdint.h>
-#include "json/mode_parser.h"
+#include "json/parser.h"
 #include "model/chip_settings.h"
 #include "model/mode.h"
 
@@ -30,10 +30,7 @@ typedef struct CliInput {
     // metadata
     uint8_t modeIndex;
 
-    // metadata calculated at runtime
-    uint16_t jsonLength;
-
-    ModeErrorContext errorContext;
+    ParserErrorContext errorContext;
 
     // metadata calculated at runtime
     // 0 for not parsed successfully

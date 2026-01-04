@@ -213,4 +213,92 @@ describe('EquationRgbPatternPanel', () => {
       loopAfterDuration: false,
     });
   });
+
+  it('updates total duration when sections are modified', async () => {
+    const handleChange = vi.fn();
+    const user = userEvent.setup();
+    const pattern = createDefaultEquationPattern();
+    // Initial state: empty sections, duration should be 1000 (default min)
+    expect(pattern.duration).toBe(1000);
+
+    const Harness = () => {
+      const [p, setP] = useState(pattern);
+      return (
+        <EquationRgbPatternPanel
+          onChange={(next, action) => {
+            setP(next);
+            handleChange(next, action);
+          }}
+          pattern={p}
+        />
+      );
+    };
+
+    renderWithProviders(<Harness />);
+
+    // 1. Add a section to Red (default duration 1000)
+    const redSectionHeader = screen.getAllByText('rgbPattern.equation.sections.title')[0];
+    const redContainer = redSectionHeader.closest('div')?.parentElement;
+    if (!redContainer) throw new Error('Red container not found');
+
+    const addRedButton = within(redContainer).getByRole('button', {
+      name: 'rgbPattern.equation.sections.add',
+    });
+    await user.click(addRedButton);
+
+    let [nextPattern] = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
+    // 1 section of 1000ms -> total 1000ms
+    expect(nextPattern.duration).toBe(1000);
+
+    // 2. Update Red section duration to 2500
+    const durationInput = within(redContainer).getByRole('spinbutton'); // Number input
+    await user.clear(durationInput);
+    await user.type(durationInput, '2500');
+
+    [nextPattern] = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
+    expect(nextPattern.duration).toBe(2500);
+
+    // 3. Add a section to Green (default 1000)
+    // Total duration should remain 2500 because Red (2500) > Green (1000)
+    const greenSectionHeader = screen.getAllByText('rgbPattern.equation.sections.title')[1];
+    const greenContainer = greenSectionHeader.closest('div')?.parentElement;
+    if (!greenContainer) throw new Error('Green container not found');
+
+    const addGreenButton = within(greenContainer).getByRole('button', {
+      name: 'rgbPattern.equation.sections.add',
+    });
+    await user.click(addGreenButton);
+
+    [nextPattern] = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
+    expect(nextPattern.duration).toBe(2500);
+
+    // 4. Update Green section duration to 4000
+    // Total duration should become 4000
+    const greenDurationInput = within(greenContainer).getByRole('spinbutton');
+    await user.clear(greenDurationInput);
+    await user.type(greenDurationInput, '4000');
+
+    [nextPattern] = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
+    expect(nextPattern.duration).toBe(4000);
+
+    // 5. Delete Green section
+    // Total duration should revert to 2500 (Red's duration)
+    const deleteGreenButton = within(greenContainer).getByRole('button', {
+      name: 'rgbPattern.equation.sections.delete',
+    });
+    await user.click(deleteGreenButton);
+
+    [nextPattern] = handleChange.mock.calls.at(-1) as Parameters<
+      EquationRgbPatternPanelProps['onChange']
+    >;
+    expect(nextPattern.duration).toBe(2500);
+  });
 });

@@ -14,12 +14,12 @@
 
 typedef struct SettingsManager {
     ChipSettings currentSettings;
-    void (*readSettingsFromFlash)(char *buffer, uint32_t length);
+    void (*readSettingsFromFlash)(char buffer[], uint32_t length);
 } SettingsManager;
 
 bool settingsManagerInit(
-    SettingsManager *manager, void (*readSettingsFromFlash)(char *buffer, uint32_t length));
-void loadSettingsFromFlash(SettingsManager *manager, char *buffer);
+    SettingsManager *manager, void (*readSettingsFromFlash)(char buffer[], uint32_t length));
+void loadSettingsFromFlash(SettingsManager *manager, char buffer[]);
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */

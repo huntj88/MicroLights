@@ -16,19 +16,37 @@ rm -f Tests/build/*
 # - Core/Inc: for project headers (including lwjson_opts.h)
 # - libs/Unity/src: for Unity
 # - libs/lwjson/lwjson/src/include: for lwjson.h
-CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -DUNIT_TEST"
+# - libs/tinyexpr: for tinyexpr.h
+CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -DUNIT_TEST"
 UNITY_SRC="libs/Unity/src/unity.c"
 LWJSON_SRC="libs/lwjson/lwjson/src/lwjson/lwjson.c"
+TINYEXPR_SRC="libs/tinyexpr/tinyexpr.c"
 
 TOTAL_TESTS=0
 TOTAL_FAILURES=0
 SUITE_ERRORS=0
+SHOW_ALL=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --verbose)
+            SHOW_ALL=1
+            shift
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 run_test() {
     local exe_path=$1
     if [ -x "$exe_path" ]; then
         output=$("$exe_path")
-        echo "$output"
+        if [ "$SHOW_ALL" -eq 1 ]; then
+            echo "$output"
+        fi
         
         # Extract counts
         local t=$(echo "$output" | grep -oE '[0-9]+ Tests' | head -n1 | awk '{print $1}')
@@ -41,38 +59,53 @@ run_test() {
 
         TOTAL_TESTS=$((TOTAL_TESTS + ${t:-0}))
         TOTAL_FAILURES=$((TOTAL_FAILURES + ${f:-0}))
+
+        if [ "${f:-0}" -gt 0 ]; then
+            if [ "$SHOW_ALL" -eq 0 ]; then
+                echo "Suite $exe_path reported ${f} failure(s)."
+            fi
+            echo "Failed asserts (file:line):"
+            echo "$output" | grep -E ':[0-9]+:[^:]+:FAIL' | while IFS= read -r fail_line; do
+                fail_file=$(echo "$fail_line" | cut -d: -f1)
+                fail_line_num=$(echo "$fail_line" | cut -d: -f2)
+                fail_test=$(echo "$fail_line" | cut -d: -f3)
+                fail_message=$(echo "$fail_line" | cut -d: -f5-)
+                [ -z "$fail_message" ] && fail_message="(no failure message)"
+                printf '  %s:%s (%s) %s\n' "$fail_file" "$fail_line_num" "$fail_test" "$fail_message"
+            done
+        fi
     else
         echo "Executable $exe_path not found or not executable (Compilation failed?)."
         SUITE_ERRORS=$((SUITE_ERRORS + 1))
     fi
 }
 
-echo "Compiling and running test_chip_state..."
-gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC -o Tests/build/test_chip_state
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_chip_state..."; fi
+gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_chip_state
 run_test ./Tests/build/test_chip_state
 
-echo "Compiling and running test_settings_manager..."
-gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC -o Tests/build/test_settings_manager
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_settings_manager..."; fi
+gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_settings_manager
 run_test ./Tests/build/test_settings_manager
 
-echo "Compiling and running test_mode_manager..."
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c -o Tests/build/test_mode_manager
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_manager..."; fi
+gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c Core/Src/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
-echo "Compiling and running test_mode_state..."
-gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c -o Tests/build/test_mode_state
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_state..."; fi
+gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
 run_test ./Tests/build/test_mode_state
 
-echo "Compiling and running test_button..."
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_button..."; fi
 gcc $CFLAGS Tests/test_button.c $UNITY_SRC -o Tests/build/test_button
 run_test ./Tests/build/test_button
 
-echo "Compiling and running test_command_parser..."
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_command_parser..."; fi
 # Needs lwjson.c linked
-gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cli_model.c -o Tests/build/test_command_parser
+gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cli_model.c Core/Src/json/json_buf.c -o Tests/build/test_command_parser
 run_test ./Tests/build/test_command_parser
 
-echo "Compiling and running test_bq25180..."
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
 gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC -o Tests/build/test_bq25180
 run_test ./Tests/build/test_bq25180
 
