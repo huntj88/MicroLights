@@ -67,7 +67,7 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
 
     int offset = 0;
 
-    offset = appendJson(buffer, len, offset, ",\"defaults\":{");
+    offset = appendJson(buffer, len, offset, "{");
 
     bool first = true;
 #define X_PRINT(type, name, def)                                               \
@@ -99,7 +99,7 @@ int getSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJ
     char defaultsBuf[256];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
-    offset = appendJson(buffer, len, offset, "%s", defaultsBuf);
+    offset = appendJson(buffer, len, offset, ",\"defaults\":%s", defaultsBuf);
     offset = appendJson(buffer, len, offset, "}\n");
 
     return offset;

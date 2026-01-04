@@ -193,15 +193,26 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
 
 void test_SettingsJson_KeysMatchMacroCount(void) {
     char buf[PAGE_SECTOR];
-    int len = getSettingsDefaultsJson(buf, sizeof(buf));
 
-    int colonCount = 0;
-    for (int i = 0; i < len; i++) {
-        if (buf[i] == ':') {
-            colonCount++;
-        }
+    // getSettingsDefaultsJson returns a valid JSON object: {...}
+    getSettingsDefaultsJson(buf, sizeof(buf));
+
+    // Parse JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buf));
+
+    // The root token is the object itself
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_OBJECT, lwjson.first_token.type);
+
+    // Count keys in root object
+    int keyCount = 0;
+    for (const lwjson_token_t *child = lwjson.first_token.u.first_child; child != NULL; child = child->next) {
+        keyCount++;
     }
-    int keyCount = colonCount - 1;  // "defaults" is a key
+
+
 
     int macroCount = 0;
 #define X_COUNT(type, name, def) macroCount++;
@@ -209,6 +220,8 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
 #undef X_COUNT
 
     TEST_ASSERT_EQUAL_MESSAGE(macroCount, keyCount, "JSON key count mismatch");
+
+    lwjson_free(&lwjson);
 }
 
 void test_generateSettingsResponse_WithSettings(void) {
@@ -222,7 +235,7 @@ void test_generateSettingsResponse_WithSettings(void) {
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
     char expected[1024];
-    sprintf(expected, "{\"settings\":%s%s}\n", settings, defaultsBuf);
+    sprintf(expected, "{\"settings\":%s,\"defaults\":%s}\n", settings, defaultsBuf);
 
     TEST_ASSERT_EQUAL_STRING(expected, buffer);
 
@@ -254,7 +267,7 @@ void test_generateSettingsResponse_NullSettings(void) {
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
     char expected[1024];
-    sprintf(expected, "{\"settings\":null%s}\n", defaultsBuf);
+    sprintf(expected, "{\"settings\":null,\"defaults\":%s}\n", defaultsBuf);
 
     TEST_ASSERT_EQUAL_STRING(expected, buffer);
 
