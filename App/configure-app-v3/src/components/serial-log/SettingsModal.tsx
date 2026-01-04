@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 import { serialManager } from '@/app/providers/serial-manager';
 import { StyledButton } from '@/components/common/StyledButton';
+import { humanizeCamelCase } from '@/utils/string-utils';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -17,13 +18,6 @@ interface SettingsResponse {
   settings: Settings & { command: string };
   defaults: Settings;
 }
-
-const formatLabel = (key: string): string => {
-  return key
-    .replace(/([A-Z])/g, ' $1')
-    .replace(/^./, str => str.toUpperCase())
-    .trim();
-};
 
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   const { t } = useTranslation();
@@ -150,7 +144,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                       htmlFor={`setting-${key}`}
                       className="block text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
-                      {formatLabel(key)}
+                      {humanizeCamelCase(key)}
                     </label>
                     {isBoolean ? (
                       <div className="mt-1 flex items-center">

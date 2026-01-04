@@ -76,17 +76,17 @@ describe('SettingsModal', () => {
     });
 
     // Check Mode Count (value 3 from settings)
-    const modeCountInput = screen.getByLabelText('Mode Count') as HTMLInputElement;
+    const modeCountInput = screen.getByLabelText('Mode Count');
     expect(modeCountInput.value).toBe('3');
     expect(screen.getByText('Default: 0')).toBeInTheDocument();
 
     // Check Equation Eval Interval (value 0 from settings)
-    const eqInput = screen.getByLabelText('Equation Eval Interval Ms') as HTMLInputElement;
+    const eqInput = screen.getByLabelText('Equation Eval Interval Ms');
     expect(eqInput.value).toBe('0');
     expect(screen.getByText('Default: 20')).toBeInTheDocument();
 
     // Check Minutes Until Auto Off (value 90 from defaults, as it's missing in settings)
-    const autoOffInput = screen.getByLabelText('Minutes Until Auto Off') as HTMLInputElement;
+    const autoOffInput = screen.getByLabelText('Minutes Until Auto Off');
     expect(autoOffInput.value).toBe('90');
     expect(screen.getByText('Default: 90')).toBeInTheDocument();
 
