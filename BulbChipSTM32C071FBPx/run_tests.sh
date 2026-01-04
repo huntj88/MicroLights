@@ -106,7 +106,7 @@ gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cl
 run_test ./Tests/build/test_command_parser
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
-gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC -o Tests/build/test_bq25180
+gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_bq25180
 run_test ./Tests/build/test_bq25180
 
 echo "---------------------------------------------------"

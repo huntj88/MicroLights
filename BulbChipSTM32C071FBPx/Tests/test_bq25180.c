@@ -2,6 +2,7 @@
 #include <string.h>
 #include "device/bq25180.h"
 #include "unity.h"
+#include "lwjson/lwjson.h"
 
 // Mocks
 static uint8_t mockRegisters[20];
@@ -190,6 +191,24 @@ void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
     TEST_ASSERT_NOT_NULL(strstr(serialBuffer, "\"flag0\":\"00000000\""));
 }
 
+void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
+    // Force watchdog update condition (checkedAtMs == 0)
+    charger.checkedAtMs = 0;
+
+    // Run task with serialEnabled = true
+    chargerTask(&charger, 1000, false, false, true);
+
+    // Check validity
+    lwjson_t lwjson;
+    lwjson_token_t tokens[128];
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    TEST_ASSERT_EQUAL_MESSAGE(lwjsonOK, lwjson_parse(&lwjson, serialBuffer), "JSON output is invalid, check buffer size");
+
+    TEST_ASSERT_TRUE_MESSAGE(serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output exceeds buffer size");
+    TEST_ASSERT_TRUE_MESSAGE(serialBuffer[strlen(serialBuffer)] == '\0', "JSON output exceeds buffer size");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
@@ -197,5 +216,6 @@ int main(void) {
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);
     RUN_TEST(test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled);
+    RUN_TEST(test_ChargerTask_WritesValidJson_And_FitsInBuffer);
     return UNITY_END();
 }

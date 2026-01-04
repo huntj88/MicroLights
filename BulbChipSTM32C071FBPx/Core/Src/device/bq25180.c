@@ -16,7 +16,7 @@
 static volatile bool readChargerNow = false;
 
 // Forward declarations
-static void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput);
+static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len);
 static BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
 static void configureChargerIC(BQ25180 *chargerIC);
 static void configureRegister_IC_CTRL(BQ25180 *chargerIC);
@@ -29,7 +29,7 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state);
 static void enableShipMode(BQ25180 *chargerIC);
 static void hardwareReset(BQ25180 *chargerIC);
 static void byteToBinary(uint8_t num, char *buf);
-static void bq25180regsToJson(BQ25180Registers registers, char *jsonOutput);
+static void bq25180regsToJson(BQ25180Registers registers, char jsonOutput[], uint32_t len);
 
 // =================================================================================================
 // Public Interface
@@ -83,8 +83,8 @@ void chargerTask(
     // with for 40 seconds, and 15 seconds after plugged in.
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
         if (serialEnabled) {
-            char registerJson[512];
-            readAllRegistersJson(chargerIC, registerJson);
+            char registerJson[287];
+            readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
             chargerIC->writeToSerial(registerJson, strlen(registerJson));
         }
 
@@ -263,9 +263,9 @@ static void configureRegister_MASK_ID(BQ25180 *chargerIC) {
 // Private Helpers - Registers & JSON
 // =================================================================================================
 
-static void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
+static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len) {
     BQ25180Registers registerValues = readAllRegisters(chargerIC);
-    bq25180regsToJson(registerValues, jsonOutput);
+    bq25180regsToJson(registerValues, jsonOutput, len);
 }
 
 static BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
@@ -288,7 +288,7 @@ static BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     return registerValues;
 }
 
-static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput) {
+static void bq25180regsToJson(const BQ25180Registers registers, char jsonOutput[], uint32_t len) {
     if (!jsonOutput) {
         return;
     }
@@ -307,8 +307,9 @@ static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput
     byteToBinary(registers.ts_control, bins[11]);
     byteToBinary(registers.mask_id, bins[12]);
 
-    sprintf(
+    snprintf(
         jsonOutput,
+        len,
         "{\"stat0\":\"%s\",\"stat1\":\"%s\",\"flag0\":\"%s\",\"vbat_ctrl\":\"%s\","
         "\"ichg_ctrl\":\"%s\",\"chargectrl0\":\"%s\",\"chargectrl1\":\"%s\","
         "\"ic_ctrl\":\"%s\",\"tmr_ilim\":\"%s\",\"ship_rst\":\"%s\","
