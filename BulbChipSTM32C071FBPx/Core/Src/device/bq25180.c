@@ -29,7 +29,7 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state);
 static void enableShipMode(BQ25180 *chargerIC);
 static void hardwareReset(BQ25180 *chargerIC);
 static void byteToBinary(uint8_t num, char *buf);
-static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput);
+static void bq25180regsToJson(BQ25180Registers registers, char *jsonOutput);
 
 // =================================================================================================
 // Public Interface

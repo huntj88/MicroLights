@@ -6,6 +6,7 @@
  */
 
 #include "settings_manager.h"
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include "json/command_parser.h"
@@ -40,33 +41,47 @@ void updateSettings(SettingsManager *manager, ChipSettings *newSettings) {
     manager->currentSettings = *newSettings;
 }
 
+static int appendJson(char *buffer, uint32_t len, int offset, const char *format, ...) {
+    if (offset >= (int)len) {
+        return offset;
+    }
+
+    va_list args;
+    va_start(args, format);
+    int written = vsnprintf(buffer + offset, len - offset, format, args);
+    va_end(args);
+
+    if (written > 0) {
+        offset += written;
+    }
+    return offset;
+}
+
 // Helper macros for printing
 #define PRINT_VAL_uint8_t(val) "%d", (int)(val)
 #define PRINT_VAL_bool(val) "%s", (val) ? "true" : "false"
 
 int getSettingsDefaultsJson(char *buffer, uint32_t len) {
-    ChipSettings s;
-    chipSettingsInitDefaults(&s);
+    ChipSettings settings;
+    chipSettingsInitDefaults(&settings);
 
     int offset = 0;
-    // Use a safe snprintf wrapper or check bounds
-    #define SAFE_PRINT(...) do { \
-        if (offset < len) offset += snprintf(buffer + offset, len - offset, __VA_ARGS__); \
-    } while(0)
 
-    SAFE_PRINT(",\"defaults\":{");
+    offset = appendJson(buffer, len, offset, ",\"defaults\":{");
 
     bool first = true;
-    #define X_PRINT(type, name, def) \
-        if (!first) SAFE_PRINT(","); \
-        SAFE_PRINT("\"" #name "\":"); \
-        SAFE_PRINT(PRINT_VAL_##type(s.name)); \
-        first = false;
+#define X_PRINT(type, name, def)                                            \
+    if (!first) {                                                           \
+        offset = appendJson(buffer, len, offset, ",");                     \
+    }                                                                       \
+    offset = appendJson(buffer, len, offset, "\"" #name "\":");            \
+    offset = appendJson(buffer, len, offset, PRINT_VAL_##type(settings.name)); \
+    first = false;
 
     CHIP_SETTINGS_MAP(X_PRINT)
-    #undef X_PRINT
+#undef X_PRINT
 
-    SAFE_PRINT("}}\n");
-    
+    offset = appendJson(buffer, len, offset, "}}\n");
+
     return offset;
 }

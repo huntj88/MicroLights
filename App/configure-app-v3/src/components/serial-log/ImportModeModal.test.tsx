@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { type Mode } from '@/app/models/mode';
+import { type Mode, type HexColor } from '@/app/models/mode';
 import { useModeStore } from '@/app/providers/mode-store';
 import { usePatternStore } from '@/app/providers/pattern-store';
 import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
@@ -24,7 +24,7 @@ describe('ImportModeModal', () => {
         type: 'simple',
         name: 'Case Pattern',
         duration: 1000,
-        changeAt: [{ ms: 0, output: '#ff0000' }],
+        changeAt: [{ ms: 0, output: '#ff0000' as HexColor }],
       },
     },
   };
