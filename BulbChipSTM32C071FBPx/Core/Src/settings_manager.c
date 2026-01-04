@@ -86,7 +86,7 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
     return offset;
 }
 
-int generateSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson) {
+int getSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson) {
     int offset = 0;
     offset = appendJson(buffer, len, offset, "{\"settings\":");
 

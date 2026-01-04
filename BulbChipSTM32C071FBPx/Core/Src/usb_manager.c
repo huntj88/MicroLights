@@ -107,9 +107,10 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             char responseBuf[1024];
             int len;
             if (cliInput.parsedType == parseWriteSettings) {
-                len = generateSettingsResponse(responseBuf, sizeof(responseBuf), buf);
+                const char *currentSettingsJson = buf;
+                len = getSettingsResponse(responseBuf, sizeof(responseBuf), currentSettingsJson);
             } else {
-                len = generateSettingsResponse(responseBuf, sizeof(responseBuf), NULL);
+                len = getSettingsResponse(responseBuf, sizeof(responseBuf), NULL);
             }
             usbWriteToSerial(usbManager, 0, responseBuf, len);
             break;

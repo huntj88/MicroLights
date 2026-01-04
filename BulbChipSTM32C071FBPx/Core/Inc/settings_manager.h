@@ -22,6 +22,6 @@ bool settingsManagerInit(
 void loadSettingsFromFlash(SettingsManager *manager, char buffer[]);
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
 int getSettingsDefaultsJson(char *buffer, uint32_t len);
-int generateSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson);
+int getSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */

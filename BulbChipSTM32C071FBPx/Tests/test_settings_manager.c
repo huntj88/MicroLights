@@ -215,7 +215,7 @@ void test_generateSettingsResponse_WithSettings(void) {
     char buffer[1024];
     const char *settings = "{\"foo\":1}";
 
-    generateSettingsResponse(buffer, sizeof(buffer), settings);
+    getSettingsResponse(buffer, sizeof(buffer), settings);
 
     // 1. Verify full string content
     char defaultsBuf[256];
@@ -247,7 +247,7 @@ void test_generateSettingsResponse_WithSettings(void) {
 void test_generateSettingsResponse_NullSettings(void) {
     char buffer[1024];
 
-    generateSettingsResponse(buffer, sizeof(buffer), NULL);
+    getSettingsResponse(buffer, sizeof(buffer), NULL);
 
     // 1. Verify full string content
     char defaultsBuf[256];
