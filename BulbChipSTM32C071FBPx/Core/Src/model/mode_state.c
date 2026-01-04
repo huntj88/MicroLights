@@ -163,46 +163,39 @@ static void advanceEquationPattern(
 
     uint32_t duration = pattern->duration;
     bool allowLoop = (duration > 0U) && equationPatternAllowsLoop(pattern);
-    bool looped = false;
+    uint32_t nextElapsed = state->elapsedMs + deltaMs;
+    bool reset = false;
 
-    if (allowLoop) {
-        uint32_t nextElapsed = state->elapsedMs + deltaMs;
-        if (nextElapsed >= duration) {
-            looped = true;
-            state->elapsedMs = nextElapsed % duration;
-
-            state->red.currentSectionIndex = 0;
-            state->red.sectionElapsedMs = 0;
-
-            state->green.currentSectionIndex = 0;
-            state->green.sectionElapsedMs = 0;
-
-            state->blue.currentSectionIndex = 0;
-            state->blue.sectionElapsedMs = 0;
-
-            // Advance by the remainder
-            advanceEquationChannel(&state->red, &pattern->red, state->elapsedMs);
-            advanceEquationChannel(&state->green, &pattern->green, state->elapsedMs);
-            advanceEquationChannel(&state->blue, &pattern->blue, state->elapsedMs);
-        } else {
-            state->elapsedMs = nextElapsed;
-        }
-    } else {
-        state->elapsedMs += deltaMs;
-
+    if (allowLoop && (nextElapsed >= duration)) {
+        state->elapsedMs = nextElapsed % duration;
+        reset = true;
+    } else if (nextElapsed > 10000000U) {
         // Set a cap on elapsedMs to avoid precision loss in equation eval for very large times.
         // See reduceAngle(x).
         // 10,000,000ms = ~2.7 hours, which should be sufficient for most use cases.
-        if (state->elapsedMs > 10000000U) {
-            state->elapsedMs = 0U;
-        }
+        state->elapsedMs = 0U;
+        reset = true;
+    } else {
+        state->elapsedMs = nextElapsed;
     }
 
-    if (!looped) {
-        advanceEquationChannel(&state->red, &pattern->red, deltaMs);
-        advanceEquationChannel(&state->green, &pattern->green, deltaMs);
-        advanceEquationChannel(&state->blue, &pattern->blue, deltaMs);
+    uint32_t channelAdvanceMs = deltaMs;
+    if (reset) {
+        state->red.currentSectionIndex = 0;
+        state->red.sectionElapsedMs = 0;
+
+        state->green.currentSectionIndex = 0;
+        state->green.sectionElapsedMs = 0;
+
+        state->blue.currentSectionIndex = 0;
+        state->blue.sectionElapsedMs = 0;
+
+        channelAdvanceMs = state->elapsedMs;
     }
+
+    advanceEquationChannel(&state->red, &pattern->red, channelAdvanceMs);
+    advanceEquationChannel(&state->green, &pattern->green, channelAdvanceMs);
+    advanceEquationChannel(&state->blue, &pattern->blue, channelAdvanceMs);
 }
 
 static void advanceComponentState(
