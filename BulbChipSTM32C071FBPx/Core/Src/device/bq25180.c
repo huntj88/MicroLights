@@ -15,6 +15,9 @@
 // interrupt variable
 static volatile bool readChargerNow = false;
 
+static void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput);
+static BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
+
 void handleChargerInterrupt() {
     readChargerNow = 1;
 }
@@ -67,7 +70,11 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 }
 
 void chargerTask(
-    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled) {
+    BQ25180 *chargerIC,
+    uint32_t milliseconds,
+    bool unplugLockEnabled,
+    bool ledEnabled,
+    bool serialEnabled) {
     enum ChargeState previousState = chargerIC->chargingState;
     uint32_t elapsedMillis = 0;
 
@@ -78,10 +85,12 @@ void chargerTask(
     // charger i2c watchdog timer will reset if not communicated
     // with for 40 seconds, and 15 seconds after plugged in.
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
-        // char registerJson[256];
-        // readAllRegistersJson(chargerIC, registerJson);
-        // chargerIC->writeToSerial(registerJson, strlen(registerJson));
-        // printAllRegisters(chargerIC);
+        if (serialEnabled) {
+            char registerJson[512];
+            readAllRegistersJson(chargerIC, registerJson);
+            chargerIC->writeToSerial(registerJson, strlen(registerJson));
+            // printAllRegisters(chargerIC);
+        }
 
         chargerIC->chargingState = getChargingState(chargerIC);
         chargerIC->checkedAtMs = milliseconds;
@@ -217,57 +226,48 @@ void configureChargerIC(BQ25180 *chargerIC) {
     configureRegister_MASK_ID(chargerIC);
 }
 
-void print(BQ25180 *chargerIC, char *stringToPrint) {
-    chargerIC->writeToSerial(stringToPrint, strlen(stringToPrint));
-}
-
-void printBinary(BQ25180 *chargerIC, uint8_t num) {
-    char buffer[9] = {0};
-    char *bufferPtr = buffer;
-
-    sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
-
-    chargerIC->writeToSerial(buffer, sizeof(buffer));
+static void byteToBinary(uint8_t num, char *buf) {
+    for (int i = 0; i < 8; i++) {
+        buf[i] = (num & (1 << (7 - i))) ? '1' : '0';
+    }
+    buf[8] = '\0';
 }
 
 static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput) {
     if (!jsonOutput) {
         return;
     }
+    char bins[13][9];
+    byteToBinary(registers.stat0, bins[0]);
+    byteToBinary(registers.stat1, bins[1]);
+    byteToBinary(registers.flag0, bins[2]);
+    byteToBinary(registers.vbat_ctrl, bins[3]);
+    byteToBinary(registers.ichg_ctrl, bins[4]);
+    byteToBinary(registers.chargectrl0, bins[5]);
+    byteToBinary(registers.chargectrl1, bins[6]);
+    byteToBinary(registers.ic_ctrl, bins[7]);
+    byteToBinary(registers.tmr_ilim, bins[8]);
+    byteToBinary(registers.ship_rst, bins[9]);
+    byteToBinary(registers.sys_reg, bins[10]);
+    byteToBinary(registers.ts_control, bins[11]);
+    byteToBinary(registers.mask_id, bins[12]);
+
     sprintf(
         jsonOutput,
-        "{\"stat0\":%d,\"stat1\":%d,\"flag0\":%d,\"vbat_ctrl\":%d,"
-        "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
-        "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
-        "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
-        registers.stat0,
-        registers.stat1,
-        registers.flag0,
-        registers.vbat_ctrl,
-        registers.ichg_ctrl,
-        registers.chargectrl0,
-        registers.chargectrl1,
-        registers.ic_ctrl,
-        registers.tmr_ilim,
-        registers.ship_rst,
-        registers.sys_reg,
-        registers.ts_control,
-        registers.mask_id);
+        "{\"stat0\":\"%s\",\"stat1\":\"%s\",\"flag0\":\"%s\",\"vbat_ctrl\":\"%s\","
+        "\"ichg_ctrl\":\"%s\",\"chargectrl0\":\"%s\",\"chargectrl1\":\"%s\","
+        "\"ic_ctrl\":\"%s\",\"tmr_ilim\":\"%s\",\"ship_rst\":\"%s\","
+        "\"sys_reg\":\"%s\",\"ts_control\":\"%s\",\"mask_id\":\"%s\"}\n",
+        bins[0], bins[1], bins[2], bins[3], bins[4], bins[5], bins[6],
+        bins[7], bins[8], bins[9], bins[10], bins[11], bins[12]);
 }
 
-void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
+static void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
     BQ25180Registers registerValues = readAllRegisters(chargerIC);
     bq25180regsToJson(registerValues, jsonOutput);
 }
 
-BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
+static BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     BQ25180Registers registerValues;
     registerValues.stat0 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0);
     registerValues.stat1 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT1);
@@ -285,39 +285,6 @@ BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     registerValues.ts_control = chargerIC->readRegister(chargerIC->devAddress, BQ25180_TS_CONTROL);
     registerValues.mask_id = chargerIC->readRegister(chargerIC->devAddress, BQ25180_MASK_ID);
     return registerValues;
-}
-
-void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
-    uint8_t regValue = chargerIC->readRegister(chargerIC->devAddress, reg);
-
-    print(chargerIC, "register");
-    print(chargerIC, " ");
-    print(chargerIC, label);
-    print(chargerIC, ": ");
-
-    printBinary(chargerIC, regValue);
-
-    const char *newLine = "\n";
-    chargerIC->writeToSerial(newLine, strlen(newLine));
-}
-
-void printAllRegisters(BQ25180 *chargerIC) {
-    const char *newLine = "\n";
-    chargerIC->writeToSerial(newLine, strlen(newLine));
-
-    printRegister(chargerIC, BQ25180_STAT0, "STAT0");
-    printRegister(chargerIC, BQ25180_STAT1, "STAT1");
-    printRegister(chargerIC, BQ25180_FLAG0, "FLAG0");
-    printRegister(chargerIC, BQ25180_VBAT_CTRL, "VBAT_CTRL");
-    printRegister(chargerIC, BQ25180_ICHG_CTRL, "ICHG_CTRL");
-    printRegister(chargerIC, BQ25180_CHARGECTRL0, "CHARGECTRL0");
-    printRegister(chargerIC, BQ25180_CHARGECTRL1, "CHARGECTRL1");
-    printRegister(chargerIC, BQ25180_IC_CTRL, "IC_CTRL");
-    printRegister(chargerIC, BQ25180_TMR_ILIM, "TMR_ILIM");
-    printRegister(chargerIC, BQ25180_SHIP_RST, "SHIP_RST");
-    printRegister(chargerIC, BQ25180_SYS_REG, "SYS_REG");
-    printRegister(chargerIC, BQ25180_TS_CONTROL, "TS_CONTROL");
-    printRegister(chargerIC, BQ25180_MASK_ID, "MASK_ID");
 }
 
 // power must be unplugged to enter ship mode.

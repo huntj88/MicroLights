@@ -104,7 +104,12 @@ void stateTask() {
 
     bool unplugLockEnabled = isFakeOff(state.modeManager);
     bool chargeLedEnabled = isFakeOff(state.modeManager) && canUpdateCaseLed;
-    chargerTask(state.chargerIC, milliseconds, unplugLockEnabled, chargeLedEnabled);
+    chargerTask(
+        state.chargerIC,
+        milliseconds,
+        unplugLockEnabled,
+        chargeLedEnabled,
+        state.settings->enableChargerSerial);
 }
 
 // TODO: Rate of chipTick interrupt should be configurable

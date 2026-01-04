@@ -88,11 +88,12 @@ bool bq25180Init(
 void handleChargerInterrupt();
 void configureChargerIC(BQ25180 *chargerIC);
 void chargerTask(
-    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled);
+    BQ25180 *chargerIC,
+    uint32_t milliseconds,
+    bool unplugLockEnabled,
+    bool ledEnabled,
+    bool serialEnabled);
 void lock(BQ25180 *chargerIC);
-void printAllRegisters(BQ25180 *chargerIC);
-BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
-void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput);
 enum ChargeState getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers

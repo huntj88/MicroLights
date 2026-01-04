@@ -45,6 +45,35 @@ void test_ParseJson_ReadMode_SetsReadAction(void) {
     TEST_ASSERT_EQUAL_UINT8(3, cliInput.modeIndex);
 }
 
+void test_ParseJson_WriteSettings_ParsesBooleanValues(void) {
+    char *json = "{\"command\":\"writeSettings\",\"enableChargerSerial\":true}";
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseWriteSettings, cliInput.parsedType);
+    TEST_ASSERT_TRUE(cliInput.settings.enableChargerSerial);
+
+    char *json2 = "{\"command\":\"writeSettings\",\"enableChargerSerial\":false}";
+
+    parseJson((uint8_t *)json2, strlen(json2) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseWriteSettings, cliInput.parsedType);
+    TEST_ASSERT_FALSE(cliInput.settings.enableChargerSerial);
+}
+
+void test_ParseJson_WriteSettings_RejectsIntegerForBoolean(void) {
+    char *json = "{\"command\":\"writeSettings\",\"enableChargerSerial\":1}";
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
+    // Should fail to parse as writeSettings because of the error
+    // The parser sets parsedType to parseError initially.
+    // If parseSettingsJson returns false, handleWriteSettings won't set parsedType to
+    // parseWriteSettings.
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+}
+
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":7,\"minutesUntilAutoOff\":20,"
@@ -111,7 +140,9 @@ int main(void) {
     RUN_TEST(test_ParseJson_InvalidJson_DoesNotCrash);
     RUN_TEST(test_ParseJson_ReadMode_SetsReadAction);
     RUN_TEST(test_ParseJson_WriteMode_ParsesIndexAndData);
+    RUN_TEST(test_ParseJson_WriteSettings_ParsesBooleanValues);
     RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
+    RUN_TEST(test_ParseJson_WriteSettings_RejectsIntegerForBoolean);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsInvalidValues);
     return UNITY_END();
 }

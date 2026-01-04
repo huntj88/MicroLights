@@ -8,6 +8,8 @@ static uint8_t mockRegisters[20];
 static uint8_t lastWrittenReg;
 static uint8_t lastWrittenValue;
 static bool writeCalled = false;
+static char serialBuffer[1024];
+static uint32_t serialBufferLen = 0;
 
 uint8_t mock_readRegister(uint8_t devAddress, uint8_t reg) {
     return mockRegisters[reg];
@@ -21,6 +23,11 @@ void mock_writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
 }
 
 void mock_writeToSerial(const char *buf, uint32_t count) {
+    if (serialBufferLen + count < sizeof(serialBuffer)) {
+        memcpy(serialBuffer + serialBufferLen, buf, count);
+        serialBufferLen += count;
+        serialBuffer[serialBufferLen] = '\0';
+    }
 }
 
 // RGB Mocks
@@ -69,6 +76,9 @@ void setUp(void) {
     lastWrittenReg = 0;
     lastWrittenValue = 0;
 
+    serialBufferLen = 0;
+    serialBuffer[0] = '\0';
+
     rgbNotChargingCalled = false;
     rgbConstantCurrentCalled = false;
     rgbConstantVoltageCalled = false;
@@ -104,7 +114,7 @@ void test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled(void) {
     handleChargerInterrupt();
 
     // 4. Run task with unplugLockEnabled = true
-    chargerTask(&charger, 1000, true, false);
+    chargerTask(&charger, 1000, true, false, false);
 
     // 5. Verify lock was called (Ship Mode enabled)
     // enableShipMode writes 0b01000001 to BQ25180_SHIP_RST (0x9)
@@ -119,7 +129,7 @@ void test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled(void) {
 
     handleChargerInterrupt();
 
-    chargerTask(&charger, 1000, false, false);  // unplugLockEnabled = false
+    chargerTask(&charger, 1000, false, false, false);  // unplugLockEnabled = false
 
     TEST_ASSERT_FALSE(writeCalled);
 }
@@ -129,14 +139,14 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     charger.checkedAtMs = 100;  // Prevent watchdog update
 
     // Test at (ms & 0x3FF) < 50 (e.g., 1024)
-    chargerTask(&charger, 1024, false, true);  // ledEnabled = true
+    chargerTask(&charger, 1024, false, true, false);  // ledEnabled = true
     TEST_ASSERT_TRUE(rgbConstantCurrentCalled);
 
     // Reset
     rgbConstantCurrentCalled = false;
 
     // Test at (ms & 0x3FF) >= 50 (e.g., 1100)
-    chargerTask(&charger, 1100, false, true);
+    chargerTask(&charger, 1100, false, true, false);
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
@@ -151,7 +161,7 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
     handleChargerInterrupt();
 
     // Run task at time that does NOT trigger periodic flash
-    chargerTask(&charger, 1060, false, true);
+    chargerTask(&charger, 1060, false, true, false);
 
     // Should update internal state
     TEST_ASSERT_EQUAL(done, charger.chargingState);
@@ -162,11 +172,30 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
     TEST_ASSERT_TRUE(lastEnableTimersArg);
 }
 
+void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
+    // Setup mock registers with known values
+    mockRegisters[BQ25180_STAT0] = 0b10101010;
+    mockRegisters[BQ25180_STAT1] = 0b01010101;
+    // ... other registers will be 0 by default from setUp
+
+    // Force watchdog update condition (checkedAtMs == 0)
+    charger.checkedAtMs = 0;
+
+    // Run task with serialEnabled = true
+    chargerTask(&charger, 1000, false, false, true);
+
+    // Verify the output contains the expected binary strings
+    TEST_ASSERT_NOT_NULL(strstr(serialBuffer, "\"stat0\":\"10101010\""));
+    TEST_ASSERT_NOT_NULL(strstr(serialBuffer, "\"stat1\":\"01010101\""));
+    TEST_ASSERT_NOT_NULL(strstr(serialBuffer, "\"flag0\":\"00000000\""));
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
     RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);
+    RUN_TEST(test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled);
     return UNITY_END();
 }

@@ -88,6 +88,19 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings, ParserEr
         settings->equationEvalIntervalMs = (uint8_t)token->u.num_int;
     }
 
+    token = lwjson_find(lwjson, "enableChargerSerial");
+    if (token != NULL) {
+        if (token->type == LWJSON_TYPE_TRUE) {
+            settings->enableChargerSerial = true;
+        } else if (token->type == LWJSON_TYPE_FALSE) {
+            settings->enableChargerSerial = false;
+        } else {
+            ctx->error = PARSER_ERR_INVALID_VARIANT;
+            snprintf(ctx->path, sizeof(ctx->path), "enableChargerSerial");
+            return false;
+        }
+    }
+
     return true;
 }
 
