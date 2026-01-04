@@ -86,7 +86,6 @@ bool bq25180Init(
     void (*enableTimers)(bool enable));
 
 void handleChargerInterrupt();
-void configureChargerIC(BQ25180 *chargerIC);
 void chargerTask(
     BQ25180 *chargerIC,
     uint32_t milliseconds,
