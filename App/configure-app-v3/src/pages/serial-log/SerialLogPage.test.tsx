@@ -93,9 +93,17 @@ describe('SerialLogPage', () => {
     act(() => {
       if (dataListener) {
         dataListener('', {
-          modeCount: 5,
-          minutesUntilAutoOff: 30,
-          minutesUntilLockAfterAutoOff: 60,
+          settings: {
+            command: 'writeSettings',
+            modeCount: 5,
+            minutesUntilAutoOff: 30,
+            minutesUntilLockAfterAutoOff: 60,
+          },
+          defaults: {
+            modeCount: 0,
+            minutesUntilAutoOff: 90,
+            minutesUntilLockAfterAutoOff: 10,
+          },
         });
       }
     });

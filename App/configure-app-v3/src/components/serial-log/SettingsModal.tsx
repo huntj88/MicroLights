@@ -141,7 +141,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
           <div className="space-y-4">
             {defaults &&
               Object.keys(defaults).map(key => {
-                const isBoolean = key.startsWith('enable') || typeof defaults[key] === 'boolean';
+                const isBoolean = typeof defaults[key] === 'boolean';
                 const value = settings[key];
 
                 return (
