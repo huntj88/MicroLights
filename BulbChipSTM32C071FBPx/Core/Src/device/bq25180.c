@@ -313,8 +313,19 @@ static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput
         "\"ichg_ctrl\":\"%s\",\"chargectrl0\":\"%s\",\"chargectrl1\":\"%s\","
         "\"ic_ctrl\":\"%s\",\"tmr_ilim\":\"%s\",\"ship_rst\":\"%s\","
         "\"sys_reg\":\"%s\",\"ts_control\":\"%s\",\"mask_id\":\"%s\"}\n",
-        bins[0], bins[1], bins[2], bins[3], bins[4], bins[5], bins[6],
-        bins[7], bins[8], bins[9], bins[10], bins[11], bins[12]);
+        bins[0],
+        bins[1],
+        bins[2],
+        bins[3],
+        bins[4],
+        bins[5],
+        bins[6],
+        bins[7],
+        bins[8],
+        bins[9],
+        bins[10],
+        bins[11],
+        bins[12]);
 }
 
 static void byteToBinary(uint8_t num, char *buf) {

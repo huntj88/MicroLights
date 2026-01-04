@@ -9,6 +9,7 @@
 #include "device/button.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
+#include "lwjson/lwjson.h"
 #include "mode_manager.h"
 #include "model/cli_model.h"
 #include "settings_manager.h"
@@ -200,14 +201,78 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
             colonCount++;
         }
     }
-    int keyCount = colonCount - 1; // "defaults" is a key
+    int keyCount = colonCount - 1;  // "defaults" is a key
 
     int macroCount = 0;
-    #define X_COUNT(type, name, def) macroCount++;
+#define X_COUNT(type, name, def) macroCount++;
     CHIP_SETTINGS_MAP(X_COUNT)
-    #undef X_COUNT
+#undef X_COUNT
 
     TEST_ASSERT_EQUAL_MESSAGE(macroCount, keyCount, "JSON key count mismatch");
+}
+
+void test_generateSettingsResponse_WithSettings(void) {
+    char buffer[1024];
+    const char *settings = "{\"foo\":1}";
+
+    generateSettingsResponse(buffer, sizeof(buffer), settings);
+
+    // 1. Verify full string content
+    char defaultsBuf[256];
+    getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
+    char expected[1024];
+    sprintf(expected, "{\"settings\":%s%s}\n", settings, defaultsBuf);
+
+    TEST_ASSERT_EQUAL_STRING(expected, buffer);
+
+    // 2. Verify it is valid JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    // Remove newline for parser if necessary, but lwjson might handle it.
+    // Let's try parsing as is.
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buffer));
+
+    const lwjson_token_t *t = lwjson_find(&lwjson, "settings");
+    TEST_ASSERT_NOT_NULL(t);
+
+    t = lwjson_find(&lwjson, "defaults");
+    TEST_ASSERT_NOT_NULL(t);
+
+    lwjson_free(&lwjson);
+}
+
+void test_generateSettingsResponse_NullSettings(void) {
+    char buffer[1024];
+
+    generateSettingsResponse(buffer, sizeof(buffer), NULL);
+
+    // 1. Verify full string content
+    char defaultsBuf[256];
+    getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
+    char expected[1024];
+    sprintf(expected, "{\"settings\":null%s}\n", defaultsBuf);
+
+    TEST_ASSERT_EQUAL_STRING(expected, buffer);
+
+    // 2. Verify it is valid JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buffer));
+
+    const lwjson_token_t *t = lwjson_find(&lwjson, "settings");
+    TEST_ASSERT_NOT_NULL(t);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_NULL, t->type);
+
+    t = lwjson_find(&lwjson, "defaults");
+    TEST_ASSERT_NOT_NULL(t);
+
+    lwjson_free(&lwjson);
 }
 
 int main(void) {
@@ -217,5 +282,7 @@ int main(void) {
     RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);
     RUN_TEST(test_SettingsManagerInit_SetsDefaults);
     RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
+    RUN_TEST(test_generateSettingsResponse_NullSettings);
+    RUN_TEST(test_generateSettingsResponse_WithSettings);
     return UNITY_END();
 }

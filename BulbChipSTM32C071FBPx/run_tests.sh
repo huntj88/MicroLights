@@ -85,7 +85,7 @@ gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/
 run_test ./Tests/build/test_chip_state
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_settings_manager..."; fi
-gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_settings_manager
+gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC $LWJSON_SRC -lm -o Tests/build/test_settings_manager
 run_test ./Tests/build/test_settings_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_manager..."; fi

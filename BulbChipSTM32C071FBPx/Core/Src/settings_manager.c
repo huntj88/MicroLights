@@ -70,18 +70,37 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
     offset = appendJson(buffer, len, offset, ",\"defaults\":{");
 
     bool first = true;
-#define X_PRINT(type, name, def)                                            \
-    if (!first) {                                                           \
-        offset = appendJson(buffer, len, offset, ",");                     \
-    }                                                                       \
-    offset = appendJson(buffer, len, offset, "\"" #name "\":");            \
+#define X_PRINT(type, name, def)                                               \
+    if (!first) {                                                              \
+        offset = appendJson(buffer, len, offset, ",");                         \
+    }                                                                          \
+    offset = appendJson(buffer, len, offset, "\"" #name "\":");                \
     offset = appendJson(buffer, len, offset, PRINT_VAL_##type(settings.name)); \
     first = false;
 
     CHIP_SETTINGS_MAP(X_PRINT)
 #undef X_PRINT
 
-    offset = appendJson(buffer, len, offset, "}}\n");
+    offset = appendJson(buffer, len, offset, "}");
+
+    return offset;
+}
+
+int generateSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson) {
+    int offset = 0;
+    offset = appendJson(buffer, len, offset, "{\"settings\":");
+
+    if (currentSettingsJson) {
+        offset = appendJson(buffer, len, offset, "%s", currentSettingsJson);
+    } else {
+        offset = appendJson(buffer, len, offset, "null");
+    }
+
+    char defaultsBuf[256];
+    getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
+    offset = appendJson(buffer, len, offset, "%s", defaultsBuf);
+    offset = appendJson(buffer, len, offset, "}\n");
 
     return offset;
 }

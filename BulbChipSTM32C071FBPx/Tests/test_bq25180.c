@@ -23,7 +23,7 @@ void mock_writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
 }
 
 void mock_writeToSerial(const char *buf, uint32_t count) {
-    if (serialBufferLen + count < sizeof(serialBuffer)) {
+    if (serialBufferLen + count <= sizeof(serialBuffer) - 1) {
         memcpy(serialBuffer + serialBufferLen, buf, count);
         serialBufferLen += count;
         serialBuffer[serialBufferLen] = '\0';

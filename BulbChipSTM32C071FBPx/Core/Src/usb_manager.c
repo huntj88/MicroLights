@@ -50,7 +50,7 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
             uint32_t written = tud_cdc_n_write(itf, buf + sent, to_send);
             sent += written;
         } else {
-        	break;
+            break;
         }
         tud_task();
     }
@@ -104,19 +104,14 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         case parseReadSettings: {
             loadSettingsFromFlash(usbManager->settingsManager, buf);
 
-            usbWriteToSerial(usbManager, 0, "{\"settings\":", 12);
-
+            char responseBuf[1024];
+            int len;
             if (cliInput.parsedType == parseWriteSettings) {
-                usbWriteToSerial(usbManager, 0, buf, strlen(buf));
+                len = generateSettingsResponse(responseBuf, sizeof(responseBuf), buf);
             } else {
-                usbWriteToSerial(usbManager, 0, "null", 4);
+                len = generateSettingsResponse(responseBuf, sizeof(responseBuf), NULL);
             }
-
-            char defaultsBuf[256];
-            int len = getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
-
-
-            usbWriteToSerial(usbManager, 0, defaultsBuf, len);
+            usbWriteToSerial(usbManager, 0, responseBuf, len);
             break;
         }
         case parseDfu: {

@@ -18,23 +18,23 @@
 #define DEFAULT_ENABLE_CHARGER_SERIAL false
 
 // X-Macro to define settings: X(type, name, default_value)
-#define CHIP_SETTINGS_MAP(X) \
-    X(uint8_t, modeCount, DEFAULT_MODE_COUNT) \
-    X(uint8_t, minutesUntilAutoOff, DEFAULT_MINUTES_UNTIL_AUTO_OFF) \
+#define CHIP_SETTINGS_MAP(X)                                                            \
+    X(uint8_t, modeCount, DEFAULT_MODE_COUNT)                                           \
+    X(uint8_t, minutesUntilAutoOff, DEFAULT_MINUTES_UNTIL_AUTO_OFF)                     \
     X(uint8_t, minutesUntilLockAfterAutoOff, DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF) \
-    X(uint8_t, equationEvalIntervalMs, DEFAULT_EQUATION_EVAL_INTERVAL_MS) \
+    X(uint8_t, equationEvalIntervalMs, DEFAULT_EQUATION_EVAL_INTERVAL_MS)               \
     X(bool, enableChargerSerial, DEFAULT_ENABLE_CHARGER_SERIAL)
 
 typedef struct {
-    #define X_FIELDS(type, name, def) type name;
+#define X_FIELDS(type, name, def) type name;
     CHIP_SETTINGS_MAP(X_FIELDS)
-    #undef X_FIELDS
+#undef X_FIELDS
 } ChipSettings;
 
 static inline void chipSettingsInitDefaults(ChipSettings *settings) {
-    #define X_DEFAULTS(type, name, def) settings->name = def;
+#define X_DEFAULTS(type, name, def) settings->name = def;
     CHIP_SETTINGS_MAP(X_DEFAULTS)
-    #undef X_DEFAULTS
+#undef X_DEFAULTS
 }
 
 #endif /* INC_MODEL_CHIP_SETTINGS_H_ */
