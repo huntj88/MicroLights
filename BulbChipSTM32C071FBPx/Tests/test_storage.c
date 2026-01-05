@@ -25,12 +25,6 @@ HAL_StatusTypeDef FLASH_WaitForLastOperation(uint32_t Timeout) {
 void FLASH_PageErase(uint32_t Page) {
     // In real hardware, this erases the page (sets to 0xFF)
     // We need to calculate the address from the page number.
-    // But wait, FLASH_PageErase takes a Page NUMBER or ADDRESS?
-    // In STM32 HAL, FLASH_PageErase usually takes the Page Number or Address depending on the
-    // family. storage.c calls it with `memoryPage`. In storage.c: `memoryPageErase(page)` calls
-    // `FLASH_PageErase(memoryPage)`. And `writeString` calls `memoryPageErase(page)`. `page` is
-    // passed as `SETTINGS_PAGE` (56). So it takes a page number.
-
     // We need to know the address of that page to erase it in our mmap-ed memory.
     // storage.h: #define FLASH_INIT 0x08000000
     // #define PAGE_SECTOR 2048
@@ -65,10 +59,16 @@ void setUp(void) {
     void *addr = (void *)(uintptr_t)0x08000000;
     size_t len = 1024 * 1024;  // 1MB
 
-    // Use MAP_FIXED to force the address.
+    // Use MAP_FIXED_NOREPLACE to force the address without overwriting.
     // Use MAP_ANONYMOUS | MAP_PRIVATE for memory.
-    void *ptr =
-        mmap(addr, len, PROT_READ | PROT_WRITE, MAP_FIXED | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+    void *ptr = mmap(
+        addr,
+        len,
+        PROT_READ | PROT_WRITE,
+        MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS,
+        -1,
+        0);
 
     if (ptr == MAP_FAILED) {
         printf("mmap failed: %s\n", strerror(errno));
