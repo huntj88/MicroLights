@@ -206,10 +206,12 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
     TEST_ASSERT_EQUAL_MESSAGE(
         lwjsonOK, lwjson_parse(&lwjson, serialBuffer), "JSON output is invalid, check buffer size");
 
+    /* Ensure JSON output fits within the serial buffer (leaving room for null terminator) */
     TEST_ASSERT_TRUE_MESSAGE(
-        serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output exceeds buffer size");
+        serialBufferLen < sizeof(serialBuffer) - 1, "JSON output exceeds buffer size");
+    /* Ensure JSON output is terminated with a newline character */
     TEST_ASSERT_TRUE_MESSAGE(
-        serialBuffer[strlen(serialBuffer)] == '\0', "JSON output exceeds buffer size");
+        serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output is not newline-terminated");
 
     // Verify it fills the buffer exactly (minus null terminator)
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(
