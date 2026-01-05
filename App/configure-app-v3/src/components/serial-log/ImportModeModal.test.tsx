@@ -123,4 +123,23 @@ describe('ImportModeModal', () => {
     // Button should say Overwrite
     expect(screen.getByText('common.actions.overwrite')).toBeInTheDocument();
   });
+
+  it('prevents import when pattern names are duplicated', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+
+    renderWithProviders(<ImportModeModal isOpen={true} onClose={onClose} mode={mockMode} />);
+
+    // Rename "Case Pattern" to "Front Pattern" to create a collision
+    const caseInput = screen.getByDisplayValue('Case Pattern');
+    await user.clear(caseInput);
+    await user.type(caseInput, 'Front Pattern');
+
+    // Should show error message
+    expect(screen.getByText('serialLog.importMode.duplicatePatternNames')).toBeInTheDocument();
+
+    // Import button should be disabled
+    const importButton = screen.getByText('common.actions.import');
+    expect(importButton).toBeDisabled();
+  });
 });

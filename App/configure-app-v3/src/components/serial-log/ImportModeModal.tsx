@@ -50,6 +50,12 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
     setPatternNames(names);
   }, [patterns]);
 
+  const hasDuplicateNames = useMemo(() => {
+    const names = patterns.map(p => patternNames[p.name] ?? p.name);
+    const uniqueNames = new Set(names);
+    return uniqueNames.size !== names.length;
+  }, [patterns, patternNames]);
+
   if (!isOpen) return null;
 
   const existingMode = getMode(modeName);
@@ -70,7 +76,7 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
     });
 
   const handleImport = () => {
-    if (hasEmptyNames) return;
+    if (hasEmptyNames || hasDuplicateNames) return;
     try {
       // Create a map of oldName -> newPattern (with new name)
       const newPatternsMap = new Map<string, ModePattern>();
@@ -174,6 +180,14 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
                 {t('serialLog.importMode.patternsHelp')}
               </p>
               <div className="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                {hasDuplicateNames && (
+                  <div className="text-xs text-red-500 dark:text-red-400">
+                    {t(
+                      'serialLog.importMode.duplicatePatternNames',
+                      'Pattern names must be unique',
+                    )}
+                  </div>
+                )}
                 {patterns.map(pattern => {
                   const currentName = patternNames[pattern.name] ?? pattern.name;
                   const exists = !!getPattern(currentName);
@@ -217,7 +231,11 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
           <StyledButton onClick={onClose} variant="secondary">
             {t('common.actions.cancel')}
           </StyledButton>
-          <StyledButton onClick={handleImport} variant="primary" disabled={hasEmptyNames}>
+          <StyledButton
+            onClick={handleImport}
+            variant="primary"
+            disabled={hasEmptyNames || hasDuplicateNames}
+          >
             {isOverwrite ? t('common.actions.overwrite') : t('common.actions.import')}
           </StyledButton>
         </footer>
