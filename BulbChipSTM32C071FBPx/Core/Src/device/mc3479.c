@@ -11,11 +11,11 @@
 
 /* Small helper to safely call the optional USB logging callback */
 static void mc3479Log(MC3479 *dev, const char *msg) {
-    if (dev == NULL || dev->writeToUsbSerial == NULL || msg == NULL) {
+    if (dev == NULL || dev->writeToSerial == NULL || msg == NULL) {
         return;
     }
 
-    dev->writeToUsbSerial(0, msg, strlen(msg));
+    dev->writeToSerial(msg, strlen(msg));
 }
 
 bool mc3479Init(
@@ -23,15 +23,15 @@ bool mc3479Init(
     I2CReadRegisters *readRegsCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial) {
-    if (!dev || !readRegsCb || !writeCb || !writeToUsbSerial) {
+    WriteToSerial *writeToSerial) {
+    if (!dev || !readRegsCb || !writeCb || !writeToSerial) {
         return false;
     }
 
     dev->readRegisters = readRegsCb;
     dev->writeRegister = writeCb;
     dev->devAddress = devAddress;
-    dev->writeToUsbSerial = writeToUsbSerial;
+    dev->writeToSerial = writeToSerial;
 
     // make sure in STANDBY when configuring
     mc3479Disable(dev);

@@ -199,6 +199,9 @@ export type ModeDocument = z.infer<typeof modeDocumentSchema>;
 
 export const parseModeDocument = (input: unknown): ModeDocument => modeDocumentSchema.parse(input);
 
+export const isModeDocument = (data: unknown): data is ModeDocument =>
+  modeDocumentSchema.safeParse(data).success;
+
 export const isBinaryPattern = (
   pattern: ModePattern,
 ): pattern is SimplePattern & { changeAt: BinaryPatternChange[] } =>

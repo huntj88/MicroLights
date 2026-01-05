@@ -32,7 +32,7 @@ typedef struct {
     MC3479 *accel;
 
     // Callbacks
-    WriteToUsbSerial *writeUsbSerial;
+    WriteToSerial *writeToSerial;
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
@@ -45,7 +45,7 @@ void configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    WriteToUsbSerial *writeUsbSerial,
+    WriteToSerial *writeToSerial,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks)) {
     state.modeManager = modeManager;
     state.settings = settings;
@@ -53,7 +53,7 @@ void configureChipState(
     state.caseLed = caseLed;
     state.chargerIC = chargerIC;
     state.accel = accel;
-    state.writeUsbSerial = writeUsbSerial;
+    state.writeToSerial = writeToSerial;
     state.convertTicksToMilliseconds = convertTicksToMilliseconds;
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
@@ -84,7 +84,7 @@ void stateTask() {
             }
             loadMode(state.modeManager, newModeIndex);
             const char *blah = "clicked\n";
-            state.writeUsbSerial(0, blah, strlen(blah));
+            state.writeToSerial(blah, strlen(blah));
             break;
         case shutdown:
             bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
@@ -104,7 +104,12 @@ void stateTask() {
 
     bool unplugLockEnabled = isFakeOff(state.modeManager);
     bool chargeLedEnabled = isFakeOff(state.modeManager) && canUpdateCaseLed;
-    chargerTask(state.chargerIC, milliseconds, unplugLockEnabled, chargeLedEnabled);
+    chargerTask(
+        state.chargerIC,
+        milliseconds,
+        unplugLockEnabled,
+        chargeLedEnabled,
+        state.settings->enableChargerSerial);
 }
 
 // TODO: Rate of chipTick interrupt should be configurable

@@ -26,7 +26,7 @@ void configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    WriteToUsbSerial *writeUsbSerial,
+    WriteToSerial *writeToSerial,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
 void stateTask();

@@ -15,26 +15,42 @@
 // interrupt variable
 static volatile bool readChargerNow = false;
 
-void handleChargerInterrupt() {
-    readChargerNow = 1;
-}
+// Forward declarations
+static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len);
+static BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
+static void configureChargerIC(BQ25180 *chargerIC);
+static void configureRegister_IC_CTRL(BQ25180 *chargerIC);
+static void configureRegister_ICHG_CTRL(BQ25180 *chargerIC);
+static void configureRegister_VBAT_CTRL(BQ25180 *chargerIC);
+static void configureRegister_CHARGECTRL1(BQ25180 *chargerIC);
+static void configureRegister_SYS_REG(BQ25180 *chargerIC);
+static void configureRegister_MASK_ID(BQ25180 *chargerIC);
+static void showChargingState(BQ25180 *chargerIC, enum ChargeState state);
+static void enableShipMode(BQ25180 *chargerIC);
+static void hardwareReset(BQ25180 *chargerIC);
+static void byteToBinary(uint8_t num, char *buf);
+static void bq25180regsToJson(BQ25180Registers registers, char jsonOutput[], uint32_t len);
+
+// =================================================================================================
+// Public Interface
+// =================================================================================================
 
 bool bq25180Init(
     BQ25180 *chargerIC,
     I2CReadRegister *readRegCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial,
+    WriteToSerial *writeToSerial,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegCb || !writeCb || !writeToUsbSerial || !caseLed || !enableTimers) {
+    if (!chargerIC || !readRegCb || !writeCb || !writeToSerial || !caseLed || !enableTimers) {
         return false;
     }
 
     chargerIC->readRegister = readRegCb;
     chargerIC->writeRegister = writeCb;
     chargerIC->devAddress = devAddress;
-    chargerIC->writeToUsbSerial = writeToUsbSerial;
+    chargerIC->writeToSerial = writeToSerial;
     chargerIC->caseLed = caseLed;
     chargerIC->enableTimers = enableTimers;
 
@@ -46,28 +62,16 @@ bool bq25180Init(
     return true;
 }
 
-static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
-    switch (state) {
-        case notConnected:
-            // do nothing
-            break;
-        case notCharging:
-            rgbShowNotCharging(chargerIC->caseLed);
-            break;
-        case constantCurrent:
-            rgbShowConstantCurrentCharging(chargerIC->caseLed);
-            break;
-        case constantVoltage:
-            rgbShowConstantVoltageCharging(chargerIC->caseLed);
-            break;
-        case done:
-            rgbShowDoneCharging(chargerIC->caseLed);
-            break;
-    }
+void handleChargerInterrupt() {
+    readChargerNow = 1;
 }
 
 void chargerTask(
-    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled) {
+    BQ25180 *chargerIC,
+    uint32_t milliseconds,
+    bool unplugLockEnabled,
+    bool ledEnabled,
+    bool serialEnabled) {
     enum ChargeState previousState = chargerIC->chargingState;
     uint32_t elapsedMillis = 0;
 
@@ -78,10 +82,11 @@ void chargerTask(
     // charger i2c watchdog timer will reset if not communicated
     // with for 40 seconds, and 15 seconds after plugged in.
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
-        // char registerJson[256];
-        // readAllRegistersJson(chargerIC, registerJson);
-        // writeUsbSerial(0, registerJson, strlen(registerJson));
-        // printAllRegisters(chargerIC);
+        if (serialEnabled) {
+            char registerJson[BQ25180_JSON_BUFFER_SIZE];
+            readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
+            chargerIC->writeToSerial(registerJson, strlen(registerJson));
+        }
 
         chargerIC->chargingState = getChargingState(chargerIC);
         chargerIC->checkedAtMs = milliseconds;
@@ -133,20 +138,66 @@ enum ChargeState getChargingState(BQ25180 *chargerIC) {
     return notConnected;
 }
 
-void configureRegister_IC_CTRL(BQ25180 *chargerIC) {
+void lock(BQ25180 *chargerIC) {
+    enum ChargeState state = getChargingState(chargerIC);
+    if (state == notConnected) {
+        enableShipMode(chargerIC);
+    } else {
+        hardwareReset(chargerIC);
+    }
+}
+
+// =================================================================================================
+// Private Helpers - State & UI
+// =================================================================================================
+
+static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
+    switch (state) {
+        case notConnected:
+            // do nothing
+            break;
+        case notCharging:
+            rgbShowNotCharging(chargerIC->caseLed);
+            break;
+        case constantCurrent:
+            rgbShowConstantCurrentCharging(chargerIC->caseLed);
+            break;
+        case constantVoltage:
+            rgbShowConstantVoltageCharging(chargerIC->caseLed);
+            break;
+        case done:
+            rgbShowDoneCharging(chargerIC->caseLed);
+            break;
+    }
+}
+
+// =================================================================================================
+// Private Helpers - Configuration
+// =================================================================================================
+
+static void configureChargerIC(BQ25180 *chargerIC) {
+    configureRegister_IC_CTRL(chargerIC);
+    configureRegister_ICHG_CTRL(chargerIC);
+    configureRegister_VBAT_CTRL(chargerIC);
+    configureRegister_CHARGECTRL1(chargerIC);
+    configureRegister_SYS_REG(chargerIC);
+    configureRegister_MASK_ID(chargerIC);
+}
+
+static void configureRegister_IC_CTRL(BQ25180 *chargerIC) {
     uint8_t newConfig = IC_CTRL_DEFAULT;
     uint8_t tsEnabledMask = 0b10000000;
     newConfig &= ~tsEnabledMask;  // disable ts current changes (no thermistor on my project?)
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_IC_CTRL, newConfig);
 }
 
-void configureRegister_ICHG_CTRL(BQ25180 *chargerIC) {
+static void configureRegister_ICHG_CTRL(BQ25180 *chargerIC) {
     // enable charging = bit 7 in data sheet 0
     // 70 milliamp max charge current
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_ICHG_CTRL, 0b00100010);
 }
 
-void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
+static void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
     // 4.3v, (3.5v) + (80 * 10mV), 80 = 0b1010000
     //	 chargerIC->writeRegister(chargerIC, BQ25180_VBAT_CTRL, 0b01010000);
 
@@ -154,7 +205,7 @@ void configureRegister_VBAT_CTRL(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_VBAT_CTRL, 0b01011010);
 }
 
-void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
+static void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
     // Battery Discharge Current Limit
     // 2b00 = 500mA
 
@@ -168,7 +219,7 @@ void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_CHARGECTRL1, 0b00000011);
 }
 
-void configureRegister_SYS_REG(BQ25180 *chargerIC) {
+static void configureRegister_SYS_REG(BQ25180 *chargerIC) {
     uint8_t newConfig = SYS_REG_DEFAULT;
     uint8_t vinWatchdogMask = 0b00000010;
     uint8_t systemRegulationMask = 0b11100000;
@@ -185,7 +236,7 @@ void configureRegister_SYS_REG(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SYS_REG, newConfig);
 }
 
-void configureRegister_MASK_ID(BQ25180 *chargerIC) {
+static void configureRegister_MASK_ID(BQ25180 *chargerIC) {
     // TS_INT_MASK: Mask or enable the TS interrupt.
     //   1b0: Enable TS interrupt
     //   1b1: Mask TS interrupt
@@ -208,66 +259,16 @@ void configureRegister_MASK_ID(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_MASK_ID, 0b00000000);
 }
 
-void configureChargerIC(BQ25180 *chargerIC) {
-    configureRegister_IC_CTRL(chargerIC);
-    configureRegister_ICHG_CTRL(chargerIC);
-    configureRegister_VBAT_CTRL(chargerIC);
-    configureRegister_CHARGECTRL1(chargerIC);
-    configureRegister_SYS_REG(chargerIC);
-    configureRegister_MASK_ID(chargerIC);
-}
+// =================================================================================================
+// Private Helpers - Registers & JSON
+// =================================================================================================
 
-void print(BQ25180 *chargerIC, char *stringToPrint) {
-    chargerIC->writeToUsbSerial(0, stringToPrint, strlen(stringToPrint));
-}
-
-void printBinary(BQ25180 *chargerIC, uint8_t num) {
-    char buffer[9] = {0};
-    char *bufferPtr = buffer;
-
-    sprintf(bufferPtr + 0, "%d", (num & 0b10000000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 1, "%d", (num & 0b01000000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 2, "%d", (num & 0b00100000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 3, "%d", (num & 0b00010000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 4, "%d", (num & 0b00001000) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 5, "%d", (num & 0b00000100) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 6, "%d", (num & 0b00000010) > 0 ? 1 : 0);
-    sprintf(bufferPtr + 7, "%d", (num & 0b00000001) > 0 ? 1 : 0);
-
-    chargerIC->writeToUsbSerial(0, buffer, sizeof(buffer));
-}
-
-static void bq25180regsToJson(const BQ25180Registers registers, char *jsonOutput) {
-    if (!jsonOutput) {
-        return;
-    }
-    sprintf(
-        jsonOutput,
-        "{\"stat0\":%d,\"stat1\":%d,\"flag0\":%d,\"vbat_ctrl\":%d,"
-        "\"ichg_ctrl\":%d,\"chargectrl0\":%d,\"chargectrl1\":%d,"
-        "\"ic_ctrl\":%d,\"tmr_ilim\":%d,\"ship_rst\":%d,"
-        "\"sys_reg\":%d,\"ts_control\":%d,\"mask_id\":%d}\n",
-        registers.stat0,
-        registers.stat1,
-        registers.flag0,
-        registers.vbat_ctrl,
-        registers.ichg_ctrl,
-        registers.chargectrl0,
-        registers.chargectrl1,
-        registers.ic_ctrl,
-        registers.tmr_ilim,
-        registers.ship_rst,
-        registers.sys_reg,
-        registers.ts_control,
-        registers.mask_id);
-}
-
-void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput) {
+static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len) {
     BQ25180Registers registerValues = readAllRegisters(chargerIC);
-    bq25180regsToJson(registerValues, jsonOutput);
+    bq25180regsToJson(registerValues, jsonOutput, len);
 }
 
-BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
+static BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     BQ25180Registers registerValues;
     registerValues.stat0 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0);
     registerValues.stat1 = chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT1);
@@ -287,38 +288,59 @@ BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     return registerValues;
 }
 
-void printRegister(BQ25180 *chargerIC, uint8_t reg, char *label) {
-    uint8_t regValue = chargerIC->readRegister(chargerIC->devAddress, reg);
+static void bq25180regsToJson(const BQ25180Registers registers, char jsonOutput[], uint32_t len) {
+    if (!jsonOutput) {
+        return;
+    }
+    char bins[13][9];
+    byteToBinary(registers.stat0, bins[0]);
+    byteToBinary(registers.stat1, bins[1]);
+    byteToBinary(registers.flag0, bins[2]);
+    byteToBinary(registers.vbat_ctrl, bins[3]);
+    byteToBinary(registers.ichg_ctrl, bins[4]);
+    byteToBinary(registers.chargectrl0, bins[5]);
+    byteToBinary(registers.chargectrl1, bins[6]);
+    byteToBinary(registers.ic_ctrl, bins[7]);
+    byteToBinary(registers.tmr_ilim, bins[8]);
+    byteToBinary(registers.ship_rst, bins[9]);
+    byteToBinary(registers.sys_reg, bins[10]);
+    byteToBinary(registers.ts_control, bins[11]);
+    byteToBinary(registers.mask_id, bins[12]);
 
-    print(chargerIC, "register");
-    print(chargerIC, " ");
-    print(chargerIC, label);
-    print(chargerIC, ": ");
-
-    printBinary(chargerIC, regValue);
-
-    const char *newLine = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
+    snprintf(
+        jsonOutput,
+        len,
+        "{\"stat0\":\"%s\",\"stat1\":\"%s\",\"flag0\":\"%s\",\"vbat_ctrl\":\"%s\","
+        "\"ichg_ctrl\":\"%s\",\"chargectrl0\":\"%s\",\"chargectrl1\":\"%s\","
+        "\"ic_ctrl\":\"%s\",\"tmr_ilim\":\"%s\",\"ship_rst\":\"%s\","
+        "\"sys_reg\":\"%s\",\"ts_control\":\"%s\",\"mask_id\":\"%s\"}\n",
+        bins[0],
+        bins[1],
+        bins[2],
+        bins[3],
+        bins[4],
+        bins[5],
+        bins[6],
+        bins[7],
+        bins[8],
+        bins[9],
+        bins[10],
+        bins[11],
+        bins[12]);
 }
 
-void printAllRegisters(BQ25180 *chargerIC) {
-    const char *newLine = "\n";
-    chargerIC->writeToUsbSerial(0, newLine, strlen(newLine));
-
-    printRegister(chargerIC, BQ25180_STAT0, "STAT0");
-    printRegister(chargerIC, BQ25180_STAT1, "STAT1");
-    printRegister(chargerIC, BQ25180_FLAG0, "FLAG0");
-    printRegister(chargerIC, BQ25180_VBAT_CTRL, "VBAT_CTRL");
-    printRegister(chargerIC, BQ25180_ICHG_CTRL, "ICHG_CTRL");
-    printRegister(chargerIC, BQ25180_CHARGECTRL0, "CHARGECTRL0");
-    printRegister(chargerIC, BQ25180_CHARGECTRL1, "CHARGECTRL1");
-    printRegister(chargerIC, BQ25180_IC_CTRL, "IC_CTRL");
-    printRegister(chargerIC, BQ25180_TMR_ILIM, "TMR_ILIM");
-    printRegister(chargerIC, BQ25180_SHIP_RST, "SHIP_RST");
-    printRegister(chargerIC, BQ25180_SYS_REG, "SYS_REG");
-    printRegister(chargerIC, BQ25180_TS_CONTROL, "TS_CONTROL");
-    printRegister(chargerIC, BQ25180_MASK_ID, "MASK_ID");
+// Convert a byte to an 8-character binary string that is null-terminated
+// Buffer 'buf' must be at least 9 bytes long
+static void byteToBinary(uint8_t num, char *buf) {
+    for (int i = 0; i < 8; i++) {
+        buf[i] = (num & (1 << (7 - i))) ? '1' : '0';
+    }
+    buf[8] = '\0';
 }
+
+// =================================================================================================
+// Private Helpers - Power Management
+// =================================================================================================
 
 // power must be unplugged to enter ship mode.
 static void enableShipMode(BQ25180 *chargerIC) {
@@ -353,13 +375,4 @@ static void enableShipMode(BQ25180 *chargerIC) {
 
 static void hardwareReset(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SHIP_RST, 0b01100001);
-}
-
-void lock(BQ25180 *chargerIC) {
-    enum ChargeState state = getChargingState(chargerIC);
-    if (state == notConnected) {
-        enableShipMode(chargerIC);
-    } else {
-        hardwareReset(chargerIC);
-    }
 }

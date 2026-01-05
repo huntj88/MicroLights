@@ -5,6 +5,9 @@
       "delete": "Delete",
       "cancel": "Cancel",
       "confirm": "Confirm",
+      "close": "Close",
+      "import": "Import",
+      "overwrite": "Overwrite",
       "test": "Test on Device",
       "stopTest": "Stop Testing",
       "testSuccess": "Test pattern sent to device",
@@ -189,7 +192,25 @@
       "autoscrollOn": "Autoscroll • on",
       "autoscrollOff": "Autoscroll • off",
       "clear": "Clear log",
-      "send": "Send payload"
+      "send": "Send payload",
+      "viewChargerStatus": "View Charger Status",
+      "importMode": "Import Mode"
+    },
+    "chargerStatus": {
+      "title": "Charger Status",
+      "noDecoding": "No decoding available for this register"
+    },
+    "importMode": {
+      "title": "Import Mode",
+      "description": "This will save the mode to your Modes list and all its patterns to your Pattern Library.",
+      "overwriteWarning": "Overwrites existing mode.",
+      "overwritePatternWarning": "Overwrites existing library pattern.",
+      "success": "Import successful",
+      "error": "Failed to import",
+      "importFullMode": "Save to Modes",
+      "modeHelp": "The mode configuration will be saved to your Modes list.",
+      "patterns": "Save to Pattern Library",
+      "patternsHelp": "These patterns will be added to your Pattern Library for reuse."
     },
     "fields": {
       "payloadLabel": "Payload",

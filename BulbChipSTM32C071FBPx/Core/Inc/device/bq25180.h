@@ -30,6 +30,8 @@
 #define BQ25180_TS_CONTROL 0xB
 #define BQ25180_MASK_ID 0xC
 
+#define BQ25180_JSON_BUFFER_SIZE 287  // unit test ensures we update this if the size changes
+
 #define STAT0_DEFAULT 0b00000000        // Default value for STAT0 register (Offset = 0x0)
 #define STAT1_DEFAULT 0b00000000        // Default value for STAT1 register (Offset = 0x1)
 #define FLAG0_DEFAULT 0b00000000        // Default value for FLAG0 register (Offset = 0x2)
@@ -51,7 +53,7 @@ typedef struct BQ25180 BQ25180;  // forward declaration
 typedef struct BQ25180 {
     I2CReadRegister *readRegister;
     I2CWriteRegister *writeRegister;
-    WriteToUsbSerial *writeToUsbSerial;
+    WriteToSerial *writeToSerial;
     uint8_t devAddress;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
@@ -81,18 +83,18 @@ bool bq25180Init(
     I2CReadRegister *readRegCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToUsbSerial *writeToUsbSerial,
+    WriteToSerial *writeToSerial,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable));
 
 void handleChargerInterrupt();
-void configureChargerIC(BQ25180 *chargerIC);
 void chargerTask(
-    BQ25180 *chargerIC, uint32_t milliseconds, bool unplugLockEnabled, bool ledEnabled);
+    BQ25180 *chargerIC,
+    uint32_t milliseconds,
+    bool unplugLockEnabled,
+    bool ledEnabled,
+    bool serialEnabled);
 void lock(BQ25180 *chargerIC);
-void printAllRegisters(BQ25180 *chargerIC);
-BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
-void readAllRegistersJson(BQ25180 *chargerIC, char *jsonOutput);
 enum ChargeState getChargingState(BQ25180 *chargerIC);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers

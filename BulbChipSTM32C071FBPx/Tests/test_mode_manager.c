@@ -22,7 +22,6 @@ static uint8_t mockAccelMagnitude = 0;
 static bool writeToSerialCalled = false;
 static char lastSerialBuffer[256];
 static uint32_t lastSerialCount = 0;
-static uint8_t lastSerialItf = 0;
 
 // Mock Functions
 void mock_enableTimers(bool enable) {
@@ -51,9 +50,8 @@ bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
     return mockAccelMagnitude > threshold;
 }
 
-void mock_writeToSerial(uint8_t itf, const char *buf, uint32_t count) {
+void mock_writeToSerial(const char *buf, uint32_t count) {
     writeToSerialCalled = true;
-    lastSerialItf = itf;
     if (count >= sizeof(lastSerialBuffer)) {
         count = sizeof(lastSerialBuffer) - 1U;
     }
@@ -113,7 +111,6 @@ void setUp(void) {
     writeToSerialCalled = false;
     memset(lastSerialBuffer, 0, sizeof(lastSerialBuffer));
     lastSerialCount = 0;
-    lastSerialItf = 0;
 }
 
 void tearDown(void) {
@@ -767,7 +764,6 @@ void test_ModeManager_LogsEquationCompileError(void) {
     TEST_ASSERT_NOT_EQUAL_UINT32(0, lastSerialCount);
     TEST_ASSERT_NOT_NULL(strstr(lastSerialBuffer, "front"));
     TEST_ASSERT_NOT_NULL(strstr(lastSerialBuffer, "red"));
-    TEST_ASSERT_EQUAL_UINT8(0, lastSerialItf);
 }
 
 int main(void) {

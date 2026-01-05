@@ -132,4 +132,120 @@ describe('SerialLogPanel', () => {
     expect(screen.getByText('System ready')).toBeInTheDocument();
     expect(screen.getByText(/serialLog.direction.inbound/)).toBeInTheDocument();
   });
+
+  it('renders "View Charger Status" button for charger data logs', () => {
+    const chargerState: SerialLogState = {
+      entries: [
+        {
+          id: '1',
+          timestamp: new Date().toISOString(),
+          direction: 'inbound',
+          payload: JSON.stringify({
+            chargectrl0: '00101100',
+            stat0: '00000000',
+            mask_id: '11000000',
+          }),
+        },
+      ],
+      pendingPayload: '',
+    };
+
+    renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={chargerState} />);
+
+    expect(screen.getByText('serialLog.actions.viewChargerStatus')).toBeInTheDocument();
+  });
+
+  it('renders "Import Mode" button for mode data logs', () => {
+    const modeState: SerialLogState = {
+      entries: [
+        {
+          id: '1',
+          timestamp: new Date().toISOString(),
+          direction: 'inbound',
+          payload: JSON.stringify({
+            command: 'writeMode',
+            index: 0,
+            mode: {
+              name: 'test mode',
+              front: {
+                pattern: {
+                  type: 'simple',
+                  name: 'test',
+                  duration: 100,
+                  changeAt: [{ ms: 0, output: 'high' }],
+                },
+              },
+            },
+          }),
+        },
+      ],
+      pendingPayload: '',
+    };
+
+    renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={modeState} />);
+
+    expect(screen.getByText('serialLog.actions.importMode')).toBeInTheDocument();
+  });
+
+  it('opens ChargerStatusModal when "View Charger Status" is clicked', async () => {
+    const user = userEvent.setup();
+    const chargerState: SerialLogState = {
+      entries: [
+        {
+          id: '1',
+          timestamp: new Date().toISOString(),
+          direction: 'inbound',
+          payload: JSON.stringify({
+            chargectrl0: '00101100',
+            stat0: '00000000',
+            mask_id: '11000000',
+          }),
+        },
+      ],
+      pendingPayload: '',
+    };
+
+    renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={chargerState} />);
+
+    await user.click(screen.getByText('serialLog.actions.viewChargerStatus'));
+
+    expect(screen.getByText('serialLog.chargerStatus.title')).toBeInTheDocument();
+    expect(screen.getByText('CHARGECTRL0')).toBeInTheDocument();
+  });
+
+  it('opens ImportModeModal when "Import Mode" is clicked', async () => {
+    const user = userEvent.setup();
+    const modeState: SerialLogState = {
+      entries: [
+        {
+          id: '1',
+          timestamp: new Date().toISOString(),
+          direction: 'inbound',
+          payload: JSON.stringify({
+            command: 'writeMode',
+            index: 0,
+            mode: {
+              name: 'test mode',
+              front: {
+                pattern: {
+                  type: 'simple',
+                  name: 'test',
+                  duration: 100,
+                  changeAt: [{ ms: 0, output: 'high' }],
+                },
+              },
+            },
+          }),
+        },
+      ],
+      pendingPayload: '',
+    };
+
+    renderWithProviders(<SerialLogPanel onChange={vi.fn()} value={modeState} />);
+
+    await user.click(screen.getByText('serialLog.actions.importMode'));
+
+    expect(screen.getByText('serialLog.importMode.title')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('test mode')).toBeInTheDocument();
+  });
 });

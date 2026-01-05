@@ -49,16 +49,13 @@ void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint
 
             uint32_t written = tud_cdc_n_write(itf, buf + sent, to_send);
             sent += written;
+        } else {
+            break;
         }
         tud_task();
     }
     tud_cdc_n_write_flush(itf);
     tud_task();
-
-    // also log to uart serial in case usb doesn't work
-    if (usbManager->huart != NULL) {
-        HAL_UART_Transmit(usbManager->huart, (uint8_t *)buf, count, 100);
-    }
 }
 
 static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
@@ -93,6 +90,9 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         case parseReadMode: {
             usbManager->modeManager->readBulbModeFromFlash(cliInput.modeIndex, buf, PAGE_SECTOR);
             uint16_t len = strlen(buf);
+            if (len > PAGE_SECTOR - 2) {
+                len = PAGE_SECTOR - 2;
+            }
             buf[len] = '\n';
             buf[len + 1] = '\0';
             usbWriteToSerial(usbManager, 0, buf, strlen(buf));
@@ -105,31 +105,8 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            loadSettingsFromFlash(usbManager->settingsManager, buf);
-
-            usbWriteToSerial(usbManager, 0, "{\"settings\":", 12);
-
-            if (cliInput.parsedType == parseWriteSettings) {
-                usbWriteToSerial(usbManager, 0, buf, strlen(buf));
-            } else {
-                usbWriteToSerial(usbManager, 0, "null", 4);
-            }
-
-            ChipSettings defaultSettings;
-            chipSettingsInitDefaults(&defaultSettings);
-
-            char defaultsBuf[256];
-            int len = snprintf(
-                defaultsBuf,
-                sizeof(defaultsBuf),
-                ",\"defaults\":{\"modeCount\":%d,\"minutesUntilAutoOff\":%d,"
-                "\"minutesUntilLockAfterAutoOff\":%d,\"equationEvalIntervalMs\":%d}}\n",
-                defaultSettings.modeCount,
-                defaultSettings.minutesUntilAutoOff,
-                defaultSettings.minutesUntilLockAfterAutoOff,
-                defaultSettings.equationEvalIntervalMs);
-
-            usbWriteToSerial(usbManager, 0, defaultsBuf, len);
+            int len = getSettingsResponse(usbManager->settingsManager, buf, PAGE_SECTOR);
+            usbWriteToSerial(usbManager, 0, buf, len);
             break;
         }
         case parseDfu: {

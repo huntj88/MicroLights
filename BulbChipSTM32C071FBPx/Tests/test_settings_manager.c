@@ -9,6 +9,7 @@
 #include "device/button.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
+#include "lwjson/lwjson.h"
 #include "mode_manager.h"
 #include "model/cli_model.h"
 #include "settings_manager.h"
@@ -28,7 +29,12 @@ CliInput cliInput;
 bool parseJsonCalled = false;
 void parseJson(const char buf[], uint32_t count, CliInput *input) {
     parseJsonCalled = true;
-    // Do nothing, simulating empty/invalid flash or just checking defaults before parse
+    // Check if buf contains "modeCount" which implies valid settings in our mock
+    if (strstr(buf, "modeCount") != NULL) {
+        input->parsedType = parseWriteSettings;
+    } else {
+        input->parsedType = parseError;
+    }
 }
 
 void mock_readSettingsFromFlash(char buffer[], uint32_t length) {
@@ -41,7 +47,7 @@ uint32_t mock_convertTicksToMs(uint32_t ticks) {
     return ticks * 10;
 }
 
-void mock_writeUsbSerial(uint8_t itf, const char *buf, uint32_t count) {
+void mock_writeUsbSerial(const char *buf, uint32_t count) {
     strncpy(lastSerialOutput, buf, count);
     lastSerialOutput[count] = '\0';
 }
@@ -62,7 +68,8 @@ void rgbTask(RGBLed *led, uint32_t ms) {
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
-void chargerTask(BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled) {
+void chargerTask(
+    BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled, bool serialEnabled) {
 }
 void modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
@@ -189,11 +196,138 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
+void test_SettingsJson_KeysMatchMacroCount(void) {
+    char buf[PAGE_SECTOR];
+
+    // getSettingsDefaultsJson returns a valid JSON object: {...}
+    getSettingsDefaultsJson(buf, sizeof(buf));
+
+    // Parse JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buf));
+
+    // The root token is the object itself
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_OBJECT, lwjson.first_token.type);
+
+    // Count keys in root object
+    int keyCount = 0;
+    for (const lwjson_token_t *child = lwjson.first_token.u.first_child; child != NULL;
+         child = child->next) {
+        keyCount++;
+    }
+
+    int macroCount = 0;
+#define X_COUNT(type, name, def) macroCount++;
+    CHIP_SETTINGS_MAP(X_COUNT)
+#undef X_COUNT
+
+    TEST_ASSERT_EQUAL_MESSAGE(macroCount, keyCount, "JSON key count mismatch");
+
+    lwjson_free(&lwjson);
+}
+
+void test_generateSettingsResponse_WithSettings(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
+
+    char buffer[1024];
+    // Mock flash read will populate this inside getSettingsResponse
+    // But wait, getSettingsResponse calls loadSettingsFromFlash which calls readSettingsFromFlash.
+    // mock_readSettingsFromFlash_Matching writes "{\"modeCount\":0,\"equationEvalIntervalMs\":20}"
+
+    getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
+
+    // 1. Verify full string content
+    char defaultsBuf[256];
+    getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
+    char expected[1024];
+    // The mock writes valid settings, so we expect them in the output
+    sprintf(
+        expected,
+        "{\"settings\":{\"modeCount\":0,\"equationEvalIntervalMs\":20},\"defaults\":%s}\n",
+        defaultsBuf);
+
+    TEST_ASSERT_EQUAL_STRING(expected, buffer);
+
+    // 2. Verify it is valid JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    // Remove newline for parser if necessary, but lwjson might handle it.
+    // Let's try parsing as is.
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buffer));
+
+    const lwjson_token_t *t = lwjson_find(&lwjson, "settings");
+    TEST_ASSERT_NOT_NULL(t);
+
+    t = lwjson_find(&lwjson, "defaults");
+    TEST_ASSERT_NOT_NULL(t);
+
+    lwjson_free(&lwjson);
+}
+
+void test_generateSettingsResponse_NullSettings(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);  // Writes 0s (empty)
+
+    char buffer[1024];
+
+    getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
+
+    // 1. Verify full string content
+    char defaultsBuf[256];
+    getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+
+    char expected[1024];
+    sprintf(expected, "{\"settings\":null,\"defaults\":%s}\n", defaultsBuf);
+
+    TEST_ASSERT_EQUAL_STRING(expected, buffer);
+
+    // 2. Verify it is valid JSON
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buffer));
+
+    const lwjson_token_t *t = lwjson_find(&lwjson, "settings");
+    TEST_ASSERT_NOT_NULL(t);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_NULL, t->type);
+
+    t = lwjson_find(&lwjson, "defaults");
+    TEST_ASSERT_NOT_NULL(t);
+
+    lwjson_free(&lwjson);
+}
+
+void test_SettingsDefaultsJson_FitsInBufferSize(void) {
+    char buffer[SETTINGS_DEFAULTS_JSON_SIZE];
+    int len = getSettingsDefaultsJson(buffer, sizeof(buffer));
+
+    // len is the number of characters that would have been written if n had been sufficiently
+    // large, not counting the terminating null character. So we need len < sizeof(buffer) for it to
+    // fit with null terminator.
+    TEST_ASSERT_LESS_THAN_INT_MESSAGE(
+        SETTINGS_DEFAULTS_JSON_SIZE,
+        len,
+        "Defaults JSON too large for buffer, increase size if needed");
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SettingsDefaultsJson_FitsInBufferSize);
+    RUN_TEST(test_SettingsJson_KeysMatchMacroCount);
     RUN_TEST(test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches);
     RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);
     RUN_TEST(test_SettingsManagerInit_SetsDefaults);
     RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
+    RUN_TEST(test_generateSettingsResponse_NullSettings);
+    RUN_TEST(test_generateSettingsResponse_WithSettings);
     return UNITY_END();
 }

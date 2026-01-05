@@ -21,24 +21,38 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
     return hexAddress;
 }
 
-static void readBytes(uint32_t page, char buffer[], uint32_t length) {
+static void readString(uint32_t page, char buffer[], uint32_t length) {
     uint32_t address = getHexAddressOfPage(page);
-    memcpy(buffer, (void *)address, length);
+    memcpy(buffer, (const void *)(uintptr_t)address, length);
+    // Ensure null termination
+    if (length > 0) {
+        buffer[length - 1] = '\0';
+    }
+    // Check for erased flash (0xFF) and treat as empty string
+    if ((unsigned char)buffer[0] == 0xFF) {
+        buffer[0] = '\0';
+    }
 }
 
-static void writeBytes(uint32_t page, const char buffer[], uint32_t bufCount) {
+static void writeString(uint32_t page, const char str[], uint32_t length) {
+    // Leave room for null terminator
+    if (length >= PAGE_SECTOR) {
+        length = PAGE_SECTOR - 1;
+    }
+
     uint8_t numBytesToWrite = 8;
     memoryPageErase(page);
 
     HAL_FLASH_Unlock();
 
-    uint8_t emptyPaddingLength = numBytesToWrite - (bufCount % numBytesToWrite);
+    uint8_t emptyPaddingLength = numBytesToWrite - (length % numBytesToWrite);
     uint8_t dataSpaceBuf[numBytesToWrite];
 
-    // write 8 bytes at a time, pad with \0 at end if bytes count is not a multiple of 8
-    for (int32_t i = 0; i < bufCount + emptyPaddingLength; i++) {
-        if (i < bufCount) {
-            dataSpaceBuf[i % numBytesToWrite] = buffer[i];
+    // Write 8 bytes at a time, pad with \0 at end.
+    // If bytes count is not a multiple of 8, pad the remaining bytes with \0.
+    for (int32_t i = 0; i < length + emptyPaddingLength; i++) {
+        if (i < length) {
+            dataSpaceBuf[i % numBytesToWrite] = str[i];
         } else {
             dataSpaceBuf[i % numBytesToWrite] = '\0';
         }
@@ -60,24 +74,24 @@ static void writeBytes(uint32_t page, const char buffer[], uint32_t bufCount) {
     HAL_FLASH_Lock();
 }
 
-void writeSettingsToFlash(const char buffer[], uint32_t bufCount) {
+void writeSettingsToFlash(const char str[], uint32_t length) {
     __disable_irq();
-    writeBytes(SETTINGS_PAGE, buffer, bufCount);
+    writeString(SETTINGS_PAGE, str, length);
     __enable_irq();
 }
 
 void readSettingsFromFlash(char buffer[], uint32_t length) {
-    readBytes(SETTINGS_PAGE, buffer, length);
+    readString(SETTINGS_PAGE, buffer, length);
 }
 
-void writeBulbModeToFlash(uint8_t mode, const char buffer[], uint32_t bufCount) {
+void writeBulbModeToFlash(uint8_t mode, const char str[], uint32_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     __disable_irq();
-    writeBytes(page, buffer, bufCount);
+    writeString(page, str, length);
     __enable_irq();
 }
 
 void readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
-    readBytes(page, buffer, length);
+    readString(page, buffer, length);
 }
