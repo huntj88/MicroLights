@@ -19,9 +19,8 @@ typedef struct SettingsManager {
 
 bool settingsManagerInit(
     SettingsManager *manager, void (*readSettingsFromFlash)(char buffer[], uint32_t length));
-void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput);
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
 int getSettingsDefaultsJson(char *buffer, uint32_t len);
-int getSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson);
+int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */

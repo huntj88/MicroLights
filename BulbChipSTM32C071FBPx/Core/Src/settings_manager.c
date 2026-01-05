@@ -13,6 +13,8 @@
 #include "json/json_buf.h"
 #include "storage.h"
 
+static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput);
+
 bool settingsManagerInit(
     SettingsManager *manager, void (*readSettingsFromFlash)(char buffer[], uint32_t length)) {
     if (!manager || !readSettingsFromFlash) {
@@ -24,7 +26,7 @@ bool settingsManagerInit(
     return true;
 }
 
-void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput) {
+static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput) {
     // Set defaults first in case load fails
     chipSettingsInitDefaults(&manager->currentSettings);
 
@@ -86,21 +88,36 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
     return offset;
 }
 
-int getSettingsResponse(char *buffer, uint32_t len, const char *currentSettingsJson) {
-    int offset = 0;
-    offset = appendJson(buffer, len, offset, "{\"settings\":");
+int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len) {
+    loadSettingsFromFlash(manager, buffer, &cliInput);
+    bool hasSettings = (cliInput.parsedType == parseWriteSettings);
 
-    if (currentSettingsJson) {
-        offset = appendJson(buffer, len, offset, "%s", currentSettingsJson);
+    int offset = 0;
+    if (hasSettings) {
+        size_t currentLen = strlen(buffer);
+        const char *prefix = "{\"settings\":";
+        size_t prefixLen = strlen(prefix);
+
+        if (prefixLen + currentLen >= len) {
+            return 0;
+        }
+
+        // Shift existing data to make room for prefix
+        memmove(buffer + prefixLen, buffer, currentLen + 1);
+
+        // prepend prefix, no null terminator needed
+        // NOLINTNEXTLINE(bugprone-not-null-terminated-result)
+        memcpy(buffer, prefix, prefixLen);
+
+        offset = (int)(prefixLen + currentLen);
     } else {
-        offset = appendJson(buffer, len, offset, "null");
+        offset = appendJson(buffer, len, offset, "{\"settings\":null");
     }
 
-    char defaultsBuf[256];
+    char defaultsBuf[512];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
     offset = appendJson(buffer, len, offset, ",\"defaults\":%s", defaultsBuf);
     offset = appendJson(buffer, len, offset, "}\n");
-
     return offset;
 }

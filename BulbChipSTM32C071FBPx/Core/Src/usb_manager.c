@@ -105,17 +105,8 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            loadSettingsFromFlash(usbManager->settingsManager, buf, &cliInput);
-
-            char responseBuf[1024];
-            int len;
-            if (cliInput.parsedType == parseWriteSettings) {
-                const char *currentSettingsJson = buf;
-                len = getSettingsResponse(responseBuf, sizeof(responseBuf), currentSettingsJson);
-            } else {
-                len = getSettingsResponse(responseBuf, sizeof(responseBuf), NULL);
-            }
-            usbWriteToSerial(usbManager, 0, responseBuf, len);
+            int len = getSettingsResponse(usbManager->settingsManager, buf, PAGE_SECTOR);
+            usbWriteToSerial(usbManager, 0, buf, len);
             break;
         }
         case parseDfu: {

@@ -29,7 +29,12 @@ CliInput cliInput;
 bool parseJsonCalled = false;
 void parseJson(const char buf[], uint32_t count, CliInput *input) {
     parseJsonCalled = true;
-    // Do nothing, simulating empty/invalid flash or just checking defaults before parse
+    // Check if buf contains "modeCount" which implies valid settings in our mock
+    if (strstr(buf, "modeCount") != NULL) {
+        input->parsedType = parseWriteSettings;
+    } else {
+        input->parsedType = parseError;
+    }
 }
 
 void mock_readSettingsFromFlash(char buffer[], uint32_t length) {
@@ -208,11 +213,10 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
 
     // Count keys in root object
     int keyCount = 0;
-    for (const lwjson_token_t *child = lwjson.first_token.u.first_child; child != NULL; child = child->next) {
+    for (const lwjson_token_t *child = lwjson.first_token.u.first_child; child != NULL;
+         child = child->next) {
         keyCount++;
     }
-
-
 
     int macroCount = 0;
 #define X_COUNT(type, name, def) macroCount++;
@@ -225,17 +229,27 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
 }
 
 void test_generateSettingsResponse_WithSettings(void) {
-    char buffer[1024];
-    const char *settings = "{\"foo\":1}";
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
 
-    getSettingsResponse(buffer, sizeof(buffer), settings);
+    char buffer[1024];
+    // Mock flash read will populate this inside getSettingsResponse
+    // But wait, getSettingsResponse calls loadSettingsFromFlash which calls readSettingsFromFlash.
+    // mock_readSettingsFromFlash_Matching writes "{\"modeCount\":0,\"equationEvalIntervalMs\":20}"
+
+    getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
 
     // 1. Verify full string content
     char defaultsBuf[256];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
     char expected[1024];
-    sprintf(expected, "{\"settings\":%s,\"defaults\":%s}\n", settings, defaultsBuf);
+    // The mock writes valid settings, so we expect them in the output
+    sprintf(
+        expected,
+        "{\"settings\":{\"modeCount\":0,\"equationEvalIntervalMs\":20},\"defaults\":%s}\n",
+        defaultsBuf);
 
     TEST_ASSERT_EQUAL_STRING(expected, buffer);
 
@@ -258,9 +272,13 @@ void test_generateSettingsResponse_WithSettings(void) {
 }
 
 void test_generateSettingsResponse_NullSettings(void) {
+    SettingsManager settingsManager;
+    memset(&settingsManager, 0, sizeof(SettingsManager));
+    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);  // Writes 0s (empty)
+
     char buffer[1024];
 
-    getSettingsResponse(buffer, sizeof(buffer), NULL);
+    getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
 
     // 1. Verify full string content
     char defaultsBuf[256];
