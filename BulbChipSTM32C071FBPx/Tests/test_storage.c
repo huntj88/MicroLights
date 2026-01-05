@@ -100,7 +100,7 @@ void test_writeSettingsToFlash_TruncatesIfTooLong(void) {
     memset(largeBuf, 'A', sizeof(largeBuf));
     largeBuf[sizeof(largeBuf) - 1] = '\0';
 
-    writeSettingsToFlash(largeBuf, sizeof(largeBuf));
+    writeSettingsToFlash(largeBuf, strlen(largeBuf));
 
     char readBuf[PAGE_SECTOR + 100];
     readSettingsFromFlash(readBuf, PAGE_SECTOR);  // Read up to page sector
