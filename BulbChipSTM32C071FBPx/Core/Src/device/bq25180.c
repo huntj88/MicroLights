@@ -329,6 +329,8 @@ static void bq25180regsToJson(const BQ25180Registers registers, char jsonOutput[
         bins[12]);
 }
 
+// Convert a byte to an 8-character binary string that is null-terminated
+// Buffer 'buf' must be at least 9 bytes long
 static void byteToBinary(uint8_t num, char *buf) {
     for (int i = 0; i < 8; i++) {
         buf[i] = (num & (1 << (7 - i))) ? '1' : '0';
