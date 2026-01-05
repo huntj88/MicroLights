@@ -35,13 +35,11 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       // Send read command
       void serialManager.send({ command: 'readSettings' });
 
-      // TODO: if no response in X seconds, show error instead of showing defaults
+      // TODO: if no response in X seconds, show retry option
       // Timeout fallback
       const timer = setTimeout(() => {
         setIsLoading(false);
       }, 3000);
-
-      let buffer = '';
 
       const handleResponse = (response: SettingsResponse) => {
         const newSettings: Settings = {};
@@ -70,21 +68,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
       };
 
       // Setup listener for response
-      const cleanup = serialManager.on('data', (line, json) => {
+      const cleanup = serialManager.on('data', (_line, json) => {
         if (isValidResponse(json)) {
           handleResponse(json);
           return;
-        }
-
-        // Try buffering
-        buffer += line;
-        try {
-          const parsed: unknown = JSON.parse(buffer);
-          if (isValidResponse(parsed)) {
-            handleResponse(parsed);
-          }
-        } catch {
-          // ignore
         }
       });
 
