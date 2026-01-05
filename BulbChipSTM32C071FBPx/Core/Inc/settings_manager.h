@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include "model/cli_model.h"
 
+#define SETTINGS_DEFAULTS_JSON_SIZE 131  // unit test ensures we update this if the size changes
+
 typedef struct SettingsManager {
     ChipSettings currentSettings;
     void (*readSettingsFromFlash)(char buffer[], uint32_t length);

@@ -306,8 +306,22 @@ void test_generateSettingsResponse_NullSettings(void) {
     lwjson_free(&lwjson);
 }
 
+void test_SettingsDefaultsJson_FitsInBufferSize(void) {
+    char buffer[SETTINGS_DEFAULTS_JSON_SIZE];
+    int len = getSettingsDefaultsJson(buffer, sizeof(buffer));
+
+    // len is the number of characters that would have been written if n had been sufficiently
+    // large, not counting the terminating null character. So we need len < sizeof(buffer) for it to
+    // fit with null terminator.
+    TEST_ASSERT_LESS_THAN_INT_MESSAGE(
+        SETTINGS_DEFAULTS_JSON_SIZE,
+        len,
+        "Defaults JSON too large for buffer, increase size if needed");
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_SettingsDefaultsJson_FitsInBufferSize);
     RUN_TEST(test_SettingsJson_KeysMatchMacroCount);
     RUN_TEST(test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches);
     RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);

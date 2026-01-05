@@ -30,6 +30,8 @@
 #define BQ25180_TS_CONTROL 0xB
 #define BQ25180_MASK_ID 0xC
 
+#define BQ25180_JSON_BUFFER_SIZE 287  // unit test ensures we update this if the size changes
+
 #define STAT0_DEFAULT 0b00000000        // Default value for STAT0 register (Offset = 0x0)
 #define STAT1_DEFAULT 0b00000000        // Default value for STAT1 register (Offset = 0x1)
 #define FLAG0_DEFAULT 0b00000000        // Default value for FLAG0 register (Offset = 0x2)

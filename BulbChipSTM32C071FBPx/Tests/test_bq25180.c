@@ -210,6 +210,12 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
         serialBuffer[strlen(serialBuffer) - 1] == '\n', "JSON output exceeds buffer size");
     TEST_ASSERT_TRUE_MESSAGE(
         serialBuffer[strlen(serialBuffer)] == '\0', "JSON output exceeds buffer size");
+
+    // Verify it fills the buffer exactly (minus null terminator)
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        BQ25180_JSON_BUFFER_SIZE - 1,
+        strlen(serialBuffer),
+        "JSON output length mismatch with buffer size");
 }
 
 int main(void) {

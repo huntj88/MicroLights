@@ -114,7 +114,7 @@ int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len) {
         offset = appendJson(buffer, len, offset, "{\"settings\":null");
     }
 
-    char defaultsBuf[512];
+    char defaultsBuf[SETTINGS_DEFAULTS_JSON_SIZE];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
 
     offset = appendJson(buffer, len, offset, ",\"defaults\":%s", defaultsBuf);

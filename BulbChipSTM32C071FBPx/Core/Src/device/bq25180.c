@@ -83,7 +83,7 @@ void chargerTask(
     // with for 40 seconds, and 15 seconds after plugged in.
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
         if (serialEnabled) {
-            char registerJson[287];
+            char registerJson[BQ25180_JSON_BUFFER_SIZE];
             readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
             chargerIC->writeToSerial(registerJson, strlen(registerJson));
         }
