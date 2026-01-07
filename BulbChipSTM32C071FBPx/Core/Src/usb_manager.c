@@ -82,7 +82,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
                 // do not write to flash for transient test
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             } else {
-                writeBulbModeToFlash(cliInput.modeIndex, buf, strlen(buf));
+                writeBulbModeToFlash(cliInput.modeIndex, buf, count);
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             }
             break;
@@ -100,7 +100,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
-            writeSettingsToFlash(buf, strlen(buf));
+            writeSettingsToFlash(buf, count);
             updateSettings(usbManager->settingsManager, &settings);
             break;
         }
