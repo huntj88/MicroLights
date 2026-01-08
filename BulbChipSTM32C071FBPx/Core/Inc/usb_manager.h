@@ -10,13 +10,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "main.h"
 #include "mode_manager.h"
 #include "model/serial.h"
 #include "settings_manager.h"
 
 typedef struct USBManager {
-    UART_HandleTypeDef *huart;
     ModeManager *modeManager;
     SettingsManager *settingsManager;
     void (*enterDFU)();
@@ -24,7 +22,6 @@ typedef struct USBManager {
 
 bool usbInit(
     USBManager *usbManager,
-    UART_HandleTypeDef *huart,
     ModeManager *modeManager,
     SettingsManager *settingsManager,
     void (*enterDFU)());

@@ -18,14 +18,12 @@
 // integration guide: https://github.com/hathach/tinyusb/discussions/633
 bool usbInit(
     USBManager *usbManager,
-    UART_HandleTypeDef *huart,
     ModeManager *modeManager,
     SettingsManager *settingsManager,
     void (*enterDFU)()) {
-    if (!usbManager || !huart || !modeManager || !settingsManager || !enterDFU) {
+    if (!usbManager || !modeManager || !settingsManager || !enterDFU) {
         return false;
     }
-    usbManager->huart = huart;
     usbManager->modeManager = modeManager;
     usbManager->settingsManager = settingsManager;
     usbManager->enterDFU = enterDFU;

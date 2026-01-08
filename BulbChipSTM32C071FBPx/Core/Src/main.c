@@ -27,11 +27,9 @@
 #include "device/button.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
-#include "json/command_parser.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
 #include "storage.h"
-#include "tusb.h"
 #include "usb_manager.h"
 /* USER CODE END Includes */
 
@@ -303,7 +301,7 @@ int main(void) {
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
         Error_Handler();
     }
-    if (!usbInit(&usbManager, &huart2, &modeManager, &settingsManager, setBootloaderFlagAndReset)) {
+    if (!usbInit(&usbManager, &modeManager, &settingsManager, setBootloaderFlagAndReset)) {
         Error_Handler();
     }
 

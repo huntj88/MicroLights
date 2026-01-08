@@ -17,7 +17,7 @@ rm -f Tests/build/*
 # - libs/Unity/src: for Unity
 # - libs/lwjson/lwjson/src/include: for lwjson.h
 # - libs/tinyexpr: for tinyexpr.h
-CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -I Tests/mocks -DUNIT_TEST"
+CFLAGS="-I Core/Inc -I libs/Unity/src -I libs/lwjson/lwjson/src/include -I libs/tinyexpr -I Tests/mocks -I libs/tinyusb/src -DUNIT_TEST"
 UNITY_SRC="libs/Unity/src/unity.c"
 LWJSON_SRC="libs/lwjson/lwjson/src/lwjson/lwjson.c"
 TINYEXPR_SRC="libs/tinyexpr/tinyexpr.c"
@@ -112,6 +112,10 @@ run_test ./Tests/build/test_bq25180
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_storage..."; fi
 gcc $CFLAGS Tests/test_storage.c $UNITY_SRC -o Tests/build/test_storage
 run_test ./Tests/build/test_storage
+
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_manager..."; fi
+gcc $CFLAGS Tests/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/json/parser.c Core/Src/model/cli_model.c Core/Src/json/json_buf.c Core/Src/usb_manager.c -lm -o Tests/build/test_usb_manager
+run_test ./Tests/build/test_usb_manager
 
 echo "---------------------------------------------------"
 echo "Final Aggregate Report"
