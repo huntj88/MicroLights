@@ -29,7 +29,7 @@
 #include "device/rgb_led.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
-#include "storage.h"
+#include "mcu_dependencies.h"
 #include "usb_manager.h"
 /* USER CODE END Includes */
 

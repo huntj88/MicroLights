@@ -21,7 +21,7 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
     return hexAddress;
 }
 
-static void readString(uint32_t page, char buffer[], uint32_t length) {
+void readStringFromFlash(uint32_t page, char buffer[], uint32_t length) {
     uint32_t address = getHexAddressOfPage(page);
     memcpy(buffer, (const void *)(uintptr_t)address, length);
     // Ensure null termination
@@ -34,17 +34,17 @@ static void readString(uint32_t page, char buffer[], uint32_t length) {
     }
 }
 
-static void writeString(uint32_t page, const char str[], uint32_t length) {
+void writeStringToFlash(uint32_t page, const char str[], uint32_t length) {
+    uint8_t numBytesToWrite = 8;
+
+    __disable_irq();
+    memoryPageErase(page);
+    HAL_FLASH_Unlock();
+
     // Leave room for null terminator
     if (length >= PAGE_SECTOR) {
         length = PAGE_SECTOR - 1;
     }
-
-    uint8_t numBytesToWrite = 8;
-    memoryPageErase(page);
-
-    HAL_FLASH_Unlock();
-
     uint8_t emptyPaddingLength = numBytesToWrite - (length % numBytesToWrite);
     uint8_t dataSpaceBuf[numBytesToWrite];
 
@@ -72,26 +72,5 @@ static void writeString(uint32_t page, const char str[], uint32_t length) {
     }
 
     HAL_FLASH_Lock();
-}
-
-void writeSettingsToFlash(const char str[], uint32_t length) {
-    __disable_irq();
-    writeString(SETTINGS_PAGE, str, length);
     __enable_irq();
-}
-
-void readSettingsFromFlash(char buffer[], uint32_t length) {
-    readString(SETTINGS_PAGE, buffer, length);
-}
-
-void writeBulbModeToFlash(uint8_t mode, const char str[], uint32_t length) {
-    uint32_t page = BULB_PAGE_0 + mode;
-    __disable_irq();
-    writeString(page, str, length);
-    __enable_irq();
-}
-
-void readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
-    uint32_t page = BULB_PAGE_0 + mode;
-    readString(page, buffer, length);
 }
