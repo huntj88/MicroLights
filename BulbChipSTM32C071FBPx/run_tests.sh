@@ -117,6 +117,10 @@ if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_manager...";
 gcc $CFLAGS Tests/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/json/parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c Core/Src/microlight/usb_manager.c -lm -o Tests/build/test_usb_manager
 run_test ./Tests/build/test_usb_manager
 
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_i2c_log_decorate..."; fi
+gcc $CFLAGS Tests/test_i2c_log_decorate.c Core/Src/microlight/i2c_log_decorate.c $UNITY_SRC -o Tests/build/test_i2c_log_decorate
+run_test ./Tests/build/test_i2c_log_decorate
+
 echo "---------------------------------------------------"
 echo "Final Aggregate Report"
 echo "Total Tests: $TOTAL_TESTS"
