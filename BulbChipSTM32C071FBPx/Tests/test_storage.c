@@ -8,10 +8,48 @@
 
 // Include the mock header
 #include "stm32c0xx.h"
+#include "stm32c0xx_hal.h"
 
 // Define the FLASH global
 FLASH_TypeDef mockFlashPeripheral;
 FLASH_TypeDef *FLASH = &mockFlashPeripheral;
+
+// New HAL Mocks/Stubs needed for mcu_dependencies.c
+TIM_TypeDef mockTIM1;
+I2C_HandleTypeDef hi2c1;
+TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
+
+HAL_StatusTypeDef HAL_I2C_Master_Transmit(
+    I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout) {
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_I2C_Master_Receive(
+    I2C_HandleTypeDef *hi2c, uint16_t DevAddress, uint8_t *pData, uint16_t Size, uint32_t Timeout) {
+    return HAL_OK;
+}
+GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
+    return GPIO_PIN_RESET;
+}
+void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
+}
+HAL_StatusTypeDef HAL_TIM_PWM_Start(TIM_HandleTypeDef *htim, uint32_t Channel) {
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel) {
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim) {
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_TIM_Base_Stop_IT(TIM_HandleTypeDef *htim) {
+    return HAL_OK;
+}
+void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t *pFLatency) {
+}
+uint32_t HAL_RCC_GetPCLK1Freq(void) {
+    return 1000000;
+}
 
 // Mock implementations
 HAL_StatusTypeDef HAL_FLASH_Unlock(void) {

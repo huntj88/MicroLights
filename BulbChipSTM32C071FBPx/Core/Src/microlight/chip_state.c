@@ -35,6 +35,7 @@ typedef struct {
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
+// TODO: move this state to microlight
 static ChipState state = {0};
 
 void configureChipState(
