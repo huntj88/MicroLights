@@ -21,7 +21,7 @@ bool settingsManagerInit(SettingsManager *manager, ReadSavedSettings readSavedSe
     }
     manager->readSavedSettings = readSavedSettings;
 
-    loadSettingsFromFlash(manager, jsonBuf, &cliInput);
+    loadSettingsFromFlash(manager, sharedJsonIOBuffer, &cliInput);
     return true;
 }
 
@@ -29,9 +29,9 @@ static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliIn
     // Set defaults first in case load fails
     chipSettingsInitDefaults(&manager->currentSettings);
 
-    manager->readSavedSettings(buffer, JSON_BUFFER_SIZE);
+    manager->readSavedSettings(buffer, sharedJsonIOBufferSize);
 
-    parseJson(buffer, JSON_BUFFER_SIZE, cliInput);
+    parseJson(buffer, sharedJsonIOBufferSize, cliInput);
 
     if (cliInput->parsedType == parseWriteSettings) {
         updateSettings(manager, &cliInput->settings);

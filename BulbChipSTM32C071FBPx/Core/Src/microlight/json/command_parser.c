@@ -192,24 +192,24 @@ void parseJson(const char buf[], uint32_t count, CliInput *input) {
     }
 
     int32_t indexOfTerminalChar = jsonLength(buf, count);
-    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= JSON_BUFFER_SIZE - 1) {
+    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= sharedJsonIOBufferSize - 1U) {
         input->parsedType = parseError;
         return;
     }
 
-    if (buf != jsonBuf) {
-        memcpy(jsonBuf, buf, indexOfTerminalChar);
+    if (buf != sharedJsonIOBuffer) {
+        memcpy(sharedJsonIOBuffer, buf, indexOfTerminalChar);
     }
 
     // ensure terminal character is \0 and not \n
-    jsonBuf[indexOfTerminalChar] = '\0';
+    sharedJsonIOBuffer[indexOfTerminalChar] = '\0';
 
     input->parsedType = parseError;  // provide error default, override when successful
     input->errorContext.error = PARSER_OK;
     input->errorContext.path[0] = '\0';
 
     lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
-    if (lwjson_parse(&lwjson, jsonBuf) == lwjsonOK) {
+    if (lwjson_parse(&lwjson, sharedJsonIOBuffer) == lwjsonOK) {
         processCommand(&lwjson, input);
     }
     lwjson_free(&lwjson);

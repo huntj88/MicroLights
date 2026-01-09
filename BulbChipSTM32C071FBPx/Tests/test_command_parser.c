@@ -18,9 +18,13 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *t, Mode *mode, ParserErrorConte
 // Include source
 #include "../Core/Src/microlight/json/command_parser.c"
 
+#define TEST_JSON_BUFFER_SIZE 2048
+char testJsonBuf[TEST_JSON_BUFFER_SIZE];
+
 void setUp(void) {
     parseModeCalled = false;
     parseModeResult = true;
+    initSharedJsonIOBuffer(testJsonBuf, TEST_JSON_BUFFER_SIZE);
 }
 
 void tearDown(void) {

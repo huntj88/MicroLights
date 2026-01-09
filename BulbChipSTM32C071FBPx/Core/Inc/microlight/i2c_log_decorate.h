@@ -27,7 +27,7 @@ void i2cDecoratedWrite(
     uint8_t reg,
     uint8_t value,
     I2CWriteRegisterChecked *rawFunc,
-    bool *enableFlag,
+    const bool *enableFlag,
     WriteToSerial *logFunc);
 
 /**
@@ -42,7 +42,7 @@ bool i2cDecoratedReadRegisters(
     uint8_t *buf,
     size_t len,
     I2CReadRegisters *rawFunc,
-    bool *enableFlag,
+    const bool *enableFlag,
     WriteToSerial *logFunc);
 
 #endif /* MICROLIGHT_I2C_LOG_DECORATE_H */

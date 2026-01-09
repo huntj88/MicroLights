@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "microlight/i2c_log_decorate.h"
+#include "microlight/json/json_buf.h"
 
 static BQ25180 chargerIC;
 static Button button;
@@ -44,6 +45,7 @@ static bool internalI2cReadRegisters(
 }
 
 void configureMicroLight(MicroLightDependencies *deps) {
+    initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize);
     rawI2cWrite = deps->i2cWriteRegister;
     rawI2cReadRegs = deps->i2cReadRegisters;
 

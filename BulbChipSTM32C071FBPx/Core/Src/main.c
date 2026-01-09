@@ -118,6 +118,7 @@ int main(void) {
     // different timer, bulb LEDS should continue to work but on a new pin.
 
     // TODO: will need another when adding front rgb led, split up led timers.
+    static char mainJsonBuffer[PAGE_SECTOR];
     MicroLightDependencies deps = {
         .i2cWriteRegister = i2cWriteRegister,
         .i2cReadRegisters = i2cReadRegisters,
@@ -133,8 +134,9 @@ int main(void) {
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .errorHandler = Error_Handler,
         .rgbTimerPeriod =
-            htim1.Init.Period  // TODO: when another leg added they need to have the same period
-    };
+            htim1.Init.Period,  // TODO: when another leg added they need to have the same period
+        .jsonBuffer = mainJsonBuffer,
+        .jsonBufferSize = sizeof(mainJsonBuffer)};
 
     configureMicroLight(&deps);
 

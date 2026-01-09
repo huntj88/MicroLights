@@ -10,8 +10,9 @@
 
 #include <stdint.h>
 
-#define JSON_BUFFER_SIZE 2048  // TODO: Rename and move to config header
+extern char *sharedJsonIOBuffer;
+extern uint32_t sharedJsonIOBufferSize;
 
-extern char jsonBuf[JSON_BUFFER_SIZE];
+void initSharedJsonIOBuffer(char *buf, uint32_t size);
 
 #endif /* INC_JSON_JSON_BUF_H_ */

@@ -15,7 +15,7 @@ static bool ledTimersStarted = false;
 static bool accelEnabled = false;
 static bool accelDisabled = false;
 static uint8_t lastReadModeIndex = 255;
-static char lastReadBuffer[JSON_BUFFER_SIZE];
+#define TEST_JSON_BUFFER_SIZE 2048
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
 static uint8_t mockAccelMagnitude = 0;
@@ -92,6 +92,7 @@ void mock_readSavedMode(uint8_t mode, char buffer[], uint32_t length) {
 }
 
 // Include source
+char testJsonBuf[TEST_JSON_BUFFER_SIZE];
 #include "../Core/Src/microlight/mode_manager.c"
 #include "../Core/Src/microlight/model/mode_state.c"
 
@@ -102,7 +103,6 @@ void setUp(void) {
     accelEnabled = false;
     accelDisabled = false;
     lastReadModeIndex = 255;
-    memset(lastReadBuffer, 0, sizeof(lastReadBuffer));
     lastWrittenBulbState = 255;
     lastRgbR = 0;
     lastRgbG = 0;
@@ -111,6 +111,7 @@ void setUp(void) {
     writeToSerialCalled = false;
     memset(lastSerialBuffer, 0, sizeof(lastSerialBuffer));
     lastSerialCount = 0;
+    initSharedJsonIOBuffer(testJsonBuf, TEST_JSON_BUFFER_SIZE);
 }
 
 void tearDown(void) {

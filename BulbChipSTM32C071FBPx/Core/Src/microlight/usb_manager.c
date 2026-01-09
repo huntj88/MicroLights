@@ -90,10 +90,10 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadMode: {
-            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, JSON_BUFFER_SIZE);
+            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, sharedJsonIOBufferSize);
             uint16_t len = strlen(buf);
-            if (len > JSON_BUFFER_SIZE - 2) {
-                len = JSON_BUFFER_SIZE - 2;
+            if (len > sharedJsonIOBufferSize - 2) {
+                len = sharedJsonIOBufferSize - 2;
             }
             buf[len] = '\n';
             buf[len + 1] = '\0';
@@ -107,7 +107,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            int len = getSettingsResponse(usbManager->settingsManager, buf, JSON_BUFFER_SIZE);
+            int len = getSettingsResponse(usbManager->settingsManager, buf, sharedJsonIOBufferSize);
             usbWriteToSerial(usbManager, 0, buf, len);
             break;
         }
@@ -133,15 +133,15 @@ void usbCdcTask(USBManager *usbManager) {
                 char buf[64];
                 // cast count as uint8_t, buf is only 64 bytes
                 uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
-                if (jsonIndex + count > JSON_BUFFER_SIZE) {
+                if (jsonIndex + count > sharedJsonIOBufferSize) {
                     const char *error = "{\"error\":\"payload too long\"}\n";
                     usbWriteToSerial(usbManager, itf, error, strlen(error));
                     jsonIndex = 0;
                 } else {
                     for (uint8_t i = 0; i < count; i++) {
-                        jsonBuf[jsonIndex++] = buf[i];
+                        sharedJsonIOBuffer[jsonIndex++] = buf[i];
                         if (buf[i] == '\n') {
-                            handleJson(usbManager, jsonBuf, jsonIndex);
+                            handleJson(usbManager, sharedJsonIOBuffer, jsonIndex);
                             jsonIndex = 0;
                         }
                     }

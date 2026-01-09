@@ -35,6 +35,10 @@ typedef struct {
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
     void (*errorHandler)(void);
     uint32_t rgbTimerPeriod;
+
+    // Memory
+    char *jsonBuffer;
+    uint32_t jsonBufferSize;
 } MicroLightDependencies;
 
 void configureMicroLight(MicroLightDependencies *deps);

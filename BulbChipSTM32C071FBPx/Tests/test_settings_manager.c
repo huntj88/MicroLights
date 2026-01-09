@@ -20,7 +20,8 @@ static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 static char lastSerialOutput[100];
-char jsonBuf[JSON_BUFFER_SIZE];
+#define TEST_JSON_BUFFER_SIZE 2048
+char testJsonBuf[TEST_JSON_BUFFER_SIZE];
 
 // Mocks for settings_manager.c
 CliInput cliInput;
@@ -35,7 +36,7 @@ void parseJson(const char buf[], uint32_t count, CliInput *input) {
     }
 }
 
-void mock_readSettingsFromFlash(char buffer[], uint32_t length) {
+void mock_readSavedSettings(char buffer[], uint32_t length) {
     // Simulate empty flash
     memset(buffer, 0, length);
 }
@@ -93,6 +94,7 @@ void setUp(void) {
     memset(&mockAccel, 0, sizeof(MC3479));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
     state = (ChipState){0};
+    initSharedJsonIOBuffer(testJsonBuf, TEST_JSON_BUFFER_SIZE);
 }
 
 void tearDown(void) {
@@ -146,7 +148,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     parseJsonCalled = false;
     cliInput.parsedType = parseError;  // Ensure parseJson doesn't trigger updateSettings
 
-    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);
+    settingsManagerInit(&settingsManager, mock_readSavedSettings);
 
     TEST_ASSERT_EQUAL_UINT8(0, settingsManager.currentSettings.modeCount);
     TEST_ASSERT_EQUAL_UINT8(90, settingsManager.currentSettings.minutesUntilAutoOff);
@@ -154,7 +156,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
-void mock_readSettingsFromFlash_Matching(char buffer[], uint32_t length) {
+void mock_readSavedSettings_Matching(char buffer[], uint32_t length) {
     snprintf(buffer, length, "{\"modeCount\":0,\"equationEvalIntervalMs\":20}");
 }
 
@@ -166,10 +168,10 @@ void test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches(void) {
     parseJsonCalled = false;
     cliInput.parsedType = parseError;
 
-    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
+    settingsManagerInit(&settingsManager, mock_readSavedSettings_Matching);
 }
 
-void mock_readSettingsFromFlash_OldVersion(char buffer[], uint32_t length) {
+void mock_readSavedSettings_OldVersion(char buffer[], uint32_t length) {
     snprintf(buffer, length, "{\"modeCount\":5}");
 }
 
@@ -187,7 +189,7 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
     cliInput.settings.modeCount = 5;
     cliInput.settings.equationEvalIntervalMs = 20;  // Default
 
-    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_OldVersion);
+    settingsManagerInit(&settingsManager, mock_readSavedSettings_OldVersion);
 
     // Verify loaded settings are correct (merged)
     TEST_ASSERT_EQUAL_UINT8(5, settingsManager.currentSettings.modeCount);
@@ -195,7 +197,7 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
 }
 
 void test_SettingsJson_KeysMatchMacroCount(void) {
-    char buf[JSON_BUFFER_SIZE];
+    char buf[TEST_JSON_BUFFER_SIZE];
 
     // getSettingsDefaultsJson returns a valid JSON object: {...}
     getSettingsDefaultsJson(buf, sizeof(buf));
@@ -229,12 +231,12 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
 void test_generateSettingsResponse_WithSettings(void) {
     SettingsManager settingsManager;
     memset(&settingsManager, 0, sizeof(SettingsManager));
-    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash_Matching);
+    settingsManagerInit(&settingsManager, mock_readSavedSettings_Matching);
 
     char buffer[1024];
     // Mock flash read will populate this inside getSettingsResponse
     // But wait, getSettingsResponse calls loadSettingsFromFlash which calls readSavedSettings.
-    // mock_readSettingsFromFlash_Matching writes "{\"modeCount\":0,\"equationEvalIntervalMs\":20}"
+    // mock_readSavedSettings_Matching writes "{\"modeCount\":0,\"equationEvalIntervalMs\":20}"
 
     getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
 
@@ -272,7 +274,7 @@ void test_generateSettingsResponse_WithSettings(void) {
 void test_generateSettingsResponse_NullSettings(void) {
     SettingsManager settingsManager;
     memset(&settingsManager, 0, sizeof(SettingsManager));
-    settingsManagerInit(&settingsManager, mock_readSettingsFromFlash);  // Writes 0s (empty)
+    settingsManagerInit(&settingsManager, mock_readSavedSettings);  // Writes 0s (empty)
 
     char buffer[1024];
 

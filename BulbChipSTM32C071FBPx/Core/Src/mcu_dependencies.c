@@ -6,7 +6,6 @@
  */
 
 #include "mcu_dependencies.h"
-#include "flash_string.h"
 #include "main.h"
 
 extern I2C_HandleTypeDef hi2c1;

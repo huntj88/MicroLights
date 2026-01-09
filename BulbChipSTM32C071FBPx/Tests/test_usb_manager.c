@@ -11,7 +11,6 @@
 // --- Mocks & Stubs ---
 
 // Mock Globals
-// jsonBuf is defined in json_buf.c which is linked
 USBManager usbManager;
 ModeManager modeManager;
 SettingsManager settingsManager;
@@ -27,7 +26,8 @@ static bool mock_tusb_init_called = false;
 static bool mock_enter_dfu_called = false;
 
 // Flash/Storage Mocks
-static char mock_flash_buffer[JSON_BUFFER_SIZE];
+#define TEST_JSON_BUFFER_SIZE 2048
+static char mock_flash_buffer[TEST_JSON_BUFFER_SIZE];
 static bool mock_flash_write_called = false;
 static bool mock_settings_update_called = false;
 static bool mock_mode_set_called = false;
@@ -131,7 +131,7 @@ void setUp(void) {
     memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
     memset(mock_tud_read_buffer, 0, sizeof(mock_tud_read_buffer));
     memset(mock_flash_buffer, 0, sizeof(mock_flash_buffer));
-    memset(jsonBuf, 0, JSON_BUFFER_SIZE);
+    initSharedJsonIOBuffer(mock_flash_buffer, TEST_JSON_BUFFER_SIZE);
 
     // Setup Managers
     modeManager.readSavedMode = readBulbModeFromMock;
@@ -286,9 +286,9 @@ void test_parse_multiple_commands(void) {
 void test_buffer_overflow(void) {
     usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
-    // read buffer will not be used if we exceed JSON_BUFFER_SIZE, local variable with
-    // JSON_BUFFER_SIZE * 5 size to avoid compile error.
-    char mock_tud_read_buffer_larger_avoid_compile_error[JSON_BUFFER_SIZE * 5];
+    // read buffer will not be used if we exceed TEST_JSON_BUFFER_SIZE, local variable with
+    // TEST_JSON_BUFFER_SIZE * 5 size to avoid compile error.
+    char mock_tud_read_buffer_larger_avoid_compile_error[TEST_JSON_BUFFER_SIZE * 5];
     const char *input =
         "ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEF"
         "ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEF"

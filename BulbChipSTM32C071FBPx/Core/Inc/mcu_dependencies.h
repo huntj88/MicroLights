@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include "flash_string.h"
 
 #ifndef INC_MCU_DEPENDENCIES_H_
 #define INC_MCU_DEPENDENCIES_H_
