@@ -7,7 +7,6 @@
 #include "json/json_buf.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
-#include "storage.h"
 #include "usb_manager.h"
 
 // --- Mocks & Stubs ---
@@ -29,7 +28,7 @@ static bool mock_tusb_init_called = false;
 static bool mock_enter_dfu_called = false;
 
 // Flash/Storage Mocks
-static char mock_flash_buffer[PAGE_SECTOR];
+static char mock_flash_buffer[JSON_BUFFER_SIZE];
 static bool mock_flash_write_called = false;
 static bool mock_settings_update_called = false;
 static bool mock_mode_set_called = false;
@@ -79,12 +78,12 @@ uint32_t tud_cdc_n_read(uint8_t itf, void *buffer, uint32_t bufsize) {
 }
 
 // Storage / Logic Mocks
-void writeBulbModeToFlash(uint8_t mode, const char str[], uint32_t length) {
+void saveMode(uint8_t mode, const char str[], uint32_t length) {
     mock_flash_write_called = true;
     strncpy(mock_flash_buffer, str, length);
     mock_flash_buffer[length] = '\0';
 }
-void writeSettingsToFlash(const char str[], uint32_t length) {
+void saveSettings(const char str[], uint32_t length) {
     mock_flash_write_called = true;
     strncpy(mock_flash_buffer, str, length);
     mock_flash_buffer[length] = '\0';
@@ -133,10 +132,10 @@ void setUp(void) {
     memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
     memset(mock_tud_read_buffer, 0, sizeof(mock_tud_read_buffer));
     memset(mock_flash_buffer, 0, sizeof(mock_flash_buffer));
-    memset(jsonBuf, 0, PAGE_SECTOR);
+    memset(jsonBuf, 0, JSON_BUFFER_SIZE);
 
     // Setup Managers
-    modeManager.readBulbModeFromFlash = readBulbModeFromMock;
+    modeManager.readSavedMode = readBulbModeFromMock;
 }
 
 void tearDown(void) {
@@ -145,16 +144,18 @@ void tearDown(void) {
 // --- Tests ---
 
 void test_usbInit_success(void) {
-    bool result = usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    bool result = usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
     TEST_ASSERT_TRUE(result);
     TEST_ASSERT_TRUE(mock_tusb_init_called);
 }
 
 void test_usbInit_failure_null_args(void) {
-    TEST_ASSERT_FALSE(usbInit(NULL, &modeManager, &settingsManager, mock_enter_dfu));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, NULL, &settingsManager, mock_enter_dfu));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, NULL, mock_enter_dfu));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, NULL));
+    TEST_ASSERT_FALSE(usbInit(NULL, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(usbInit(&usbManager, NULL, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, NULL, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, NULL, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, NULL, saveMode));
+    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, NULL));
 }
 
 void test_usbWriteToSerial(void) {
@@ -175,7 +176,7 @@ void pumpUsbTask(void) {
 
 void test_parse_write_mode_normal(void) {
     // Setup USB Manager
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     // Simulate incoming "writeMode" JSON
     const char *input =
@@ -192,7 +193,7 @@ void test_parse_write_mode_normal(void) {
 }
 
 void test_parse_write_mode_transient(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     // Simulate incoming "transientTest" JSON (writeMode with name="transientTest")
     const char *input =
@@ -209,7 +210,7 @@ void test_parse_write_mode_transient(void) {
 }
 
 void test_parse_read_mode(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     const char *input = "{\"command\":\"readMode\",\"index\":1}\n";
     strcpy(mock_tud_read_buffer, input);
@@ -222,7 +223,7 @@ void test_parse_read_mode(void) {
 }
 
 void test_parse_write_settings(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     const char *input = "{\"command\":\"writeSettings\"}\n";
     strcpy(mock_tud_read_buffer, input);
@@ -235,7 +236,7 @@ void test_parse_write_settings(void) {
 }
 
 void test_parse_read_settings(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     const char *input = "{\"command\":\"readSettings\"}\n";
     strcpy(mock_tud_read_buffer, input);
@@ -247,7 +248,7 @@ void test_parse_read_settings(void) {
 }
 
 void test_parse_dfu(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     const char *input = "{\"command\":\"dfu\"}\n";
     strcpy(mock_tud_read_buffer, input);
@@ -259,7 +260,7 @@ void test_parse_dfu(void) {
 }
 
 void test_parse_multiple_commands(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     // Send two commands in one stream
     const char *input = "{\"command\":\"writeSettings\"}\n{\"command\":\"readSettings\"}\n";
@@ -277,11 +278,11 @@ void test_parse_multiple_commands(void) {
 }
 
 void test_buffer_overflow(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
-    // read buffer will not be used if we exceed PAGE_SECTOR, local variable with PAGE_SECTOR * 5
+    // read buffer will not be used if we exceed JSON_BUFFER_SIZE, local variable with JSON_BUFFER_SIZE * 5
     // size to avoid compile error.
-    char mock_tud_read_buffer_larger_avoid_compile_error[PAGE_SECTOR * 5];
+    char mock_tud_read_buffer_larger_avoid_compile_error[JSON_BUFFER_SIZE * 5];
     const char *input =
         "ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEF"
         "ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEF"
@@ -352,7 +353,7 @@ void test_buffer_overflow(void) {
 }
 
 void test_malformed_json(void) {
-    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu);
+    usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
     const char *input = "{junk}\n";
     strcpy(mock_tud_read_buffer, input);

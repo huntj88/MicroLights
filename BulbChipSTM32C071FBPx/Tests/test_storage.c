@@ -48,7 +48,8 @@ void __HAL_FLASH_CLEAR_FLAG(uint32_t flags) {
 }
 
 // Include the source file under test
-#include "../Core/Src/storage.c"
+#include "../Core/Src/flash_string.c"
+#include "../Core/Src/mcu_dependencies.c"
 
 void setUp(void) {
     // Allocate memory at 0x08000000 to simulate Flash
@@ -118,10 +119,10 @@ void test_writeSettingsToFlash_TruncatesIfTooLong(void) {
 void test_writeBulbModeToFlash_WritesDataCorrectly(void) {
     const char *testData = "ModeData";
     uint8_t mode = 1;
-    writeBulbModeToFlash(mode, testData, strlen(testData));
+    writeModeToFlash(mode, testData, strlen(testData));
 
     char readBuf[32];
-    readBulbModeFromFlash(mode, readBuf, sizeof(readBuf));
+    readModeFromFlash(mode, readBuf, sizeof(readBuf));
 
     TEST_ASSERT_EQUAL_STRING(testData, readBuf);
 }

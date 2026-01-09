@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "unity.h"
+#include "json/json_buf.h"
 
 #include "chip_state.h"
 #include "device/bq25180.h"
@@ -13,7 +14,6 @@
 #include "mode_manager.h"
 #include "model/cli_model.h"
 #include "settings_manager.h"
-#include "storage.h"
 
 // Mock Data
 static ModeManager mockModeManager;
@@ -22,7 +22,7 @@ static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
 static char lastSerialOutput[100];
-char jsonBuf[PAGE_SECTOR];
+char jsonBuf[JSON_BUFFER_SIZE];
 
 // Mocks for settings_manager.c
 CliInput cliInput;
@@ -197,7 +197,7 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
 }
 
 void test_SettingsJson_KeysMatchMacroCount(void) {
-    char buf[PAGE_SECTOR];
+    char buf[JSON_BUFFER_SIZE];
 
     // getSettingsDefaultsJson returns a valid JSON object: {...}
     getSettingsDefaultsJson(buf, sizeof(buf));
@@ -235,7 +235,7 @@ void test_generateSettingsResponse_WithSettings(void) {
 
     char buffer[1024];
     // Mock flash read will populate this inside getSettingsResponse
-    // But wait, getSettingsResponse calls loadSettingsFromFlash which calls readSettingsFromFlash.
+    // But wait, getSettingsResponse calls loadSettingsFromFlash which calls readSavedSettings.
     // mock_readSettingsFromFlash_Matching writes "{\"modeCount\":0,\"equationEvalIntervalMs\":20}"
 
     getSettingsResponse(&settingsManager, buffer, sizeof(buffer));

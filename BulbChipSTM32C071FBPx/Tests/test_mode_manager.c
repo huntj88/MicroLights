@@ -7,7 +7,7 @@
 #include "json/mode_parser.h"
 #include "mode_manager.h"
 #include "model/cli_model.h"
-#include "storage.h"
+#include "json/json_buf.h"
 
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
@@ -15,7 +15,7 @@ static bool ledTimersStarted = false;
 static bool accelEnabled = false;
 static bool accelDisabled = false;
 static uint8_t lastReadModeIndex = 255;
-static char lastReadBuffer[PAGE_SECTOR];
+static char lastReadBuffer[JSON_BUFFER_SIZE];
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
 static uint8_t mockAccelMagnitude = 0;
