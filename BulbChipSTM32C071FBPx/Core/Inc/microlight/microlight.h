@@ -24,10 +24,10 @@ typedef struct {
     uint8_t (*readButtonPin)(void);
 
     // Storage
-    ReadSavedSettings readSettingsFromFlash;
-    SaveSettings writeSettingsToFlash;
-    ReadSavedMode readModeFromFlash;
-    SaveMode writeModeToFlash;
+    ReadSavedSettings readSavedSettings;
+    SaveSettings saveSettings;
+    ReadSavedMode readSavedMode;
+    SaveMode saveMode;
 
     // System
     void (*enableTimers)(bool enable);

@@ -65,12 +65,12 @@ void configureMicroLight(MicroLightDependencies *deps) {
             &accel,
             &caseLed,
             deps->enableTimers,
-            deps->readModeFromFlash,
+            deps->readSavedMode,
             deps->writeBulbLed,
             internalWriteToSerial)) {
         deps->errorHandler();
     }
-    if (!settingsManagerInit(&settingsManager, deps->readSettingsFromFlash)) {
+    if (!settingsManagerInit(&settingsManager, deps->readSavedSettings)) {
         deps->errorHandler();
     }
     if (!usbInit(
@@ -78,8 +78,8 @@ void configureMicroLight(MicroLightDependencies *deps) {
             &modeManager,
             &settingsManager,
             deps->enterDFU,
-            deps->writeSettingsToFlash,
-            deps->writeModeToFlash)) {
+            deps->saveSettings,
+            deps->saveMode)) {
         deps->errorHandler();
     }
 

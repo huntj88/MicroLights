@@ -60,7 +60,7 @@ void mock_writeToSerial(const char *buf, uint32_t count) {
     lastSerialCount = count;
 }
 
-void mock_readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
+void mock_readSavedMode(uint8_t mode, char buffer[], uint32_t length) {
     lastReadModeIndex = mode;
     if (mode == 1) {
         // Standard valid mode
@@ -123,7 +123,7 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -141,7 +141,7 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -159,7 +159,7 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -177,7 +177,7 @@ void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -195,7 +195,7 @@ void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -211,7 +211,7 @@ void test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
@@ -227,7 +227,7 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -263,7 +263,7 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -316,7 +316,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -349,7 +349,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -377,7 +377,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -416,7 +416,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -482,7 +482,7 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -558,7 +558,7 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -602,7 +602,7 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -662,7 +662,7 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
 
@@ -747,7 +747,7 @@ void test_ModeManager_LogsEquationCompileError(void) {
         &mockAccel,
         &mockCaseLed,
         mock_enableTimers,
-        mock_readBulbModeFromFlash,
+        mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
 
