@@ -4,10 +4,10 @@
 
 #include "microlight/device/mc3479.h"
 #include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
 #include "microlight/json/mode_parser.h"
 #include "microlight/mode_manager.h"
 #include "microlight/model/cli_model.h"
-#include "microlight/json/json_buf.h"
 
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;

@@ -2,17 +2,17 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include "unity.h"
-#include "microlight/json/json_buf.h"
+#include "lwjson/lwjson.h"
 #include "microlight/chip_state.h"
 #include "microlight/device/bq25180.h"
 #include "microlight/device/button.h"
 #include "microlight/device/mc3479.h"
 #include "microlight/device/rgb_led.h"
-#include "lwjson/lwjson.h"
+#include "microlight/json/json_buf.h"
 #include "microlight/mode_manager.h"
 #include "microlight/model/cli_model.h"
 #include "microlight/settings_manager.h"
+#include "unity.h"
 // Mock Data
 static ModeManager mockModeManager;
 static Button mockButton;

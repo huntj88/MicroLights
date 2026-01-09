@@ -143,18 +143,25 @@ void tearDown(void) {
 // --- Tests ---
 
 void test_usbInit_success(void) {
-    bool result = usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
+    bool result = usbInit(
+        &usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
     TEST_ASSERT_TRUE(result);
     TEST_ASSERT_TRUE(mock_tusb_init_called);
 }
 
 void test_usbInit_failure_null_args(void) {
-    TEST_ASSERT_FALSE(usbInit(NULL, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, NULL, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, NULL, mock_enter_dfu, saveSettings, saveMode));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, NULL, saveSettings, saveMode));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, NULL, saveMode));
-    TEST_ASSERT_FALSE(usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, NULL));
+    TEST_ASSERT_FALSE(
+        usbInit(NULL, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(
+        usbInit(&usbManager, NULL, &settingsManager, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(
+        usbInit(&usbManager, &modeManager, NULL, mock_enter_dfu, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(
+        usbInit(&usbManager, &modeManager, &settingsManager, NULL, saveSettings, saveMode));
+    TEST_ASSERT_FALSE(
+        usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, NULL, saveMode));
+    TEST_ASSERT_FALSE(
+        usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, NULL));
 }
 
 void test_usbWriteToSerial(void) {
@@ -279,8 +286,8 @@ void test_parse_multiple_commands(void) {
 void test_buffer_overflow(void) {
     usbInit(&usbManager, &modeManager, &settingsManager, mock_enter_dfu, saveSettings, saveMode);
 
-    // read buffer will not be used if we exceed JSON_BUFFER_SIZE, local variable with JSON_BUFFER_SIZE * 5
-    // size to avoid compile error.
+    // read buffer will not be used if we exceed JSON_BUFFER_SIZE, local variable with
+    // JSON_BUFFER_SIZE * 5 size to avoid compile error.
     char mock_tud_read_buffer_larger_avoid_compile_error[JSON_BUFFER_SIZE * 5];
     const char *input =
         "ABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCDEF"

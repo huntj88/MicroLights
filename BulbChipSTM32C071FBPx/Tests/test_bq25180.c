@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <string.h>
-#include "microlight/device/bq25180.h"
 #include "lwjson/lwjson.h"
+#include "microlight/device/bq25180.h"
 #include "unity.h"
 
 // Mocks

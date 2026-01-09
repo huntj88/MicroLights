@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#define JSON_BUFFER_SIZE 2048       // TODO: Rename and move to config header
+#define JSON_BUFFER_SIZE 2048  // TODO: Rename and move to config header
 
 extern char jsonBuf[JSON_BUFFER_SIZE];
 

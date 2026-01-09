@@ -10,10 +10,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "lwjson/lwjson.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/json/json_buf.h"
 #include "microlight/json/mode_parser.h"
-#include "lwjson/lwjson.h"
 
 static int32_t jsonLength(const char buf[], uint32_t count) {
     for (int32_t i = 0; i < count; i++) {
