@@ -12,9 +12,9 @@ static bool writeCalled = false;
 static char serialBuffer[1024];
 static uint32_t serialBufferLen = 0;
 
-bool mock_readRegister(uint8_t devAddress, uint8_t reg, uint8_t *data) {
-    if (reg < 20) {
-        *data = mockRegisters[reg];
+bool mock_readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
+    if (startReg + len <= 20) {
+        memcpy(buf, &mockRegisters[startReg], len);
         return true;
     }
     return false;
@@ -91,7 +91,7 @@ void setUp(void) {
 
     bq25180Init(
         &charger,
-        mock_readRegister,
+        mock_readRegisters,
         mock_writeRegister,
         0x6A,
         mock_writeToSerial,

@@ -39,20 +39,6 @@ void i2cDecoratedWrite(
     }
 }
 
-bool i2cDecoratedRead(
-    uint8_t devAddress,
-    uint8_t reg,
-    uint8_t *data,
-    I2CReadRegister *rawFunc,
-    bool *enableFlag,
-    WriteToSerial *logFunc) {
-    if (rawFunc && rawFunc(devAddress, reg, data)) {
-        return true;
-    }
-    internalLog(logFunc, enableFlag, "Read", devAddress, reg);
-    return false;
-}
-
 bool i2cDecoratedReadRegisters(
     uint8_t devAddress,
     uint8_t startReg,

@@ -37,17 +37,17 @@ static void bq25180regsToJson(BQ25180Registers registers, char jsonOutput[], uin
 
 bool bq25180Init(
     BQ25180 *chargerIC,
-    I2CReadRegister *readRegCb,
+    I2CReadRegisters *readRegsCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
     WriteToSerial *writeToSerial,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegCb || !writeCb || !writeToSerial || !caseLed || !enableTimers) {
+    if (!chargerIC || !readRegsCb || !writeCb || !writeToSerial || !caseLed || !enableTimers) {
         return false;
     }
 
-    chargerIC->readRegister = readRegCb;
+    chargerIC->readRegisters = readRegsCb;
     chargerIC->writeRegister = writeCb;
     chargerIC->devAddress = devAddress;
     chargerIC->writeToSerial = writeToSerial;
@@ -119,7 +119,7 @@ void chargerTask(
 
 enum ChargeState getChargingState(BQ25180 *chargerIC) {
     uint8_t regResult = 0;
-    if (!chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0, &regResult)) {
+    if (!chargerIC->readRegisters(chargerIC->devAddress, BQ25180_STAT0, &regResult, 1)) {
         return notConnected;
     }
 
@@ -273,21 +273,24 @@ static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t
 
 static BQ25180Registers readAllRegisters(BQ25180 *chargerIC) {
     BQ25180Registers registerValues = {0};
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT0, &registerValues.stat0);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_STAT1, &registerValues.stat1);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_FLAG0, &registerValues.flag0);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_VBAT_CTRL, &registerValues.vbat_ctrl);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_ICHG_CTRL, &registerValues.ichg_ctrl);
-    chargerIC->readRegister(
-        chargerIC->devAddress, BQ25180_CHARGECTRL0, &registerValues.chargectrl0);
-    chargerIC->readRegister(
-        chargerIC->devAddress, BQ25180_CHARGECTRL1, &registerValues.chargectrl1);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_IC_CTRL, &registerValues.ic_ctrl);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_TMR_ILIM, &registerValues.tmr_ilim);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_SHIP_RST, &registerValues.ship_rst);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_SYS_REG, &registerValues.sys_reg);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_TS_CONTROL, &registerValues.ts_control);
-    chargerIC->readRegister(chargerIC->devAddress, BQ25180_MASK_ID, &registerValues.mask_id);
+    uint8_t rxBuffer[13];
+
+    if (chargerIC->readRegisters(chargerIC->devAddress, BQ25180_STAT0, rxBuffer, 13)) {
+        registerValues.stat0 = rxBuffer[0];
+        registerValues.stat1 = rxBuffer[1];
+        registerValues.flag0 = rxBuffer[2];
+        registerValues.vbat_ctrl = rxBuffer[3];
+        registerValues.ichg_ctrl = rxBuffer[4];
+        registerValues.chargectrl0 = rxBuffer[5];
+        registerValues.chargectrl1 = rxBuffer[6];
+        registerValues.ic_ctrl = rxBuffer[7];
+        registerValues.tmr_ilim = rxBuffer[8];
+        registerValues.ship_rst = rxBuffer[9];
+        registerValues.sys_reg = rxBuffer[10];
+        registerValues.ts_control = rxBuffer[11];
+        registerValues.mask_id = rxBuffer[12];
+    }
+
     return registerValues;
 }
 

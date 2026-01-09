@@ -17,50 +17,20 @@ extern TIM_HandleTypeDef htim2;
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-bool i2cReadRegister(uint8_t devAddress, uint8_t reg, uint8_t *data) {
-    uint8_t receive_buffer[1] = {0};
-
-    HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1, devAddress, &reg, 1, 1000);
-    if (statusTransmit != HAL_OK) {
-        return false;
-    }
-
-    HAL_StatusTypeDef statusReceive =
-        HAL_I2C_Master_Receive(&hi2c1, devAddress, receive_buffer, 1, 1000);
-
-    if (statusReceive != HAL_OK) {
-        return false;
-    }
-
-    *data = receive_buffer[0];
-    return true;
-}
-
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 bool i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
-    uint8_t writeBuffer[2] = {0};
-    writeBuffer[0] = reg;
-    writeBuffer[1] = value;
+    HAL_StatusTypeDef status =
+        HAL_I2C_Mem_Write(&hi2c1, devAddress, reg, I2C_MEMADD_SIZE_8BIT, &value, 1, 1000);
 
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, devAddress, writeBuffer, sizeof(writeBuffer), 1000);
-
-    return statusTransmit == HAL_OK;
+    return status == HAL_OK;
 }
 
 // Read multiple consecutive registers. Used with MC3479 (for efficient axis reads)
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 bool i2cReadRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
-    HAL_StatusTypeDef statusTransmit =
-        HAL_I2C_Master_Transmit(&hi2c1, devAddress, &startReg, 1, 1000);
+    HAL_StatusTypeDef status =
+        HAL_I2C_Mem_Read(&hi2c1, devAddress, startReg, I2C_MEMADD_SIZE_8BIT, buf, len, 1000);
 
-    if (statusTransmit != HAL_OK) {
-        return false;
-    }
-
-    HAL_StatusTypeDef statusReceive = HAL_I2C_Master_Receive(&hi2c1, devAddress, buf, len, 1000);
-
-    return statusReceive == HAL_OK;
+    return status == HAL_OK;
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)

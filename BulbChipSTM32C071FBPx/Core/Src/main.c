@@ -120,7 +120,6 @@ int main(void) {
     // TODO: will need another when adding front rgb led, split up led timers.
     MicroLightDependencies deps = {
         .i2cWriteRegister = i2cWriteRegister,
-        .i2cReadRegister = i2cReadRegister,
         .i2cReadRegisters = i2cReadRegisters,
         .writeRgbPwmCaseLed = writeRgbPwmCaseLed,
         .writeBulbLed = writeBulbLed,

@@ -31,19 +31,6 @@ void i2cDecoratedWrite(
     WriteToSerial *logFunc);
 
 /**
- * @brief Stateless helper that executes a read transaction checking for errors and logging them.
- *
- * @return true if successful, false otherwise
- */
-bool i2cDecoratedRead(
-    uint8_t devAddress,
-    uint8_t reg,
-    uint8_t *data,
-    I2CReadRegister *rawFunc,
-    bool *enableFlag,
-    WriteToSerial *logFunc);
-
-/**
  * @brief Stateless helper that executes a multi-byte read transaction checking for errors and
  * logging them.
  *
