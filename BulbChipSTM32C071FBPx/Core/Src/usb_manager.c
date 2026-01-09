@@ -5,14 +5,13 @@
  *      Author: jameshunt
  */
 
+#include "usb_manager.h"
 #include <stdio.h>
 #include <string.h>
-#include <usb_manager.h>
 #include "bootloader.h"
 #include "chip_state.h"
 #include "json/command_parser.h"
 #include "json/json_buf.h"
-#include "storage.h"
 #include "tusb.h"
 
 // integration guide: https://github.com/hathach/tinyusb/discussions/633
@@ -20,13 +19,18 @@ bool usbInit(
     USBManager *usbManager,
     ModeManager *modeManager,
     SettingsManager *settingsManager,
-    void (*enterDFU)()) {
-    if (!usbManager || !modeManager || !settingsManager || !enterDFU) {
+    void (*enterDFU)(),
+    SaveSettings saveSettings,
+    SaveMode saveMode) {
+    if (!usbManager || !modeManager || !settingsManager || !enterDFU || !saveSettings ||
+        !saveMode) {
         return false;
     }
     usbManager->modeManager = modeManager;
     usbManager->settingsManager = settingsManager;
     usbManager->enterDFU = enterDFU;
+    usbManager->saveSettings = saveSettings;
+    usbManager->saveMode = saveMode;
 
     tusb_init();
     return true;
@@ -80,13 +84,13 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
                 // do not write to flash for transient test
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             } else {
-                writeBulbModeToFlash(cliInput.modeIndex, buf, count);
+                usbManager->saveMode(cliInput.modeIndex, buf, count);
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             }
             break;
         }
         case parseReadMode: {
-            usbManager->modeManager->readBulbModeFromFlash(cliInput.modeIndex, buf, PAGE_SECTOR);
+            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, PAGE_SECTOR);
             uint16_t len = strlen(buf);
             if (len > PAGE_SECTOR - 2) {
                 len = PAGE_SECTOR - 2;
@@ -98,7 +102,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
-            writeSettingsToFlash(buf, count);
+            usbManager->saveSettings(buf, count);
             updateSettings(usbManager->settingsManager, &settings);
             break;
         }

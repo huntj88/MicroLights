@@ -10,7 +10,6 @@
 #include <string.h>
 #include "json/command_parser.h"
 #include "json/json_buf.h"
-#include "storage.h"
 
 static const char *fakeOffModeJson =
     "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{"
@@ -26,17 +25,17 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
+    ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
     WriteToSerial *writeToSerial) {
-    if (!manager || !accel || !caseLed || !enableTimers || !readBulbModeFromFlash ||
-        !writeBulbLedPin || !writeToSerial) {
+    if (!manager || !accel || !caseLed || !enableTimers || !readSavedMode || !writeBulbLedPin ||
+        !writeToSerial) {
         return false;
     }
     manager->accel = accel;
     manager->caseLed = caseLed;
     manager->enableTimers = enableTimers;
-    manager->readBulbModeFromFlash = readBulbModeFromFlash;
+    manager->readSavedMode = readSavedMode;
     manager->writeBulbLedPin = writeBulbLedPin;
     manager->writeToSerial = writeToSerial;
     manager->currentModeIndex = 0;
@@ -62,7 +61,7 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
         parseJson(fakeOffModeJson, PAGE_SECTOR, &cliInput);
     } else {
-        manager->readBulbModeFromFlash(modeIndex, jsonBuf, PAGE_SECTOR);
+        manager->readSavedMode(modeIndex, jsonBuf, PAGE_SECTOR);
         parseJson(jsonBuf, PAGE_SECTOR, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default

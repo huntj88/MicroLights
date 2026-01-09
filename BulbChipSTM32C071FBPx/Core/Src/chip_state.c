@@ -16,7 +16,6 @@
 #include "mode_manager.h"
 #include "model/mode_state.h"
 #include "settings_manager.h"
-#include "storage.h"
 
 typedef struct {
     volatile uint32_t chipTick;

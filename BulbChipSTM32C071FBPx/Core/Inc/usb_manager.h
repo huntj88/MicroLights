@@ -12,19 +12,24 @@
 #include <stdint.h>
 #include "mode_manager.h"
 #include "model/serial.h"
+#include "model/storage.h"
 #include "settings_manager.h"
 
 typedef struct USBManager {
     ModeManager *modeManager;
     SettingsManager *settingsManager;
     void (*enterDFU)();
+    SaveSettings saveSettings;
+    SaveMode saveMode;
 } USBManager;
 
 bool usbInit(
     USBManager *usbManager,
     ModeManager *modeManager,
     SettingsManager *settingsManager,
-    void (*enterDFU)());
+    void (*enterDFU)(),
+    SaveSettings saveSettings,
+    SaveMode saveMode);
 
 void usbCdcTask(USBManager *usbManager);
 void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count);

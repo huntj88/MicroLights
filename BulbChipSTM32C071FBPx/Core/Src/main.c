@@ -27,9 +27,9 @@
 #include "device/button.h"
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
+#include "mcu_dependencies.h"
 #include "mode_manager.h"
 #include "settings_manager.h"
-#include "mcu_dependencies.h"
 #include "usb_manager.h"
 /* USER CODE END Includes */
 
@@ -293,7 +293,7 @@ int main(void) {
             &accel,
             &caseLed,
             enableTimers,
-            readBulbModeFromFlash,
+            readModeFromFlash,
             writeBulbLed,
             writeToSerial)) {
         Error_Handler();
@@ -301,7 +301,13 @@ int main(void) {
     if (!settingsManagerInit(&settingsManager, readSettingsFromFlash)) {
         Error_Handler();
     }
-    if (!usbInit(&usbManager, &modeManager, &settingsManager, setBootloaderFlagAndReset)) {
+    if (!usbInit(
+            &usbManager,
+            &modeManager,
+            &settingsManager,
+            setBootloaderFlagAndReset,
+            writeSettingsToFlash,
+            writeModeToFlash)) {
         Error_Handler();
     }
 

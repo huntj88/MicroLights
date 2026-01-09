@@ -15,6 +15,7 @@
 #include "model/cli_model.h"
 #include "model/mode_state.h"
 #include "model/serial.h"
+#include "model/storage.h"
 
 #define FAKE_OFF_MODE_INDEX 255
 
@@ -25,7 +26,7 @@ typedef struct ModeManager {
     MC3479 *accel;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
-    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length);
+    ReadSavedMode readSavedMode;
     void (*writeBulbLedPin)(uint8_t state);
     WriteToSerial *writeToSerial;
     ModeState modeState;
@@ -37,7 +38,7 @@ bool modeManagerInit(
     MC3479 *accel,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable),
-    void (*readBulbModeFromFlash)(uint8_t mode, char buffer[], uint32_t length),
+    ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
     WriteToSerial *writeToSerial);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);

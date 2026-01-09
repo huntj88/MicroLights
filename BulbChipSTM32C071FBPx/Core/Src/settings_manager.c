@@ -11,16 +11,15 @@
 #include <string.h>
 #include "json/command_parser.h"
 #include "json/json_buf.h"
-#include "storage.h"
 
 static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput);
 
-bool settingsManagerInit(
-    SettingsManager *manager, void (*readSettingsFromFlash)(char buffer[], uint32_t length)) {
-    if (!manager || !readSettingsFromFlash) {
+// TODO: const pointers?
+bool settingsManagerInit(SettingsManager *manager, ReadSavedSettings readSavedSettings) {
+    if (!manager || !readSavedSettings) {
         return false;
     }
-    manager->readSettingsFromFlash = readSettingsFromFlash;
+    manager->readSavedSettings = readSavedSettings;
 
     loadSettingsFromFlash(manager, jsonBuf, &cliInput);
     return true;
@@ -30,7 +29,7 @@ static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliIn
     // Set defaults first in case load fails
     chipSettingsInitDefaults(&manager->currentSettings);
 
-    manager->readSettingsFromFlash(buffer, PAGE_SECTOR);
+    manager->readSavedSettings(buffer, PAGE_SECTOR);
 
     parseJson(buffer, PAGE_SECTOR, cliInput);
 
