@@ -192,7 +192,7 @@ void parseJson(const char buf[], uint32_t count, CliInput *input) {
     }
 
     int32_t indexOfTerminalChar = jsonLength(buf, count);
-    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= PAGE_SECTOR - 1) {
+    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= JSON_BUFFER_SIZE - 1) {
         input->parsedType = parseError;
         return;
     }

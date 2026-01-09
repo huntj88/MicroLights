@@ -1,4 +1,4 @@
-#include "storage.h"
+#include "flash_string.h"
 #include <string.h>
 #include "stm32c0xx.h"
 

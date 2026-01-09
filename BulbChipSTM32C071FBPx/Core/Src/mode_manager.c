@@ -59,13 +59,13 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
 
 static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
     if (modeIndex == FAKE_OFF_MODE_INDEX) {
-        parseJson(fakeOffModeJson, PAGE_SECTOR, &cliInput);
+        parseJson(fakeOffModeJson, JSON_BUFFER_SIZE, &cliInput);
     } else {
-        manager->readSavedMode(modeIndex, jsonBuf, PAGE_SECTOR);
-        parseJson(jsonBuf, PAGE_SECTOR, &cliInput);
+        manager->readSavedMode(modeIndex, jsonBuf, JSON_BUFFER_SIZE);
+        parseJson(jsonBuf, JSON_BUFFER_SIZE, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
             // fallback to default
-            parseJson(defaultModeJson, PAGE_SECTOR, &cliInput);
+            parseJson(defaultModeJson, JSON_BUFFER_SIZE, &cliInput);
         }
     }
 }

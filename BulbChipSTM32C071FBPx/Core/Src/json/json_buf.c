@@ -10,4 +10,4 @@
 /* Global buffer for reading JSON data.
  * Note: This variable is not thread-safe and is intended for single-threaded use only.
  */
-char jsonBuf[PAGE_SECTOR];
+char jsonBuf[JSON_BUFFER_SIZE];

@@ -90,10 +90,10 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadMode: {
-            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, PAGE_SECTOR);
+            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, JSON_BUFFER_SIZE);
             uint16_t len = strlen(buf);
-            if (len > PAGE_SECTOR - 2) {
-                len = PAGE_SECTOR - 2;
+            if (len > JSON_BUFFER_SIZE - 2) {
+                len = JSON_BUFFER_SIZE - 2;
             }
             buf[len] = '\n';
             buf[len + 1] = '\0';
@@ -107,7 +107,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             break;
         }
         case parseReadSettings: {
-            int len = getSettingsResponse(usbManager->settingsManager, buf, PAGE_SECTOR);
+            int len = getSettingsResponse(usbManager->settingsManager, buf, JSON_BUFFER_SIZE);
             usbWriteToSerial(usbManager, 0, buf, len);
             break;
         }
@@ -133,7 +133,7 @@ void usbCdcTask(USBManager *usbManager) {
                 char buf[64];
                 // cast count as uint8_t, buf is only 64 bytes
                 uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
-                if (jsonIndex + count > PAGE_SECTOR) {
+                if (jsonIndex + count > JSON_BUFFER_SIZE) {
                     const char *error = "{\"error\":\"payload too long\"}\n";
                     usbWriteToSerial(usbManager, itf, error, strlen(error));
                     jsonIndex = 0;

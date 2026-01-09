@@ -6,7 +6,7 @@
  */
 
 #include "mcu_dependencies.h"
-#include "storage.h"
+#include "flash_string.h"
 
 #define SETTINGS_PAGE 56  // 2K flash reserved for settings starting at page 56
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
