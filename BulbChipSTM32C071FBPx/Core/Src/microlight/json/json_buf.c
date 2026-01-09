@@ -15,7 +15,11 @@
 char *sharedJsonIOBuffer = NULL;
 uint32_t sharedJsonIOBufferSize = 0;
 
-void initSharedJsonIOBuffer(char *buf, uint32_t size) {
+bool initSharedJsonIOBuffer(char *buf, uint32_t size) {
+    if (buf == NULL || size == 0) {
+        return false;
+    }
     sharedJsonIOBuffer = buf;
     sharedJsonIOBufferSize = size;
+    return true;
 }

@@ -45,6 +45,5 @@ void configureMicroLight(MicroLightDependencies *deps);
 void microLightTask(void);
 
 // TODO: integration test with no application mocks, just hardware mocks
-// TODO: unit test i2c logging decorator
 
 #endif  // MICROLIGHT_H

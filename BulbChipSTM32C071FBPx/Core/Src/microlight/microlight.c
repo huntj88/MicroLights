@@ -45,7 +45,13 @@ static bool internalI2cReadRegisters(
 }
 
 void configureMicroLight(MicroLightDependencies *deps) {
-    initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize);
+    if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
+        deps->errorHandler();
+    }
+
+    if (deps->i2cWriteRegister == NULL || deps->i2cReadRegisters == NULL) {
+        deps->errorHandler();
+    }
     rawI2cWrite = deps->i2cWriteRegister;
     rawI2cReadRegs = deps->i2cReadRegisters;
 
