@@ -1,6 +1,6 @@
 #include <stdbool.h>
 #include <string.h>
-#include "device/bq25180.h"
+#include "microlight/device/bq25180.h"
 #include "lwjson/lwjson.h"
 #include "unity.h"
 
@@ -53,7 +53,7 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // Include source under test
-#include "../Core/Src/device/bq25180.c"
+#include "../Core/Src/microlight/device/bq25180.c"
 
 static BQ25180 charger;
 static RGBLed mockLed;

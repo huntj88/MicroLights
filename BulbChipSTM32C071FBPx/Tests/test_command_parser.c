@@ -2,9 +2,9 @@
 #include <string.h>
 #include "unity.h"
 
-#include "json/command_parser.h"
-#include "json/mode_parser.h"
-#include "model/cli_model.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/mode_parser.h"
+#include "microlight/model/cli_model.h"
 
 static bool parseModeCalled = false;
 static bool parseModeResult = true;
@@ -16,7 +16,7 @@ bool parseMode(lwjson_t *lwjson, lwjson_token_t *t, Mode *mode, ParserErrorConte
 }
 
 // Include source
-#include "../Core/Src/json/command_parser.c"
+#include "../Core/Src/microlight/json/command_parser.c"
 
 void setUp(void) {
     parseModeCalled = false;

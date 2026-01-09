@@ -89,11 +89,11 @@ gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC $LWJSON_SRC -
 run_test ./Tests/build/test_settings_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_manager..."; fi
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/model/cli_model.c Core/Src/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
+gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_state..."; fi
-gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
+gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/microlight/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
 run_test ./Tests/build/test_mode_state
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_button..."; fi
@@ -102,7 +102,7 @@ run_test ./Tests/build/test_button
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_command_parser..."; fi
 # Needs lwjson.c linked
-gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/model/cli_model.c Core/Src/json/json_buf.c -o Tests/build/test_command_parser
+gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c -o Tests/build/test_command_parser
 run_test ./Tests/build/test_command_parser
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
@@ -114,7 +114,7 @@ gcc $CFLAGS Tests/test_storage.c $UNITY_SRC -o Tests/build/test_storage
 run_test ./Tests/build/test_storage
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_manager..."; fi
-gcc $CFLAGS Tests/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/json/command_parser.c Core/Src/json/mode_parser.c Core/Src/json/parser.c Core/Src/model/cli_model.c Core/Src/json/json_buf.c Core/Src/usb_manager.c -lm -o Tests/build/test_usb_manager
+gcc $CFLAGS Tests/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/json/parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c Core/Src/microlight/usb_manager.c -lm -o Tests/build/test_usb_manager
 run_test ./Tests/build/test_usb_manager
 
 echo "---------------------------------------------------"

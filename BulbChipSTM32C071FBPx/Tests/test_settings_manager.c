@@ -3,18 +3,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "unity.h"
-#include "json/json_buf.h"
-
-#include "chip_state.h"
-#include "device/bq25180.h"
-#include "device/button.h"
-#include "device/mc3479.h"
-#include "device/rgb_led.h"
+#include "microlight/json/json_buf.h"
+#include "microlight/chip_state.h"
+#include "microlight/device/bq25180.h"
+#include "microlight/device/button.h"
+#include "microlight/device/mc3479.h"
+#include "microlight/device/rgb_led.h"
 #include "lwjson/lwjson.h"
-#include "mode_manager.h"
-#include "model/cli_model.h"
-#include "settings_manager.h"
-
+#include "microlight/mode_manager.h"
+#include "microlight/model/cli_model.h"
+#include "microlight/settings_manager.h"
 // Mock Data
 static ModeManager mockModeManager;
 static Button mockButton;
@@ -84,9 +82,9 @@ void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
 }
 
 // Include source files under test
-#include "../Core/Src/chip_state.c"
-#include "../Core/Src/model/mode_state.c"
-#include "../Core/Src/settings_manager.c"
+#include "../Core/Src/microlight/chip_state.c"
+#include "../Core/Src/microlight/model/mode_state.c"
+#include "../Core/Src/microlight/settings_manager.c"
 
 void setUp(void) {
     memset(&mockModeManager, 0, sizeof(ModeManager));

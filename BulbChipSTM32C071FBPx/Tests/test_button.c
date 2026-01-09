@@ -2,8 +2,8 @@
 #include <string.h>
 #include "unity.h"
 
-#include "device/button.h"
-#include "device/rgb_led.h"
+#include "microlight/device/button.h"
+#include "microlight/device/rgb_led.h"
 
 // Mock Data
 static Button button;
@@ -42,7 +42,7 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // Include source
-#include "../Core/Src/device/button.c"
+#include "../Core/Src/microlight/device/button.c"
 
 void setUp(void) {
     memset(&button, 0, sizeof(Button));

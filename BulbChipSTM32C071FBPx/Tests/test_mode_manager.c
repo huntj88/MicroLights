@@ -2,12 +2,12 @@
 #include <string.h>
 #include "unity.h"
 
-#include "device/mc3479.h"
-#include "json/command_parser.h"
-#include "json/mode_parser.h"
-#include "mode_manager.h"
-#include "model/cli_model.h"
-#include "json/json_buf.h"
+#include "microlight/device/mc3479.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/mode_parser.h"
+#include "microlight/mode_manager.h"
+#include "microlight/model/cli_model.h"
+#include "microlight/json/json_buf.h"
 
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
@@ -92,8 +92,8 @@ void mock_readBulbModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
 }
 
 // Include source
-#include "../Core/Src/mode_manager.c"
-#include "../Core/Src/model/mode_state.c"
+#include "../Core/Src/microlight/mode_manager.c"
+#include "../Core/Src/microlight/model/mode_state.c"
 
 void setUp(void) {
     memset(&mockAccel, 0, sizeof(MC3479));

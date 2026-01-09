@@ -4,13 +4,13 @@
 #include "unity.h"
 
 // Include headers required by chip_state.c
-#include "chip_state.h"
-#include "device/bq25180.h"
-#include "device/button.h"
-#include "device/mc3479.h"
-#include "device/rgb_led.h"
-#include "mode_manager.h"
-#include "settings_manager.h"
+#include "microlight/chip_state.h"
+#include "microlight/device/bq25180.h"
+#include "microlight/device/button.h"
+#include "microlight/device/mc3479.h"
+#include "microlight/device/rgb_led.h"
+#include "microlight/mode_manager.h"
+#include "microlight/settings_manager.h"
 
 // Mock Data
 static ModeManager mockModeManager;
@@ -94,8 +94,8 @@ void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
 }
 
 // Include the source files under test to access static state
-#include "../Core/Src/chip_state.c"
-#include "../Core/Src/model/mode_state.c"
+#include "../Core/Src/microlight/chip_state.c"
+#include "../Core/Src/microlight/model/mode_state.c"
 
 // Setup and Teardown
 void setUp(void) {

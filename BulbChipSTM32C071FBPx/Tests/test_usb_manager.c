@@ -3,12 +3,11 @@
 #include <string.h>
 #include "unity.h"
 
-#include "json/command_parser.h"
-#include "json/json_buf.h"
-#include "mode_manager.h"
-#include "settings_manager.h"
-#include "usb_manager.h"
-
+#include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
+#include "microlight/mode_manager.h"
+#include "microlight/settings_manager.h"
+#include "microlight/usb_manager.h"
 // --- Mocks & Stubs ---
 
 // Mock Globals

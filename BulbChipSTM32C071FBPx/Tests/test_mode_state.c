@@ -1,7 +1,7 @@
 #include <string.h>
 #include "unity.h"
 
-#include "model/mode_state.h"
+#include "microlight/model/mode_state.h"
 
 static Mode mode;
 static ModeState state;
