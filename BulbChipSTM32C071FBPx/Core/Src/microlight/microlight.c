@@ -14,7 +14,7 @@ static void writeToSerial(const char *buf, uint32_t count) {
 }
 
 void configureMicroLight(MicroLightDependencies *deps) {
-    if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->timerPeriod)) {
+    if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->rgbTimerPeriod)) {
         deps->errorHandler();
     }
 
@@ -22,7 +22,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
         deps->errorHandler();
     }
 
-    if (!mc3479Init(&accel, deps->readRegisters, deps->writeRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
+    if (!mc3479Init(&accel, deps->i2cReadRegisters, deps->i2cWriteRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
         deps->errorHandler();
     }
 
@@ -51,8 +51,8 @@ void configureMicroLight(MicroLightDependencies *deps) {
 
     if (!bq25180Init(
             &chargerIC,
-            deps->readRegister,
-            deps->writeRegister,
+            deps->i2cReadRegister,
+            deps->i2cWriteRegister,
             (0x6A << 1),
             writeToSerial,
             &caseLed,

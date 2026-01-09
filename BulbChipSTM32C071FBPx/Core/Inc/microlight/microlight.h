@@ -9,27 +9,34 @@
 #include "microlight/device/button.h"
 #include "microlight/device/mc3479.h"
 #include "microlight/device/rgb_led.h"
+#include "microlight/device/i2c.h"
+#include "microlight/model/storage.h"
 #include "microlight/mode_manager.h"
 #include "microlight/settings_manager.h"
 #include "microlight/usb_manager.h"
 
 // TODO: reorder
 typedef struct {
-    void (*writeRgbPwmCaseLed)(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty);
-    uint8_t (*readButtonPin)(void);
-    void (*enableTimers)(bool enable);
-    uint8_t (*readRegister)(uint8_t devAddress, uint8_t reg);
-    void (*writeRegister)(uint8_t devAddress, uint8_t reg, uint8_t value);
-    bool (*readRegisters)(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len);
-    void (*readModeFromFlash)(uint8_t mode, char buffer[], uint32_t length);
+    // Hardware I/O
+    I2CWriteRegister *i2cWriteRegister;
+    I2CReadRegister *i2cReadRegister;
+    I2CReadRegisters *i2cReadRegisters;
+    RGBWritePwm *writeRgbPwmCaseLed;
     void (*writeBulbLed)(uint8_t state);
-    void (*readSettingsFromFlash)(char buffer[], uint32_t length);
+    uint8_t (*readButtonPin)(void);
+
+    // Storage
+    ReadSavedSettings readSettingsFromFlash;
+    SaveSettings writeSettingsToFlash;
+    ReadSavedMode readModeFromFlash;
+    SaveMode writeModeToFlash;
+
+    // System
+    void (*enableTimers)(bool enable);
     void (*enterDFU)(void);
-    void (*writeSettingsToFlash)(const char str[], uint32_t length);
-    void (*writeModeToFlash)(uint8_t mode, const char str[], uint32_t length);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
-    uint32_t timerPeriod; // For RGB LED
     void (*errorHandler)(void);
+    uint32_t rgbTimerPeriod;
 } MicroLightDependencies;
 
 void configureMicroLight(MicroLightDependencies *deps);

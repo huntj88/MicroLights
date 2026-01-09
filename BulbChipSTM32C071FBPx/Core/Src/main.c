@@ -119,21 +119,21 @@ int main(void) {
 
     // TODO: will need another when adding front rgb led, split up led timers.
     MicroLightDependencies deps = {
+        .i2cWriteRegister = i2cWriteRegister,
+        .i2cReadRegister = i2cReadRegister,
+        .i2cReadRegisters = i2cReadRegisters,
         .writeRgbPwmCaseLed = writeRgbPwmCaseLed,
-        .readButtonPin = readButtonPin,
-        .enableTimers = enableTimers,
-        .readRegister = readRegister,
-        .writeRegister = writeRegister,
-        .readRegisters = readRegisters,
-        .readModeFromFlash = readModeFromFlash,
         .writeBulbLed = writeBulbLed,
+        .readButtonPin = readButtonPin,
         .readSettingsFromFlash = readSettingsFromFlash,
-        .enterDFU = setBootloaderFlagAndReset,
         .writeSettingsToFlash = writeSettingsToFlash,
+        .readModeFromFlash = readModeFromFlash,
         .writeModeToFlash = writeModeToFlash,
+        .enableTimers = enableTimers,
+        .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
-        .timerPeriod = htim1.Init.Period,
-        .errorHandler = Error_Handler
+        .errorHandler = Error_Handler,
+        .rgbTimerPeriod = htim1.Init.Period // TODO: when another leg added they need to have the same period
     };
 
     configureMicroLight(&deps);

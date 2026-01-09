@@ -17,7 +17,7 @@ extern TIM_HandleTypeDef htim2;
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-uint8_t readRegister(uint8_t devAddress, uint8_t reg) {
+uint8_t i2cReadRegister(uint8_t devAddress, uint8_t reg) {
     uint8_t receive_buffer[1] = {0};
 
     HAL_StatusTypeDef statusTransmit = HAL_I2C_Master_Transmit(&hi2c1, devAddress, &reg, 1, 1000);
@@ -29,7 +29,7 @@ uint8_t readRegister(uint8_t devAddress, uint8_t reg) {
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
+void i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     uint8_t writeBuffer[2] = {0};
     writeBuffer[0] = reg;
     writeBuffer[1] = value;
@@ -40,7 +40,7 @@ void writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
 
 // Read multiple consecutive registers. Used with MC3479 (for efficient axis reads)
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-bool readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
+bool i2cReadRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
     HAL_StatusTypeDef statusTransmit =
         HAL_I2C_Master_Transmit(&hi2c1, devAddress, &startReg, 1, 1000);
 
