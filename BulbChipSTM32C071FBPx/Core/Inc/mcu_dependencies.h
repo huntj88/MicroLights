@@ -18,8 +18,8 @@ void readSettingsFromFlash(char buffer[], uint32_t length);
 void writeModeToFlash(uint8_t mode, const char str[], uint32_t length);
 void readModeFromFlash(uint8_t mode, char buffer[], uint32_t length);
 
-uint8_t i2cReadRegister(uint8_t devAddress, uint8_t reg);
-void i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value);
+bool i2cReadRegister(uint8_t devAddress, uint8_t reg, uint8_t *data);
+bool i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value);
 bool i2cReadRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len);
 
 uint8_t readButtonPin(void);

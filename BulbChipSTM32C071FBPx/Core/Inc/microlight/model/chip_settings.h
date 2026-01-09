@@ -16,6 +16,8 @@
 #define DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF 10
 #define DEFAULT_EQUATION_EVAL_INTERVAL_MS 20
 #define DEFAULT_ENABLE_CHARGER_SERIAL false
+#define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
+    false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
 
 // X-Macro to define settings: X(type, name, default_value)
 #define CHIP_SETTINGS_MAP(X)                                                            \
@@ -23,7 +25,8 @@
     X(uint8_t, minutesUntilAutoOff, DEFAULT_MINUTES_UNTIL_AUTO_OFF)                     \
     X(uint8_t, minutesUntilLockAfterAutoOff, DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF) \
     X(uint8_t, equationEvalIntervalMs, DEFAULT_EQUATION_EVAL_INTERVAL_MS)               \
-    X(bool, enableChargerSerial, DEFAULT_ENABLE_CHARGER_SERIAL)
+    X(bool, enableChargerSerial, DEFAULT_ENABLE_CHARGER_SERIAL)                         \
+    X(bool, enableI2cFailureReporting, DEFAULT_ENABLE_I2C_FAILURE_REPORTING)
 
 typedef struct {
 #define X_FIELDS(type, name, def) type name;

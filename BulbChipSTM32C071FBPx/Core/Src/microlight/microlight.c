@@ -1,5 +1,7 @@
 #include "microlight/microlight.h"
+#include <stdio.h>
 #include <string.h>
+#include "microlight/i2c_log_decorate.h"
 
 static BQ25180 chargerIC;
 static Button button;
@@ -9,11 +11,54 @@ static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
 
-static void writeToSerial(const char *buf, uint32_t count) {
+// TODO: add new or change writeToSerial naming / type to reference more generic Logging instead of
+// serial specifically
+static void internalWriteToSerial(const char *buf, uint32_t count) {
     usbWriteToSerial(&usbManager, 0, buf, count);
 }
 
+// Wrap I2C dependencies to handle logging internal to this file
+static I2CWriteRegisterChecked *rawI2cWrite = NULL;
+static I2CReadRegister *rawI2cRead = NULL;
+static I2CReadRegisters *rawI2cReadRegs = NULL;
+
+static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
+    i2cDecoratedWrite(
+        devAddress,
+        reg,
+        value,
+        rawI2cWrite,
+        &settingsManager.currentSettings.enableI2cFailureReporting,
+        internalWriteToSerial);
+}
+
+static bool internalI2cReadRegister(uint8_t devAddress, uint8_t reg, uint8_t *data) {
+    return i2cDecoratedRead(
+        devAddress,
+        reg,
+        data,
+        rawI2cRead,
+        &settingsManager.currentSettings.enableI2cFailureReporting,
+        internalWriteToSerial);
+}
+
+static bool internalI2cReadRegisters(
+    uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
+    return i2cDecoratedReadRegisters(
+        devAddress,
+        startReg,
+        buf,
+        len,
+        rawI2cReadRegs,
+        &settingsManager.currentSettings.enableI2cFailureReporting,
+        internalWriteToSerial);
+}
+
 void configureMicroLight(MicroLightDependencies *deps) {
+    rawI2cWrite = deps->i2cWriteRegister;
+    rawI2cRead = deps->i2cReadRegister;
+    rawI2cReadRegs = deps->i2cReadRegisters;
+
     if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->rgbTimerPeriod)) {
         deps->errorHandler();
     }
@@ -22,7 +67,8 @@ void configureMicroLight(MicroLightDependencies *deps) {
         deps->errorHandler();
     }
 
-    if (!mc3479Init(&accel, deps->i2cReadRegisters, deps->i2cWriteRegister, MC3479_I2CADDR_DEFAULT, writeToSerial)) {
+    if (!mc3479Init(
+            &accel, internalI2cReadRegisters, internalI2cWriteRegister, MC3479_I2CADDR_DEFAULT)) {
         deps->errorHandler();
     }
 
@@ -33,7 +79,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->enableTimers,
             deps->readModeFromFlash,
             deps->writeBulbLed,
-            writeToSerial)) {
+            internalWriteToSerial)) {
         deps->errorHandler();
     }
     if (!settingsManagerInit(&settingsManager, deps->readSettingsFromFlash)) {
@@ -51,10 +97,10 @@ void configureMicroLight(MicroLightDependencies *deps) {
 
     if (!bq25180Init(
             &chargerIC,
-            deps->i2cReadRegister,
-            deps->i2cWriteRegister,
+            internalI2cReadRegister,
+            internalI2cWriteRegister,
             (0x6A << 1),
-            writeToSerial,
+            internalWriteToSerial,
             &caseLed,
             deps->enableTimers)) {
         deps->errorHandler();
@@ -67,7 +113,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
         &chargerIC,
         &accel,
         &caseLed,
-        writeToSerial,
+        internalWriteToSerial,
         deps->convertTicksToMilliseconds);
 }
 

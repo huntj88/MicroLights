@@ -12,8 +12,12 @@ static bool writeCalled = false;
 static char serialBuffer[1024];
 static uint32_t serialBufferLen = 0;
 
-uint8_t mock_readRegister(uint8_t devAddress, uint8_t reg) {
-    return mockRegisters[reg];
+bool mock_readRegister(uint8_t devAddress, uint8_t reg, uint8_t *data) {
+    if (reg < 20) {
+        *data = mockRegisters[reg];
+        return true;
+    }
+    return false;
 }
 
 void mock_writeRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {

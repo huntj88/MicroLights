@@ -129,11 +129,12 @@ int main(void) {
         .writeSettingsToFlash = writeSettingsToFlash,
         .readModeFromFlash = readModeFromFlash,
         .writeModeToFlash = writeModeToFlash,
-        .enableTimers = enableTimers,
+        .enableTimers = enableTimers,  // TODO: split up timers
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .errorHandler = Error_Handler,
-        .rgbTimerPeriod = htim1.Init.Period // TODO: when another leg added they need to have the same period
+        .rgbTimerPeriod =
+            htim1.Init.Period  // TODO: when another leg added they need to have the same period
     };
 
     configureMicroLight(&deps);

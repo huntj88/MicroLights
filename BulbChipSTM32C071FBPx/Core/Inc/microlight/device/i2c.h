@@ -10,12 +10,16 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdint.h>
 
-// write to single register
+// write to single register.
 typedef void I2CWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value);
 
-// read from single register
-typedef uint8_t I2CReadRegister(uint8_t devAddress, uint8_t reg);
+// write to single register. Returns true on success.
+typedef bool I2CWriteRegisterChecked(uint8_t devAddress, uint8_t reg, uint8_t value);
+
+// read from single register. Returns true on success.
+typedef bool I2CReadRegister(uint8_t devAddress, uint8_t reg, uint8_t *data);
 
 // Read multiple consecutive registers. Returns true on success.
 typedef bool I2CReadRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len);

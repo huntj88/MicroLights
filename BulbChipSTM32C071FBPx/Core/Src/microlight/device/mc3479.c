@@ -9,29 +9,15 @@
 // Sensitivity for +/- 16g range: 32768 / 16 = 2048 LSB/g
 #define MC3479_SENSITIVITY_LSB_PER_G 2048ULL
 
-/* Small helper to safely call the optional USB logging callback */
-static void mc3479Log(MC3479 *dev, const char *msg) {
-    if (dev == NULL || dev->writeToSerial == NULL || msg == NULL) {
-        return;
-    }
-
-    dev->writeToSerial(msg, strlen(msg));
-}
-
 bool mc3479Init(
-    MC3479 *dev,
-    I2CReadRegisters *readRegsCb,
-    I2CWriteRegister *writeCb,
-    uint8_t devAddress,
-    WriteToSerial *writeToSerial) {
-    if (!dev || !readRegsCb || !writeCb || !writeToSerial) {
+    MC3479 *dev, I2CReadRegisters *readRegsCb, I2CWriteRegister *writeCb, uint8_t devAddress) {
+    if (!dev || !readRegsCb || !writeCb) {
         return false;
     }
 
     dev->readRegisters = readRegsCb;
     dev->writeRegister = writeCb;
     dev->devAddress = devAddress;
-    dev->writeToSerial = writeToSerial;
 
     // make sure in STANDBY when configuring
     mc3479Disable(dev);
@@ -141,7 +127,6 @@ void mc3479Task(MC3479 *dev, uint32_t milliseconds) {
         if (mc3479SampleNow(dev, milliseconds)) {
             // sample_now updates last_sample_tick
         } else {
-            mc3479Log(dev, "mc3479: sample failed\n");
             // Advance the last_sample_tick anyway to avoid continuous retries
             dev->lastSampleMs = milliseconds;
         }
