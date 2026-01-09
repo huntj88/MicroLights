@@ -13,7 +13,11 @@
 // TODO: change name to log_decorate and decorate more hardware interfaces?
 
 static void internalLog(
-    WriteToSerial *logFunc, const bool *enabled, const char *operation, uint8_t devAddress, uint8_t reg) {
+    WriteToSerial *logFunc,
+    const bool *enabled,
+    const char *operation,
+    uint8_t devAddress,
+    uint8_t reg) {
     if (enabled && *enabled && logFunc) {
         char buf[64];
         snprintf(

@@ -8,7 +8,6 @@
 #include "microlight/usb_manager.h"
 #include <stdio.h>
 #include <string.h>
-#include "bootloader.h"
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/json/json_buf.h"

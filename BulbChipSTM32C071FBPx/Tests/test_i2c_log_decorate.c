@@ -53,7 +53,7 @@ void tearDown(void) {
 
 void test_i2cDecoratedWrite_Success_NoLog(void) {
     bool enabled = true;
-    mockWriteReturn = true; // Simulate success
+    mockWriteReturn = true;  // Simulate success
 
     i2cDecoratedWrite(0x10, 0x20, 0x30, mock_writeRegisterChecked, &enabled, mock_writeToSerial);
 
@@ -65,16 +65,16 @@ void test_i2cDecoratedWrite_Success_NoLog(void) {
 
 void test_i2cDecoratedWrite_Fail_LogDisabled(void) {
     bool enabled = false;
-    mockWriteReturn = false; // Simulate failure
+    mockWriteReturn = false;  // Simulate failure
 
     i2cDecoratedWrite(0x10, 0x20, 0x30, mock_writeRegisterChecked, &enabled, mock_writeToSerial);
 
-    TEST_ASSERT_FALSE(logCalled); 
+    TEST_ASSERT_FALSE(logCalled);
 }
 
 void test_i2cDecoratedWrite_Fail_LogEnabled(void) {
     bool enabled = true;
-    mockWriteReturn = false; // Simulate failure
+    mockWriteReturn = false;  // Simulate failure
 
     i2cDecoratedWrite(0x10, 0x20, 0x30, mock_writeRegisterChecked, &enabled, mock_writeToSerial);
 
@@ -98,9 +98,10 @@ void test_i2cDecoratedWrite_NullRawFunc(void) {
 void test_i2cDecoratedRead_Success_NoLog(void) {
     bool enabled = true;
     mockReadReturn = true;
-    
+
     uint8_t buf[1];
-    bool result = i2cDecoratedReadRegisters(0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
+    bool result = i2cDecoratedReadRegisters(
+        0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
 
     TEST_ASSERT_TRUE(result);
     TEST_ASSERT_EQUAL_UINT8(0x50, lastDevAddr);
@@ -111,9 +112,10 @@ void test_i2cDecoratedRead_Success_NoLog(void) {
 void test_i2cDecoratedRead_Fail_LogDisabled(void) {
     bool enabled = false;
     mockReadReturn = false;
-    
+
     uint8_t buf[1];
-    bool result = i2cDecoratedReadRegisters(0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
+    bool result = i2cDecoratedReadRegisters(
+        0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
 
     TEST_ASSERT_FALSE(result);
     TEST_ASSERT_FALSE(logCalled);
@@ -122,9 +124,10 @@ void test_i2cDecoratedRead_Fail_LogDisabled(void) {
 void test_i2cDecoratedRead_Fail_LogEnabled(void) {
     bool enabled = true;
     mockReadReturn = false;
-    
+
     uint8_t buf[1];
-    bool result = i2cDecoratedReadRegisters(0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
+    bool result = i2cDecoratedReadRegisters(
+        0x50, 0x60, buf, 1, mock_readRegisters, &enabled, mock_writeToSerial);
 
     TEST_ASSERT_FALSE(result);
     TEST_ASSERT_TRUE(logCalled);
@@ -137,11 +140,8 @@ void test_i2cDecoratedRead_NullRawFunc(void) {
     bool enabled = true;
     uint8_t buf[1];
     bool result = i2cDecoratedReadRegisters(0x50, 0x60, buf, 1, NULL, &enabled, mock_writeToSerial);
-    
-    // rawFunc is null -> returns false immediately if checked, or crashes?
-    // Code says: if (rawFunc && rawFunc(...)) { return true; } internalLog(...); return false;
-    // So if rawFunc is null, it skips if, logs error, returns false.
-    
+
+    // If rawFunc is null then skip if statement, logs error, returns false.
     TEST_ASSERT_FALSE(result);
     TEST_ASSERT_TRUE(logCalled);
     TEST_ASSERT_NOT_NULL(strstr(logBuffer, "ReadMul"));
