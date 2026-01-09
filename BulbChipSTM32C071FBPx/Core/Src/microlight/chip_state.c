@@ -10,12 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "chip_state.h"
-#include "json/command_parser.h"
-#include "json/mode_parser.h"
-#include "mode_manager.h"
-#include "model/mode_state.h"
-#include "settings_manager.h"
+#include "microlight/chip_state.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/mode_parser.h"
+#include "microlight/mode_manager.h"
+#include "microlight/model/mode_state.h"
+#include "microlight/settings_manager.h"
 
 typedef struct {
     volatile uint32_t chipTick;

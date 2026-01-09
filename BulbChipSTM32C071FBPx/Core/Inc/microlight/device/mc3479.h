@@ -13,8 +13,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include "device/i2c.h"
-#include "model/serial.h"
+#include "microlight/device/i2c.h"
+#include "microlight/model/serial.h"
 
 #define MC3479_I2CADDR_DEFAULT 0x99  // 8-bit address
 

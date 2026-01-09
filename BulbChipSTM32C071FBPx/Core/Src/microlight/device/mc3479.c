@@ -1,4 +1,4 @@
-#include "device/mc3479.h"
+#include "microlight/device/mc3479.h"
 
 #include <stdbool.h>
 #include <stddef.h>

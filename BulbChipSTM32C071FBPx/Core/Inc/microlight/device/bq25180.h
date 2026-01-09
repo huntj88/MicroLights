@@ -7,9 +7,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "device/i2c.h"
-#include "device/rgb_led.h"
-#include "model/serial.h"
+#include "microlight/device/i2c.h"
+#include "microlight/device/rgb_led.h"
+#include "microlight/model/serial.h"
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_

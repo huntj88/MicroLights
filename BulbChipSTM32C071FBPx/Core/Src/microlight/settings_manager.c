@@ -5,12 +5,12 @@
  *      Author: jameshunt
  */
 
-#include "settings_manager.h"
+#include "microlight/settings_manager.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
-#include "json/command_parser.h"
-#include "json/json_buf.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
 
 static void loadSettingsFromFlash(SettingsManager *manager, char buffer[], CliInput *cliInput);
 

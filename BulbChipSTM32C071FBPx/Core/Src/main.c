@@ -22,15 +22,15 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bootloader.h"
-#include "chip_state.h"
-#include "device/bq25180.h"
-#include "device/button.h"
-#include "device/mc3479.h"
-#include "device/rgb_led.h"
+#include "microlight/chip_state.h"
+#include "microlight/device/bq25180.h"
+#include "microlight/device/button.h"
+#include "microlight/device/mc3479.h"
+#include "microlight/device/rgb_led.h"
 #include "mcu_dependencies.h"
-#include "mode_manager.h"
-#include "settings_manager.h"
-#include "usb_manager.h"
+#include "microlight/mode_manager.h"
+#include "microlight/settings_manager.h"
+#include "microlight/usb_manager.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

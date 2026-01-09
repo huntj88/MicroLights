@@ -5,11 +5,11 @@
  *      Author: jameshunt
  */
 
-#include "mode_manager.h"
+#include "microlight/mode_manager.h"
 #include <stdio.h>
 #include <string.h>
-#include "json/command_parser.h"
-#include "json/json_buf.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
 
 static const char *fakeOffModeJson =
     "{\"command\":\"writeMode\",\"index\":255,\"mode\":{\"name\":\"fakeOff\",\"front\":{"

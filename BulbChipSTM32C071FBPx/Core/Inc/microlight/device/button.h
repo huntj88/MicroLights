@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "device/rgb_led.h"
+#include "microlight/device/rgb_led.h"
 
 // called from button interrupt
 void startButtonEvaluation();

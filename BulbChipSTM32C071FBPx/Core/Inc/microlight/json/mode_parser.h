@@ -2,9 +2,9 @@
 #ifndef MODE_PARSER_H
 #define MODE_PARSER_H
 
-#include "json/parser.h"
+#include "microlight/json/parser.h"
 #include "lwjson/lwjson.h"
-#include "model/mode.h"
+#include "microlight/model/mode.h"
 
 bool parseMode(lwjson_t *lwjson, lwjson_token_t *token, Mode *out, ParserErrorContext *ctx);
 

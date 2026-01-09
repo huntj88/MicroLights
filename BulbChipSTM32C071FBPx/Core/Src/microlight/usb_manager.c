@@ -5,13 +5,13 @@
  *      Author: jameshunt
  */
 
-#include "usb_manager.h"
+#include "microlight/usb_manager.h"
 #include <stdio.h>
 #include <string.h>
 #include "bootloader.h"
-#include "chip_state.h"
-#include "json/command_parser.h"
-#include "json/json_buf.h"
+#include "microlight/chip_state.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
 #include "tusb.h"
 
 // integration guide: https://github.com/hathach/tinyusb/discussions/633

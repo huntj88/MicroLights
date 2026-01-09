@@ -22,9 +22,9 @@
 #include "stm32c0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "chip_state.h"
-#include "device/button.h"
-#include "device/bq25180.h"
+#include "microlight/chip_state.h"
+#include "microlight/device/button.h" // TODO: consolidate IT into one place in app logic, delegate from there
+#include "microlight/device/bq25180.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

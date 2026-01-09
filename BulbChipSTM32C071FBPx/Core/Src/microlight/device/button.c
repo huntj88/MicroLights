@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "device/button.h"
+#include "microlight/device/button.h"
 
 // more than one button not likely,
 // if handling multiple buttons would need to pass in function pointer that get bool for specific

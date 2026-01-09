@@ -9,8 +9,8 @@
 #define INC_COMMAND_PARSER_H_
 
 #include <stdint.h>
-#include "mode_parser.h"
-#include "model/cli_model.h"
+#include "microlight/json/mode_parser.h"
+#include "microlight/model/cli_model.h"
 
 /*
  * Example Commands:

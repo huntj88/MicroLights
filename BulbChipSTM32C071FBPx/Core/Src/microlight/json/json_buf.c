@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "json/json_buf.h"
+#include "microlight/json/json_buf.h"
 
 /* Global buffer for reading JSON data.
  * Note: This variable is not thread-safe and is intended for single-threaded use only.

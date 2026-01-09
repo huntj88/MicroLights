@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "device/bq25180.h"
+#include "microlight/device/bq25180.h"
 
 #include <stdio.h>
 #include <string.h>

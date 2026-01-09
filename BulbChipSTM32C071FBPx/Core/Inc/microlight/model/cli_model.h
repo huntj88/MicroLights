@@ -9,9 +9,9 @@
 #define INC_MODEL_CLI_MODEL_H_
 
 #include <stdint.h>
-#include "json/parser.h"
-#include "model/chip_settings.h"
-#include "model/mode.h"
+#include "microlight/json/parser.h"
+#include "microlight/model/chip_settings.h"
+#include "microlight/model/mode.h"
 
 enum ParseResult {
     parseError,

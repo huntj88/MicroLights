@@ -10,14 +10,14 @@
 
 #include <stdint.h>
 
-#include "device/bq25180.h"
-#include "device/button.h"
-#include "device/mc3479.h"
-#include "device/rgb_led.h"
-#include "json/command_parser.h"
-#include "mode_manager.h"
-#include "model/serial.h"
-#include "settings_manager.h"
+#include "microlight/device/bq25180.h"
+#include "microlight/device/button.h"
+#include "microlight/device/mc3479.h"
+#include "microlight/device/rgb_led.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/mode_manager.h"
+#include "microlight/model/serial.h"
+#include "microlight/settings_manager.h"
 
 void configureChipState(
     ModeManager *modeManager,

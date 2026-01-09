@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "device/rgb_led.h"
+#include "microlight/device/rgb_led.h"
 
 #include <stdbool.h>
 #include <stddef.h>

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "model/mode.h"
+#include "microlight/model/mode.h"
 #include "tinyexpr.h"
 
 typedef struct {

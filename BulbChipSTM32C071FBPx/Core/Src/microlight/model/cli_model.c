@@ -5,7 +5,7 @@
  *      Author: jameshunt
  */
 
-#include "model/cli_model.h"
+#include "microlight/model/cli_model.h"
 
 /* Global CLI input state.
  * Note: This variable is not thread-safe and is intended for single-threaded use only.
