@@ -83,9 +83,9 @@ void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
 }
 
 // Include source files under test
-#include "../Core/Src/microlight/chip_state.c"
-#include "../Core/Src/microlight/model/mode_state.c"
-#include "../Core/Src/microlight/settings_manager.c"
+#include "../../Core/Src/microlight/chip_state.c"
+#include "../../Core/Src/microlight/model/mode_state.c"
+#include "../../Core/Src/microlight/settings_manager.c"
 
 void setUp(void) {
     memset(&mockModeManager, 0, sizeof(ModeManager));

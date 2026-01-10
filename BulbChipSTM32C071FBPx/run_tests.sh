@@ -81,32 +81,32 @@ run_test() {
 }
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_chip_state..."; fi
-gcc $CFLAGS Tests/test_chip_state.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_chip_state
+gcc $CFLAGS Tests/microlight/test_chip_state.c $UNITY_SRC $TINYEXPR_SRC -lm -o Tests/build/test_chip_state
 run_test ./Tests/build/test_chip_state
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_settings_manager..."; fi
-gcc $CFLAGS Tests/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC $LWJSON_SRC Core/Src/microlight/json/json_buf.c -lm -o Tests/build/test_settings_manager
+gcc $CFLAGS Tests/microlight/test_settings_manager.c $UNITY_SRC $TINYEXPR_SRC $LWJSON_SRC Core/Src/microlight/json/json_buf.c -lm -o Tests/build/test_settings_manager
 run_test ./Tests/build/test_settings_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_manager..."; fi
-gcc $CFLAGS Tests/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
+gcc $CFLAGS Tests/microlight/test_mode_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_manager
 run_test ./Tests/build/test_mode_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mode_state..."; fi
-gcc $CFLAGS Tests/test_mode_state.c $UNITY_SRC Core/Src/microlight/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
+gcc $CFLAGS Tests/microlight/model/test_mode_state.c $UNITY_SRC Core/Src/microlight/model/mode_state.c $TINYEXPR_SRC -lm -o Tests/build/test_mode_state
 run_test ./Tests/build/test_mode_state
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_button..."; fi
-gcc $CFLAGS Tests/test_button.c $UNITY_SRC -o Tests/build/test_button
+gcc $CFLAGS Tests/microlight/device/test_button.c $UNITY_SRC -o Tests/build/test_button
 run_test ./Tests/build/test_button
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_command_parser..."; fi
 # Needs lwjson.c linked
-gcc $CFLAGS Tests/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c -o Tests/build/test_command_parser
+gcc $CFLAGS Tests/microlight/json/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c -o Tests/build/test_command_parser
 run_test ./Tests/build/test_command_parser
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
-gcc $CFLAGS Tests/test_bq25180.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_bq25180
+gcc $CFLAGS Tests/microlight/device/test_bq25180.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_bq25180
 run_test ./Tests/build/test_bq25180
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_storage..."; fi
@@ -114,11 +114,11 @@ gcc $CFLAGS Tests/test_storage.c $UNITY_SRC -o Tests/build/test_storage
 run_test ./Tests/build/test_storage
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_manager..."; fi
-gcc $CFLAGS Tests/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/json/parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c Core/Src/microlight/usb_manager.c -lm -o Tests/build/test_usb_manager
+gcc $CFLAGS Tests/microlight/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/json/parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c Core/Src/microlight/usb_manager.c -lm -o Tests/build/test_usb_manager
 run_test ./Tests/build/test_usb_manager
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_i2c_log_decorate..."; fi
-gcc $CFLAGS Tests/test_i2c_log_decorate.c Core/Src/microlight/i2c_log_decorate.c $UNITY_SRC -o Tests/build/test_i2c_log_decorate
+gcc $CFLAGS Tests/microlight/test_i2c_log_decorate.c Core/Src/microlight/i2c_log_decorate.c $UNITY_SRC -o Tests/build/test_i2c_log_decorate
 run_test ./Tests/build/test_i2c_log_decorate
 
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_dependencies..."; fi

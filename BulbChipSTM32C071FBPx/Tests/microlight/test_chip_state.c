@@ -94,8 +94,8 @@ void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
 }
 
 // Include the source files under test to access static state
-#include "../Core/Src/microlight/chip_state.c"
-#include "../Core/Src/microlight/model/mode_state.c"
+#include "../../Core/Src/microlight/chip_state.c"
+#include "../../Core/Src/microlight/model/mode_state.c"
 
 // Setup and Teardown
 void setUp(void) {

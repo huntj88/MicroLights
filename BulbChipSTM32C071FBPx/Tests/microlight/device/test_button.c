@@ -42,7 +42,7 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // Include source
-#include "../Core/Src/microlight/device/button.c"
+#include "../../../Core/Src/microlight/device/button.c"
 
 void setUp(void) {
     memset(&button, 0, sizeof(Button));

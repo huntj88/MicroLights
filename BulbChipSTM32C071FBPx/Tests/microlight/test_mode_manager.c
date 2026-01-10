@@ -93,8 +93,8 @@ void mock_readSavedMode(uint8_t mode, char buffer[], uint32_t length) {
 
 // Include source
 char testJsonBuf[TEST_JSON_BUFFER_SIZE];
-#include "../Core/Src/microlight/mode_manager.c"
-#include "../Core/Src/microlight/model/mode_state.c"
+#include "../../Core/Src/microlight/mode_manager.c"
+#include "../../Core/Src/microlight/model/mode_state.c"
 
 void setUp(void) {
     memset(&mockAccel, 0, sizeof(MC3479));

@@ -57,7 +57,7 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 // Include source under test
-#include "../Core/Src/microlight/device/bq25180.c"
+#include "../../../Core/Src/microlight/device/bq25180.c"
 
 static BQ25180 charger;
 static RGBLed mockLed;
