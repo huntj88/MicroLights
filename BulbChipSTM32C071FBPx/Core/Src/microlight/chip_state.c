@@ -98,9 +98,9 @@ static void handleAutoOffTimer(bool timerTriggered) {
 }
 
 void stateTask(StateTaskFlags flags) {
-    handleAutoOffTimer(flags.autoOffTimerTriggered);
+    handleAutoOffTimer(flags.autoOffTimerInterruptTriggered);
 
-    if (flags.chipTickTriggered) {
+    if (flags.chipTickInterruptTriggered) {
         state.chipTick++;
     }
     uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);

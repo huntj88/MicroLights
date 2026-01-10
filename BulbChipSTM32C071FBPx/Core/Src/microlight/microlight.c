@@ -24,8 +24,8 @@ static I2CReadRegisters rawI2cReadRegs = NULL;
 
 static volatile bool buttonInterruptTriggered = false;
 static volatile bool chargerInterruptTriggered = false;
-static volatile bool autoOffTimerTriggered = false;
-static volatile bool chipTickTriggered = false;
+static volatile bool autoOffTimerInterruptTriggered = false;
+static volatile bool chipTickInterruptTriggered = false;
 
 static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     i2cDecoratedWrite(
@@ -124,14 +124,14 @@ void microLightTask(void) {
     usbTask(&usbManager);
 
     stateTask((StateTaskFlags){
-        .chipTickTriggered = chipTickTriggered,
-        .autoOffTimerTriggered = autoOffTimerTriggered,
+        .chipTickInterruptTriggered = chipTickInterruptTriggered,
+        .autoOffTimerInterruptTriggered = autoOffTimerInterruptTriggered,
         .buttonInterruptTriggered = buttonInterruptTriggered,
         .chargerInterruptTriggered = chargerInterruptTriggered});
 
     // Clear flags after processing
-    chipTickTriggered = false;
-    autoOffTimerTriggered = false;
+    chipTickInterruptTriggered = false;
+    autoOffTimerInterruptTriggered = false;
     buttonInterruptTriggered = false;
     chargerInterruptTriggered = false;
 }
@@ -145,10 +145,10 @@ void microLightInterrupt(enum MicroLightInterrupt interrupt) {
             chargerInterruptTriggered = true;
             break;
         case ChipTickInterrupt:
-            chipTickTriggered = true;
+            chipTickInterruptTriggered = true;
             break;
         case AutoOffTimerInterrupt:
-            autoOffTimerTriggered = true;
+            autoOffTimerInterruptTriggered = true;
             break;
     }
 }

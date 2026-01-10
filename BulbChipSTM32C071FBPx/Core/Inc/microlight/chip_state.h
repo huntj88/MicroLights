@@ -30,8 +30,8 @@ void configureChipState(
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
 typedef struct StateTaskFlags {
-    bool chipTickTriggered;
-    bool autoOffTimerTriggered;
+    bool chipTickInterruptTriggered;
+    bool autoOffTimerInterruptTriggered;
     bool buttonInterruptTriggered;
     bool chargerInterruptTriggered;
 } StateTaskFlags;
