@@ -97,13 +97,10 @@ static void handleAutoOffTimer(bool timerTriggered) {
     }
 }
 
-void stateTask(
-    bool chipTickTriggered,
-    bool autoOffTimerTriggered,
-    bool buttonInterruptTriggered,
-    bool chargerInterruptTriggered) {
-    handleAutoOffTimer(autoOffTimerTriggered);
-    if (chipTickTriggered) {
+void stateTask(StateTaskFlags flags) {
+    handleAutoOffTimer(flags.autoOffTimerTriggered);
+
+    if (flags.chipTickTriggered) {
         state.chipTick++;
     }
     uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
@@ -113,7 +110,7 @@ void stateTask(
         state.modeManager, milliseconds, canUpdateCaseLed, state.settings->equationEvalIntervalMs);
 
     enum ButtonResult buttonResult =
-        buttonInputTask(state.button, milliseconds, buttonInterruptTriggered);
+        buttonInputTask(state.button, milliseconds, flags.buttonInterruptTriggered);
     switch (buttonResult) {
         case ignore:
             break;
@@ -149,7 +146,7 @@ void stateTask(
         state.chargerIC,
         milliseconds,
         (ChargerTaskFlags){
-            .interruptTriggered = chargerInterruptTriggered,
+            .interruptTriggered = flags.chargerInterruptTriggered,
             .unplugLockEnabled = unplugLockEnabled,
             .chargeLedEnabled = chargeLedEnabled,
             .serialEnabled = state.settings->enableChargerSerial});

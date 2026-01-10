@@ -29,10 +29,13 @@ void configureChipState(
     Log log,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
-void stateTask(
-    bool chipTickTriggered,
-    bool autoOffTimerTriggered,
-    bool buttonInterruptTriggered,
-    bool chargerInterruptTriggered);
+typedef struct StateTaskFlags {
+    bool chipTickTriggered;
+    bool autoOffTimerTriggered;
+    bool buttonInterruptTriggered;
+    bool chargerInterruptTriggered;
+} StateTaskFlags;
+
+void stateTask(StateTaskFlags flags);
 
 #endif /* INC_CHIP_STATE_H_ */

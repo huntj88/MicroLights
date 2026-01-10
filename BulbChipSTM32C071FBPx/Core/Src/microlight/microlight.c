@@ -123,11 +123,11 @@ void configureMicroLight(MicroLightDependencies *deps) {
 void microLightTask(void) {
     usbTask(&usbManager);
 
-    stateTask(
-        chipTickTriggered,
-        autoOffTimerTriggered,
-        buttonInterruptTriggered,
-        chargerInterruptTriggered);
+    stateTask((StateTaskFlags){
+        .chipTickTriggered = chipTickTriggered,
+        .autoOffTimerTriggered = autoOffTimerTriggered,
+        .buttonInterruptTriggered = buttonInterruptTriggered,
+        .chargerInterruptTriggered = chargerInterruptTriggered});
 
     // Clear flags after processing
     chipTickTriggered = false;
