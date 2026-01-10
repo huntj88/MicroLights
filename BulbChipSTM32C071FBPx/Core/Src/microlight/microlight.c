@@ -19,8 +19,8 @@ static void internalLog(const char *buf, size_t count) {
 }
 
 // Wrap I2C dependencies to handle logging internal to this file
-static I2CWriteRegisterChecked *rawI2cWrite = NULL;
-static I2CReadRegisters *rawI2cReadRegs = NULL;
+static I2CWriteRegisterChecked rawI2cWrite = NULL;
+static I2CReadRegisters rawI2cReadRegs = NULL;
 
 static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     i2cDecoratedWrite(

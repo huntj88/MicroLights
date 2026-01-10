@@ -11,10 +11,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-typedef void RGBWritePwm(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty);
+typedef void (*RGBWritePwm)(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty);
 
 typedef struct RGBLed {
-    RGBWritePwm *writePwm;
+    RGBWritePwm writePwm;
     uint16_t period;  // TODO: set period from config?
 
     uint32_t ms;
@@ -25,7 +25,7 @@ typedef struct RGBLed {
     uint8_t userBlue;
 } RGBLed;
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period);
+bool rgbInit(RGBLed *device, RGBWritePwm writeFn, uint16_t period);
 
 void rgbTask(RGBLed *device, uint32_t milliseconds);
 void rgbShowNoColor(RGBLed *device);

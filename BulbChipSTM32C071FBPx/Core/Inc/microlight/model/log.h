@@ -11,6 +11,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void Log(const char *buf, size_t count);
+typedef void (*Log)(const char *buf, size_t count);
 
 #endif /* INC_MODEL_LOG_H_ */

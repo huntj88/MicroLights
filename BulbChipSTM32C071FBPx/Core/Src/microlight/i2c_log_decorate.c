@@ -13,7 +13,7 @@
 // TODO: change name to log_decorate and decorate more hardware interfaces?
 
 static void internalLog(
-    Log *log,
+    Log log,
     const bool *enabled,
     const char *operation,
     uint8_t devAddress,
@@ -35,9 +35,9 @@ void i2cDecoratedWrite(
     uint8_t devAddress,
     uint8_t reg,
     uint8_t value,
-    I2CWriteRegisterChecked *rawFunc,
+    I2CWriteRegisterChecked rawFunc,
     const bool *enableFlag,
-    Log *log) {
+    Log log) {
     if (rawFunc && !rawFunc(devAddress, reg, value)) {
         internalLog(log, enableFlag, "Write", devAddress, reg);
     }
@@ -48,9 +48,9 @@ bool i2cDecoratedReadRegisters(
     uint8_t startReg,
     uint8_t *buf,
     size_t len,
-    I2CReadRegisters *rawFunc,
+    I2CReadRegisters rawFunc,
     const bool *enableFlag,
-    Log *log) {
+    Log log) {
     if (rawFunc && rawFunc(devAddress, startReg, buf, len)) {
         return true;
     }

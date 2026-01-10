@@ -26,9 +26,9 @@ void i2cDecoratedWrite(
     uint8_t devAddress,
     uint8_t reg,
     uint8_t value,
-    I2CWriteRegisterChecked *rawFunc,
+    I2CWriteRegisterChecked rawFunc,
     const bool *enableFlag,
-    Log *log);
+    Log log);
 
 /**
  * @brief Stateless helper that executes a multi-byte read transaction checking for errors and
@@ -41,8 +41,8 @@ bool i2cDecoratedReadRegisters(
     uint8_t startReg,
     uint8_t *buf,
     size_t len,
-    I2CReadRegisters *rawFunc,
+    I2CReadRegisters rawFunc,
     const bool *enableFlag,
-    Log *log);
+    Log log);
 
 #endif /* MICROLIGHT_I2C_LOG_DECORATE_H */

@@ -39,7 +39,7 @@ static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, 
     device->msOfColorChange = device->ms;
 }
 
-bool rgbInit(RGBLed *device, RGBWritePwm *writeFn, uint16_t period) {
+bool rgbInit(RGBLed *device, RGBWritePwm writeFn, uint16_t period) {
     if (!device || !writeFn) {
         return false;
     }

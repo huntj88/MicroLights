@@ -27,7 +27,7 @@ bool modeManagerInit(
     void (*enableTimers)(bool enable),
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
-    Log *log) {
+    Log log) {
     if (!manager || !accel || !caseLed || !enableTimers || !readSavedMode || !writeBulbLedPin ||
         !log) {
         return false;

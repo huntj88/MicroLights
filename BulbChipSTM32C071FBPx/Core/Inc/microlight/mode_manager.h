@@ -28,7 +28,7 @@ typedef struct ModeManager {
     void (*enableTimers)(bool enable);
     ReadSavedMode readSavedMode;
     void (*writeBulbLedPin)(uint8_t state);
-    Log *log;
+    Log log;
     ModeState modeState;
     bool shouldResetState;
 } ModeManager;
@@ -40,7 +40,7 @@ bool modeManagerInit(
     void (*enableTimers)(bool enable),
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
-    Log *log);
+    Log log);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 

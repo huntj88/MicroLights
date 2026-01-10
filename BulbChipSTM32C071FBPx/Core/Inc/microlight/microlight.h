@@ -18,9 +18,9 @@
 
 typedef struct {
     // Hardware I/O
-    I2CWriteRegisterChecked *i2cWriteRegister;
-    I2CReadRegisters *i2cReadRegisters;
-    RGBWritePwm *writeRgbPwmCaseLed;
+    I2CWriteRegisterChecked i2cWriteRegister;
+    I2CReadRegisters i2cReadRegisters;
+    RGBWritePwm writeRgbPwmCaseLed;
     void (*writeBulbLed)(uint8_t state);
     uint8_t (*readButtonPin)(void);
 

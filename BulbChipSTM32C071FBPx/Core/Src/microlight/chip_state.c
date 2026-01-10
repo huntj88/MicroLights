@@ -31,7 +31,7 @@ typedef struct {
     MC3479 *accel;
 
     // Callbacks
-    Log *log;
+    Log log;
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
@@ -45,7 +45,7 @@ void configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    Log *log,
+    Log log,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks)) {
     state.modeManager = modeManager;
     state.settings = settings;
