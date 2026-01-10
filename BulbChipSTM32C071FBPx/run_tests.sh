@@ -121,6 +121,10 @@ if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_i2c_log_decorate
 gcc $CFLAGS Tests/test_i2c_log_decorate.c Core/Src/microlight/i2c_log_decorate.c $UNITY_SRC -o Tests/build/test_i2c_log_decorate
 run_test ./Tests/build/test_i2c_log_decorate
 
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_dependencies..."; fi
+gcc $CFLAGS Tests/test_usb_dependencies.c Core/Src/usb_dependencies.c $UNITY_SRC -o Tests/build/test_usb_dependencies
+run_test ./Tests/build/test_usb_dependencies
+
 echo "---------------------------------------------------"
 echo "Final Aggregate Report"
 echo "Total Tests: $TOTAL_TESTS"

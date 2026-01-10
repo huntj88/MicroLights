@@ -12,6 +12,7 @@
 #include "microlight/device/rgb_led.h"
 #include "microlight/mode_manager.h"
 #include "microlight/model/storage.h"
+#include "microlight/model/usb.h"
 #include "microlight/settings_manager.h"
 #include "microlight/usb_manager.h"
 
@@ -22,6 +23,10 @@ typedef struct {
     RGBWritePwm *writeRgbPwmCaseLed;
     void (*writeBulbLed)(uint8_t state);
     uint8_t (*readButtonPin)(void);
+
+    // USB
+    UsbCdcReadTask usbCdcReadTask;
+    UsbWriteToSerial usbWriteToSerial;
 
     // Storage
     ReadSavedSettings readSavedSettings;

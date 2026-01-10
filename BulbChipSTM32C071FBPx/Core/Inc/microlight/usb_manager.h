@@ -13,6 +13,7 @@
 #include "mode_manager.h"
 #include "model/serial.h"
 #include "model/storage.h"
+#include "model/usb.h"
 #include "settings_manager.h"
 
 typedef struct USBManager {
@@ -21,6 +22,8 @@ typedef struct USBManager {
     void (*enterDFU)();
     SaveSettings saveSettings;
     SaveMode saveMode;
+    UsbCdcReadTask usbCdcReadTask;
+    UsbWriteToSerial usbWriteToSerial;
 } USBManager;
 
 bool usbInit(
@@ -29,9 +32,10 @@ bool usbInit(
     SettingsManager *settingsManager,
     void (*enterDFU)(),
     SaveSettings saveSettings,
-    SaveMode saveMode);
+    SaveMode saveMode,
+    UsbCdcReadTask usbCdcReadTask,
+    UsbWriteToSerial usbWriteToSerial);
 
-void usbCdcTask(USBManager *usbManager);
-void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count);
+void usbTask(USBManager *usbManager);
 
 #endif /* INC_USB_MANAGER_H_ */

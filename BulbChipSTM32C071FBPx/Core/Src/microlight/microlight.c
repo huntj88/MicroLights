@@ -87,7 +87,9 @@ void configureMicroLight(MicroLightDependencies *deps) {
             &settingsManager,
             deps->enterDFU,
             deps->saveSettings,
-            deps->saveMode)) {
+            deps->saveMode,
+            deps->usbCdcReadTask,
+            deps->usbWriteToSerial)) {
         deps->errorHandler();
     }
 
@@ -114,6 +116,6 @@ void configureMicroLight(MicroLightDependencies *deps) {
 }
 
 void microLightTask(void) {
-    usbCdcTask(&usbManager);
+    usbTask(&usbManager);
     stateTask();
 }

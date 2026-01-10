@@ -11,7 +11,6 @@
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/json/json_buf.h"
-#include "tusb.h"
 
 // integration guide: https://github.com/hathach/tinyusb/discussions/633
 bool usbInit(
@@ -20,9 +19,11 @@ bool usbInit(
     SettingsManager *settingsManager,
     void (*enterDFU)(),
     SaveSettings saveSettings,
-    SaveMode saveMode) {
+    SaveMode saveMode,
+    UsbCdcReadTask usbCdcReadTask,
+    UsbWriteToSerial usbWriteToSerial) {
     if (!usbManager || !modeManager || !settingsManager || !enterDFU || !saveSettings ||
-        !saveMode) {
+        !saveMode || !usbCdcReadTask || !usbWriteToSerial) {
         return false;
     }
     usbManager->modeManager = modeManager;
@@ -30,33 +31,10 @@ bool usbInit(
     usbManager->enterDFU = enterDFU;
     usbManager->saveSettings = saveSettings;
     usbManager->saveMode = saveMode;
+    usbManager->usbCdcReadTask = usbCdcReadTask;
+    usbManager->usbWriteToSerial = usbWriteToSerial;
 
-    tusb_init();
     return true;
-}
-
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-
-void usbWriteToSerial(USBManager *usbManager, uint8_t itf, const char *buf, uint32_t count) {
-    uint32_t sent = 0;
-
-    while (sent < count) {
-        uint32_t available = tud_cdc_n_write_available(itf);
-        if (available > 0) {
-            uint32_t to_send = count - sent;
-            if (to_send > available) {
-                to_send = available;
-            }
-
-            uint32_t written = tud_cdc_n_write(itf, buf + sent, to_send);
-            sent += written;
-        } else {
-            break;
-        }
-        tud_task();
-    }
-    tud_cdc_n_write_flush(itf);
-    tud_task();
 }
 
 static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
@@ -75,7 +53,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             } else {
                 snprintf(errorBuf, sizeof(errorBuf), "{\"error\":\"unable to parse json\"}\n");
             }
-            usbWriteToSerial(usbManager, 0, errorBuf, strlen(errorBuf));
+            usbManager->usbWriteToSerial(errorBuf, strlen(errorBuf));
             break;
         }
         case parseWriteMode: {
@@ -96,7 +74,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
             }
             buf[len] = '\n';
             buf[len + 1] = '\0';
-            usbWriteToSerial(usbManager, 0, buf, strlen(buf));
+            usbManager->usbWriteToSerial(buf, strlen(buf));
             break;
         }
         case parseWriteSettings: {
@@ -107,7 +85,7 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
         }
         case parseReadSettings: {
             int len = getSettingsResponse(usbManager->settingsManager, buf, sharedJsonIOBufferSize);
-            usbWriteToSerial(usbManager, 0, buf, len);
+            usbManager->usbWriteToSerial(buf, len);
             break;
         }
         case parseDfu: {
@@ -117,35 +95,9 @@ static void handleJson(USBManager *usbManager, char buf[], uint32_t count) {
     }
 }
 
-void usbCdcTask(USBManager *usbManager) {
-    static uint16_t jsonIndex = 0;
-    uint8_t itf;
-
-    tud_task();
-
-    for (itf = 0; itf < CFG_TUD_CDC; itf++) {
-        // connected() check for DTR bit
-        // Most but not all terminal client set this when making connection
-        // if ( tud_cdc_n_connected(itf) )
-        {
-            if (tud_cdc_n_available(itf)) {
-                char buf[64];
-                // cast count as uint8_t, buf is only 64 bytes
-                uint8_t count = (uint8_t)tud_cdc_n_read(itf, buf, sizeof(buf));
-                if (jsonIndex + count > sharedJsonIOBufferSize) {
-                    const char *error = "{\"error\":\"payload too long\"}\n";
-                    usbWriteToSerial(usbManager, itf, error, strlen(error));
-                    jsonIndex = 0;
-                } else {
-                    for (uint8_t i = 0; i < count; i++) {
-                        sharedJsonIOBuffer[jsonIndex++] = buf[i];
-                        if (buf[i] == '\n') {
-                            handleJson(usbManager, sharedJsonIOBuffer, jsonIndex);
-                            jsonIndex = 0;
-                        }
-                    }
-                }
-            }
-        }
+void usbTask(USBManager *usbManager) {
+    int bytesRead = usbManager->usbCdcReadTask(sharedJsonIOBuffer, sharedJsonIOBufferSize);
+    if (bytesRead > 0) {
+        handleJson(usbManager, sharedJsonIOBuffer, bytesRead);
     }
 }

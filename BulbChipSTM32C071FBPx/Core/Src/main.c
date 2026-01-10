@@ -24,6 +24,7 @@
 #include "bootloader.h"
 #include "mcu_dependencies.h"
 #include "microlight/microlight.h"
+#include "usb_dependencies.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -125,6 +126,8 @@ int main(void) {
         .writeRgbPwmCaseLed = writeRgbPwmCaseLed,
         .writeBulbLed = writeBulbLed,
         .readButtonPin = readButtonPin,
+        .usbCdcReadTask = usbCdcReadTask,
+        .usbWriteToSerial = usbWriteToSerial,
         .readSavedSettings = readSettingsFromFlash,
         .saveSettings = writeSettingsToFlash,
         .readSavedMode = readModeFromFlash,
@@ -134,7 +137,7 @@ int main(void) {
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .errorHandler = Error_Handler,
         .rgbTimerPeriod =
-            htim1.Init.Period,  // TODO: when another leg added they need to have the same period
+            htim1.Init.Period,  // TODO: when another LED added they need to have the same period
         .jsonBuffer = mainJsonBuffer,
         .jsonBufferSize = sizeof(mainJsonBuffer)};
 
