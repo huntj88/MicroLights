@@ -14,7 +14,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "microlight/device/i2c.h"
-#include "microlight/model/serial.h"
+#include "microlight/model/log.h"
 
 #define MC3479_I2CADDR_DEFAULT 0x99  // 8-bit address
 

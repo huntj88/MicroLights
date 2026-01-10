@@ -40,17 +40,17 @@ bool bq25180Init(
     I2CReadRegisters *readRegsCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToSerial *writeToSerial,
+    Log *log,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegsCb || !writeCb || !writeToSerial || !caseLed || !enableTimers) {
+    if (!chargerIC || !readRegsCb || !writeCb || !log || !caseLed || !enableTimers) {
         return false;
     }
 
     chargerIC->readRegisters = readRegsCb;
     chargerIC->writeRegister = writeCb;
     chargerIC->devAddress = devAddress;
-    chargerIC->writeToSerial = writeToSerial;
+    chargerIC->log = log;
     chargerIC->caseLed = caseLed;
     chargerIC->enableTimers = enableTimers;
 
@@ -85,7 +85,7 @@ void chargerTask(
         if (serialEnabled) {
             char registerJson[BQ25180_JSON_BUFFER_SIZE];
             readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
-            chargerIC->writeToSerial(registerJson, strlen(registerJson));
+            chargerIC->log(registerJson, strlen(registerJson));
         }
 
         chargerIC->chargingState = getChargingState(chargerIC);

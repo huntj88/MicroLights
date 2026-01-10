@@ -11,7 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "mode_manager.h"
-#include "model/serial.h"
+#include "model/log.h"
 #include "model/storage.h"
 #include "model/usb.h"
 #include "settings_manager.h"

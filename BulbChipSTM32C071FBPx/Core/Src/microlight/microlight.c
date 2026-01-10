@@ -12,9 +12,7 @@ static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
 
-// TODO: add new or change writeToSerial naming / type to reference more generic Logging instead of
-// serial specifically
-static void internalWriteToSerial(const char *buf, size_t count) {
+static void internalLog(const char *buf, size_t count) {
     if (usbManager.usbWriteToSerial != NULL) {
         usbManager.usbWriteToSerial(buf, count);
     }
@@ -31,7 +29,7 @@ static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t va
         value,
         rawI2cWrite,
         &settingsManager.currentSettings.enableI2cFailureReporting,
-        internalWriteToSerial);
+        internalLog);
 }
 
 static bool internalI2cReadRegisters(
@@ -43,7 +41,7 @@ static bool internalI2cReadRegisters(
         len,
         rawI2cReadRegs,
         &settingsManager.currentSettings.enableI2cFailureReporting,
-        internalWriteToSerial);
+        internalLog);
 }
 
 void configureMicroLight(MicroLightDependencies *deps) {
@@ -77,7 +75,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->enableTimers,
             deps->readSavedMode,
             deps->writeBulbLed,
-            internalWriteToSerial)) {
+            internalLog)) {
         deps->errorHandler();
     }
     if (!settingsManagerInit(&settingsManager, deps->readSavedSettings)) {
@@ -100,7 +98,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             internalI2cReadRegisters,
             internalI2cWriteRegister,
             (0x6A << 1),
-            internalWriteToSerial,
+            internalLog,
             &caseLed,
             deps->enableTimers)) {
         deps->errorHandler();
@@ -113,7 +111,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
         &chargerIC,
         &accel,
         &caseLed,
-        internalWriteToSerial,
+        internalLog,
         deps->convertTicksToMilliseconds);
 }
 

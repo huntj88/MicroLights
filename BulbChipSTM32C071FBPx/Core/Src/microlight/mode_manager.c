@@ -27,9 +27,9 @@ bool modeManagerInit(
     void (*enableTimers)(bool enable),
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
-    WriteToSerial *writeToSerial) {
+    Log *log) {
     if (!manager || !accel || !caseLed || !enableTimers || !readSavedMode || !writeBulbLedPin ||
-        !writeToSerial) {
+        !log) {
         return false;
     }
     manager->accel = accel;
@@ -37,7 +37,7 @@ bool modeManagerInit(
     manager->enableTimers = enableTimers;
     manager->readSavedMode = readSavedMode;
     manager->writeBulbLedPin = writeBulbLedPin;
-    manager->writeToSerial = writeToSerial;
+    manager->log = log;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
     memset(&manager->modeState, 0, sizeof(manager->modeState));
@@ -99,7 +99,7 @@ typedef struct {
 } ActiveComponents;
 
 static void reportEquationError(const ModeManager *manager, const ModeEquationError *error) {
-    if (!manager || !manager->writeToSerial || !error || !error->hasError) {
+    if (!manager || !manager->log || !error || !error->hasError) {
         return;
     }
 
@@ -120,7 +120,7 @@ static void reportEquationError(const ModeManager *manager, const ModeEquationEr
     if (written > (int)sizeof(message)) {
         written = (int)sizeof(message);
     }
-    manager->writeToSerial(message, (size_t)written);
+    manager->log(message, (size_t)written);
 }
 
 static ActiveComponents resolveActiveComponents(ModeManager *manager) {

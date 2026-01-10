@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include "microlight/device/i2c.h"
 #include "microlight/device/rgb_led.h"
-#include "microlight/model/serial.h"
+#include "microlight/model/log.h"
 
 #ifndef INC_BQ25180_H_
 #define INC_BQ25180_H_
@@ -53,7 +53,7 @@ typedef struct BQ25180 BQ25180;  // forward declaration
 typedef struct BQ25180 {
     I2CReadRegisters *readRegisters;
     I2CWriteRegister *writeRegister;
-    WriteToSerial *writeToSerial;
+    Log *log;
     uint8_t devAddress;
     RGBLed *caseLed;
     void (*enableTimers)(bool enable);
@@ -83,7 +83,7 @@ bool bq25180Init(
     I2CReadRegisters *readRegsCb,
     I2CWriteRegister *writeCb,
     uint8_t devAddress,
-    WriteToSerial *writeToSerial,
+    Log *log,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable));
 

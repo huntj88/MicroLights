@@ -14,7 +14,7 @@
 #include "device/rgb_led.h"
 #include "model/cli_model.h"
 #include "model/mode_state.h"
-#include "model/serial.h"
+#include "model/log.h"
 #include "model/storage.h"
 
 #define FAKE_OFF_MODE_INDEX 255
@@ -28,7 +28,7 @@ typedef struct ModeManager {
     void (*enableTimers)(bool enable);
     ReadSavedMode readSavedMode;
     void (*writeBulbLedPin)(uint8_t state);
-    WriteToSerial *writeToSerial;
+    Log *log;
     ModeState modeState;
     bool shouldResetState;
 } ModeManager;
@@ -40,7 +40,7 @@ bool modeManagerInit(
     void (*enableTimers)(bool enable),
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
-    WriteToSerial *writeToSerial);
+    Log *log);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 

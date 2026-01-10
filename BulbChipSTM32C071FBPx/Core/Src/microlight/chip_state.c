@@ -31,7 +31,7 @@ typedef struct {
     MC3479 *accel;
 
     // Callbacks
-    WriteToSerial *writeToSerial;
+    Log *log;
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
@@ -45,7 +45,7 @@ void configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    WriteToSerial *writeToSerial,
+    Log *log,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks)) {
     state.modeManager = modeManager;
     state.settings = settings;
@@ -53,7 +53,7 @@ void configureChipState(
     state.caseLed = caseLed;
     state.chargerIC = chargerIC;
     state.accel = accel;
-    state.writeToSerial = writeToSerial;
+    state.log = log;
     state.convertTicksToMilliseconds = convertTicksToMilliseconds;
     enum ChargeState chargeState = getChargingState(state.chargerIC);
 
@@ -84,7 +84,7 @@ void stateTask() {
             }
             loadMode(state.modeManager, newModeIndex);
             const char *blah = "clicked\n";
-            state.writeToSerial(blah, strlen(blah));
+            state.log(blah, strlen(blah));
             break;
         case shutdown:
             bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;

@@ -16,7 +16,7 @@
 #include "microlight/device/rgb_led.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/mode_manager.h"
-#include "microlight/model/serial.h"
+#include "microlight/model/log.h"
 #include "microlight/settings_manager.h"
 
 void configureChipState(
@@ -26,7 +26,7 @@ void configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    WriteToSerial *writeToSerial,
+    Log *log,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
 void stateTask();

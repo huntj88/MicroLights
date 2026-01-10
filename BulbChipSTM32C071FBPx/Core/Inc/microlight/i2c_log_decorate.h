@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 #include "microlight/device/i2c.h"
-#include "microlight/model/serial.h"
+#include "microlight/model/log.h"
 
 /**
  * @brief Stateless helper that executes a write transaction checking for errors and logging them.
@@ -20,7 +20,7 @@
  * @param value Value to write
  * @param rawFunc The underlying I2C function to call
  * @param enableFlag Pointer to the boolean flag determining if logging is active
- * @param logFunc The logging function to use (e.g. WriteToSerial)
+ * @param log The logging function to use (e.g. Log)
  */
 void i2cDecoratedWrite(
     uint8_t devAddress,
@@ -28,7 +28,7 @@ void i2cDecoratedWrite(
     uint8_t value,
     I2CWriteRegisterChecked *rawFunc,
     const bool *enableFlag,
-    WriteToSerial *logFunc);
+    Log *log);
 
 /**
  * @brief Stateless helper that executes a multi-byte read transaction checking for errors and
@@ -43,6 +43,6 @@ bool i2cDecoratedReadRegisters(
     size_t len,
     I2CReadRegisters *rawFunc,
     const bool *enableFlag,
-    WriteToSerial *logFunc);
+    Log *log);
 
 #endif /* MICROLIGHT_I2C_LOG_DECORATE_H */
