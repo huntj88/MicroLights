@@ -37,7 +37,6 @@ void readStringFromFlash(uint32_t page, char buffer[], size_t length) {
 void writeStringToFlash(uint32_t page, const char str[], size_t length) {
     uint8_t numBytesToWrite = 8;
 
-    __disable_irq();
     memoryPageErase(page);
     HAL_FLASH_Unlock();
 
@@ -67,10 +66,11 @@ void writeStringToFlash(uint32_t page, const char str[], size_t length) {
             ptr = (uint64_t *)&dataSpaceBuf[0];
             data = *ptr;
 
+            __disable_irq();
             HAL_FLASH_Program(TYPEPROGRAM_DOUBLEWORD, address, data);
+            __enable_irq();
         }
     }
 
     HAL_FLASH_Lock();
-    __enable_irq();
 }
