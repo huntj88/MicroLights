@@ -20,7 +20,6 @@
 typedef struct {
     volatile uint32_t chipTick;
     volatile uint32_t ticksSinceLastUserActivity;
-    volatile bool autoOffTimerTriggered;
 
     ModeManager *modeManager;
     ChipSettings *settings;
@@ -36,7 +35,7 @@ typedef struct {
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
 } ChipState;
 
-// TODO: move this state to microlight
+// TODO: move this state to microlight?
 static ChipState state = {0};
 
 void configureChipState(
@@ -66,10 +65,10 @@ void configureChipState(
     }
 }
 
-static void handleAutoOffTimer() {
-    if (state.autoOffTimerTriggered) {
-        state.autoOffTimerTriggered = false;
-
+// Auto off timer running at 0.1 hz
+// 12 megahertz / 65535 / 1831 = 0.1 hz
+static void handleAutoOffTimer(bool timerTriggered) {
+    if (timerTriggered) {
         if (getChargingState(state.chargerIC) == notConnected) {
             state.ticksSinceLastUserActivity++;
 
@@ -98,15 +97,23 @@ static void handleAutoOffTimer() {
     }
 }
 
-void stateTask() {
-    handleAutoOffTimer();
+void stateTask(
+    bool chipTickTriggered,
+    bool autoOffTimerTriggered,
+    bool buttonInterruptTriggered,
+    bool chargerInterruptTriggered) {
+    handleAutoOffTimer(autoOffTimerTriggered);
+    if (chipTickTriggered) {
+        state.chipTick++;
+    }
     uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
 
     bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
     modeTask(
         state.modeManager, milliseconds, canUpdateCaseLed, state.settings->equationEvalIntervalMs);
 
-    enum ButtonResult buttonResult = buttonInputTask(state.button, milliseconds);
+    enum ButtonResult buttonResult =
+        buttonInputTask(state.button, milliseconds, buttonInterruptTriggered);
     switch (buttonResult) {
         case ignore:
             break;
@@ -141,18 +148,8 @@ void stateTask() {
     chargerTask(
         state.chargerIC,
         milliseconds,
+        chargerInterruptTriggered,
         unplugLockEnabled,
         chargeLedEnabled,
         state.settings->enableChargerSerial);
-}
-
-// TODO: Rate of chipTick interrupt should be configurable
-void chipTickInterrupt() {
-    state.chipTick++;
-}
-
-// Auto off timer running at 0.1 hz
-// 12 megahertz / 65535 / 1831 = 0.1 hz
-void autoOffTimerInterrupt() {
-    state.autoOffTimerTriggered = true;
 }

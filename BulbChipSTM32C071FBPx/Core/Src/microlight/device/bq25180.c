@@ -10,11 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// more than one chargerIC not likely,
-// if handling multiple chargers would need to pass in function pointer that get bool for specific
-// interrupt variable
-static volatile bool readChargerNow = false;
-
 // Forward declarations
 static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len);
 static BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
@@ -62,13 +57,11 @@ bool bq25180Init(
     return true;
 }
 
-void handleChargerInterrupt() {
-    readChargerNow = 1;
-}
-
+// TODO: struct for bools? 4 right next to each other, looks messy passing args.
 void chargerTask(
     BQ25180 *chargerIC,
     uint32_t milliseconds,
+    bool interruptTriggered,
     bool unplugLockEnabled,
     bool ledEnabled,
     bool serialEnabled) {
@@ -97,8 +90,7 @@ void chargerTask(
         showChargingState(chargerIC, chargerIC->chargingState);
     }
 
-    if (readChargerNow) {
-        readChargerNow = false;
+    if (interruptTriggered) {
         enum ChargeState state = getChargingState(chargerIC);
         chargerIC->chargingState = state;
 

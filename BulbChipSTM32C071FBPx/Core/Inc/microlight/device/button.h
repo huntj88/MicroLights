@@ -13,9 +13,6 @@
 
 #include "microlight/device/rgb_led.h"
 
-// called from button interrupt
-void startButtonEvaluation();
-
 typedef struct Button {
     uint8_t (*readButtonPin)();
     void (*enableTimers)(bool enable);
@@ -34,7 +31,7 @@ enum ButtonResult {
     lockOrHardwareReset  // hardware reset occurs when usb is plugged in
 };
 
-enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds);
+enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool interruptTriggered);
 bool isEvaluatingButtonPress(Button *button);
 
 #endif /* INC_DEVICE_BUTTON_H_ */

@@ -29,8 +29,10 @@ void configureChipState(
     Log log,
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
 
-void stateTask();
-void chipTickInterrupt();
-void autoOffTimerInterrupt();
+void stateTask(
+    bool chipTickTriggered,
+    bool autoOffTimerTriggered,
+    bool buttonInterruptTriggered,
+    bool chargerInterruptTriggered);
 
 #endif /* INC_CHIP_STATE_H_ */

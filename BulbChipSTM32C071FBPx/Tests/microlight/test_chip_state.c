@@ -52,7 +52,7 @@ void loadMode(ModeManager *manager, uint8_t index) {
 }
 
 enum ButtonResult mockButtonResult = ignore;
-enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms, bool interruptTriggered) {
     return mockButtonResult;
 }
 
@@ -71,7 +71,12 @@ void rgbTask(RGBLed *led, uint32_t ms) {
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(
-    BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled, bool serialEnabled) {
+    BQ25180 *dev,
+    uint32_t ms,
+    bool interruptTriggered,
+    bool unplugLockEnabled,
+    bool chargeLedEnabled,
+    bool serialEnabled) {
 }
 void modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
@@ -173,7 +178,7 @@ void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
     mockSettings.modeCount = 5;
     mockButtonResult = clicked;
 
-    stateTask();
+    stateTask(false, false, false, false);
 
     TEST_ASSERT_TRUE(mockRgbShowSuccessCalled);
     TEST_ASSERT_EQUAL_UINT8(2, lastLoadedModeIndex);
@@ -194,7 +199,7 @@ void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
     mockSettings.modeCount = 5;
     mockButtonResult = clicked;
 
-    stateTask();
+    stateTask(false, false, false, false);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 }
@@ -214,7 +219,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_Disables
     mockChargeState = notConnected;
     ledTimersStarted = true;
 
-    stateTask();
+    stateTask(false, false, false, false);
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_FALSE(ledTimersStarted);
@@ -235,7 +240,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedT
     mockChargeState = constantCurrent;
     ledTimersStarted = false;
 
-    stateTask();
+    stateTask(false, false, false, false);
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_TRUE(ledTimersStarted);
@@ -254,7 +259,7 @@ void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
 
     mockButtonResult = lockOrHardwareReset;
 
-    stateTask();
+    stateTask(false, false, false, false);
 
     TEST_ASSERT_TRUE(mockLockCalled);
 }
@@ -274,15 +279,12 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
     mockChargeState = notConnected;
     mockIsFakeOff = false;
 
-    // 1 minute = 600 ticks at 0.1Hz (10s per tick? No, 0.1Hz is 10s period? No, 0.1Hz is 1 tick per
-    // 10s. Wait. Code says: 12 megahertz / 65535 / 1831 = 0.1 hz. So 1 tick every 10 seconds. Code:
-    // uint16_t ticksUntilAutoOff = state.settings->minutesUntilAutoOff * 60 / 10; If minutes = 1,
-    // ticks = 6. 6 * 10s = 60s. Correct.
+    // 1 minute = 600 ticks at 0.1Hz.
+    // Logic: ticksUntilAutoOff = minutes * 60 / 10. For 1 min, threshold is 6 ticks.
 
     state.ticksSinceLastUserActivity = 7;  // Exceeds 6
 
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);  // autoOffTimerTriggered = true
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_FALSE(ledTimersStarted);
@@ -304,7 +306,7 @@ void test_Settings_ModeCount_LimitsModeCycling(void) {
     mockModeManager.currentModeIndex = 2;
     mockButtonResult = clicked;
 
-    stateTask();
+    stateTask(false, false, false, false);
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 
     // Case 2: Mode Count 5, Current 2 -> Should go to 3
@@ -312,7 +314,7 @@ void test_Settings_ModeCount_LimitsModeCycling(void) {
     mockModeManager.currentModeIndex = 2;
     mockButtonResult = clicked;
 
-    stateTask();
+    stateTask(false, false, false, false);
     TEST_ASSERT_EQUAL_UINT8(3, lastLoadedModeIndex);
 }
 
@@ -336,14 +338,14 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
     // Just below threshold (starts at 5, increments to 6 inside interrupt. 6 > 6 is False)
     state.ticksSinceLastUserActivity = 5;
     lastLoadedModeIndex = 0;  // Reset
-    autoOffTimerInterrupt();
-    stateTask();
+
+    stateTask(false, true, false, false);
+
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);  // No change
 
     // Just above threshold (starts at 6, increments to 7 inside interrupt. 7 > 6 is True)
     state.ticksSinceLastUserActivity = 6;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);  // Changed
 
     // Case 2: 2 Minutes (12 ticks)
@@ -352,14 +354,12 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
     // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
     state.ticksSinceLastUserActivity = 11;
     lastLoadedModeIndex = 0;  // Reset
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);  // No change
 
     // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
     state.ticksSinceLastUserActivity = 12;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);  // Changed
 }
 
@@ -383,14 +383,12 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
 
     // Just below threshold (starts at 5, increments to 6. 6 > 6 is False)
     state.ticksSinceLastUserActivity = 5;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_FALSE(mockLockCalled);
 
     // Just above threshold (starts at 6, increments to 7. 7 > 6 is True)
     state.ticksSinceLastUserActivity = 6;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_TRUE(mockLockCalled);
 
     // Case 2: 2 Minutes (12 ticks)
@@ -399,14 +397,12 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
 
     // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
     state.ticksSinceLastUserActivity = 11;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_FALSE(mockLockCalled);
 
     // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
     state.ticksSinceLastUserActivity = 12;
-    autoOffTimerInterrupt();
-    stateTask();
+    stateTask(false, true, false, false);
     TEST_ASSERT_TRUE(mockLockCalled);
 }
 

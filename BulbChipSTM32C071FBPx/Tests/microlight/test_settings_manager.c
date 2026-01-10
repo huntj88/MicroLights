@@ -56,7 +56,7 @@ enum ChargeState getChargingState(BQ25180 *dev) {
 }
 void loadMode(ModeManager *manager, uint8_t index) {
 }
-enum ButtonResult buttonInputTask(Button *button, uint32_t ms) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t ms, bool interruptTriggered) {
     return ignore;
 }
 void rgbShowSuccess(RGBLed *led) {
@@ -68,7 +68,12 @@ void rgbTask(RGBLed *led, uint32_t ms) {
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(
-    BQ25180 *dev, uint32_t ms, bool unplugLockEnabled, bool chargeLedEnabled, bool serialEnabled) {
+    BQ25180 *dev,
+    uint32_t ms,
+    bool interruptTriggered,
+    bool unplugLockEnabled,
+    bool chargeLedEnabled,
+    bool serialEnabled) {
 }
 void modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {

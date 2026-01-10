@@ -53,7 +53,6 @@ void setUp(void) {
     rgbLockedCalled = false;
     rgbShutdownCalled = false;
     rgbSuccessCalled = false;
-    processButtonInterrupt = false;
 
     buttonInit(&button, mock_readButtonPin, mock_enableTimers, &mockCaseLed);
 }
@@ -62,27 +61,27 @@ void tearDown(void) {
 }
 
 void test_ButtonInputTask_ReturnsIgnore_Idle(void) {
-    enum ButtonResult result = buttonInputTask(&button, 100);
+    enum ButtonResult result = buttonInputTask(&button, 100, false);
     TEST_ASSERT_EQUAL(ignore, result);
 }
 
 void test_ButtonInputTask_ReturnsClicked_AfterShortPress(void) {
-    // Simulate interrupt
-    startButtonEvaluation();
+    // Determine if interrupt
+    bool interrupt = true;
 
     // First call, starts evaluation
     mockButtonPinState = 0;  // Pressed
-    buttonInputTask(&button, 100);
+    buttonInputTask(&button, 100, interrupt);
     TEST_ASSERT_TRUE(timerStarted);
     TEST_ASSERT_TRUE(rgbNoColorCalled);
     TEST_ASSERT_TRUE(isEvaluatingButtonPress(&button));
 
     // Advance time, button still pressed
-    buttonInputTask(&button, 200);  // 100ms elapsed
+    buttonInputTask(&button, 200, false);  // 100ms elapsed
 
     // Release button
     mockButtonPinState = 1;
-    enum ButtonResult result = buttonInputTask(&button, 300);  // 200ms elapsed total
+    enum ButtonResult result = buttonInputTask(&button, 300, false);  // 200ms elapsed total
 
     TEST_ASSERT_EQUAL(clicked, result);
     TEST_ASSERT_TRUE(rgbSuccessCalled);
@@ -90,34 +89,34 @@ void test_ButtonInputTask_ReturnsClicked_AfterShortPress(void) {
 }
 
 void test_ButtonInputTask_ReturnsShutdown_AfterLongPress(void) {
-    startButtonEvaluation();
+    bool interrupt = true;
     mockButtonPinState = 0;
-    buttonInputTask(&button, 100);
+    buttonInputTask(&button, 100, interrupt);
 
     // Advance time past 1000ms
-    buttonInputTask(&button, 1150);
+    buttonInputTask(&button, 1150, false);
     TEST_ASSERT_TRUE(rgbShutdownCalled);
 
     // Release
     mockButtonPinState = 1;
-    enum ButtonResult result = buttonInputTask(&button, 1300);
+    enum ButtonResult result = buttonInputTask(&button, 1300, false);
 
     TEST_ASSERT_EQUAL(shutdown, result);
 }
 
 void test_ButtonInputTask_UpdatesCaseLed_DuringPress(void) {
-    startButtonEvaluation();
+    bool interrupt = true;
     mockButtonPinState = 0;
-    buttonInputTask(&button, 100);
+    buttonInputTask(&button, 100, interrupt);
 
     TEST_ASSERT_TRUE(rgbNoColorCalled);
 
     // Check shutdown feedback
-    buttonInputTask(&button, 1150);
+    buttonInputTask(&button, 1150, false);
     TEST_ASSERT_TRUE(rgbShutdownCalled);
 
     // Check lock feedback
-    buttonInputTask(&button, 2150);
+    buttonInputTask(&button, 2150, false);
     TEST_ASSERT_TRUE(rgbLockedCalled);
 }
 

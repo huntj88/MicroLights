@@ -87,10 +87,10 @@ bool bq25180Init(
     RGBLed *caseLed,
     void (*enableTimers)(bool enable));
 
-void handleChargerInterrupt();
 void chargerTask(
     BQ25180 *chargerIC,
     uint32_t milliseconds,
+    bool interruptTriggered,
     bool unplugLockEnabled,
     bool ledEnabled,
     bool serialEnabled);

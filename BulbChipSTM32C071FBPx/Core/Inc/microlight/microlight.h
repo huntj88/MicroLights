@@ -46,8 +46,16 @@ typedef struct {
     size_t jsonBufferSize;
 } MicroLightDependencies;
 
+enum MicroLightInterrupt {
+    ButtonInterrupt,
+    ChargerInterrupt,
+    ChipTickInterrupt,
+    AutoOffTimerInterrupt
+};
+
 void configureMicroLight(MicroLightDependencies *deps);
 void microLightTask(void);
+void microLightInterrupt(enum MicroLightInterrupt interrupt);
 
 // TODO: integration test with no application mocks, just hardware mocks
 

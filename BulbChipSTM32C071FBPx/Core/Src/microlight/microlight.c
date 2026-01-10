@@ -22,6 +22,11 @@ static void internalLog(const char *buffer, size_t length) {
 static I2CWriteRegisterChecked rawI2cWrite = NULL;
 static I2CReadRegisters rawI2cReadRegs = NULL;
 
+static volatile bool buttonInterruptTriggered = false;
+static volatile bool chargerInterruptTriggered = false;
+static volatile bool autoOffTimerTriggered = false;
+static volatile bool chipTickTriggered = false;
+
 static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     i2cDecoratedWrite(
         devAddress,
@@ -117,5 +122,33 @@ void configureMicroLight(MicroLightDependencies *deps) {
 
 void microLightTask(void) {
     usbTask(&usbManager);
-    stateTask();
+
+    stateTask(
+        chipTickTriggered,
+        autoOffTimerTriggered,
+        buttonInterruptTriggered,
+        chargerInterruptTriggered);
+
+    // Clear flags after processing
+    chipTickTriggered = false;
+    autoOffTimerTriggered = false;
+    buttonInterruptTriggered = false;
+    chargerInterruptTriggered = false;
+}
+
+void microLightInterrupt(enum MicroLightInterrupt interrupt) {
+    switch (interrupt) {
+        case ButtonInterrupt:
+            buttonInterruptTriggered = true;
+            break;
+        case ChargerInterrupt:
+            chargerInterruptTriggered = true;
+            break;
+        case ChipTickInterrupt:
+            chipTickTriggered = true;
+            break;
+        case AutoOffTimerInterrupt:
+            autoOffTimerTriggered = true;
+            break;
+    }
 }

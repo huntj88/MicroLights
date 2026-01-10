@@ -7,15 +7,6 @@
 
 #include "microlight/device/button.h"
 
-// more than one button not likely,
-// if handling multiple buttons would need to pass in function pointer that get bool for specific
-// interrupt variable
-static volatile bool processButtonInterrupt = false;
-
-void startButtonEvaluation() {
-    processButtonInterrupt = true;
-}
-
 bool buttonInit(
     Button *button,
     uint8_t (*readButtonPin)(),
@@ -33,9 +24,8 @@ bool buttonInit(
     return true;
 }
 
-enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds) {
-    // shadow evalStartMs to avoid multiple reads of volatile
-    if (processButtonInterrupt && button->evalStartMs == 0) {
+enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool interruptTriggered) {
+    if (interruptTriggered && button->evalStartMs == 0) {
         button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
         // Timers interrupts needed to properly detect input
@@ -71,13 +61,11 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds) {
         }
 
         button->evalStartMs = 0;
-        processButtonInterrupt = false;
         return buttonState;
     }
     return ignore;
 }
 
 bool isEvaluatingButtonPress(Button *button) {
-    // coupled to interrupt variable, see comment on variable
-    return processButtonInterrupt;
+    return button->evalStartMs != 0;
 }
