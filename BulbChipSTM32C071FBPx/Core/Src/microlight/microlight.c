@@ -4,6 +4,11 @@
 #include "microlight/i2c_log_decorate.h"
 #include "microlight/json/json_buf.h"
 
+static volatile bool buttonInterruptTriggered = false;
+static volatile bool chargerInterruptTriggered = false;
+static volatile bool autoOffTimerInterruptTriggered = false;
+static volatile bool chipTickInterruptTriggered = false;
+
 static BQ25180 chargerIC;
 static Button button;
 static MC3479 accel;
@@ -21,11 +26,6 @@ static void internalLog(const char *buffer, size_t length) {
 // Wrap I2C dependencies to handle logging internal to this file
 static I2CWriteRegisterChecked rawI2cWrite = NULL;
 static I2CReadRegisters rawI2cReadRegs = NULL;
-
-static volatile bool buttonInterruptTriggered = false;
-static volatile bool chargerInterruptTriggered = false;
-static volatile bool autoOffTimerInterruptTriggered = false;
-static volatile bool chipTickInterruptTriggered = false;
 
 static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
     i2cDecoratedWrite(
