@@ -118,6 +118,8 @@ void chargerTask(
 }
 
 enum ChargeState getChargingState(BQ25180 *chargerIC) {
+    // TODO: use chargerIC->chargingState, add timestamp and use cache if checked recently?
+
     uint8_t regResult = 0;
     if (!chargerIC->readRegisters(chargerIC->devAddress, BQ25180_STAT0, &regResult, 1)) {
         return notConnected;

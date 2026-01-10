@@ -20,6 +20,7 @@
 typedef struct {
     volatile uint32_t chipTick;
     volatile uint32_t ticksSinceLastUserActivity;
+    volatile bool autoOffTimerTriggered;
 
     ModeManager *modeManager;
     ChipSettings *settings;
@@ -65,7 +66,40 @@ void configureChipState(
     }
 }
 
+static void handleAutoOffTimer() {
+    if (state.autoOffTimerTriggered) {
+        state.autoOffTimerTriggered = false;
+
+        if (getChargingState(state.chargerIC) == notConnected) {
+            state.ticksSinceLastUserActivity++;
+
+            uint16_t ticksUntilAutoOff =
+                state.settings->minutesUntilAutoOff * 60 / 10;  // auto off timer running at 0.1hz
+            bool autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilAutoOff;
+            if (isFakeOff(state.modeManager)) {
+                uint16_t ticksUntilLockAfterAutoOff =
+                    state.settings->minutesUntilLockAfterAutoOff * 60 / 10;
+                autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
+            }
+
+            if (autoOffTimerDone) {
+                if (isFakeOff(state.modeManager)) {
+                    lock(state.chargerIC);
+                } else {
+                    // restart timer for transition from fakeOff to shipMode
+                    state.ticksSinceLastUserActivity = 0;
+
+                    // enter fake off mode
+                    bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
+                    fakeOffMode(state.modeManager, enableLedTimers);
+                }
+            }
+        }
+    }
+}
+
 void stateTask() {
+    handleAutoOffTimer();
     uint32_t milliseconds = state.convertTicksToMilliseconds(state.chipTick);
 
     bool canUpdateCaseLed = !isEvaluatingButtonPress(state.button);
@@ -120,29 +154,5 @@ void chipTickInterrupt() {
 // Auto off timer running at 0.1 hz
 // 12 megahertz / 65535 / 1831 = 0.1 hz
 void autoOffTimerInterrupt() {
-    if (getChargingState(state.chargerIC) == notConnected) {
-        state.ticksSinceLastUserActivity++;
-
-        uint16_t ticksUntilAutoOff =
-            state.settings->minutesUntilAutoOff * 60 / 10;  // auto off timer running at 0.1hz
-        bool autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilAutoOff;
-        if (isFakeOff(state.modeManager)) {
-            uint16_t ticksUntilLockAfterAutoOff =
-                state.settings->minutesUntilLockAfterAutoOff * 60 / 10;
-            autoOffTimerDone = state.ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
-        }
-
-        if (autoOffTimerDone) {
-            if (isFakeOff(state.modeManager)) {
-                lock(state.chargerIC);
-            } else {
-                // restart timer for transition from fakeOff to shipMode
-                state.ticksSinceLastUserActivity = 0;
-
-                // enter fake off mode
-                bool enableLedTimers = getChargingState(state.chargerIC) != notConnected;
-                fakeOffMode(state.modeManager, enableLedTimers);
-            }
-        }
-    }
+    state.autoOffTimerTriggered = true;
 }
