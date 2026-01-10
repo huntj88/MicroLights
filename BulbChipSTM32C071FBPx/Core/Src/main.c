@@ -143,7 +143,8 @@ int main(void) {
 
     configureMicroLight(&deps);
 
-    HAL_TIM_Base_Start_IT(&htim3);  // auto off timer // TODO: function pointer to start auto off timer
+    // auto off timer
+    HAL_TIM_Base_Start_IT(&htim3);  // TODO: function pointer to start auto off timer
 
     /* USER CODE END 2 */
 
