@@ -47,7 +47,7 @@ def generate_report():
             ignored_errors = [
                 ("Core/Src/bootloader.c", "'stm32c0xx.h' file not found"),
                 ("Core/Src/bsp/family.c", "'stm32c0xx_hal.h' file not found"),
-                ("Core/Src/storage.c", "'stm32c0xx.h' file not found"),
+                ("Core/Src/flash_string.c", "'stm32c0xx.h' file not found"),
                 ("Core/Inc/main.h", "'stm32c0xx_hal.h' file not found"),
             ]
             

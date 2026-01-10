@@ -92,7 +92,7 @@ class WebSerialManager {
     try {
       // Request a port from the user
       const serialApi = navigator.serial;
-      const port: SerialPort = await serialApi.requestPort({});
+      const port: SerialPort = await serialApi.requestPort({ filters: [{ usbVendorId: 0xCafe }] });
       await this.openWithPort(port, options);
     } catch (err) {
       this.setStatus('disconnected', err);

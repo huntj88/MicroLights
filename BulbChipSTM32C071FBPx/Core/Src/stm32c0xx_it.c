@@ -22,9 +22,7 @@
 #include "stm32c0xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "chip_state.h"
-#include "device/button.h"
-#include "device/bq25180.h"
+#include "microlight/microlight.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -168,7 +166,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-  chipTickInterrupt();
+  microLightInterrupt(ChipTickInterrupt);
   /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -182,7 +180,7 @@ void TIM3_IRQHandler(void)
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
-  autoOffTimerInterrupt();
+  microLightInterrupt(AutoOffTimerInterrupt);
   /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -190,9 +188,9 @@ void TIM3_IRQHandler(void)
 
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == button_Pin) {
-		startButtonEvaluation();
+		microLightInterrupt(ButtonInterrupt);
 	} else if (GPIO_Pin == chargerIT_Pin) {
-		handleChargerInterrupt();
+		microLightInterrupt(ChargerInterrupt);
 	}
 }
 

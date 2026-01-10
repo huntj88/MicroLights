@@ -1,0 +1,216 @@
+/*
+ * BulbJson.c
+ *
+ *  Created on: Jun 28, 2025
+ *      Author: jameshunt
+ */
+#include <ctype.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+#include "lwjson/lwjson.h"
+#include "microlight/json/command_parser.h"
+#include "microlight/json/json_buf.h"
+#include "microlight/json/mode_parser.h"
+
+static int32_t jsonLength(const char *buffer, size_t length) {
+    for (size_t i = 0; i < length; i++) {
+        char current = buffer[i];
+        if (current == '\n' || current == '\0') {
+            return (int32_t)i;
+        }
+    }
+    return -1;
+}
+
+static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings, ParserErrorContext *ctx) {
+    const lwjson_token_t *token;
+
+    token = lwjson_find(lwjson, "modeCount");
+    if (token != NULL) {
+        if (token->u.num_int < 0) {
+            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
+            snprintf(ctx->path, sizeof(ctx->path), "modeCount");
+            return false;
+        }
+        if (token->u.num_int > 7) {
+            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
+            snprintf(ctx->path, sizeof(ctx->path), "modeCount");
+            return false;
+        }
+        settings->modeCount = (uint8_t)token->u.num_int;
+    }
+
+    token = lwjson_find(lwjson, "minutesUntilAutoOff");
+    if (token != NULL) {
+        if (token->u.num_int < 0) {
+            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
+            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilAutoOff");
+            return false;
+        }
+        if (token->u.num_int > 255) {
+            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
+            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilAutoOff");
+            return false;
+        }
+        settings->minutesUntilAutoOff = (uint8_t)token->u.num_int;
+    }
+
+    token = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff");
+    if (token != NULL) {
+        if (token->u.num_int < 0) {
+            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
+            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilLockAfterAutoOff");
+            return false;
+        }
+        if (token->u.num_int > 255) {
+            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
+            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilLockAfterAutoOff");
+            return false;
+        }
+        settings->minutesUntilLockAfterAutoOff = (uint8_t)token->u.num_int;
+    }
+
+    token = lwjson_find(lwjson, "equationEvalIntervalMs");
+    if (token != NULL) {
+        if (token->u.num_int < 0) {
+            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
+            snprintf(ctx->path, sizeof(ctx->path), "equationEvalIntervalMs");
+            return false;
+        }
+        if (token->u.num_int > 255) {
+            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
+            snprintf(ctx->path, sizeof(ctx->path), "equationEvalIntervalMs");
+            return false;
+        }
+        settings->equationEvalIntervalMs = (uint8_t)token->u.num_int;
+    }
+
+    token = lwjson_find(lwjson, "enableChargerSerial");
+    if (token != NULL) {
+        if (token->type == LWJSON_TYPE_TRUE) {
+            settings->enableChargerSerial = true;
+        } else if (token->type == LWJSON_TYPE_FALSE) {
+            settings->enableChargerSerial = false;
+        } else {
+            ctx->error = PARSER_ERR_INVALID_VARIANT;
+            snprintf(ctx->path, sizeof(ctx->path), "enableChargerSerial");
+            return false;
+        }
+    }
+
+    return true;
+}
+
+static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *token;
+    bool didParseMode = false;
+    bool didParseIndex = false;
+    Mode mode;
+
+    input->errorContext.path[0] = '\0';
+    input->errorContext.error = PARSER_OK;
+
+    token = lwjson_find(lwjson, "mode");
+    if (token != NULL) {
+        didParseMode = parseMode(lwjson, (lwjson_token_t *)token, &mode, &input->errorContext);
+        input->mode = mode;
+    }
+
+    token = lwjson_find(lwjson, "index");
+    if (token != NULL) {
+        input->modeIndex = token->u.num_int;
+        didParseIndex = true;
+    }
+
+    if (didParseMode && didParseIndex) {
+        input->parsedType = parseWriteMode;
+    }
+}
+
+static void handleReadMode(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *token = lwjson_find(lwjson, "index");
+    if (token != NULL) {
+        input->modeIndex = token->u.num_int;
+        input->parsedType = parseReadMode;
+    }
+}
+
+static void handleWriteSettings(lwjson_t *lwjson, CliInput *input) {
+    ChipSettings settings;
+    chipSettingsInitDefaults(&settings);
+    if (parseSettingsJson(lwjson, &settings, &input->errorContext)) {
+        input->settings = settings;
+        input->parsedType = parseWriteSettings;
+    }
+}
+
+static void processCommand(lwjson_t *lwjson, CliInput *input) {
+    const lwjson_token_t *token;
+    char command[32] = {0};
+
+    token = lwjson_find(lwjson, "command");
+    if (token == NULL) {
+        return;
+    }
+
+    const char *nameRaw = token->u.str.token_value;
+    size_t len = token->u.str.token_value_len;
+    if (len >= sizeof(command)) {
+        len = sizeof(command) - 1;
+    }
+
+    memcpy(command, nameRaw, len);
+    command[len] = '\0';
+
+    if (strncmp(command, "writeMode", 9) == 0) {
+        handleWriteMode(lwjson, input);
+    } else if (strncmp(command, "readMode", 8) == 0) {
+        handleReadMode(lwjson, input);
+    } else if (strncmp(command, "writeSettings", 13) == 0) {
+        handleWriteSettings(lwjson, input);
+    } else if (strncmp(command, "readSettings", 12) == 0) {
+        input->parsedType = parseReadSettings;
+    } else if (strncmp(command, "dfu", 3) == 0) {
+        input->parsedType = parseDfu;
+    }
+}
+
+void parseJson(const char *buffer, size_t length, CliInput *input) {
+    static lwjson_token_t tokens[128];
+    static lwjson_t lwjson;
+
+    if (input == NULL) {
+        return;
+    }
+
+    if (buffer == NULL || length == 0) {
+        input->parsedType = parseError;
+        return;
+    }
+
+    int32_t indexOfTerminalChar = jsonLength(buffer, length);
+    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= sharedJsonIOBufferSize - 1U) {
+        input->parsedType = parseError;
+        return;
+    }
+
+    if (buffer != sharedJsonIOBuffer) {
+        memcpy(sharedJsonIOBuffer, buffer, indexOfTerminalChar);
+    }
+
+    // ensure terminal character is \0 and not \n
+    sharedJsonIOBuffer[indexOfTerminalChar] = '\0';
+
+    input->parsedType = parseError;  // provide error default, override when successful
+    input->errorContext.error = PARSER_OK;
+    input->errorContext.path[0] = '\0';
+
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+    if (lwjson_parse(&lwjson, sharedJsonIOBuffer) == lwjsonOK) {
+        processCommand(&lwjson, input);
+    }
+    lwjson_free(&lwjson);
+}

@@ -124,7 +124,7 @@ def main():
     run_tests_path = os.path.join(project_root, 'run_tests.sh')
     
     # Find all test files
-    test_files = glob.glob(os.path.join(tests_dir, 'test_*.c'))
+    test_files = glob.glob(os.path.join(tests_dir, '**', 'test_*.c'), recursive=True)
     
     if not test_files:
         print("No test files found in Tests/ directory.")
