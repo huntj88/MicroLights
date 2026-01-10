@@ -8,14 +8,14 @@
 #include "usb_dependencies.h"
 #include "tusb.h"
 
-void usbWriteToSerial(const char *buf, int count) {
-    int sent = 0;
+void usbWriteToSerial(const char *buf, size_t count) {
+    size_t sent = 0;
     uint8_t itf = 0;
 
     while (sent < count) {
         uint32_t available = tud_cdc_n_write_available(itf);
         if (available > 0) {
-            uint32_t to_send = count - sent;
+            uint32_t to_send = (uint32_t)(count - sent);
             if (to_send > available) {
                 to_send = available;
             }
@@ -32,7 +32,7 @@ void usbWriteToSerial(const char *buf, int count) {
 }
 
 // returns bytes read if a buffer has read in a full line terminated by \n, 0 otherwise.
-int usbCdcReadTask(char usbBuffer[], int bufferLength) {
+int32_t usbCdcReadTask(char usbBuffer[], size_t bufferLength) {
     static uint16_t jsonIndex = 0;
     uint8_t itf = 0;
 

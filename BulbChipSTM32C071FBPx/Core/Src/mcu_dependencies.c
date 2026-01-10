@@ -134,20 +134,20 @@ uint32_t convertTicksToMilliseconds(uint32_t ticks) {
     return (uint32_t)(((uint64_t)ticks * multiplier) >> 20);
 }
 
-void writeSettingsToFlash(const char str[], uint32_t length) {
+void writeSettingsToFlash(const char str[], size_t length) {
     writeStringToFlash(SETTINGS_PAGE, str, length);
 }
 
-void readSettingsFromFlash(char buffer[], uint32_t length) {
+void readSettingsFromFlash(char buffer[], size_t length) {
     readStringFromFlash(SETTINGS_PAGE, buffer, length);
 }
 
-void writeModeToFlash(uint8_t mode, const char str[], uint32_t length) {
+void writeModeToFlash(uint8_t mode, const char str[], size_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     writeStringToFlash(page, str, length);
 }
 
-void readModeFromFlash(uint8_t mode, char buffer[], uint32_t length) {
+void readModeFromFlash(uint8_t mode, char buffer[], size_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     readStringFromFlash(page, buffer, length);
 }

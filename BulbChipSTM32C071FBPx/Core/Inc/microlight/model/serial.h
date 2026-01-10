@@ -8,8 +8,9 @@
 #ifndef INC_MODEL_SERIAL_H_
 #define INC_MODEL_SERIAL_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
-typedef void WriteToSerial(const char *buf, uint32_t count);
+typedef void WriteToSerial(const char *buf, size_t count);
 
 #endif /* INC_MODEL_SERIAL_H_ */

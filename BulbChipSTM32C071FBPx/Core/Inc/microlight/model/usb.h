@@ -8,11 +8,12 @@
 #ifndef INC_MICROLIGHT_MODEL_USB_H_
 #define INC_MICROLIGHT_MODEL_USB_H_
 
+#include <stddef.h>
 #include <stdint.h>
 
 // Returns bytes read
-typedef int (*UsbCdcReadTask)(char usbBuffer[], int bufferLength);
+typedef int32_t (*UsbCdcReadTask)(char usbBuffer[], size_t bufferLength);
 
-typedef void (*UsbWriteToSerial)(const char usbBuffer[], int bufferLength);
+typedef void (*UsbWriteToSerial)(const char usbBuffer[], size_t bufferLength);
 
 #endif /* INC_MICROLIGHT_MODEL_USB_H_ */

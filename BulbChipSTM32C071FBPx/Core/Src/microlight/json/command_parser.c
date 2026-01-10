@@ -15,11 +15,11 @@
 #include "microlight/json/json_buf.h"
 #include "microlight/json/mode_parser.h"
 
-static int32_t jsonLength(const char buf[], uint32_t count) {
-    for (int32_t i = 0; i < count; i++) {
+static int32_t jsonLength(const char buf[], size_t count) {
+    for (size_t i = 0; i < count; i++) {
         char current = buf[i];
         if (current == '\n' || current == '\0') {
-            return i;
+            return (int32_t)i;
         }
     }
     return -1;
@@ -178,7 +178,7 @@ static void processCommand(lwjson_t *lwjson, CliInput *input) {
     }
 }
 
-void parseJson(const char buf[], uint32_t count, CliInput *input) {
+void parseJson(const char buf[], size_t count, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
 

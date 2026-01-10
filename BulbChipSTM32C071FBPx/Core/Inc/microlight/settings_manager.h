@@ -21,9 +21,9 @@ typedef struct SettingsManager {
 } SettingsManager;
 
 bool settingsManagerInit(
-    SettingsManager *manager, void (*readSavedSettings)(char buffer[], uint32_t length));
+    SettingsManager *manager, void (*readSavedSettings)(char buffer[], size_t length));
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
-int getSettingsDefaultsJson(char *buffer, uint32_t len);
-int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len);
+int getSettingsDefaultsJson(char *buffer, size_t len);
+int getSettingsResponse(SettingsManager *manager, char *buffer, size_t len);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */

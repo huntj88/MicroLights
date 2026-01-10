@@ -9,11 +9,12 @@
 #define INC_JSON_JSON_BUF_H_
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 extern char *sharedJsonIOBuffer;
-extern uint32_t sharedJsonIOBufferSize;
+extern size_t sharedJsonIOBufferSize;
 
-bool initSharedJsonIOBuffer(char *buf, uint32_t size);
+bool initSharedJsonIOBuffer(char *buf, size_t size);
 
 #endif /* INC_JSON_JSON_BUF_H_ */

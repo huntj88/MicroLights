@@ -26,7 +26,7 @@ char testJsonBuf[TEST_JSON_BUFFER_SIZE];
 // Mocks for settings_manager.c
 CliInput cliInput;
 bool parseJsonCalled = false;
-void parseJson(const char buf[], uint32_t count, CliInput *input) {
+void parseJson(const char buf[], size_t count, CliInput *input) {
     parseJsonCalled = true;
     // Check if buf contains "modeCount" which implies valid settings in our mock
     if (strstr(buf, "modeCount") != NULL) {
@@ -36,7 +36,7 @@ void parseJson(const char buf[], uint32_t count, CliInput *input) {
     }
 }
 
-void mock_readSavedSettings(char buffer[], uint32_t length) {
+void mock_readSavedSettings(char buffer[], size_t length) {
     // Simulate empty flash
     memset(buffer, 0, length);
 }
@@ -46,7 +46,7 @@ uint32_t mock_convertTicksToMs(uint32_t ticks) {
     return ticks * 10;
 }
 
-void mock_writeUsbSerial(const char *buf, uint32_t count) {
+void mock_writeUsbSerial(const char *buf, size_t count) {
     strncpy(lastSerialOutput, buf, count);
     lastSerialOutput[count] = '\0';
 }
@@ -156,7 +156,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
 }
 
-void mock_readSavedSettings_Matching(char buffer[], uint32_t length) {
+void mock_readSavedSettings_Matching(char buffer[], size_t length) {
     snprintf(buffer, length, "{\"modeCount\":0,\"equationEvalIntervalMs\":20}");
 }
 
@@ -171,7 +171,7 @@ void test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches(void) {
     settingsManagerInit(&settingsManager, mock_readSavedSettings_Matching);
 }
 
-void mock_readSavedSettings_OldVersion(char buffer[], uint32_t length) {
+void mock_readSavedSettings_OldVersion(char buffer[], size_t length) {
     snprintf(buffer, length, "{\"modeCount\":5}");
 }
 

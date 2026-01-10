@@ -13,11 +13,11 @@
 #ifndef INC_MCU_DEPENDENCIES_H_
 #define INC_MCU_DEPENDENCIES_H_
 
-void writeSettingsToFlash(const char str[], uint32_t length);
-void readSettingsFromFlash(char buffer[], uint32_t length);
+void writeSettingsToFlash(const char str[], size_t length);
+void readSettingsFromFlash(char buffer[], size_t length);
 
-void writeModeToFlash(uint8_t mode, const char str[], uint32_t length);
-void readModeFromFlash(uint8_t mode, char buffer[], uint32_t length);
+void writeModeToFlash(uint8_t mode, const char str[], size_t length);
+void readModeFromFlash(uint8_t mode, char buffer[], size_t length);
 
 bool i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value);
 bool i2cReadRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len);

@@ -27,7 +27,7 @@ bool mock_readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size
     return mockReadReturn;
 }
 
-void mock_writeToSerial(const char *buf, uint32_t count) {
+void mock_writeToSerial(const char *buf, size_t count) {
     logCalled = true;
     if (count < sizeof(logBuffer)) {
         strncpy(logBuffer, buf, count);

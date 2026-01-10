@@ -30,19 +30,19 @@ static char mock_usb_write_buffer[TEST_JSON_BUFFER_SIZE];
 static int mock_usb_write_idx = 0;
 
 // Callbacks
-int mock_usbCdcReadTask(char usbBuffer[], int bufferLength) {
+int32_t mock_usbCdcReadTask(char usbBuffer[], size_t bufferLength) {
     if (mock_usb_read_has_data) {
-        int len = strlen(mock_usb_read_buffer);
+        size_t len = strlen(mock_usb_read_buffer);
         if (len >= bufferLength) len = bufferLength - 1;
         memcpy(usbBuffer, mock_usb_read_buffer, len);
         usbBuffer[len] = '\0';
         mock_usb_read_has_data = false;
-        return len;
+        return (int32_t)len;
     }
     return 0;
 }
 
-void mock_usbWriteToSerial(const char usbBuffer[], int bufferLength) {
+void mock_usbWriteToSerial(const char usbBuffer[], size_t bufferLength) {
     if (mock_usb_write_idx + bufferLength < TEST_JSON_BUFFER_SIZE) {
         memcpy(&mock_usb_write_buffer[mock_usb_write_idx], usbBuffer, bufferLength);
         mock_usb_write_idx += bufferLength;
@@ -52,17 +52,17 @@ void mock_usbWriteToSerial(const char usbBuffer[], int bufferLength) {
 }
 
 // Storage / Logic Mocks
-void saveMode(uint8_t mode, const char str[], uint32_t length) {
+void saveMode(uint8_t mode, const char str[], size_t length) {
     mock_flash_write_called = true;
     strncpy(mock_flash_buffer, str, length);
     mock_flash_buffer[length] = '\0';
 }
-void saveSettings(const char str[], uint32_t length) {
+void saveSettings(const char str[], size_t length) {
     mock_flash_write_called = true;
     strncpy(mock_flash_buffer, str, length);
     mock_flash_buffer[length] = '\0';
 }
-void readBulbModeFromMock(uint8_t mode, char buffer[], uint32_t length) {
+void readBulbModeFromMock(uint8_t mode, char buffer[], size_t length) {
     strcpy(buffer, "{\"mode\":\"test\"}");
 }
 
@@ -75,7 +75,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
 void updateSettings(SettingsManager *manager, ChipSettings *settings) {
     mock_settings_update_called = true;
 }
-int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len) {
+int getSettingsResponse(SettingsManager *manager, char *buffer, size_t len) {
     sprintf(buffer, "{\"settings\":\"mock\"}");
     return strlen(buffer);
 }

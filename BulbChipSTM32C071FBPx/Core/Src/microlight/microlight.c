@@ -14,8 +14,10 @@ static USBManager usbManager;
 
 // TODO: add new or change writeToSerial naming / type to reference more generic Logging instead of
 // serial specifically
-static void internalWriteToSerial(const char *buf, uint32_t count) {
-    usbWriteToSerial(&usbManager, 0, buf, count);
+static void internalWriteToSerial(const char *buf, size_t count) {
+    if (usbManager.usbWriteToSerial != NULL) {
+        usbManager.usbWriteToSerial(buf, count);
+    }
 }
 
 // Wrap I2C dependencies to handle logging internal to this file

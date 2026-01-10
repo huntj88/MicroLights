@@ -42,7 +42,7 @@ void updateSettings(SettingsManager *manager, ChipSettings *newSettings) {
     manager->currentSettings = *newSettings;
 }
 
-static int appendJson(char *buffer, uint32_t len, int offset, const char *format, ...) {
+static int appendJson(char *buffer, size_t len, int offset, const char *format, ...) {
     if (offset >= (int)len) {
         return offset;
     }
@@ -62,7 +62,7 @@ static int appendJson(char *buffer, uint32_t len, int offset, const char *format
 #define PRINT_VAL_uint8_t(val) "%d", (int)(val)
 #define PRINT_VAL_bool(val) "%s", (val) ? "true" : "false"
 
-int getSettingsDefaultsJson(char *buffer, uint32_t len) {
+int getSettingsDefaultsJson(char *buffer, size_t len) {
     ChipSettings settings;
     chipSettingsInitDefaults(&settings);
 
@@ -87,7 +87,7 @@ int getSettingsDefaultsJson(char *buffer, uint32_t len) {
     return offset;
 }
 
-int getSettingsResponse(SettingsManager *manager, char *buffer, uint32_t len) {
+int getSettingsResponse(SettingsManager *manager, char *buffer, size_t len) {
     loadSettingsFromFlash(manager, buffer, &cliInput);
     bool hasSettings = (cliInput.parsedType == parseWriteSettings);
 

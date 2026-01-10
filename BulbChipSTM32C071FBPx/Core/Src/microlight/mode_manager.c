@@ -120,7 +120,7 @@ static void reportEquationError(const ModeManager *manager, const ModeEquationEr
     if (written > (int)sizeof(message)) {
         written = (int)sizeof(message);
     }
-    manager->writeToSerial(message, (uint32_t)written);
+    manager->writeToSerial(message, (size_t)written);
 }
 
 static ActiveComponents resolveActiveComponents(ModeManager *manager) {

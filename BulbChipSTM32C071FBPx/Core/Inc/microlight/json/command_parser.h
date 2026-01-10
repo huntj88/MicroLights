@@ -47,6 +47,8 @@
  * }
  */
 
-void parseJson(const char buf[], uint32_t count, CliInput *input);
+#include <stddef.h>
+
+void parseJson(const char buf[], size_t count, CliInput *input);
 
 #endif /* INC_COMMAND_PARSER_H_ */

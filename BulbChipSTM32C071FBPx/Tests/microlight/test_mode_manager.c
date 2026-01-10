@@ -21,7 +21,7 @@ static uint8_t lastRgbR, lastRgbG, lastRgbB;
 static uint8_t mockAccelMagnitude = 0;
 static bool writeToSerialCalled = false;
 static char lastSerialBuffer[256];
-static uint32_t lastSerialCount = 0;
+static size_t lastSerialCount = 0;
 
 // Mock Functions
 void mock_enableTimers(bool enable) {
@@ -50,7 +50,7 @@ bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
     return mockAccelMagnitude > threshold;
 }
 
-void mock_writeToSerial(const char *buf, uint32_t count) {
+void mock_writeToSerial(const char *buf, size_t count) {
     writeToSerialCalled = true;
     if (count >= sizeof(lastSerialBuffer)) {
         count = sizeof(lastSerialBuffer) - 1U;
@@ -60,7 +60,7 @@ void mock_writeToSerial(const char *buf, uint32_t count) {
     lastSerialCount = count;
 }
 
-void mock_readSavedMode(uint8_t mode, char buffer[], uint32_t length) {
+void mock_readSavedMode(uint8_t mode, char buffer[], size_t length) {
     lastReadModeIndex = mode;
     if (mode == 1) {
         // Standard valid mode

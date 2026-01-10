@@ -21,7 +21,7 @@ static uint32_t getHexAddressOfPage(uint32_t dataPage) {
     return hexAddress;
 }
 
-void readStringFromFlash(uint32_t page, char buffer[], uint32_t length) {
+void readStringFromFlash(uint32_t page, char buffer[], size_t length) {
     uint32_t address = getHexAddressOfPage(page);
     memcpy(buffer, (const void *)(uintptr_t)address, length);
     // Ensure null termination
@@ -34,7 +34,7 @@ void readStringFromFlash(uint32_t page, char buffer[], uint32_t length) {
     }
 }
 
-void writeStringToFlash(uint32_t page, const char str[], uint32_t length) {
+void writeStringToFlash(uint32_t page, const char str[], size_t length) {
     uint8_t numBytesToWrite = 8;
 
     __disable_irq();
@@ -50,7 +50,7 @@ void writeStringToFlash(uint32_t page, const char str[], uint32_t length) {
 
     // Write 8 bytes at a time, pad with \0 at end.
     // If bytes count is not a multiple of 8, pad the remaining bytes with \0.
-    for (int32_t i = 0; i < length + emptyPaddingLength; i++) {
+    for (size_t i = 0; i < length + emptyPaddingLength; i++) {
         if (i < length) {
             dataSpaceBuf[i % numBytesToWrite] = str[i];
         } else {

@@ -43,7 +43,7 @@ typedef struct {
 
     // Memory
     char *jsonBuffer;
-    uint32_t jsonBufferSize;
+    size_t jsonBufferSize;
 } MicroLightDependencies;
 
 void configureMicroLight(MicroLightDependencies *deps);

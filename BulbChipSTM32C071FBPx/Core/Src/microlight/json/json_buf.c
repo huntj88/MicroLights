@@ -13,9 +13,9 @@
  * Note: This variable is not thread-safe and is intended for single-threaded use only.
  */
 char *sharedJsonIOBuffer = NULL;
-uint32_t sharedJsonIOBufferSize = 0;
+size_t sharedJsonIOBufferSize = 0;
 
-bool initSharedJsonIOBuffer(char *buf, uint32_t size) {
+bool initSharedJsonIOBuffer(char *buf, size_t size) {
     if (buf == NULL || size == 0) {
         return false;
     }
