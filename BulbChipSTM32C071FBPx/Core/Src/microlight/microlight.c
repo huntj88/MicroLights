@@ -12,9 +12,9 @@ static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
 
-static void internalLog(const char *buf, size_t count) {
+static void internalLog(const char *buffer, size_t length) {
     if (usbManager.usbWriteToSerial != NULL) {
-        usbManager.usbWriteToSerial(buf, count);
+        usbManager.usbWriteToSerial(buffer, length);
     }
 }
 
@@ -33,12 +33,12 @@ static void internalI2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t va
 }
 
 static bool internalI2cReadRegisters(
-    uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
+    uint8_t devAddress, uint8_t startReg, uint8_t *buffer, size_t length) {
     return i2cDecoratedReadRegisters(
         devAddress,
         startReg,
-        buf,
-        len,
+        buffer,
+        length,
         rawI2cReadRegs,
         &settingsManager.currentSettings.enableI2cFailureReporting,
         internalLog);

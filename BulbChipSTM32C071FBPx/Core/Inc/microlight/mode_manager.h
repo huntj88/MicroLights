@@ -13,8 +13,8 @@
 #include "device/mc3479.h"
 #include "device/rgb_led.h"
 #include "model/cli_model.h"
-#include "model/mode_state.h"
 #include "model/log.h"
+#include "model/mode_state.h"
 #include "model/storage.h"
 
 #define FAKE_OFF_MODE_INDEX 255

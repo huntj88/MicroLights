@@ -37,8 +37,8 @@ bool usbInit(
     return true;
 }
 
-static void handleJson(USBManager *usbManager, char buf[], size_t count) {
-    parseJson(buf, count, &cliInput);
+static void handleJson(USBManager *usbManager, char buffer[], size_t length) {
+    parseJson(buffer, length, &cliInput);
 
     switch (cliInput.parsedType) {
         case parseError: {
@@ -61,31 +61,33 @@ static void handleJson(USBManager *usbManager, char buf[], size_t count) {
                 // do not write to flash for transient test
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             } else {
-                usbManager->saveMode(cliInput.modeIndex, buf, count);
+                usbManager->saveMode(cliInput.modeIndex, buffer, length);
                 setMode(usbManager->modeManager, &cliInput.mode, cliInput.modeIndex);
             }
             break;
         }
         case parseReadMode: {
-            usbManager->modeManager->readSavedMode(cliInput.modeIndex, buf, sharedJsonIOBufferSize);
-            size_t len = strlen(buf);
+            usbManager->modeManager->readSavedMode(
+                cliInput.modeIndex, buffer, sharedJsonIOBufferSize);
+            size_t len = strlen(buffer);
             if (len > sharedJsonIOBufferSize - 2) {
                 len = sharedJsonIOBufferSize - 2;
             }
-            buf[len] = '\n';
-            buf[len + 1] = '\0';
-            usbManager->usbWriteToSerial(buf, len + 1);
+            buffer[len] = '\n';
+            buffer[len + 1] = '\0';
+            usbManager->usbWriteToSerial(buffer, len + 1);
             break;
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
-            usbManager->saveSettings(buf, count);
+            usbManager->saveSettings(buffer, length);
             updateSettings(usbManager->settingsManager, &settings);
             break;
         }
         case parseReadSettings: {
-            int len = getSettingsResponse(usbManager->settingsManager, buf, sharedJsonIOBufferSize);
-            usbManager->usbWriteToSerial(buf, (size_t)len);
+            int len =
+                getSettingsResponse(usbManager->settingsManager, buffer, sharedJsonIOBufferSize);
+            usbManager->usbWriteToSerial(buffer, (size_t)len);
             break;
         }
         case parseDfu: {

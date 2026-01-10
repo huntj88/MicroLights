@@ -15,9 +15,9 @@
 #include "microlight/json/json_buf.h"
 #include "microlight/json/mode_parser.h"
 
-static int32_t jsonLength(const char buf[], size_t count) {
-    for (size_t i = 0; i < count; i++) {
-        char current = buf[i];
+static int32_t jsonLength(const char *buffer, size_t length) {
+    for (size_t i = 0; i < length; i++) {
+        char current = buffer[i];
         if (current == '\n' || current == '\0') {
             return (int32_t)i;
         }
@@ -178,7 +178,7 @@ static void processCommand(lwjson_t *lwjson, CliInput *input) {
     }
 }
 
-void parseJson(const char buf[], size_t count, CliInput *input) {
+void parseJson(const char *buffer, size_t length, CliInput *input) {
     static lwjson_token_t tokens[128];
     static lwjson_t lwjson;
 
@@ -186,19 +186,19 @@ void parseJson(const char buf[], size_t count, CliInput *input) {
         return;
     }
 
-    if (buf == NULL || count == 0) {
+    if (buffer == NULL || length == 0) {
         input->parsedType = parseError;
         return;
     }
 
-    int32_t indexOfTerminalChar = jsonLength(buf, count);
+    int32_t indexOfTerminalChar = jsonLength(buffer, length);
     if (indexOfTerminalChar == -1 || indexOfTerminalChar >= sharedJsonIOBufferSize - 1U) {
         input->parsedType = parseError;
         return;
     }
 
-    if (buf != sharedJsonIOBuffer) {
-        memcpy(sharedJsonIOBuffer, buf, indexOfTerminalChar);
+    if (buffer != sharedJsonIOBuffer) {
+        memcpy(sharedJsonIOBuffer, buffer, indexOfTerminalChar);
     }
 
     // ensure terminal character is \0 and not \n
