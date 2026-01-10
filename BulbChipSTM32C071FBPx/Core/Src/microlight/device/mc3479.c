@@ -10,13 +10,16 @@
 #define MC3479_SENSITIVITY_LSB_PER_G 2048ULL
 
 bool mc3479Init(
-    MC3479 *dev, I2CReadRegisters readRegsCb, I2CWriteRegister writeCb, uint8_t devAddress) {
-    if (!dev || !readRegsCb || !writeCb) {
+    MC3479 *dev,
+    I2CReadRegisters readRegisters,
+    I2CWriteRegister writeRegister,
+    uint8_t devAddress) {
+    if (!dev || !readRegisters || !writeRegister) {
         return false;
     }
 
-    dev->readRegisters = readRegsCb;
-    dev->writeRegister = writeCb;
+    dev->readRegisters = readRegisters;
+    dev->writeRegister = writeRegister;
     dev->devAddress = devAddress;
 
     // make sure in STANDBY when configuring

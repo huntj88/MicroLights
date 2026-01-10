@@ -37,18 +37,18 @@ static void bq25180regsToJson(BQ25180Registers registers, char jsonOutput[], uin
 
 bool bq25180Init(
     BQ25180 *chargerIC,
-    I2CReadRegisters readRegsCb,
-    I2CWriteRegister writeCb,
+    I2CReadRegisters readRegisters,
+    I2CWriteRegister writeRegister,
     uint8_t devAddress,
     Log log,
     RGBLed *caseLed,
     void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegsCb || !writeCb || !log || !caseLed || !enableTimers) {
+    if (!chargerIC || !readRegisters || !writeRegister || !log || !caseLed || !enableTimers) {
         return false;
     }
 
-    chargerIC->readRegisters = readRegsCb;
-    chargerIC->writeRegister = writeCb;
+    chargerIC->readRegisters = readRegisters;
+    chargerIC->writeRegister = writeRegister;
     chargerIC->devAddress = devAddress;
     chargerIC->log = log;
     chargerIC->caseLed = caseLed;

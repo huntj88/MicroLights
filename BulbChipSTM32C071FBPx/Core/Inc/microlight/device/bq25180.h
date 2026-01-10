@@ -80,8 +80,8 @@ typedef struct BQ25180Registers {
 
 bool bq25180Init(
     BQ25180 *chargerIC,
-    I2CReadRegisters readRegsCb,
-    I2CWriteRegister writeCb,
+    I2CReadRegisters readRegisters,
+    I2CWriteRegister writeRegister,
     uint8_t devAddress,
     Log log,
     RGBLed *caseLed,
