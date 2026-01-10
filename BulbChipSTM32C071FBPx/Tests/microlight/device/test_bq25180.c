@@ -118,7 +118,11 @@ void test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled(void) {
     // 3. Trigger interrupt handling
 
     // 4. Run task with unplugLockEnabled = true
-    chargerTask(&charger, 1000, true, true, false, false);  // interruptTriggered=true
+    chargerTask(
+        &charger,
+        1000,
+        (ChargerTaskFlags){
+            .interruptTriggered = true, .unplugLockEnabled = true});  // interruptTriggered=true
 
     // 5. Verify lock was called (Ship Mode enabled)
     // enableShipMode writes 0b01000001 to BQ25180_SHIP_RST (0x9)
@@ -131,7 +135,10 @@ void test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled(void) {
     charger.chargingState = constantCurrent;
     mockRegisters[BQ25180_STAT0] = 0b00000000;  // Not connected
 
-    chargerTask(&charger, 1000, true, false, false, false);  // unplugLockEnabled = false
+    chargerTask(
+        &charger,
+        1000,
+        (ChargerTaskFlags){.interruptTriggered = true});  // unplugLockEnabled = false
 
     TEST_ASSERT_FALSE(writeCalled);
 }
@@ -141,14 +148,14 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     charger.checkedAtMs = 100;  // Prevent watchdog update
 
     // Test at (ms & 0x3FF) < 50 (e.g., 1024)
-    chargerTask(&charger, 1024, false, false, true, false);  // ledEnabled = true
+    chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = true});  // ledEnabled = true
     TEST_ASSERT_TRUE(rgbConstantCurrentCalled);
 
     // Reset
     rgbConstantCurrentCalled = false;
 
     // Test at (ms & 0x3FF) >= 50 (e.g., 1100)
-    chargerTask(&charger, 1100, false, false, true, false);
+    chargerTask(&charger, 1100, (ChargerTaskFlags){.chargeLedEnabled = true});
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
@@ -161,7 +168,11 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
     mockRegisters[BQ25180_STAT0] = 0b01100000;  // Done charging (Bit 6=1, Bit 5=1)
 
     // Run task at time that does NOT trigger periodic flash
-    chargerTask(&charger, 1060, true, false, true, false);  // Interrupt triggered
+    chargerTask(
+        &charger,
+        1060,
+        (ChargerTaskFlags){
+            .interruptTriggered = true, .chargeLedEnabled = true});  // Interrupt triggered
 
     // Should update internal state
     TEST_ASSERT_EQUAL(done, charger.chargingState);
@@ -182,7 +193,7 @@ void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
     charger.checkedAtMs = 0;
 
     // Run task with serialEnabled = true
-    chargerTask(&charger, 1000, false, false, false, true);
+    chargerTask(&charger, 1000, (ChargerTaskFlags){.serialEnabled = true});
 
     // Verify the output contains the expected binary strings
     TEST_ASSERT_NOT_NULL(strstr(serialBuffer, "\"stat0\":\"10101010\""));
@@ -195,7 +206,7 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
     charger.checkedAtMs = 0;
 
     // Run task with serialEnabled = true
-    chargerTask(&charger, 1000, false, false, false, true);
+    chargerTask(&charger, 1000, (ChargerTaskFlags){.serialEnabled = true});
 
     // Check validity
     lwjson_t lwjson;

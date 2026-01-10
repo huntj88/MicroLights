@@ -78,6 +78,13 @@ typedef struct BQ25180Registers {
     uint8_t mask_id;
 } BQ25180Registers;
 
+typedef struct ChargerTaskFlags {
+    bool interruptTriggered;
+    bool unplugLockEnabled;
+    bool chargeLedEnabled;
+    bool serialEnabled;
+} ChargerTaskFlags;
+
 bool bq25180Init(
     BQ25180 *chargerIC,
     I2CReadRegisters readRegisters,
@@ -87,13 +94,7 @@ bool bq25180Init(
     RGBLed *caseLed,
     void (*enableTimers)(bool enable));
 
-void chargerTask(
-    BQ25180 *chargerIC,
-    uint32_t milliseconds,
-    bool interruptTriggered,
-    bool unplugLockEnabled,
-    bool ledEnabled,
-    bool serialEnabled);
+void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags);
 void lock(BQ25180 *chargerIC);
 enum ChargeState getChargingState(BQ25180 *chargerIC);
 

@@ -58,13 +58,7 @@ bool bq25180Init(
 }
 
 // TODO: struct for bools? 4 right next to each other, looks messy passing args.
-void chargerTask(
-    BQ25180 *chargerIC,
-    uint32_t milliseconds,
-    bool interruptTriggered,
-    bool unplugLockEnabled,
-    bool ledEnabled,
-    bool serialEnabled) {
+void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags) {
     enum ChargeState previousState = chargerIC->chargingState;
     uint32_t elapsedMillis = 0;
 
@@ -75,7 +69,7 @@ void chargerTask(
     // charger i2c watchdog timer will reset if not communicated
     // with for 40 seconds, and 15 seconds after plugged in.
     if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
-        if (serialEnabled) {
+        if (flags.serialEnabled) {
             char registerJson[BQ25180_JSON_BUFFER_SIZE];
             readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
             chargerIC->log(registerJson, strlen(registerJson));
@@ -86,23 +80,24 @@ void chargerTask(
     }
 
     // flash charging state to user every ~1 second (1024ms, 2^10)
-    if (ledEnabled && chargerIC->chargingState != notConnected && (milliseconds & 0x3FF) < 50) {
+    if (flags.chargeLedEnabled && chargerIC->chargingState != notConnected &&
+        (milliseconds & 0x3FF) < 50) {
         showChargingState(chargerIC, chargerIC->chargingState);
     }
 
-    if (interruptTriggered) {
+    if (flags.interruptTriggered) {
         enum ChargeState state = getChargingState(chargerIC);
         chargerIC->chargingState = state;
 
         bool wasDisconnected = previousState != notConnected && state == notConnected;
-        if (milliseconds != 0 && wasDisconnected && unplugLockEnabled) {
+        if (milliseconds != 0 && wasDisconnected && flags.unplugLockEnabled) {
             // if in fake off mode and power is unplugged, put into ship mode
             lock(chargerIC);
         }
 
         // only update LED from interrupt when plugged in for immediate feedback.
         bool wasConnected = previousState == notConnected && state != notConnected;
-        if (wasConnected && ledEnabled) {
+        if (wasConnected && flags.chargeLedEnabled) {
             chargerIC->enableTimers(true);  // timers needed to show charging status led
             showChargingState(chargerIC, state);
         }

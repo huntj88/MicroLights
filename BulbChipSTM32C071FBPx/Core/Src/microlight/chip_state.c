@@ -148,8 +148,9 @@ void stateTask(
     chargerTask(
         state.chargerIC,
         milliseconds,
-        chargerInterruptTriggered,
-        unplugLockEnabled,
-        chargeLedEnabled,
-        state.settings->enableChargerSerial);
+        (ChargerTaskFlags){
+            .interruptTriggered = chargerInterruptTriggered,
+            .unplugLockEnabled = unplugLockEnabled,
+            .chargeLedEnabled = chargeLedEnabled,
+            .serialEnabled = state.settings->enableChargerSerial});
 }
