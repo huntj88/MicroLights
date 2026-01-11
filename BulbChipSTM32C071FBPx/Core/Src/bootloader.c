@@ -16,6 +16,11 @@
 #define BOOTLOADER_FLAG 0xABCDEF00
 
 extern int _bflag;  // see linker script
+// TODO: 8 bytes of memory assigned to _bflag, but we only use the first 4 bytes here (int). Could
+// we use the other 4 bytes to count failures before enabling dfu automatically? The goal would be
+// to prevent boot loops where we are not able to invoke dfu via serial, requiring debugger/flash
+// tool to be used. Woul need to increment in errorHandler, and HardFault_Handler. Can HardFault
+// handler reset MCU without power loss? _bflag gets reset when power is lost.
 
 void setBootloaderFlagAndReset() {
     __disable_irq();
