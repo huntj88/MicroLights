@@ -73,6 +73,17 @@ void configureMicroLight(MicroLightDependencies *deps) {
         deps->errorHandler();
     }
 
+    if (!bq25180Init(
+            &chargerIC,
+            internalI2cReadRegisters,
+            internalI2cWriteRegister,
+            (0x6A << 1),
+            internalLog,
+            &caseLed,
+            deps->enableTimers)) {
+        deps->errorHandler();
+    }
+
     if (!modeManagerInit(
             &modeManager,
             &accel,
@@ -83,9 +94,11 @@ void configureMicroLight(MicroLightDependencies *deps) {
             internalLog)) {
         deps->errorHandler();
     }
+
     if (!settingsManagerInit(&settingsManager, deps->readSavedSettings)) {
         deps->errorHandler();
     }
+
     if (!usbInit(
             &usbManager,
             &modeManager,
@@ -95,17 +108,6 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->saveMode,
             deps->usbCdcReadTask,
             deps->usbWriteToSerial)) {
-        deps->errorHandler();
-    }
-
-    if (!bq25180Init(
-            &chargerIC,
-            internalI2cReadRegisters,
-            internalI2cWriteRegister,
-            (0x6A << 1),
-            internalLog,
-            &caseLed,
-            deps->enableTimers)) {
         deps->errorHandler();
     }
 
