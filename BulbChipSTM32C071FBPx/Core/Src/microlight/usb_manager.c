@@ -68,10 +68,10 @@ static void handleJson(USBManager *usbManager, char buffer[], size_t length) {
         }
         case parseReadMode: {
             usbManager->modeManager->readSavedMode(
-                cliInput.modeIndex, buffer, sharedJsonIOBufferSize);
+                cliInput.modeIndex, buffer, sharedJsonIOBufferLength);
             size_t len = strlen(buffer);
-            if (len > sharedJsonIOBufferSize - 2) {
-                len = sharedJsonIOBufferSize - 2;
+            if (len > sharedJsonIOBufferLength - 2) {
+                len = sharedJsonIOBufferLength - 2;
             }
             buffer[len] = '\n';
             buffer[len + 1] = '\0';
@@ -86,7 +86,7 @@ static void handleJson(USBManager *usbManager, char buffer[], size_t length) {
         }
         case parseReadSettings: {
             int len =
-                getSettingsResponse(usbManager->settingsManager, buffer, sharedJsonIOBufferSize);
+                getSettingsResponse(usbManager->settingsManager, buffer, sharedJsonIOBufferLength);
             usbManager->usbWriteToSerial(buffer, (size_t)len);
             break;
         }
@@ -98,7 +98,7 @@ static void handleJson(USBManager *usbManager, char buffer[], size_t length) {
 }
 
 void usbTask(USBManager *usbManager) {
-    int32_t bytesRead = usbManager->usbCdcReadTask(sharedJsonIOBuffer, sharedJsonIOBufferSize);
+    int32_t bytesRead = usbManager->usbCdcReadTask(sharedJsonIOBuffer, sharedJsonIOBufferLength);
     if (bytesRead > 0) {
         handleJson(usbManager, sharedJsonIOBuffer, (size_t)bytesRead);
     }

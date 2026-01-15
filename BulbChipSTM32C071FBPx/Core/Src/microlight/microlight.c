@@ -7,7 +7,9 @@
 static volatile bool buttonInterruptTriggered = false;
 static volatile bool chargerInterruptTriggered = false;
 static volatile bool autoOffTimerInterruptTriggered = false;
-static volatile bool chipTickInterruptTriggered = false;
+static volatile uint32_t microLightTicks = 0;
+
+static uint32_t (*convertTicksToMilliseconds)(uint32_t ticks) = NULL;
 
 static BQ25180 chargerIC;
 static Button button;
@@ -16,6 +18,7 @@ static RGBLed caseLed;
 static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
+static ChipState chipState;
 
 static void internalLog(const char *buffer, size_t length) {
     if (usbManager.usbWriteToSerial != NULL) {
@@ -49,16 +52,22 @@ static bool internalI2cReadRegisters(
         internalLog);
 }
 
+// TODO: return bool and handle error externally, remove errorHandler from deps
 void configureMicroLight(MicroLightDependencies *deps) {
-    if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
+    if (!deps->convertTicksToMilliseconds || !deps->i2cReadRegisters) {
         deps->errorHandler();
     }
+    convertTicksToMilliseconds = deps->convertTicksToMilliseconds;
 
-    if (deps->i2cWriteRegister == NULL || deps->i2cReadRegisters == NULL) {
+    if (!deps->i2cWriteRegister || !deps->i2cReadRegisters) {
         deps->errorHandler();
     }
     rawI2cWrite = deps->i2cWriteRegister;
     rawI2cReadRegs = deps->i2cReadRegisters;
+
+    if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
+        deps->errorHandler();
+    }
 
     if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->rgbTimerPeriod)) {
         deps->errorHandler();
@@ -111,31 +120,41 @@ void configureMicroLight(MicroLightDependencies *deps) {
         deps->errorHandler();
     }
 
-    configureChipState(
-        &modeManager,
-        &settingsManager.currentSettings,
-        &button,
-        &chargerIC,
-        &accel,
-        &caseLed,
-        internalLog,
-        deps->convertTicksToMilliseconds);
+    if (!configureChipState(
+            &chipState,
+            &modeManager,
+            &settingsManager.currentSettings,
+            &button,
+            &chargerIC,
+            &accel,
+            &caseLed,
+            internalLog)) {
+        deps->errorHandler();
+    }
 }
 
 void microLightTask(void) {
     usbTask(&usbManager);
 
-    stateTask((StateTaskFlags){
-        .chipTickInterruptTriggered = chipTickInterruptTriggered,
-        .autoOffTimerInterruptTriggered = autoOffTimerInterruptTriggered,
-        .buttonInterruptTriggered = buttonInterruptTriggered,
-        .chargerInterruptTriggered = chargerInterruptTriggered});
+    uint32_t milliseconds = convertTicksToMilliseconds(microLightTicks);
 
-    // Clear flags after processing
-    chipTickInterruptTriggered = false;
+    // Potentially could miss an interrupt if it occurs after local copy of false, but set to true
+    // in interrupt before clearing. Would need to add critical section mcu dependency to prevent,
+    // but this is low probability.
+    bool autoOffITLocal = autoOffTimerInterruptTriggered;
     autoOffTimerInterruptTriggered = false;
+    bool buttonITLocal = buttonInterruptTriggered;
     buttonInterruptTriggered = false;
+    bool chargerITLocal = chargerInterruptTriggered;
     chargerInterruptTriggered = false;
+
+    stateTask(
+        &chipState,
+        milliseconds,
+        (StateTaskFlags){
+            .autoOffTimerInterruptTriggered = autoOffITLocal,
+            .buttonInterruptTriggered = buttonITLocal,
+            .chargerInterruptTriggered = chargerITLocal});
 }
 
 void microLightInterrupt(enum MicroLightInterrupt interrupt) {
@@ -147,7 +166,7 @@ void microLightInterrupt(enum MicroLightInterrupt interrupt) {
             chargerInterruptTriggered = true;
             break;
         case ChipTickInterrupt:
-            chipTickInterruptTriggered = true;
+            microLightTicks++;
             break;
         case AutoOffTimerInterrupt:
             autoOffTimerInterruptTriggered = true;

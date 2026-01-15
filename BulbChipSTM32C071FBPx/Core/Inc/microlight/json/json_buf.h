@@ -13,8 +13,8 @@
 #include <stdint.h>
 
 extern char *sharedJsonIOBuffer;
-extern size_t sharedJsonIOBufferSize;
+extern size_t sharedJsonIOBufferLength;
 
-bool initSharedJsonIOBuffer(char *buf, size_t size);
+bool initSharedJsonIOBuffer(char *buffer, size_t length);
 
 #endif /* INC_JSON_JSON_BUF_H_ */

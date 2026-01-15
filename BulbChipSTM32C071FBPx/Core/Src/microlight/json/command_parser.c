@@ -192,7 +192,7 @@ void parseJson(const char *buffer, size_t length, CliInput *input) {
     }
 
     int32_t indexOfTerminalChar = jsonLength(buffer, length);
-    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= sharedJsonIOBufferSize - 1U) {
+    if (indexOfTerminalChar == -1 || indexOfTerminalChar >= sharedJsonIOBufferLength - 1U) {
         input->parsedType = parseError;
         return;
     }

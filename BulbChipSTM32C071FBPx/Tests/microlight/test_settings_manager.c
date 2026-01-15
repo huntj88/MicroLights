@@ -19,6 +19,7 @@ static Button mockButton;
 static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
+static ChipState state;
 static char lastSerialOutput[100];
 #define TEST_JSON_BUFFER_SIZE 2048
 char testJsonBuf[TEST_JSON_BUFFER_SIZE];
@@ -110,14 +111,14 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
 
     // 2. Configure ChipState with pointer to settingsManager.currentSettings
     configureChipState(
+        &state,
         &mockModeManager,
         &settingsManager.currentSettings,  // Pass the pointer!
         &mockButton,
         &mockCharger,
         &mockAccel,
         &mockCaseLed,
-        mock_writeUsbSerial,
-        mock_convertTicksToMs);
+        mock_writeUsbSerial);
 
     // 3. Verify initial state
     TEST_ASSERT_EQUAL_UINT8(5, state.settings->modeCount);

@@ -29,9 +29,9 @@ static void loadSettingsFromFlash(SettingsManager *manager, char *buffer, CliInp
     // Set defaults first in case load fails
     chipSettingsInitDefaults(&manager->currentSettings);
 
-    manager->readSavedSettings(buffer, sharedJsonIOBufferSize);
+    manager->readSavedSettings(buffer, sharedJsonIOBufferLength);
 
-    parseJson(buffer, sharedJsonIOBufferSize, cliInput);
+    parseJson(buffer, sharedJsonIOBufferLength, cliInput);
 
     if (cliInput->parsedType == parseWriteSettings) {
         updateSettings(manager, &cliInput->settings);

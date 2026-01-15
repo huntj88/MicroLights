@@ -13,13 +13,13 @@
  * Note: This variable is not thread-safe and is intended for single-threaded use only.
  */
 char *sharedJsonIOBuffer = NULL;
-size_t sharedJsonIOBufferSize = 0;
+size_t sharedJsonIOBufferLength = 0;
 
-bool initSharedJsonIOBuffer(char *buf, size_t size) {
-    if (buf == NULL || size == 0) {
+bool initSharedJsonIOBuffer(char *buffer, size_t length) {
+    if (!buffer || length == 0) {
         return false;
     }
-    sharedJsonIOBuffer = buf;
-    sharedJsonIOBufferSize = size;
+    sharedJsonIOBuffer = buffer;
+    sharedJsonIOBufferLength = length;
     return true;
 }
