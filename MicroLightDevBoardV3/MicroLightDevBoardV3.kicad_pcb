@@ -346,7 +346,7 @@
 				)
 			)
 		)
-		(pad "1" thru_hole roundrect
+		(pad "1" thru_hole rect
 			(at 0 0 90)
 			(size 1 1.7)
 			(drill 0.7
@@ -354,7 +354,6 @@
 			)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
-			(roundrect_rratio 0.2272727273)
 			(net 2 "GND")
 			(pinfunction "Pin_1")
 			(pintype "passive")
@@ -1148,8 +1147,9 @@
 		(descr "Through hole straight socket strip, 1x01, 1.27mm pitch, single row (from Kicad 4.0.7), script generated")
 		(tags "Through hole socket strip THT 1x01 1.27mm single row")
 		(property "Reference" "J4"
-			(at 0 -2.135 0)
+			(at 2 -0.225 0)
 			(layer "F.SilkS")
+			(hide yes)
 			(uuid "272f91e5-d038-4817-899d-cbd130b17a34")
 			(effects
 				(font
@@ -3366,7 +3366,7 @@
 				)
 			)
 		)
-		(pad "1" thru_hole circle
+		(pad "1" thru_hole rect
 			(at 0 0)
 			(size 1 1)
 			(drill 0.7)
