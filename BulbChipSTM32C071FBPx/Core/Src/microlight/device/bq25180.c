@@ -214,16 +214,9 @@ static void configureRegister_CHARGECTRL1(BQ25180 *chargerIC) {
 static void configureRegister_SYS_REG(BQ25180 *chargerIC) {
     uint8_t newConfig = SYS_REG_DEFAULT;
     uint8_t vinWatchdogMask = 0b00000010;
-    uint8_t systemRegulationMask = 0b11100000;
 
     // enabled vin watchdog hardware reset, if no i2c with 15 seconds of vin
     newConfig |= vinWatchdogMask;
-
-    // set all system regulation bits to 0 to enable battery tracking mode
-    // Idea being that less voltage conversions means higher efficiency?
-    // I Have a 3.3v buck regulator between chargingIC sys and mcu vin
-    // lowest SYS voltage will be 3.8v even if battery is at 3.0v
-    newConfig &= ~systemRegulationMask;
 
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SYS_REG, newConfig);
 }
