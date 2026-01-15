@@ -349,7 +349,9 @@
 		(pad "1" thru_hole roundrect
 			(at 0 0 90)
 			(size 1 1.7)
-			(drill 0.7)
+			(drill 0.7
+				(offset 0.05 0)
+			)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(roundrect_rratio 0.2272727273)
@@ -361,7 +363,9 @@
 		(pad "2" thru_hole roundrect
 			(at 0 2.54 90)
 			(size 1 1.7)
-			(drill 0.7)
+			(drill 0.7
+				(offset 0.05 0)
+			)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(roundrect_rratio 0.2272727273)
@@ -373,7 +377,9 @@
 		(pad "3" thru_hole roundrect
 			(at 0 5.08 90)
 			(size 1 1.7)
-			(drill 0.7)
+			(drill 0.7
+				(offset 0.05 0)
+			)
 			(layers "*.Cu" "*.Mask")
 			(remove_unused_layers no)
 			(roundrect_rratio 0.2272727273)
@@ -8303,16 +8309,6 @@
 		(uuid "08e0db25-6a31-4c5a-9a11-de6e490a5d43")
 	)
 	(gr_line
-		(start 54.55 17.55)
-		(end 54.55 19.32)
-		(stroke
-			(width 0.05)
-			(type default)
-		)
-		(layer "Edge.Cuts")
-		(uuid "275c68f7-53d7-49fe-969e-44317e96f05e")
-	)
-	(gr_line
 		(start 43.5 33.22)
 		(end 43.5 21.72)
 		(stroke
@@ -8344,6 +8340,16 @@
 		(uuid "7e230f0d-12cb-4346-89a6-997cb603d717")
 	)
 	(gr_line
+		(start 44.95 17.525)
+		(end 44.95 19.32)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "96947339-f4ee-4f43-9515-fd4f29898e7d")
+	)
+	(gr_line
 		(start 56 33.22)
 		(end 55.641532 33.86277)
 		(stroke
@@ -8363,6 +8369,16 @@
 		)
 		(layer "Edge.Cuts")
 		(uuid "b21eba7c-b684-4b4c-b43b-7b7d6c5bcb24")
+	)
+	(gr_line
+		(start 54.55 17.525)
+		(end 54.55 19.32)
+		(stroke
+			(width 0.05)
+			(type default)
+		)
+		(layer "Edge.Cuts")
+		(uuid "b7381be8-1387-4227-82ef-e10659b34c1e")
 	)
 	(gr_line
 		(start 53.748205 32.776803)
@@ -8388,16 +8404,6 @@
 		(uuid "cdd5f18f-66f6-4ba5-a782-0068f051dd6e")
 	)
 	(gr_line
-		(start 44.95 17.55)
-		(end 44.95 19.32)
-		(stroke
-			(width 0.05)
-			(type default)
-		)
-		(layer "Edge.Cuts")
-		(uuid "df1258b2-22b1-4ce9-93ab-e85fba84141d")
-	)
-	(gr_line
 		(start 54.55 19.32)
 		(end 56 21.72)
 		(stroke
@@ -8420,8 +8426,8 @@
 		(uuid "eae41f6b-9f41-4119-b0c8-7a526cc68ba4")
 	)
 	(gr_line
-		(start 44.95 17.55)
-		(end 54.55 17.55)
+		(start 44.95 17.525)
+		(end 54.55 17.525)
 		(stroke
 			(width 0.05)
 			(type default)
