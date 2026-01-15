@@ -3311,7 +3311,7 @@
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
-			(property "Reference" "J"
+			(property "Reference" "J1"
 				(at 0 24.13 0)
 				(effects
 					(font
@@ -3346,6 +3346,15 @@
 				)
 			)
 			(property "Description" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "LCSC" "C165948"
 				(at 0 0 0)
 				(effects
 					(font
@@ -3732,7 +3741,7 @@
 						)
 					)
 				)
-				(pin passive line
+				(pin power_out line
 					(at 15.24 16.51 180)
 					(length 5.08)
 					(name "VBUS"
@@ -6503,7 +6512,7 @@
 			)
 		)
 	)
-	(global_label "fBlue"
+	(global_label "fBlueBulb"
 		(shape input)
 		(at 114.3 58.42 0)
 		(fields_autoplaced yes)
@@ -6515,7 +6524,7 @@
 		)
 		(uuid "4d6f7084-ec10-4ae1-8d3b-2b69d3267fc7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 122.1837 58.42 0)
+			(at 126.4169 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6657,7 +6666,7 @@
 			)
 		)
 	)
-	(global_label "fBlue"
+	(global_label "fBlueBulb"
 		(shape input)
 		(at 50.8 160.02 180)
 		(fields_autoplaced yes)
@@ -6669,7 +6678,7 @@
 		)
 		(uuid "792e42aa-097b-4f5c-ae6e-1bd3e48ddbf9")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 42.9163 160.02 0)
+			(at 38.6831 160.02 0)
 			(effects
 				(font
 					(size 1.27 1.27)
