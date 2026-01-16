@@ -135,13 +135,14 @@ int main(void) {
         .enableTimers = enableTimers,  // TODO: split up timers
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
-        .errorHandler = Error_Handler,
         .rgbTimerPeriod =
             htim1.Init.Period,  // TODO: when another LED added they need to have the same period
         .jsonBuffer = mainJsonBuffer,
         .jsonBufferSize = sizeof(mainJsonBuffer)};
 
-    configureMicroLight(&deps);
+    if (!configureMicroLight(&deps)) {
+        Error_Handler();
+    }
 
     // auto off timer
     HAL_TIM_Base_Start_IT(&htim3);  // TODO: function pointer to start auto off timer

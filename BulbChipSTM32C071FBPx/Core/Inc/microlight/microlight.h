@@ -38,7 +38,6 @@ typedef struct {
     void (*enableTimers)(bool enable);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
-    void (*errorHandler)(void);
     uint32_t rgbTimerPeriod;
 
     // Memory
@@ -53,7 +52,7 @@ enum MicroLightInterrupt {
     AutoOffTimerInterrupt
 };
 
-void configureMicroLight(MicroLightDependencies *deps);
+bool configureMicroLight(MicroLightDependencies *deps);
 void microLightTask(void);
 void microLightInterrupt(enum MicroLightInterrupt interrupt);
 

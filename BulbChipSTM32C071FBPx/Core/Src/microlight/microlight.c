@@ -52,34 +52,35 @@ static bool internalI2cReadRegisters(
         internalLog);
 }
 
-// TODO: return bool and handle error externally, remove errorHandler from deps
-void configureMicroLight(MicroLightDependencies *deps) {
-    if (!deps->convertTicksToMilliseconds || !deps->i2cReadRegisters) {
-        deps->errorHandler();
+bool configureMicroLight(MicroLightDependencies *deps) {
+    if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
+        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->readButtonPin ||
+        !deps->enableTimers || !deps->readSavedMode || !deps->writeBulbLed ||
+        !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
+        !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
+        deps->jsonBufferSize == 0) {
+        return false;
     }
-    convertTicksToMilliseconds = deps->convertTicksToMilliseconds;
 
-    if (!deps->i2cWriteRegister || !deps->i2cReadRegisters) {
-        deps->errorHandler();
-    }
+    convertTicksToMilliseconds = deps->convertTicksToMilliseconds;
     rawI2cWrite = deps->i2cWriteRegister;
     rawI2cReadRegs = deps->i2cReadRegisters;
 
     if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->rgbTimerPeriod)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!buttonInit(&button, deps->readButtonPin, deps->enableTimers, &caseLed)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!mc3479Init(
             &accel, internalI2cReadRegisters, internalI2cWriteRegister, MC3479_I2CADDR_DEFAULT)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!bq25180Init(
@@ -90,7 +91,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             internalLog,
             &caseLed,
             deps->enableTimers)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!modeManagerInit(
@@ -101,11 +102,11 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->readSavedMode,
             deps->writeBulbLed,
             internalLog)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!settingsManagerInit(&settingsManager, deps->readSavedSettings)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!usbInit(
@@ -117,7 +118,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->saveMode,
             deps->usbCdcReadTask,
             deps->usbWriteToSerial)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!configureChipState(
@@ -129,13 +130,16 @@ void configureMicroLight(MicroLightDependencies *deps) {
             &accel,
             &caseLed,
             internalLog)) {
-        deps->errorHandler();
+        return false;
     }
+
+    return true;
 }
 
 void microLightTask(void) {
     usbTask(&usbManager);
 
+    // if convertTicksToMilliseconds is null, let it crash if not microlight is not configured
     uint32_t milliseconds = convertTicksToMilliseconds(microLightTicks);
 
     // Potentially could miss an interrupt if it occurs after local copy of false, but set to true
