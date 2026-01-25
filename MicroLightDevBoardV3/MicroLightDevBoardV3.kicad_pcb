@@ -780,6 +780,7 @@
 		(property "Value" "Conn_01x04_Socket"
 			(at 0 5.945 90)
 			(layer "F.Fab")
+			(hide yes)
 			(uuid "4d980197-905b-4835-a282-83d45374ec5b")
 			(effects
 				(font
@@ -8238,27 +8239,35 @@
 		(layer "F.SilkS")
 		(uuid "e0865568-570c-489d-8b69-5da37fdc1874")
 	)
-	(gr_circle
-		(center 49.75 26.125)
-		(end 55.75 26.125)
+	(gr_line
+		(start 55.995 15.62)
+		(end 56 21.72)
 		(stroke
 			(width 0.1)
-			(type solid)
+			(type default)
 		)
-		(fill no)
-		(locked yes)
 		(layer "Dwgs.User")
-		(uuid "163abf3f-c3fe-46b0-9d2c-a64077d4890a")
+		(uuid "59adac9d-2f04-44dd-92f5-f56511432b61")
 	)
 	(gr_line
-		(start 44.95 19.325)
-		(end 54.55 19.325)
+		(start 43.5 15.625)
+		(end 43.5 21.72)
 		(stroke
 			(width 0.1)
-			(type dot)
+			(type default)
 		)
 		(layer "Dwgs.User")
-		(uuid "dfb78d58-6760-4302-adfe-75afcd06527c")
+		(uuid "70da08f0-9792-47c8-9e5a-26fccef29d40")
+	)
+	(gr_line
+		(start 55.995 15.62)
+		(end 43.5 15.625)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(layer "Dwgs.User")
+		(uuid "77a9101f-9aa2-431a-8acd-da6f061f3ffe")
 	)
 	(gr_line
 		(start 44.95 19.32)
@@ -8453,6 +8462,31 @@
 				(thickness 0.1)
 			)
 			(justify left bottom mirror)
+		)
+	)
+	(gr_text "Cut out, no V-cut"
+		(at 45.69 16.67 0)
+		(layer "Dwgs.User")
+		(uuid "14b2edfe-5dcb-4937-bbed-45dfb74d1fa8")
+		(effects
+			(font
+				(size 0.6 0.6)
+				(thickness 0.1)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(gr_text "Instructions for battery connector assembly\n\nPCB parts:\nbattery connector socket (U6, DF53-2S-0.6H, C31444601)\n\nMale Connector parts:\nbattery connector plug (DF53-2P-0.6C, C29857974)\nbattery connector wire crimp (DF53-2P-0.6C, C29857974)\nblack wire (10064-32-1-0500-001-1-TS, C17960034)\nred wire (10064-32-1-0500-004-1-TS, C17725087)\n\nBattery connector must be assembled and attached to battery connector socket U6.\nWires must be 2 inches long.\nBlack wire must use vGndWire.\nRed wire must use vBatWire."
+		(at 66.38 38.425 0)
+		(layer "Dwgs.User")
+		(uuid "167ca90e-a6bc-427b-95c1-058d10b85f41")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+			(justify left bottom)
 		)
 	)
 	(segment
