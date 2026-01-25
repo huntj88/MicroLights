@@ -1,4 +1,4 @@
-(footprint "PinSocket_1x03_P2.54mm_Vertical_debug"
+(footprint "Microlight_debug_pins"
 	(version 20241229)
 	(generator "pcbnew")
 	(generator_version "9.0")
@@ -54,20 +54,9 @@
 		)
 	)
 	(attr through_hole)
-	(fp_text user "${REFERENCE}"
-		(at 0 2.54 270)
-		(layer "F.Fab")
-		(uuid "19c26094-f914-4014-9b42-985e5eec96fb")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
 	(pad "1" thru_hole rect
 		(at 0 0)
-		(size 1 1.7)
+		(size 1 1)
 		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
@@ -75,7 +64,7 @@
 	)
 	(pad "2" thru_hole roundrect
 		(at 0 2.54)
-		(size 1 1.7)
+		(size 1 1)
 		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
@@ -84,7 +73,7 @@
 	)
 	(pad "3" thru_hole roundrect
 		(at 0 5.08)
-		(size 1 1.7)
+		(size 1 1)
 		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)

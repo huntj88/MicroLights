@@ -7687,7 +7687,7 @@
 		(at 259.08 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -8306,7 +8306,7 @@
 		(at 259.08 102.87 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -9642,7 +9642,7 @@
 		(at 80.01 111.76 0)
 		(unit 1)
 		(exclude_from_sim no)
-		(in_bom yes)
+		(in_bom no)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
@@ -9665,7 +9665,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "MicroLightDevBoard:PinSocket_1x03_P2.54mm_Vertical_debug"
+		(property "Footprint" "MicroLightDevBoard:Microlight_debug_pins"
 			(at 80.01 111.76 0)
 			(effects
 				(font
