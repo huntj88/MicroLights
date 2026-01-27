@@ -8,6 +8,7 @@
 #ifndef INC_CHIP_STATE_H_
 #define INC_CHIP_STATE_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "microlight/device/bq25180.h"
@@ -19,23 +20,39 @@
 #include "microlight/model/log.h"
 #include "microlight/settings_manager.h"
 
-void configureChipState(
+typedef struct {
+    ModeManager *modeManager;
+    ChipSettings *settings;
+
+    // Devices
+    Button *button;
+    RGBLed *caseLed;
+    BQ25180 *chargerIC;
+    MC3479 *accel;
+
+    // Callbacks
+    Log log;
+
+    // State
+    uint32_t ticksSinceLastUserActivity;  // auto off timer ticks at 0.1 hz
+} ChipState;
+
+bool configureChipState(
+    ChipState *state,
     ModeManager *modeManager,
     ChipSettings *settings,
     Button *button,
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
-    Log log,
-    uint32_t (*convertTicksToMilliseconds)(uint32_t ticks));
+    Log log);
 
 typedef struct StateTaskFlags {
-    bool chipTickInterruptTriggered;
     bool autoOffTimerInterruptTriggered;
     bool buttonInterruptTriggered;
     bool chargerInterruptTriggered;
 } StateTaskFlags;
 
-void stateTask(StateTaskFlags flags);
+void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags);
 
 #endif /* INC_CHIP_STATE_H_ */

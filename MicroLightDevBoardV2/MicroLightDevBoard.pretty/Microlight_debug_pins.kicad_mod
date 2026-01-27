@@ -1,4 +1,4 @@
-(footprint "PinSocket_1x03_P2.54mm_Vertical_debug"
+(footprint "Microlight_debug_pins"
 	(version 20241229)
 	(generator "pcbnew")
 	(generator_version "9.0")
@@ -54,80 +54,18 @@
 		)
 	)
 	(attr through_hole)
-	(fp_line
-		(start -1.27 -1.27)
-		(end 0.635 -1.27)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "99537444-9f8f-4243-af5d-ec15d10dcbf7")
-	)
-	(fp_line
-		(start -1.27 6.35)
-		(end -1.27 -1.27)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "97039893-4d74-475e-bbb6-ebfd2370dc4d")
-	)
-	(fp_line
-		(start 0.635 -1.27)
-		(end 1.27 -0.635)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "cbc4f40c-64ca-4e9f-b4cd-5a8c3bd979e0")
-	)
-	(fp_line
-		(start 1.27 -0.635)
-		(end 1.27 6.35)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "de53a373-b4dd-4175-9025-771566bb0e2d")
-	)
-	(fp_line
-		(start 1.27 6.35)
-		(end -1.27 6.35)
-		(stroke
-			(width 0.1)
-			(type solid)
-		)
-		(layer "F.Fab")
-		(uuid "e0eeca6b-fcd7-4337-9910-0e012f57f211")
-	)
-	(fp_text user "${REFERENCE}"
-		(at 0 2.54 270)
-		(layer "F.Fab")
-		(uuid "19c26094-f914-4014-9b42-985e5eec96fb")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
-	(pad "1" thru_hole roundrect
+	(pad "1" thru_hole rect
 		(at 0 0)
-		(size 1.2 1.7)
-		(drill 1)
+		(size 1 1)
+		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
-		(roundrect_rratio 0.2272727273)
 		(uuid "3fa5b94e-6978-48b4-87d4-682bad0452e8")
 	)
 	(pad "2" thru_hole roundrect
 		(at 0 2.54)
-		(size 1.2 1.7)
-		(drill 1)
+		(size 1 1)
+		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(roundrect_rratio 0.2272727273)
@@ -135,8 +73,8 @@
 	)
 	(pad "3" thru_hole roundrect
 		(at 0 5.08)
-		(size 1.2 1.7)
-		(drill 1)
+		(size 1 1)
+		(drill 0.7)
 		(layers "*.Cu" "*.Mask")
 		(remove_unused_layers no)
 		(roundrect_rratio 0.2272727273)

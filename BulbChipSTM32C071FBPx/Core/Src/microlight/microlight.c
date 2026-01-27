@@ -7,7 +7,9 @@
 static volatile bool buttonInterruptTriggered = false;
 static volatile bool chargerInterruptTriggered = false;
 static volatile bool autoOffTimerInterruptTriggered = false;
-static volatile bool chipTickInterruptTriggered = false;
+static volatile uint32_t microLightTicks = 0;
+
+static uint32_t (*convertTicksToMilliseconds)(uint32_t ticks) = NULL;
 
 static BQ25180 chargerIC;
 static Button button;
@@ -16,6 +18,7 @@ static RGBLed caseLed;
 static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
+static ChipState chipState;
 
 static void internalLog(const char *buffer, size_t length) {
     if (usbManager.usbWriteToSerial != NULL) {
@@ -49,28 +52,35 @@ static bool internalI2cReadRegisters(
         internalLog);
 }
 
-void configureMicroLight(MicroLightDependencies *deps) {
-    if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
-        deps->errorHandler();
+bool configureMicroLight(MicroLightDependencies *deps) {
+    if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
+        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->readButtonPin ||
+        !deps->enableTimers || !deps->readSavedMode || !deps->writeBulbLed ||
+        !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
+        !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
+        deps->jsonBufferSize == 0) {
+        return false;
     }
 
-    if (deps->i2cWriteRegister == NULL || deps->i2cReadRegisters == NULL) {
-        deps->errorHandler();
-    }
+    convertTicksToMilliseconds = deps->convertTicksToMilliseconds;
     rawI2cWrite = deps->i2cWriteRegister;
     rawI2cReadRegs = deps->i2cReadRegisters;
 
+    if (!initSharedJsonIOBuffer(deps->jsonBuffer, deps->jsonBufferSize)) {
+        return false;
+    }
+
     if (!rgbInit(&caseLed, deps->writeRgbPwmCaseLed, (uint16_t)deps->rgbTimerPeriod)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!buttonInit(&button, deps->readButtonPin, deps->enableTimers, &caseLed)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!mc3479Init(
             &accel, internalI2cReadRegisters, internalI2cWriteRegister, MC3479_I2CADDR_DEFAULT)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!bq25180Init(
@@ -81,7 +91,7 @@ void configureMicroLight(MicroLightDependencies *deps) {
             internalLog,
             &caseLed,
             deps->enableTimers)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!modeManagerInit(
@@ -92,11 +102,11 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->readSavedMode,
             deps->writeBulbLed,
             internalLog)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!settingsManagerInit(&settingsManager, deps->readSavedSettings)) {
-        deps->errorHandler();
+        return false;
     }
 
     if (!usbInit(
@@ -108,34 +118,47 @@ void configureMicroLight(MicroLightDependencies *deps) {
             deps->saveMode,
             deps->usbCdcReadTask,
             deps->usbWriteToSerial)) {
-        deps->errorHandler();
+        return false;
     }
 
-    configureChipState(
-        &modeManager,
-        &settingsManager.currentSettings,
-        &button,
-        &chargerIC,
-        &accel,
-        &caseLed,
-        internalLog,
-        deps->convertTicksToMilliseconds);
+    if (!configureChipState(
+            &chipState,
+            &modeManager,
+            &settingsManager.currentSettings,
+            &button,
+            &chargerIC,
+            &accel,
+            &caseLed,
+            internalLog)) {
+        return false;
+    }
+
+    return true;
 }
 
 void microLightTask(void) {
     usbTask(&usbManager);
 
-    stateTask((StateTaskFlags){
-        .chipTickInterruptTriggered = chipTickInterruptTriggered,
-        .autoOffTimerInterruptTriggered = autoOffTimerInterruptTriggered,
-        .buttonInterruptTriggered = buttonInterruptTriggered,
-        .chargerInterruptTriggered = chargerInterruptTriggered});
+    // if convertTicksToMilliseconds is null, let it crash if not microlight is not configured
+    uint32_t milliseconds = convertTicksToMilliseconds(microLightTicks);
 
-    // Clear flags after processing
-    chipTickInterruptTriggered = false;
+    // Potentially could miss an interrupt if it occurs after local copy of false, but set to true
+    // in interrupt before clearing. Would need to add critical section mcu dependency to prevent,
+    // but this is low probability.
+    bool autoOffITLocal = autoOffTimerInterruptTriggered;
     autoOffTimerInterruptTriggered = false;
+    bool buttonITLocal = buttonInterruptTriggered;
     buttonInterruptTriggered = false;
+    bool chargerITLocal = chargerInterruptTriggered;
     chargerInterruptTriggered = false;
+
+    stateTask(
+        &chipState,
+        milliseconds,
+        (StateTaskFlags){
+            .autoOffTimerInterruptTriggered = autoOffITLocal,
+            .buttonInterruptTriggered = buttonITLocal,
+            .chargerInterruptTriggered = chargerITLocal});
 }
 
 void microLightInterrupt(enum MicroLightInterrupt interrupt) {
@@ -147,7 +170,7 @@ void microLightInterrupt(enum MicroLightInterrupt interrupt) {
             chargerInterruptTriggered = true;
             break;
         case ChipTickInterrupt:
-            chipTickInterruptTriggered = true;
+            microLightTicks++;
             break;
         case AutoOffTimerInterrupt:
             autoOffTimerInterruptTriggered = true;
