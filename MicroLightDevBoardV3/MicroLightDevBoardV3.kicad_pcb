@@ -2147,6 +2147,32 @@
 				)
 			)
 		)
+		(property "original_LCSC" "C9900036204"
+			(at 0 0 270)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "fb77daca-2735-4a36-ac72-972c44fd4347")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
+		(property "LCSC" "C92923"
+			(at 0 0 270)
+			(unlocked yes)
+			(layer "F.Fab")
+			(hide yes)
+			(uuid "fd3921fe-d5ed-44fb-9605-3dd5ab172e17")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
 		(property ki_fp_filters "Choke_* *Coil* Inductor_* L_*")
 		(path "/200b11ed-2123-4fb4-ad05-d35ba5ddbf92")
 		(sheetname "/")
@@ -7682,6 +7708,20 @@
 			(layer "B.Fab")
 			(hide yes)
 			(uuid "0b901cac-e1b3-4cf5-9094-c54cc0aff39c")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+				(justify mirror)
+			)
+		)
+		(property "LCSC" "C7070110"
+			(at 0 0 180)
+			(unlocked yes)
+			(layer "B.Fab")
+			(hide yes)
+			(uuid "cabd1e77-f177-49c2-84ed-8bc8c81c8f61")
 			(effects
 				(font
 					(size 1 1)
