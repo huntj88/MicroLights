@@ -1,0 +1,102 @@
+(footprint "rgbLed4Pin_1.27mm"
+	(version 20241229)
+	(generator "pcbnew")
+	(generator_version "9.0")
+	(layer "F.Cu")
+	(descr "Through hole straight socket strip, 1x04, 1.27mm pitch, single row (from Kicad 4.0.7), script generated")
+	(tags "Through hole socket strip THT 1x04 1.27mm single row")
+	(property "Reference" "REF**"
+		(at 0 -2.135 0)
+		(layer "F.SilkS")
+		(uuid "2b7a862e-4c3a-4595-a2a3-6a8ac41eb2c2")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Value" "rgbLed4Pin_1.27mm"
+		(at 0 5.945 0)
+		(layer "F.Fab")
+		(uuid "36452807-da5f-4a2e-810a-cb7803e34b46")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "19354f97-2d09-4e76-b107-34566475d948")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "26897ed3-71a7-49b8-b9b9-ad1e1096ab02")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_text user "${REFERENCE}"
+		(at 0 1.905 90)
+		(layer "F.Fab")
+		(uuid "36d180cd-ba43-43e2-9dd5-26d217a7a9e8")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole roundrect
+		(at 0 0)
+		(size 1.4 1)
+		(drill 0.7)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.25)
+		(uuid "3e04de7c-350f-4f1f-b0aa-f629a28ebe8c")
+	)
+	(pad "2" thru_hole roundrect
+		(at 0 1.27)
+		(size 1.4 1)
+		(drill 0.7)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.25)
+		(uuid "e816e9fb-0b9e-4dc1-9ea9-5fbbf2e96a6b")
+	)
+	(pad "3" thru_hole rect
+		(at 0 2.54)
+		(size 1.4 1)
+		(drill 0.7)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "d0936d01-7e27-4504-914c-c56d398ca03c")
+	)
+	(pad "4" thru_hole roundrect
+		(at 0 3.81)
+		(size 1.4 1)
+		(drill 0.7)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(roundrect_rratio 0.25)
+		(uuid "ba1a8edf-7622-439b-bfbd-6e54d27a294c")
+	)
+	(embedded_fonts no)
+)

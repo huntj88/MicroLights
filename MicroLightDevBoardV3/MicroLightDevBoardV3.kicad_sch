@@ -5425,8 +5425,8 @@
 		(uuid 93adcd1f-8255-46c6-b74c-cba9ccaf4561)
 	)
 	(rectangle
-		(start 173.99 93.98)
-		(end 281.94 139.7)
+		(start 175.26 128.27)
+		(end 218.44 154.94)
 		(stroke
 			(width 0)
 			(type default)
@@ -5553,7 +5553,7 @@
 	)
 	(text "Battery Connectors"
 		(exclude_from_sim no)
-		(at 229.87 98.298 0)
+		(at 196.85 132.588 0)
 		(effects
 			(font
 				(size 2.54 2.54)
@@ -6565,7 +6565,7 @@
 	)
 	(global_label "BAT_CHRG"
 		(shape input)
-		(at 254 111.76 180)
+		(at 190.5 148.59 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6575,7 +6575,7 @@
 		)
 		(uuid "4f8acb37-d3af-4c7f-9a60-846fdfe2535b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.5805 111.76 0)
+			(at 178.0805 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7313,7 +7313,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x01_Socket")
-		(at 259.08 111.76 0)
+		(at 195.58 148.59 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -7322,7 +7322,7 @@
 		(fields_autoplaced yes)
 		(uuid "05504aa4-bdad-4022-bd81-eeab1ebe51f8")
 		(property "Reference" "J4"
-			(at 260.35 110.4899 0)
+			(at 196.85 147.3199 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7331,7 +7331,7 @@
 			)
 		)
 		(property "Value" "Conn_01x01_Socket"
-			(at 260.35 113.0299 0)
+			(at 196.85 149.8599 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7340,7 +7340,7 @@
 			)
 		)
 		(property "Footprint" "MicroLightDevBoard:battery_1x01_Vertical"
-			(at 259.08 111.76 0)
+			(at 195.58 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7349,7 +7349,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 259.08 111.76 0)
+			(at 195.58 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7358,7 +7358,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated"
-			(at 259.08 111.76 0)
+			(at 195.58 148.59 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7894,7 +7894,7 @@
 				(hide yes)
 			)
 		)
-		(property "LSCS" "C7070110"
+		(property "LCSC" "C7070110"
 			(at 218.44 30.48 0)
 			(effects
 				(font
@@ -7932,7 +7932,7 @@
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x01_Socket")
-		(at 259.08 102.87 0)
+		(at 195.58 139.7 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom no)
@@ -7941,7 +7941,7 @@
 		(fields_autoplaced yes)
 		(uuid "156a215e-e887-40d1-ab7d-b57a8eb993db")
 		(property "Reference" "J5"
-			(at 260.35 101.5999 0)
+			(at 196.85 138.4299 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7950,7 +7950,7 @@
 			)
 		)
 		(property "Value" "Conn_01x01_Socket"
-			(at 260.35 104.1399 0)
+			(at 196.85 140.9699 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7959,7 +7959,7 @@
 			)
 		)
 		(property "Footprint" "MicroLightDevBoard:battery_1x01_Vertical"
-			(at 259.08 102.87 0)
+			(at 195.58 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7968,7 +7968,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 259.08 102.87 0)
+			(at 195.58 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7977,7 +7977,7 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x01, script generated"
-			(at 259.08 102.87 0)
+			(at 195.58 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8259,6 +8259,24 @@
 			)
 		)
 		(property "purchase" "https://www.mouser.com/ProductDetail/Wurth-Elektronik/74438343022?qs=iC14BvcgY%2F123ryA6Z6D7g%3D%3D"
+			(at 210.82 41.91 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "original_LCSC" "C9900036204"
+			(at 210.82 41.91 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C92923"
 			(at 210.82 41.91 90)
 			(effects
 				(font
@@ -8873,7 +8891,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_PinSocket_1.27mm:PinSocket_1x04_P1.27mm_Vertical"
+		(property "Footprint" "MicroLightDevBoard:rgbLed4Pin_1.27mm"
 			(at 50.8 179.07 0)
 			(effects
 				(font
@@ -9687,7 +9705,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 254 102.87 270)
+		(at 190.5 139.7 270)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9696,7 +9714,7 @@
 		(fields_autoplaced yes)
 		(uuid "62a889dc-2feb-4296-af7a-3d35030d6f7d")
 		(property "Reference" "#PWR024"
-			(at 247.65 102.87 0)
+			(at 184.15 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9705,7 +9723,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 250.19 102.8699 90)
+			(at 186.69 139.6999 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9714,7 +9732,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 254 102.87 0)
+			(at 190.5 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9723,7 +9741,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 254 102.87 0)
+			(at 190.5 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9732,7 +9750,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 254 102.87 0)
+			(at 190.5 139.7 0)
 			(effects
 				(font
 					(size 1.27 1.27)
