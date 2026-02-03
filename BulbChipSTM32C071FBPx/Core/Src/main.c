@@ -24,6 +24,7 @@
 #include "bootloader.h"
 #include "mcu_dependencies.h"
 #include "microlight/microlight.h"
+#include "tusb.h"
 #include "usb_dependencies.h"
 /* USER CODE END Includes */
 
@@ -110,6 +111,7 @@ int main(void) {
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
 
+    tusb_init();
     // TIM1: rgb status led timer - no interrupts
     // TIM2: chipTick timer - interrupts to increment chipTick
     // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
