@@ -111,9 +111,10 @@ int main(void) {
     /* USER CODE BEGIN 2 */
 
     tusb_init();
-    // TIM1: rgb status led timer - no interrupts
+    // TIM1: case rgb led timer - no interrupts
     // TIM2: chipTick timer - interrupts to increment chipTick
-    // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
+    // TIM3: front rgb led timer - no interrupts
+    // TIM17: autoOff timer - interrupts very infrequently when in fake off mode to check time
 
     // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?),
     // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
@@ -146,7 +147,7 @@ int main(void) {
     }
 
     // auto off timer
-    HAL_TIM_Base_Start_IT(&htim3);  // TODO: function pointer to start auto off timer
+    HAL_TIM_Base_Start_IT(&htim17);  // TODO: function pointer to start auto off timer
 
     /* USER CODE END 2 */
 
@@ -433,9 +434,9 @@ static void MX_TIM17_Init(void) {
 
     /* USER CODE END TIM17_Init 1 */
     htim17.Instance = TIM17;
-    htim17.Init.Prescaler = 1831;
+    htim17.Init.Prescaler = 3999;
     htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim17.Init.Period = 65535;
+    htim17.Init.Period = 9999;
     htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim17.Init.RepetitionCounter = 0;
     htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
