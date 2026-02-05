@@ -72,6 +72,9 @@ static void MX_TIM17_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static const bool kUseFrontRgbLed = true;
+
+static void configureFrontBulbGpio(void);
 
 /* USER CODE END 0 */
 
@@ -109,6 +112,10 @@ int main(void) {
     MX_TIM3_Init();
     MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
+
+    if (!kUseFrontRgbLed) {
+        configureFrontBulbGpio();
+    }
 
     tusb_init();
     // TIM1: case rgb led timer - no interrupts
@@ -526,6 +533,20 @@ static void MX_GPIO_Init(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+static void configureFrontBulbGpio(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin = fBlue_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
+
+    HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, GPIO_PIN_RESET);
+}
 
 /* USER CODE END 4 */
 

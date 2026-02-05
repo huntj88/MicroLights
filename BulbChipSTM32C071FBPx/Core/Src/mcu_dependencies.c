@@ -48,7 +48,10 @@ uint8_t readButtonPin(void) {
 }
 
 void writeBulbLed(uint8_t state) {
-    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
+    GPIO_PinState pinState = (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET;
+    // TODO: remove legacy bulbLed pin once hardware migration is complete.
+    HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, pinState);
+    HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, pinState);
 }
 
 // enables or disables all timers used for leds and chip tick
