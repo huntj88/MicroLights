@@ -62,28 +62,9 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 static BQ25180 charger;
 static RGBLed mockLed;
 
-static bool enableCaseLedTimerCalled = false;
-static bool lastEnableCaseLedTimerArg = false;
-static bool enableChipTickTimerCalled = false;
-static bool lastEnableChipTickTimerArg = false;
-
-void mock_enableCaseLedTimer(bool enable) {
-    enableCaseLedTimerCalled = true;
-    lastEnableCaseLedTimerArg = enable;
-}
-
-void mock_enableChipTickTimer(bool enable) {
-    enableChipTickTimerCalled = true;
-    lastEnableChipTickTimerArg = enable;
-}
-
 void setUp(void) {
     memset(&charger, 0, sizeof(BQ25180));
     memset(&mockLed, 0, sizeof(RGBLed));
-    enableCaseLedTimerCalled = false;
-    lastEnableCaseLedTimerArg = false;
-    enableChipTickTimerCalled = false;
-    lastEnableChipTickTimerArg = false;
 
     memset(mockRegisters, 0, sizeof(mockRegisters));
     writeCalled = false;
@@ -99,14 +80,7 @@ void setUp(void) {
     rgbDoneChargingCalled = false;
 
     bq25180Init(
-        &charger,
-        mock_readRegisters,
-        mock_writeRegister,
-        0x6A,
-        mock_writeToSerial,
-        &mockLed,
-        mock_enableCaseLedTimer,
-        mock_enableChipTickTimer);
+        &charger, mock_readRegisters, mock_writeRegister, 0x6A, mock_writeToSerial, &mockLed);
 
     // Reset write flag after init, as init performs writes
     writeCalled = false;
@@ -160,7 +134,6 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     // Test at (ms & 0x3FF) < 50 (e.g., 1024)
     chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = true});  // ledEnabled = true
     TEST_ASSERT_TRUE(rgbConstantCurrentCalled);
-    TEST_ASSERT_FALSE(enableChipTickTimerCalled);
 
     // Reset
     rgbConstantCurrentCalled = false;
@@ -190,10 +163,6 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
 
     // Should show new state
     TEST_ASSERT_TRUE(rgbDoneChargingCalled);
-    TEST_ASSERT_TRUE(enableCaseLedTimerCalled);
-    TEST_ASSERT_TRUE(lastEnableCaseLedTimerArg);
-    TEST_ASSERT_TRUE(enableChipTickTimerCalled);
-    TEST_ASSERT_TRUE(lastEnableChipTickTimerArg);
 }
 
 void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {

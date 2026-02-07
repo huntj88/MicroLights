@@ -95,9 +95,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             internalI2cWriteRegister,
             (0x6A << 1),
             internalLog,
-            &caseLed,
-            deps->enableCaseLedTimer,
-            deps->enableChipTickTimer)) {
+            &caseLed)) {
         return false;
     }
 
@@ -106,9 +104,6 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             &accel,
             &caseLed,
             &frontLed,
-            deps->enableChipTickTimer,
-            deps->enableCaseLedTimer,
-            deps->enableFrontLedTimer,
             deps->readSavedMode,
             deps->writeBulbLed,
             internalLog)) {
@@ -139,6 +134,9 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             &chargerIC,
             &accel,
             &caseLed,
+            deps->enableChipTickTimer,
+            deps->enableCaseLedTimer,
+            deps->enableFrontLedTimer,
             internalLog)) {
         return false;
     }

@@ -52,6 +52,15 @@ void mock_writeUsbSerial(const char *buf, size_t count) {
     lastSerialOutput[count] = '\0';
 }
 
+void mock_enableChipTickTimer(bool enable) {
+}
+
+void mock_enableCaseLedTimer(bool enable) {
+}
+
+void mock_enableFrontLedTimer(bool enable) {
+}
+
 enum ChargeState getChargingState(BQ25180 *dev) {
     return notConnected;
 }
@@ -70,8 +79,17 @@ void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
 }
-void modeTask(
+ModeOutputs modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+    (void)manager;
+    (void)ms;
+    (void)canUpdateCaseLed;
+    (void)equationEvalIntervalMs;
+    return (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
 }
 bool isFakeOff(ModeManager *manager) {
     return false;
@@ -79,7 +97,7 @@ bool isFakeOff(ModeManager *manager) {
 bool isEvaluatingButtonPress(Button *button) {
     return false;
 }
-void fakeOffMode(ModeManager *manager, bool enableChargeLedTimers) {
+void fakeOffMode(ModeManager *manager) {
 }
 
 // Include source files under test
@@ -118,6 +136,9 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
         &mockCharger,
         &mockAccel,
         &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_writeUsbSerial);
 
     // 3. Verify initial state

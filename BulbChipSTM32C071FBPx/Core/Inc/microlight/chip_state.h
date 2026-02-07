@@ -31,6 +31,9 @@ typedef struct {
     MC3479 *accel;
 
     // Callbacks
+    void (*enableChipTickTimer)(bool enable);
+    void (*enableCaseLedTimer)(bool enable);
+    void (*enableFrontLedTimer)(bool enable);
     Log log;
 
     // State
@@ -45,6 +48,9 @@ bool configureChipState(
     BQ25180 *chargerIC,
     MC3479 *accel,
     RGBLed *caseLed,
+    void (*enableChipTickTimer)(bool enable),
+    void (*enableCaseLedTimer)(bool enable),
+    void (*enableFrontLedTimer)(bool enable),
     Log log);
 
 typedef struct StateTaskFlags {
