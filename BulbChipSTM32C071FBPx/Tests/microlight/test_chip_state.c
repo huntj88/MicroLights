@@ -91,7 +91,7 @@ void lock(BQ25180 *dev) {
     mockLockCalled = true;
 }
 
-void rgbTask(RGBLed *led, uint32_t ms) {
+void rgbTransientTask(RGBLed *led, uint32_t ms) {
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }

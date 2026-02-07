@@ -84,7 +84,7 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
 //	}
 // }
 
-void rgbTask(RGBLed *device, uint32_t milliseconds) {
+void rgbTransientTask(RGBLed *device, uint32_t milliseconds) {
     if (!device) {
         return;
     }

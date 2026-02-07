@@ -154,7 +154,8 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
     applyTimerPolicy(state, outputs, evaluatingButtonPress || flags.buttonInterruptTriggered);
 
-    rgbTask(state->deps.caseLed, milliseconds);
+    // No transient status show on front LED, only call for case LED.
+    rgbTransientTask(state->deps.caseLed, milliseconds);
     mc3479Task(state->deps.accel, milliseconds);
     chargerTask(
         state->deps.chargerIC,
