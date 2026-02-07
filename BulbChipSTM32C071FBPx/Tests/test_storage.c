@@ -145,6 +145,7 @@ void setUp(void) {
     memset(&lastGpioInit, 0, sizeof(lastGpioInit));
     lastGpioPort = NULL;
     gpioInitCalled = false;
+    fBluePinIsAfMode = false;
 }
 
 void tearDown(void) {
@@ -206,15 +207,12 @@ void test_readSettingsFromFlash_ReturnsEmptyString_WhenFlashIsErased(void) {
 }
 
 void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
+    // Pin starts in GPIO mode after reset, so writeBulbLed should NOT reconfigure
     gpioInitCalled = false;
-    memset(&lastGpioInit, 0, sizeof(lastGpioInit));
-
     writeBulbLed(1);
+    TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip GPIO init when already in GPIO mode");
 
-    TEST_ASSERT_TRUE(gpioInitCalled);
-    TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
-    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
-
+    // Transition to AF/PWM mode — should reconfigure
     gpioInitCalled = false;
     memset(&lastGpioInit, 0, sizeof(lastGpioInit));
 
@@ -224,6 +222,26 @@ void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
     TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_AF_PP, lastGpioInit.Mode);
     TEST_ASSERT_EQUAL_UINT32(GPIO_AF12_TIM3, lastGpioInit.Alternate);
+
+    // Calling enableFrontLedTimer(true) again should NOT reconfigure
+    gpioInitCalled = false;
+    enableFrontLedTimer(true);
+    TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip AF init when already in AF mode");
+
+    // Transition back to GPIO mode via writeBulbLed — should reconfigure
+    gpioInitCalled = false;
+    memset(&lastGpioInit, 0, sizeof(lastGpioInit));
+
+    writeBulbLed(1);
+
+    TEST_ASSERT_TRUE(gpioInitCalled);
+    TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
+    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
+
+    // Calling writeBulbLed again should NOT reconfigure
+    gpioInitCalled = false;
+    writeBulbLed(0);
+    TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip GPIO init when already in GPIO mode");
 }
 
 int main(void) {

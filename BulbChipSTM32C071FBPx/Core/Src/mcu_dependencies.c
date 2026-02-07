@@ -16,7 +16,14 @@ extern TIM_HandleTypeDef htim3;
 #define SETTINGS_PAGE 56  // 2K flash reserved for settings starting at page 56
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
 
+// fBlue pin is shared between GPIO (bulb) and AF (TIM3 PWM) modes.
+// Track current mode to avoid expensive HAL_GPIO_Init on every call.
+static bool fBluePinIsAfMode = false;
+
 static void configureFrontBlueGpio(void) {
+    if (!fBluePinIsAfMode) {
+        return;
+    }
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -26,9 +33,13 @@ static void configureFrontBlueGpio(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
+    fBluePinIsAfMode = false;
 }
 
 static void configureFrontBluePwm(void) {
+    if (fBluePinIsAfMode) {
+        return;
+    }
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -39,6 +50,7 @@ static void configureFrontBluePwm(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF12_TIM3;
     HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
+    fBluePinIsAfMode = true;
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
