@@ -474,6 +474,62 @@ void test_TimerPolicy_SkipsRedundantCalls(void) {
     TEST_ASSERT_TRUE(frontLedTimerEnabled);
 }
 
+void test_TimerPolicy_FrontBulbType_DisablesFrontTimer(void) {
+    configureChipState(&state, mockDeps);
+
+    mockChargeState = notConnected;
+    mockIsFakeOff = false;
+    mockIsEvaluatingButtonPress = false;
+
+    // frontValid=true but frontType=BULB — front PWM should stay disabled
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = true,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    chipTickTimerCallCount = 0;
+    caseLedTimerCallCount = 0;
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    // Front timer callback fires once (initial state transition from init)
+    // but the timer should be DISABLED because BULB type bypasses PWM
+    TEST_ASSERT_FALSE_MESSAGE(frontLedTimerEnabled, "front timer should be disabled for BULB type");
+
+    // Now switch to RGB — front timer should become enabled
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = true,
+        .caseValid = false,
+        .frontType = RGB,
+    };
+
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 10, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        1, frontLedTimerCallCount, "frontLed timer should be called on BULB→RGB transition");
+    TEST_ASSERT_TRUE_MESSAGE(frontLedTimerEnabled, "front timer should be enabled for RGB type");
+
+    // Switch back to BULB — front timer should be disabled again
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = true,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 20, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        1, frontLedTimerCallCount, "frontLed timer should be called on RGB→BULB transition");
+    TEST_ASSERT_FALSE_MESSAGE(
+        frontLedTimerEnabled, "front timer should be disabled after RGB→BULB transition");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
@@ -491,6 +547,7 @@ int main(void) {
     RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
     RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);
     RUN_TEST(test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging);
+    RUN_TEST(test_TimerPolicy_FrontBulbType_DisablesFrontTimer);
     RUN_TEST(test_TimerPolicy_SkipsRedundantCalls);
     return UNITY_END();
 }
