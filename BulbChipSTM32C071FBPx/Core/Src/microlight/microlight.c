@@ -57,9 +57,9 @@ bool configureMicroLight(MicroLightDependencies *deps) {
     if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
         !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
         !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
-        !deps->enableFrontLedTimer || !deps->readSavedMode || !deps->writeBulbLed ||
-        !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
-        !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
+        !deps->enableFrontLedTimer || !deps->startAutoOffTimer || !deps->readSavedMode ||
+        !deps->writeBulbLed || !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings ||
+        !deps->saveMode || !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
         deps->jsonBufferSize == 0) {
         return false;
     }
@@ -143,6 +143,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         return false;
     }
 
+    deps->startAutoOffTimer();
     return true;
 }
 

@@ -175,7 +175,7 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, manager.currentModeIndex);
 }
 
-void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
+void test_ModeManager_FakeOff_SetsCorrectIndex(void) {
     ModeManager manager;
     TEST_ASSERT_TRUE(modeManagerInit(
         &manager,
@@ -871,12 +871,12 @@ void test_ModeManager_LogsEquationCompileError(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
+    RUN_TEST(test_ModeManager_FakeOff_SetsCorrectIndex);
     RUN_TEST(test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed);
     RUN_TEST(test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex);
     RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);
     RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash);
-    RUN_TEST(test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning);
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_ModeManager_LogsEquationCompileError);
     RUN_TEST(test_ModeTask_NoFrontComponent_ClearsBulbAndFrontOutput);

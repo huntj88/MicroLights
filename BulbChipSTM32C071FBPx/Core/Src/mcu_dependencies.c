@@ -12,6 +12,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim17;
 
 #define SETTINGS_PAGE 56  // 2K flash reserved for settings starting at page 56
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
@@ -140,6 +141,10 @@ void enableFrontLedTimer(bool enable) {
         configureFrontBlueGpio();
         HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, GPIO_PIN_RESET);
     }
+}
+
+void startAutoOffTimer(void) {
+    HAL_TIM_Base_Start_IT(&htim17);
 }
 
 static uint32_t calculateTickMultiplier(void) {

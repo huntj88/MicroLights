@@ -1,5 +1,5 @@
-#ifndef MICROLIGHT_H
-#define MICROLIGHT_H
+#ifndef INC_MICROLIGHT_H_
+#define INC_MICROLIGHT_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -39,6 +39,7 @@ typedef struct {
     void (*enableChipTickTimer)(bool enable);
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
+    void (*startAutoOffTimer)(void);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
     uint32_t rgbTimerPeriod;
@@ -61,4 +62,4 @@ void microLightInterrupt(enum MicroLightInterrupt interrupt);
 
 // TODO: integration test with no application mocks, just hardware mocks
 
-#endif  // MICROLIGHT_H
+#endif /* INC_MICROLIGHT_H_ */

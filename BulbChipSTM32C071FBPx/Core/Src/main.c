@@ -139,19 +139,20 @@ int main(void) {
         .enableChipTickTimer = enableChipTickTimer,
         .enableCaseLedTimer = enableCaseLedTimer,
         .enableFrontLedTimer = enableFrontLedTimer,
+        .startAutoOffTimer = startAutoOffTimer,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
-        .rgbTimerPeriod =
-            htim1.Init.Period,  // TODO: when another LED added they need to have the same period
+        .rgbTimerPeriod = htim1.Init.Period,
         .jsonBuffer = mainJsonBuffer,
         .jsonBufferSize = sizeof(mainJsonBuffer)};
+
+    if (htim1.Init.Period != htim3.Init.Period) {
+        Error_Handler();
+    }
 
     if (!configureMicroLight(&deps)) {
         Error_Handler();
     }
-
-    // auto off timer
-    HAL_TIM_Base_Start_IT(&htim17);  // TODO: function pointer to start auto off timer
 
     /* USER CODE END 2 */
 

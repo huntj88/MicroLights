@@ -93,8 +93,8 @@
  * }
 
  */
-#ifndef MODE_MODEL_H
-#define MODE_MODEL_H
+#ifndef INC_MODEL_MODE_H_
+#define INC_MODEL_MODE_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -205,4 +205,4 @@ struct Mode {
     bool hasAccel;
 };
 
-#endif  // MODE_MODEL_H
+#endif /* INC_MODEL_MODE_H_ */

@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef MICROLIGHT_I2C_LOG_DECORATE_H
-#define MICROLIGHT_I2C_LOG_DECORATE_H
+#ifndef INC_I2C_LOG_DECORATE_H_
+#define INC_I2C_LOG_DECORATE_H_
 
 #include <stdbool.h>
 #include "microlight/device/i2c.h"
@@ -45,4 +45,4 @@ bool i2cDecoratedReadRegisters(
     const bool *enableFlag,
     Log log);
 
-#endif /* MICROLIGHT_I2C_LOG_DECORATE_H */
+#endif /* INC_I2C_LOG_DECORATE_H_ */

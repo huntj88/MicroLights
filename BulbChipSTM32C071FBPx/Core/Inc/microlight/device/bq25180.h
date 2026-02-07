@@ -48,8 +48,6 @@
 
 enum ChargeState { notConnected, notCharging, constantCurrent, constantVoltage, done };
 
-typedef struct BQ25180 BQ25180;  // forward declaration
-
 typedef struct BQ25180 {
     I2CReadRegisters readRegisters;
     I2CWriteRegister writeRegister;

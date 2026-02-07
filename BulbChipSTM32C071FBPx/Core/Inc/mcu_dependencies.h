@@ -30,6 +30,7 @@ void writeBulbLed(uint8_t state);
 void enableChipTickTimer(bool enable);
 void enableCaseLedTimer(bool enable);
 void enableFrontLedTimer(bool enable);
+void startAutoOffTimer(void);
 uint32_t convertTicksToMilliseconds(uint32_t ticks);
 
 #endif /* INC_MCU_DEPENDENCIES_H_ */

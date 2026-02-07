@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -117,21 +118,27 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     switch (buttonResult) {
         case ignore:
             break;
-        case clicked:
+        case clicked: {
             rgbShowSuccess(state->deps.caseLed);
             uint8_t newModeIndex = state->deps.modeManager->currentModeIndex + 1;
             if (newModeIndex >= state->deps.settings->modeCount) {
                 newModeIndex = 0;
             }
             loadMode(state->deps.modeManager, newModeIndex);
-            const char *blah = "clicked\n";
-            state->deps.log(blah, strlen(blah));
+            char msg[48];
+            int len = snprintf(
+                msg, sizeof(msg), "{\"event\":\"modeChanged\",\"index\":%u}\n", newModeIndex);
+            if (len > 0) {
+                state->deps.log(msg, (size_t)len);
+            }
             break;
-        case shutdown:
+        }
+        case shutdown: {
             fakeOffMode(state->deps.modeManager);
             outputs.frontValid = false;
             outputs.caseValid = false;
             break;
+        }
         case lockOrHardwareReset:
             lock(state->deps.chargerIC);
             break;
