@@ -38,6 +38,11 @@ typedef struct {
 
     // State
     uint32_t ticksSinceLastUserActivity;  // auto off timer ticks at 0.1 hz
+
+    // Cached timer states to avoid redundant HAL calls
+    bool lastChipTickEnabled;
+    bool lastCasePwmEnabled;
+    bool lastFrontPwmEnabled;
 } ChipState;
 
 bool configureChipState(

@@ -825,6 +825,23 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
 
+void test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed(void) {
+    ModeManager manager;
+    RGBLed sharedLed;
+    memset(&sharedLed, 0, sizeof(RGBLed));
+
+    TEST_ASSERT_FALSE_MESSAGE(
+        modeManagerInit(
+            &manager,
+            &mockAccel,
+            &sharedLed,
+            &sharedLed,  // same pointer as caseLed
+            mock_readSavedMode,
+            mock_writeBulbLedPin,
+            mock_writeToSerial),
+        "modeManagerInit should reject caseLed == frontLed");
+}
+
 void test_ModeManager_LogsEquationCompileError(void) {
     ModeManager manager;
     TEST_ASSERT_TRUE(modeManagerInit(
@@ -854,6 +871,7 @@ void test_ModeManager_LogsEquationCompileError(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
+    RUN_TEST(test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed);
     RUN_TEST(test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex);
     RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);
     RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);

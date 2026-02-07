@@ -27,6 +27,9 @@ static char lastSerialOutput[100];
 static bool chipTickTimerEnabled = false;
 static bool caseLedTimerEnabled = false;
 static bool frontLedTimerEnabled = false;
+static uint32_t chipTickTimerCallCount = 0;
+static uint32_t caseLedTimerCallCount = 0;
+static uint32_t frontLedTimerCallCount = 0;
 static bool chargerTaskCalled = false;
 static ChargerTaskFlags lastChargerFlags;
 static bool lastModeTaskCanUpdateCaseLed = false;
@@ -59,14 +62,17 @@ void loadMode(ModeManager *manager, uint8_t index) {
 
 void mock_enableChipTickTimer(bool enable) {
     chipTickTimerEnabled = enable;
+    chipTickTimerCallCount++;
 }
 
 void mock_enableCaseLedTimer(bool enable) {
     caseLedTimerEnabled = enable;
+    caseLedTimerCallCount++;
 }
 
 void mock_enableFrontLedTimer(bool enable) {
     frontLedTimerEnabled = enable;
+    frontLedTimerCallCount++;
 }
 
 enum ButtonResult mockButtonResult = ignore;
@@ -139,6 +145,9 @@ void setUp(void) {
     chipTickTimerEnabled = false;
     caseLedTimerEnabled = false;
     frontLedTimerEnabled = false;
+    chipTickTimerCallCount = 0;
+    caseLedTimerCallCount = 0;
+    frontLedTimerCallCount = 0;
     chargerTaskCalled = false;
     memset(&lastChargerFlags, 0, sizeof(lastChargerFlags));
     lastModeTaskCanUpdateCaseLed = false;
@@ -559,6 +568,77 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
     TEST_ASSERT_TRUE(mockLockCalled);
 }
 
+void test_TimerPolicy_SkipsRedundantCalls(void) {
+    configureChipState(
+        &state,
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_writeUsbSerial);
+
+    mockChargeState = notConnected;
+    mockIsFakeOff = false;
+    mockIsEvaluatingButtonPress = false;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    // First call should invoke all three timer callbacks (state transitions from init)
+    chipTickTimerCallCount = 0;
+    caseLedTimerCallCount = 0;
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    uint32_t firstChipTickCalls = chipTickTimerCallCount;
+    uint32_t firstCaseCalls = caseLedTimerCallCount;
+    uint32_t firstFrontCalls = frontLedTimerCallCount;
+    TEST_ASSERT_GREATER_THAN_UINT32(0, firstChipTickCalls);
+
+    // Second call with same state should NOT invoke callbacks again
+    chipTickTimerCallCount = 0;
+    caseLedTimerCallCount = 0;
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 10, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, chipTickTimerCallCount, "chipTick timer called redundantly");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, caseLedTimerCallCount, "caseLed timer called redundantly");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, frontLedTimerCallCount, "frontLed timer called redundantly");
+
+    // Change state: enable front RGB — only front timer should be called
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = true,
+        .caseValid = false,
+        .frontType = RGB,
+    };
+
+    chipTickTimerCallCount = 0;
+    caseLedTimerCallCount = 0;
+    frontLedTimerCallCount = 0;
+
+    stateTask(&state, 20, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, chipTickTimerCallCount, "chipTick timer should not change");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, caseLedTimerCallCount, "caseLed timer should not change");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        1, frontLedTimerCallCount, "frontLed timer should be called once");
+    TEST_ASSERT_TRUE(frontLedTimerEnabled);
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
@@ -576,5 +656,6 @@ int main(void) {
     RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
     RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);
     RUN_TEST(test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging);
+    RUN_TEST(test_TimerPolicy_SkipsRedundantCalls);
     return UNITY_END();
 }

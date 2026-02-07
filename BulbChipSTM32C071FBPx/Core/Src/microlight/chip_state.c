@@ -44,6 +44,9 @@ bool configureChipState(
     state->enableFrontLedTimer = enableFrontLedTimer;
     state->log = log;
     state->ticksSinceLastUserActivity = 0;
+    state->lastChipTickEnabled = false;
+    state->lastCasePwmEnabled = false;
+    state->lastFrontPwmEnabled = false;
     enum ChargeState chargeState = getChargingState(state->chargerIC);
 
     if (chargeState == notConnected) {
@@ -101,9 +104,18 @@ static void applyTimerPolicy(ChipState *state, ModeOutputs outputs, bool evaluat
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
     bool frontPwmEnabled = frontRgbActive;
 
-    state->enableChipTickTimer(chipTickEnabled);
-    state->enableCaseLedTimer(casePwmEnabled);
-    state->enableFrontLedTimer(frontPwmEnabled);
+    if (chipTickEnabled != state->lastChipTickEnabled) {
+        state->enableChipTickTimer(chipTickEnabled);
+        state->lastChipTickEnabled = chipTickEnabled;
+    }
+    if (casePwmEnabled != state->lastCasePwmEnabled) {
+        state->enableCaseLedTimer(casePwmEnabled);
+        state->lastCasePwmEnabled = casePwmEnabled;
+    }
+    if (frontPwmEnabled != state->lastFrontPwmEnabled) {
+        state->enableFrontLedTimer(frontPwmEnabled);
+        state->lastFrontPwmEnabled = frontPwmEnabled;
+    }
 }
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {

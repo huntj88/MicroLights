@@ -48,7 +48,8 @@ bool modeManagerInit(
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
     Log log) {
-    if (!manager || !accel || !caseLed || !frontLed || !readSavedMode || !writeBulbLedPin || !log) {
+    if (!manager || !accel || !caseLed || !frontLed || !readSavedMode || !writeBulbLedPin || !log ||
+        caseLed == frontLed) {
         return false;
     }
     manager->accel = accel;
