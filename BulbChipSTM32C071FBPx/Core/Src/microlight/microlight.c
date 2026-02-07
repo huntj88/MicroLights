@@ -128,16 +128,18 @@ bool configureMicroLight(MicroLightDependencies *deps) {
 
     if (!configureChipState(
             &chipState,
-            &modeManager,
-            &settingsManager.currentSettings,
-            &button,
-            &chargerIC,
-            &accel,
-            &caseLed,
-            deps->enableChipTickTimer,
-            deps->enableCaseLedTimer,
-            deps->enableFrontLedTimer,
-            internalLog)) {
+            (ChipDependencies){
+                .modeManager = &modeManager,
+                .settings = &settingsManager.currentSettings,
+                .button = &button,
+                .caseLed = &caseLed,
+                .chargerIC = &chargerIC,
+                .accel = &accel,
+                .enableChipTickTimer = deps->enableChipTickTimer,
+                .enableCaseLedTimer = deps->enableCaseLedTimer,
+                .enableFrontLedTimer = deps->enableFrontLedTimer,
+                .log = internalLog,
+            })) {
         return false;
     }
 

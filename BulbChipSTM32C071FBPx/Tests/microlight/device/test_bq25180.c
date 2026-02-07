@@ -147,10 +147,7 @@ void test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled(void) {
     charger.chargingState = constantCurrent;
     charger.checkedAtMs = 100;  // Prevent watchdog update
 
-    chargerTask(
-        &charger,
-        1024,
-        (ChargerTaskFlags){.chargeLedEnabled = false});
+    chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = false});
 
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }

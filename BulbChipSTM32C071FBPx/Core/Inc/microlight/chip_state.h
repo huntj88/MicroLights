@@ -35,6 +35,10 @@ typedef struct {
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
     Log log;
+} ChipDependencies;
+
+typedef struct {
+    ChipDependencies deps;
 
     // State
     uint32_t ticksSinceLastUserActivity;  // auto off timer ticks at 0.1 hz
@@ -45,18 +49,7 @@ typedef struct {
     bool lastFrontPwmEnabled;
 } ChipState;
 
-bool configureChipState(
-    ChipState *state,
-    ModeManager *modeManager,
-    ChipSettings *settings,
-    Button *button,
-    BQ25180 *chargerIC,
-    MC3479 *accel,
-    RGBLed *caseLed,
-    void (*enableChipTickTimer)(bool enable),
-    void (*enableCaseLedTimer)(bool enable),
-    void (*enableFrontLedTimer)(bool enable),
-    Log log);
+bool configureChipState(ChipState *state, ChipDependencies deps);
 
 typedef struct StateTaskFlags {
     bool autoOffTimerInterruptTriggered;

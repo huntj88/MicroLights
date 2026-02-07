@@ -130,19 +130,21 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     // 2. Configure ChipState with pointer to settingsManager.currentSettings
     configureChipState(
         &state,
-        &mockModeManager,
-        &settingsManager.currentSettings,  // Pass the pointer!
-        &mockButton,
-        &mockCharger,
-        &mockAccel,
-        &mockCaseLed,
-        mock_enableChipTickTimer,
-        mock_enableCaseLedTimer,
-        mock_enableFrontLedTimer,
-        mock_writeUsbSerial);
+        (ChipDependencies){
+            .modeManager = &mockModeManager,
+            .settings = &settingsManager.currentSettings,
+            .button = &mockButton,
+            .chargerIC = &mockCharger,
+            .accel = &mockAccel,
+            .caseLed = &mockCaseLed,
+            .enableChipTickTimer = mock_enableChipTickTimer,
+            .enableCaseLedTimer = mock_enableCaseLedTimer,
+            .enableFrontLedTimer = mock_enableFrontLedTimer,
+            .log = mock_writeUsbSerial,
+        });
 
     // 3. Verify initial state
-    TEST_ASSERT_EQUAL_UINT8(5, state.settings->modeCount);
+    TEST_ASSERT_EQUAL_UINT8(5, state.deps.settings->modeCount);
 
     // 4. Create new settings
     ChipSettings newSettings;
@@ -156,9 +158,9 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     updateSettings(&settingsManager, &newSettings);
 
     // 6. Verify ChipState sees the change
-    TEST_ASSERT_EQUAL_UINT8(10, state.settings->modeCount);
-    TEST_ASSERT_EQUAL_UINT16(20, state.settings->minutesUntilAutoOff);
-    TEST_ASSERT_EQUAL_UINT8(50, state.settings->equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(10, state.deps.settings->modeCount);
+    TEST_ASSERT_EQUAL_UINT16(20, state.deps.settings->minutesUntilAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(50, state.deps.settings->equationEvalIntervalMs);
 }
 
 void test_SettingsManagerInit_SetsDefaults(void) {
