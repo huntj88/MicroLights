@@ -119,6 +119,8 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         case ignore:
             break;
         case clicked: {
+            const char *clicked = "clicked\n";
+            state->deps.log(clicked, strlen(clicked));
             rgbShowSuccess(state->deps.caseLed);
             uint8_t newModeIndex = state->deps.modeManager->currentModeIndex + 1;
             if (newModeIndex >= state->deps.settings->modeCount) {
