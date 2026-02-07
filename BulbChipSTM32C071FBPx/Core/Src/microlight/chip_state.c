@@ -159,6 +159,9 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         (ChargerTaskFlags){
             .interruptTriggered = flags.chargerInterruptTriggered,
             .unplugLockEnabled = isFakeOff(state->modeManager),
-            .chargeLedEnabled = isFakeOff(state->modeManager) && !evaluatingButtonPress,
+            .chargeLedEnabled =
+                isFakeOff(state->modeManager) &&
+                getChargingState(state->chargerIC) != notConnected &&
+                !evaluatingButtonPress,
             .serialEnabled = state->settings->enableChargerSerial});
 }

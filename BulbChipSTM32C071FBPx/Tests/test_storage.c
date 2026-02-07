@@ -21,6 +21,9 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+static GPIO_InitTypeDef lastGpioInit;
+static GPIO_TypeDef *lastGpioPort = NULL;
+static bool gpioInitCalled = false;
 
 HAL_StatusTypeDef HAL_I2C_Mem_Read(
     I2C_HandleTypeDef *hi2c,
@@ -46,6 +49,12 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
+    if (!GPIO_Init) {
+        return;
+    }
+    lastGpioPort = GPIOx;
+    lastGpioInit = *GPIO_Init;
+    gpioInitCalled = true;
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
 }
@@ -132,6 +141,10 @@ void setUp(void) {
 
     // Initialize to 0xFF (erased state)
     memset(ptr, 0xFF, len);
+
+    memset(&lastGpioInit, 0, sizeof(lastGpioInit));
+    lastGpioPort = NULL;
+    gpioInitCalled = false;
 }
 
 void tearDown(void) {
@@ -192,8 +205,30 @@ void test_readSettingsFromFlash_ReturnsEmptyString_WhenFlashIsErased(void) {
     TEST_ASSERT_EQUAL_STRING("", readBuf);
 }
 
+void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
+    gpioInitCalled = false;
+    memset(&lastGpioInit, 0, sizeof(lastGpioInit));
+
+    writeBulbLed(1);
+
+    TEST_ASSERT_TRUE(gpioInitCalled);
+    TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
+    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
+
+    gpioInitCalled = false;
+    memset(&lastGpioInit, 0, sizeof(lastGpioInit));
+
+    enableFrontLedTimer(true);
+
+    TEST_ASSERT_TRUE(gpioInitCalled);
+    TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
+    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_AF_PP, lastGpioInit.Mode);
+    TEST_ASSERT_EQUAL_UINT32(GPIO_AF12_TIM3, lastGpioInit.Alternate);
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_FrontBluePin_ReconfiguresBetweenGpioAndPwm);
     RUN_TEST(test_readSettingsFromFlash_ReturnsEmptyString_WhenFlashIsErased);
     RUN_TEST(test_writeBulbModeToFlash_WritesDataCorrectly);
     RUN_TEST(test_writeSettingsToFlash_TruncatesIfTooLong);

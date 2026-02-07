@@ -284,12 +284,63 @@ void test_UpdateMode_FrontRgb_EnablesFrontTimerAndWritesRgb(void) {
     modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
     manager.shouldResetState = false;
 
-    modeTask(&manager, 100, true, 50);
+    ModeOutputs outputs = modeTask(&manager, 100, true, 50);
 
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
     TEST_ASSERT_EQUAL_UINT8(10, lastFrontRgbR);
     TEST_ASSERT_EQUAL_UINT8(20, lastFrontRgbG);
     TEST_ASSERT_EQUAL_UINT8(30, lastFrontRgbB);
+    TEST_ASSERT_TRUE(outputs.frontValid);
+    TEST_ASSERT_EQUAL_UINT8(RGB, outputs.frontType);
+}
+
+void test_ModeTask_ReturnsCaseRgbActive(void) {
+    ModeManager manager;
+    modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        &mockFrontLed,
+        mock_readSavedMode,
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
+
+    manager.currentMode.hasCaseComp = true;
+    manager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    manager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    manager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 1;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 2;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 3;
+
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
+    manager.shouldResetState = false;
+
+    ModeOutputs outputs = modeTask(&manager, 10, true, 50);
+
+    TEST_ASSERT_TRUE(outputs.caseValid);
+}
+
+void test_ModeTask_NoFrontComponent_ClearsBulbAndFrontOutput(void) {
+    ModeManager manager;
+    modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        &mockFrontLed,
+        mock_readSavedMode,
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
+
+    manager.currentMode.hasFront = false;
+    lastWrittenBulbState = 1;
+
+    ModeOutputs outputs = modeTask(&manager, 10, true, 50);
+
+    TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(outputs.frontValid);
 }
 
 void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
@@ -810,6 +861,8 @@ int main(void) {
     RUN_TEST(test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning);
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_ModeManager_LogsEquationCompileError);
+    RUN_TEST(test_ModeTask_NoFrontComponent_ClearsBulbAndFrontOutput);
+    RUN_TEST(test_ModeTask_ReturnsCaseRgbActive);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet);
     RUN_TEST(test_UpdateMode_AccelTrigger_PartialOverride);

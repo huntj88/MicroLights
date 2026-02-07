@@ -143,6 +143,18 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
+void test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled(void) {
+    charger.chargingState = constantCurrent;
+    charger.checkedAtMs = 100;  // Prevent watchdog update
+
+    chargerTask(
+        &charger,
+        1024,
+        (ChargerTaskFlags){.chargeLedEnabled = false});
+
+    TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
+}
+
 void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(void) {
     // Initial state: Not Connected
     charger.chargingState = notConnected;
@@ -215,6 +227,7 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
+    RUN_TEST(test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled);
     RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);

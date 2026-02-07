@@ -27,6 +27,10 @@ static char lastSerialOutput[100];
 static bool chipTickTimerEnabled = false;
 static bool caseLedTimerEnabled = false;
 static bool frontLedTimerEnabled = false;
+static bool chargerTaskCalled = false;
+static ChargerTaskFlags lastChargerFlags;
+static bool lastModeTaskCanUpdateCaseLed = false;
+static ModeOutputs nextModeOutputs;
 
 // Mock Function Implementations
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
@@ -85,22 +89,23 @@ void rgbTask(RGBLed *led, uint32_t ms) {
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
+    (void)dev;
+    (void)ms;
+    chargerTaskCalled = true;
+    lastChargerFlags = flags;
 }
 ModeOutputs modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
     (void)manager;
     (void)ms;
-    (void)canUpdateCaseLed;
+    lastModeTaskCanUpdateCaseLed = canUpdateCaseLed;
     (void)equationEvalIntervalMs;
-    return (ModeOutputs){
-        .frontValid = false,
-        .caseValid = false,
-        .frontType = BULB,
-    };
+    return nextModeOutputs;
 }
 
 bool mockIsFakeOff = false;
 bool isFakeOff(ModeManager *manager) {
+    (void)manager;
     return mockIsFakeOff;
 }
 
@@ -111,6 +116,7 @@ bool isEvaluatingButtonPress(Button *button) {
 
 void fakeOffMode(ModeManager *manager) {
     // Mock implementation
+    mockIsFakeOff = true;
     loadMode(manager, FAKE_OFF_MODE_INDEX);
 }
 
@@ -133,6 +139,14 @@ void setUp(void) {
     chipTickTimerEnabled = false;
     caseLedTimerEnabled = false;
     frontLedTimerEnabled = false;
+    chargerTaskCalled = false;
+    memset(&lastChargerFlags, 0, sizeof(lastChargerFlags));
+    lastModeTaskCanUpdateCaseLed = false;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
 
     mockChargeState = notConnected;
     lastLoadedModeIndex = 255;
@@ -275,6 +289,101 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedT
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
 }
 
+void test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging(void) {
+    configureChipState(
+        &state,
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_writeUsbSerial);
+
+    mockChargeState = constantCurrent;
+    mockButtonResult = shutdown;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_TRUE(chargerTaskCalled);
+    TEST_ASSERT_TRUE(lastChargerFlags.chargeLedEnabled);
+}
+
+void test_StateTask_ChargeLedDisabled_WhenNotCharging(void) {
+    configureChipState(
+        &state,
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_writeUsbSerial);
+
+    mockChargeState = notConnected;
+    mockIsFakeOff = true;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_TRUE(chargerTaskCalled);
+    TEST_ASSERT_FALSE(lastChargerFlags.chargeLedEnabled);
+}
+
+void test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff(void) {
+    configureChipState(
+        &state,
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_writeUsbSerial);
+
+    mockIsFakeOff = true;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_FALSE(lastModeTaskCanUpdateCaseLed);
+}
+
+void test_StateTask_ButtonInterrupt_EnablesCasePwm(void) {
+    configureChipState(
+        &state,
+        &mockModeManager,
+        &mockSettings,
+        &mockButton,
+        &mockCharger,
+        &mockAccel,
+        &mockCaseLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_writeUsbSerial);
+
+    mockChargeState = notConnected;
+    mockIsFakeOff = false;
+    mockIsEvaluatingButtonPress = false;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    stateTask(&state, 0, (StateTaskFlags){.buttonInterruptTriggered = true});
+
+    TEST_ASSERT_TRUE(caseLedTimerEnabled);
+}
+
 void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
     configureChipState(
         &state,
@@ -390,6 +499,7 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
 
     // Case 2: 2 Minutes (12 ticks)
     mockSettings.minutesUntilAutoOff = 2;
+    mockIsFakeOff = false;  // Reset to normal mode for second case
 
     // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
     state.ticksSinceLastUserActivity = 11;
@@ -457,10 +567,14 @@ int main(void) {
     RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
     RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
+    RUN_TEST(test_StateTask_ButtonInterrupt_EnablesCasePwm);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers);
+    RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
+    RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);
+    RUN_TEST(test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging);
     return UNITY_END();
 }
