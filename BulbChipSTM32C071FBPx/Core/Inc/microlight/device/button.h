@@ -15,14 +15,17 @@
 
 typedef struct Button {
     uint8_t (*readButtonPin)();
-    void (*enableTimers)(bool enable);
+    void (*enableChipTickTimer)(bool enable);
     RGBLed *caseLed;
 
     uint32_t evalStartMs;
 } Button;
 
 bool buttonInit(
-    Button *button, uint8_t (*readButtonPin)(), void (*enableTimers)(bool enable), RGBLed *caseLed);
+    Button *button,
+    uint8_t (*readButtonPin)(),
+    void (*enableChipTickTimer)(bool enable),
+    RGBLed *caseLed);
 
 enum ButtonResult {
     ignore,

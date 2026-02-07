@@ -16,7 +16,7 @@ uint8_t mock_readButtonPin() {
     return mockButtonPinState;
 }
 
-void mock_enableTimers(bool enable) {
+void mock_enableChipTickTimer(bool enable) {
     timerStarted = enable;
 }
 
@@ -54,7 +54,7 @@ void setUp(void) {
     rgbShutdownCalled = false;
     rgbSuccessCalled = false;
 
-    buttonInit(&button, mock_readButtonPin, mock_enableTimers, &mockCaseLed);
+    buttonInit(&button, mock_readButtonPin, mock_enableChipTickTimer, &mockCaseLed);
 }
 
 void tearDown(void) {

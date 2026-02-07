@@ -11,21 +11,33 @@
 
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
-static bool ledTimersStarted = false;
+static RGBLed mockFrontLed;
+static bool chipTickTimerStarted = false;
+static bool caseLedTimerStarted = false;
+static bool frontLedTimerStarted = false;
 static bool accelEnabled = false;
 static bool accelDisabled = false;
 static uint8_t lastReadModeIndex = 255;
 #define TEST_JSON_BUFFER_SIZE 2048
 static uint8_t lastWrittenBulbState = 255;
 static uint8_t lastRgbR, lastRgbG, lastRgbB;
+static uint8_t lastFrontRgbR, lastFrontRgbG, lastFrontRgbB;
 static uint8_t mockAccelMagnitude = 0;
 static bool writeToSerialCalled = false;
 static char lastSerialBuffer[256];
 static size_t lastSerialCount = 0;
 
 // Mock Functions
-void mock_enableTimers(bool enable) {
-    ledTimersStarted = enable;
+void mock_enableChipTickTimer(bool enable) {
+    chipTickTimerStarted = enable;
+}
+
+void mock_enableCaseLedTimer(bool enable) {
+    caseLedTimerStarted = enable;
+}
+
+void mock_enableFrontLedTimer(bool enable) {
+    frontLedTimerStarted = enable;
 }
 
 void mc3479Enable(MC3479 *dev) {
@@ -41,9 +53,15 @@ void mock_writeBulbLedPin(uint8_t state) {
 }
 
 void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
-    lastRgbR = r;
-    lastRgbG = g;
-    lastRgbB = b;
+    if (led == &mockFrontLed) {
+        lastFrontRgbR = r;
+        lastFrontRgbG = g;
+        lastFrontRgbB = b;
+    } else {
+        lastRgbR = r;
+        lastRgbG = g;
+        lastRgbB = b;
+    }
 }
 
 bool isOverThreshold(MC3479 *dev, uint8_t threshold) {
@@ -99,7 +117,10 @@ char testJsonBuf[TEST_JSON_BUFFER_SIZE];
 void setUp(void) {
     memset(&mockAccel, 0, sizeof(MC3479));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
-    ledTimersStarted = false;
+    memset(&mockFrontLed, 0, sizeof(RGBLed));
+    chipTickTimerStarted = false;
+    caseLedTimerStarted = false;
+    frontLedTimerStarted = false;
     accelEnabled = false;
     accelDisabled = false;
     lastReadModeIndex = 255;
@@ -107,6 +128,9 @@ void setUp(void) {
     lastRgbR = 0;
     lastRgbG = 0;
     lastRgbB = 0;
+    lastFrontRgbR = 0;
+    lastFrontRgbG = 0;
+    lastFrontRgbB = 0;
     mockAccelMagnitude = 0;
     writeToSerialCalled = false;
     memset(lastSerialBuffer, 0, sizeof(lastSerialBuffer));
@@ -123,7 +147,10 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -132,7 +159,7 @@ void test_ModeManager_LoadMode_ReadsFromStorage(void) {
 
     TEST_ASSERT_EQUAL_UINT8(1, lastReadModeIndex);
     TEST_ASSERT_EQUAL_UINT8(1, manager.currentModeIndex);
-    TEST_ASSERT_TRUE(ledTimersStarted);
+    TEST_ASSERT_TRUE(chipTickTimerStarted);
 }
 
 void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
@@ -141,7 +168,10 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -159,7 +189,10 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -168,7 +201,9 @@ void test_ModeManager_LoadMode_FakeOff_DoesNotReadFlash(void) {
 
     TEST_ASSERT_EQUAL_UINT8(255, lastReadModeIndex);  // Should not have changed from init value
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, manager.currentModeIndex);
-    TEST_ASSERT_FALSE(ledTimersStarted);
+    TEST_ASSERT_FALSE(chipTickTimerStarted);
+    TEST_ASSERT_FALSE(caseLedTimerStarted);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 }
 
 void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
@@ -177,7 +212,10 @@ void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -186,7 +224,9 @@ void test_ModeManager_LoadMode_FakeOff_ShouldKeepLedTimersRunning(void) {
 
     TEST_ASSERT_EQUAL_UINT8(255, lastReadModeIndex);  // Should not have changed from init value
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, manager.currentModeIndex);
-    TEST_ASSERT_TRUE(ledTimersStarted);
+    TEST_ASSERT_TRUE(chipTickTimerStarted);
+    TEST_ASSERT_TRUE(caseLedTimerStarted);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 }
 
 void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
@@ -195,7 +235,10 @@ void test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -211,7 +254,10 @@ void test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -227,7 +273,10 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -251,10 +300,49 @@ void test_UpdateMode_FrontLed_FollowsSimplePattern(void) {
     // Test at 100ms (should be High)
     modeTask(&manager, 100, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 
     // Test at 600ms (should be Low)
     modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
+}
+
+void test_UpdateMode_FrontRgb_EnablesFrontTimerAndWritesRgb(void) {
+    ModeManager manager;
+    modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
+        mock_readSavedMode,
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
+
+    manager.currentMode.hasFront = true;
+    manager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
+    manager.currentMode.front.pattern.data.simple.duration = 1000;
+    manager.currentMode.front.pattern.data.simple.changeAtCount = 1;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.type = RGB;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.r = 10;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.g = 20;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.b = 30;
+
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
+    manager.shouldResetState = false;
+
+    modeTask(&manager, 100, true, 50);
+
+    TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
+    TEST_ASSERT_TRUE(frontLedTimerStarted);
+    TEST_ASSERT_EQUAL_UINT8(10, lastFrontRgbR);
+    TEST_ASSERT_EQUAL_UINT8(20, lastFrontRgbG);
+    TEST_ASSERT_EQUAL_UINT8(30, lastFrontRgbB);
 }
 
 void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
@@ -263,7 +351,10 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -301,13 +392,16 @@ void test_FrontPattern_ContinuesDuringTriggerOverride(void) {
     mockAccelMagnitude = 20;
     modeTask(&manager, 600, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 
     modeTask(&manager, 1200, true, 50);
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 
     mockAccelMagnitude = 0;
     modeTask(&manager, 1300, true, 50);
     TEST_ASSERT_EQUAL_UINT8(0, lastWrittenBulbState);
+    TEST_ASSERT_FALSE(frontLedTimerStarted);
 }
 
 void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
@@ -316,7 +410,10 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -341,6 +438,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePattern(void) {
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(128, lastRgbB);
+    TEST_ASSERT_TRUE(caseLedTimerStarted);
 }
 
 void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
@@ -349,7 +447,10 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -369,6 +470,7 @@ void test_UpdateMode_CaseLed_Off_WhenNoPattern(void) {
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
+    TEST_ASSERT_FALSE(caseLedTimerStarted);
 }
 
 void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
@@ -377,7 +479,10 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -408,6 +513,7 @@ void test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating(void) {
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(50, lastRgbB);
+    TEST_ASSERT_FALSE(caseLedTimerStarted);
 }
 
 void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
@@ -416,7 +522,10 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -456,6 +565,7 @@ void test_UpdateMode_CaseLed_FollowsSimplePatternMultipleChanges(void) {
     TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
+    TEST_ASSERT_TRUE(caseLedTimerStarted);
 
     // Test at 600ms (Should be Green)
     modeTask(&manager, 600, true, 50);
@@ -482,7 +592,10 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -558,7 +671,10 @@ void test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -602,7 +718,10 @@ void test_UpdateMode_AccelTrigger_PartialOverride(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -662,7 +781,10 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial);
@@ -747,7 +869,10 @@ void test_ModeManager_LogsEquationCompileError(void) {
         &manager,
         &mockAccel,
         &mockCaseLed,
-        mock_enableTimers,
+        &mockFrontLed,
+        mock_enableChipTickTimer,
+        mock_enableCaseLedTimer,
+        mock_enableFrontLedTimer,
         mock_readSavedMode,
         mock_writeBulbLedPin,
         mock_writeToSerial));
@@ -786,5 +911,6 @@ int main(void) {
     RUN_TEST(test_UpdateMode_CaseLed_NotUpdated_WhenButtonEvaluating);
     RUN_TEST(test_UpdateMode_CaseLed_Off_WhenNoPattern);
     RUN_TEST(test_UpdateMode_FrontLed_FollowsSimplePattern);
+    RUN_TEST(test_UpdateMode_FrontRgb_EnablesFrontTimerAndWritesRgb);
     return UNITY_END();
 }

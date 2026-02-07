@@ -10,14 +10,14 @@
 bool buttonInit(
     Button *button,
     uint8_t (*readButtonPin)(),
-    void (*enableTimers)(bool enable),
+    void (*enableChipTickTimer)(bool enable),
     RGBLed *caseLed) {
-    if (!button || !caseLed || !readButtonPin || !enableTimers) {
+    if (!button || !caseLed || !readButtonPin || !enableChipTickTimer) {
         return false;
     }
 
     button->readButtonPin = readButtonPin;
-    button->enableTimers = enableTimers;
+    button->enableChipTickTimer = enableChipTickTimer;
     button->caseLed = caseLed;
 
     button->evalStartMs = 0;
@@ -29,7 +29,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
         button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
         // Timers interrupts needed to properly detect input
-        button->enableTimers(true);
+        button->enableChipTickTimer(true);
     }
 
     uint32_t elapsedMillis = 0;

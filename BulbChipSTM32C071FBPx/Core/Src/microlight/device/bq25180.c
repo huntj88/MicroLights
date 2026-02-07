@@ -37,8 +37,10 @@ bool bq25180Init(
     uint8_t devAddress,
     Log log,
     RGBLed *caseLed,
-    void (*enableTimers)(bool enable)) {
-    if (!chargerIC || !readRegisters || !writeRegister || !log || !caseLed || !enableTimers) {
+    void (*enableCaseLedTimer)(bool enable),
+    void (*enableChipTickTimer)(bool enable)) {
+    if (!chargerIC || !readRegisters || !writeRegister || !log || !caseLed || !enableCaseLedTimer ||
+        !enableChipTickTimer) {
         return false;
     }
 
@@ -47,7 +49,8 @@ bool bq25180Init(
     chargerIC->devAddress = devAddress;
     chargerIC->log = log;
     chargerIC->caseLed = caseLed;
-    chargerIC->enableTimers = enableTimers;
+    chargerIC->enableCaseLedTimer = enableCaseLedTimer;
+    chargerIC->enableChipTickTimer = enableChipTickTimer;
 
     chargerIC->chargingState = notConnected;
     chargerIC->checkedAtMs = 0;
@@ -98,7 +101,8 @@ void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags fla
         // only update LED from interrupt when plugged in for immediate feedback.
         bool wasConnected = previousState == notConnected && state != notConnected;
         if (wasConnected && flags.chargeLedEnabled) {
-            chargerIC->enableTimers(true);  // timers needed to show charging status led
+            chargerIC->enableCaseLedTimer(true);   // timer needed to show charging status led
+            chargerIC->enableChipTickTimer(true);  // timer needed to show charging status led
             showChargingState(chargerIC, state);
         }
     }

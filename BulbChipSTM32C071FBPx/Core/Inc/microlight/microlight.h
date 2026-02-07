@@ -21,6 +21,7 @@ typedef struct {
     I2CWriteRegisterChecked i2cWriteRegister;
     I2CReadRegisters i2cReadRegisters;
     RGBWritePwm writeRgbPwmCaseLed;
+    RGBWritePwm writeRgbPwmFrontLed;
     void (*writeBulbLed)(uint8_t state);
     uint8_t (*readButtonPin)(void);
 
@@ -35,7 +36,9 @@ typedef struct {
     SaveMode saveMode;
 
     // System
-    void (*enableTimers)(bool enable);
+    void (*enableChipTickTimer)(bool enable);
+    void (*enableCaseLedTimer)(bool enable);
+    void (*enableFrontLedTimer)(bool enable);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
     uint32_t rgbTimerPeriod;

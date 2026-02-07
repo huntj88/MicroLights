@@ -11,9 +11,35 @@
 extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
 #define SETTINGS_PAGE 56  // 2K flash reserved for settings starting at page 56
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
+
+static void configureFrontBlueGpio(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin = fBlue_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
+}
+
+static void configureFrontBluePwm(void) {
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin = fBlue_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    GPIO_InitStruct.Alternate = GPIO_AF12_TIM3;
+    HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
+}
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 bool i2cWriteRegister(uint8_t devAddress, uint8_t reg, uint8_t value) {
@@ -39,6 +65,13 @@ void writeRgbPwmCaseLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty)
     TIM1->CCR3 = blueDuty;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+void writeRgbPwmFrontLed(uint16_t redDuty, uint16_t greenDuty, uint16_t blueDuty) {
+    TIM3->CCR2 = redDuty;
+    TIM3->CCR3 = greenDuty;
+    TIM3->CCR4 = blueDuty;
+}
+
 uint8_t readButtonPin(void) {
     GPIO_PinState state = HAL_GPIO_ReadPin(button_GPIO_Port, button_Pin);
     if (state == GPIO_PIN_RESET) {
@@ -51,27 +84,49 @@ void writeBulbLed(uint8_t state) {
     GPIO_PinState pinState = (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET;
     // TODO: remove legacy bulbLed pin once hardware migration is complete.
     HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, pinState);
+    configureFrontBlueGpio();
     HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, pinState);
 }
 
-// enables or disables all timers used for leds and chip tick
-void enableTimers(bool enable) {
+void enableChipTickTimer(bool enable) {
+    if (enable) {
+        HAL_TIM_Base_Start_IT(&htim2);
+    } else {
+        HAL_TIM_Base_Stop_IT(&htim2);
+    }
+}
+
+void enableCaseLedTimer(bool enable) {
     if (enable) {
         HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
         HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
         HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-        HAL_TIM_Base_Start_IT(&htim2);
     } else {
         HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
         HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
         HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
-        HAL_TIM_Base_Stop_IT(&htim2);
 
-        // turn leds off
-        HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(red_GPIO_Port, red_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(green_GPIO_Port, green_Pin, GPIO_PIN_RESET);
         HAL_GPIO_WritePin(blue_GPIO_Port, blue_Pin, GPIO_PIN_RESET);
+    }
+}
+
+void enableFrontLedTimer(bool enable) {
+    if (enable) {
+        configureFrontBluePwm();
+        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
+        HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+    } else {
+        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_2);
+        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
+        HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_4);
+
+        HAL_GPIO_WritePin(fRed_GPIO_Port, fRed_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(fGreen_GPIO_Port, fGreen_Pin, GPIO_PIN_RESET);
+        configureFrontBlueGpio();
+        HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, GPIO_PIN_RESET);
     }
 }
 

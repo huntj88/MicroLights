@@ -16,9 +16,11 @@ FLASH_TypeDef *FLASH = &mockFlashPeripheral;
 
 // New HAL Mocks/Stubs needed for mcu_dependencies.c
 TIM_TypeDef mockTIM1;
+TIM_TypeDef mockTIM3;
 I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 HAL_StatusTypeDef HAL_I2C_Mem_Read(
     I2C_HandleTypeDef *hi2c,
@@ -42,6 +44,8 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(
 }
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     return GPIO_PIN_RESET;
+}
+void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
 }

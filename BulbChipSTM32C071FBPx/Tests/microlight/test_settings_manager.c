@@ -79,7 +79,7 @@ bool isFakeOff(ModeManager *manager) {
 bool isEvaluatingButtonPress(Button *button) {
     return false;
 }
-void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+void fakeOffMode(ModeManager *manager, bool enableChargeLedTimers) {
 }
 
 // Include source files under test

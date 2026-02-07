@@ -25,7 +25,10 @@ typedef struct ModeManager {
     uint8_t currentModeIndex;
     MC3479 *accel;
     RGBLed *caseLed;
-    void (*enableTimers)(bool enable);
+    RGBLed *frontLed;
+    void (*enableChipTickTimer)(bool enable);
+    void (*enableCaseLedTimer)(bool enable);
+    void (*enableFrontLedTimer)(bool enable);
     ReadSavedMode readSavedMode;
     void (*writeBulbLedPin)(uint8_t state);
     Log log;
@@ -37,14 +40,17 @@ bool modeManagerInit(
     ModeManager *manager,
     MC3479 *accel,
     RGBLed *caseLed,
-    void (*enableTimers)(bool enable),
+    RGBLed *frontLed,
+    void (*enableChipTickTimer)(bool enable),
+    void (*enableCaseLedTimer)(bool enable),
+    void (*enableFrontLedTimer)(bool enable),
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
     Log log);
 void setMode(ModeManager *manager, Mode *mode, uint8_t index);
 void loadMode(ModeManager *manager, uint8_t index);
 
-void fakeOffMode(ModeManager *manager, bool enableLedTimers);
+void fakeOffMode(ModeManager *manager, bool enableChargeLedTimers);
 bool isFakeOff(ModeManager *manager);
 void modeTask(
     ModeManager *manager,

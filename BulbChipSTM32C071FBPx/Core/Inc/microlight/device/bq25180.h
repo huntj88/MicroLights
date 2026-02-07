@@ -56,7 +56,8 @@ typedef struct BQ25180 {
     Log log;
     uint8_t devAddress;
     RGBLed *caseLed;
-    void (*enableTimers)(bool enable);
+    void (*enableCaseLedTimer)(bool enable);
+    void (*enableChipTickTimer)(bool enable);
 
     enum ChargeState chargingState;
     uint32_t checkedAtMs;
@@ -92,7 +93,8 @@ bool bq25180Init(
     uint8_t devAddress,
     Log log,
     RGBLed *caseLed,
-    void (*enableTimers)(bool enable));
+    void (*enableCaseLedTimer)(bool enable),
+    void (*enableChipTickTimer)(bool enable));
 
 void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags);
 void lock(BQ25180 *chargerIC);

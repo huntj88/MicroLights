@@ -122,17 +122,12 @@ int main(void) {
     // TIM2: chipTick timer - interrupts to increment chipTick
     // TIM3: front rgb led timer - no interrupts
     // TIM17: autoOff timer - interrupts very infrequently when in fake off mode to check time
-
-    // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?),
-    // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
-    // different timer, bulb LEDS should continue to work but on a new pin.
-
-    // TODO: will need another when adding front rgb led, split up led timers.
     static char mainJsonBuffer[PAGE_SECTOR];
     MicroLightDependencies deps = {
         .i2cWriteRegister = i2cWriteRegister,
         .i2cReadRegisters = i2cReadRegisters,
         .writeRgbPwmCaseLed = writeRgbPwmCaseLed,
+        .writeRgbPwmFrontLed = writeRgbPwmFrontLed,
         .writeBulbLed = writeBulbLed,
         .readButtonPin = readButtonPin,
         .usbCdcReadTask = usbCdcReadTask,
@@ -141,7 +136,9 @@ int main(void) {
         .saveSettings = writeSettingsToFlash,
         .readSavedMode = readModeFromFlash,
         .saveMode = writeModeToFlash,
-        .enableTimers = enableTimers,  // TODO: split up timers
+        .enableChipTickTimer = enableChipTickTimer,
+        .enableCaseLedTimer = enableCaseLedTimer,
+        .enableFrontLedTimer = enableFrontLedTimer,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .rgbTimerPeriod =

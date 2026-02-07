@@ -15,6 +15,7 @@ static BQ25180 chargerIC;
 static Button button;
 static MC3479 accel;
 static RGBLed caseLed;
+static RGBLed frontLed;
 static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
@@ -54,8 +55,9 @@ static bool internalI2cReadRegisters(
 
 bool configureMicroLight(MicroLightDependencies *deps) {
     if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
-        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->readButtonPin ||
-        !deps->enableTimers || !deps->readSavedMode || !deps->writeBulbLed ||
+        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
+        !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
+        !deps->enableFrontLedTimer || !deps->readSavedMode || !deps->writeBulbLed ||
         !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
         !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
         deps->jsonBufferSize == 0) {
@@ -74,7 +76,11 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         return false;
     }
 
-    if (!buttonInit(&button, deps->readButtonPin, deps->enableTimers, &caseLed)) {
+    if (!rgbInit(&frontLed, deps->writeRgbPwmFrontLed, (uint16_t)deps->rgbTimerPeriod)) {
+        return false;
+    }
+
+    if (!buttonInit(&button, deps->readButtonPin, deps->enableChipTickTimer, &caseLed)) {
         return false;
     }
 
@@ -90,7 +96,8 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             (0x6A << 1),
             internalLog,
             &caseLed,
-            deps->enableTimers)) {
+            deps->enableCaseLedTimer,
+            deps->enableChipTickTimer)) {
         return false;
     }
 
@@ -98,7 +105,10 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             &modeManager,
             &accel,
             &caseLed,
-            deps->enableTimers,
+            &frontLed,
+            deps->enableChipTickTimer,
+            deps->enableCaseLedTimer,
+            deps->enableFrontLedTimer,
             deps->readSavedMode,
             deps->writeBulbLed,
             internalLog)) {

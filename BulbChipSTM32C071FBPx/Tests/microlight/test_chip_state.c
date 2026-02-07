@@ -87,10 +87,10 @@ bool isEvaluatingButtonPress(Button *button) {
     return mockIsEvaluatingButtonPress;
 }
 
-void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+void fakeOffMode(ModeManager *manager, bool enableChargeLedTimers) {
     // Mock implementation
     loadMode(manager, FAKE_OFF_MODE_INDEX);
-    ledTimersStarted = enableLedTimers;
+    ledTimersStarted = enableChargeLedTimers;
 }
 
 // Include the source files under test to access static state
