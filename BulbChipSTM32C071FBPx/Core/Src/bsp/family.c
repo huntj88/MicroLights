@@ -45,7 +45,6 @@ void USB_IRQHandler(void) {
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM
 //--------------------------------------------------------------------+
-// UART_HandleTypeDef UartHandle;
 
 void board_init(void) {
     HAL_Init();
@@ -105,31 +104,6 @@ void board_init(void) {
         gpio_init.Pull = BUTTON_STATE_ACTIVE ? GPIO_PULLDOWN : GPIO_PULLUP;
         HAL_GPIO_Init(BUTTON_PORT, &gpio_init);
     }
-
-    // #ifdef UART_DEV
-    //     // UART
-    //     {
-    //         GPIO_InitTypeDef gpio_init = {0};
-    //         gpio_init.Pin = UART_TX_PIN | UART_RX_PIN;
-    //         gpio_init.Mode = GPIO_MODE_AF_PP;
-    //         gpio_init.Pull = GPIO_PULLUP;
-    //         gpio_init.Speed = GPIO_SPEED_FREQ_HIGH;
-    //         gpio_init.Alternate = UART_GPIO_AF;
-    //         HAL_GPIO_Init(UART_GPIO_PORT, &gpio_init);
-    //     }
-    //
-    //     UartHandle = (UART_HandleTypeDef){
-    //         .Instance = UART_DEV,
-    //         .Init.BaudRate = CFG_BOARD_UART_BAUDRATE,
-    //         .Init.WordLength = UART_WORDLENGTH_8B,
-    //         .Init.StopBits = UART_STOPBITS_1,
-    //         .Init.Parity = UART_PARITY_NONE,
-    //         .Init.HwFlowCtl = UART_HWCONTROL_NONE,
-    //         .Init.Mode = UART_MODE_TX_RX,
-    //         .Init.OverSampling = UART_OVERSAMPLING_16,
-    //         .AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT};
-    //     HAL_UART_Init(&UartHandle);
-    // #endif
 }
 
 //--------------------------------------------------------------------+
@@ -165,15 +139,9 @@ int board_uart_read(uint8_t *buf, int len) {  // NOLINT(readability-non-const-pa
 }
 
 int board_uart_write(void const *buf, int len) {
-    // #ifdef UART_DEV
-    //     HAL_UART_Transmit(&UartHandle, (uint8_t *)(uintptr_t)buf, len, 0xffff);
-    //     return len;
-    // #else
     (void)buf;
     (void)len;
-    //    (void)UartHandle;
     return 0;
-    // #endif
 }
 
 #if CFG_TUSB_OS == OPT_OS_NONE

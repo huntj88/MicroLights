@@ -41,7 +41,7 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
 }
 
 // Auto off timer running at 0.1 hz
-// 12 megahertz / 65535 / 1831 = 0.1 hz
+// 12 megahertz / 1875 / 64000 = 0.1 hz (TIM17: prescaler=1874, period=63999)
 static void handleAutoOffTimer(ChipState *state, bool timerTriggered) {
     if (timerTriggered) {
         if (getChargingState(state->deps.chargerIC) == notConnected) {
@@ -137,6 +137,7 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         }
         case shutdown: {
             fakeOffMode(state->deps.modeManager);
+            // Clear outputs so applyTimerPolicy disables front/case PWM timers
             outputs.frontValid = false;
             outputs.caseValid = false;
             break;

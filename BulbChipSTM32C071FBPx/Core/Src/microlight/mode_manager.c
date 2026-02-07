@@ -86,7 +86,9 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
             char msg[64];
             int len = snprintf(
                 msg, sizeof(msg), "{\"error\":\"corrupt saved mode\",\"mode\":%u}\n", modeIndex);
-            manager->log(msg, (size_t)len);
+            if (len > 0) {
+                manager->log(msg, (size_t)len);
+            }
             // TODO: log entire mode JSON for debugging?
 
             // Fall back to default mode if saved mode is corrupt
@@ -103,7 +105,6 @@ void loadMode(ModeManager *manager, uint8_t index) {
 /// @brief switch modes to fakeOff mode, an intermediate mode before the chips lock, enables
 /// switching back on without holding button to get out of lock.
 /// @param manager
-/// @param enableChargeLedTimers true if usb is plugged in to show charging status
 void fakeOffMode(ModeManager *manager) {
     loadMode(manager, FAKE_OFF_MODE_INDEX);
     disableFrontOutputs(manager, NULL);

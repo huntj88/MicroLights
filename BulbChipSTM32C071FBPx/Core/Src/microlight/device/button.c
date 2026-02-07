@@ -28,7 +28,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
     if (interruptTriggered && button->evalStartMs == 0) {
         button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
-        // ChipTick timer needed needed to properly detect input. Main loop needs to run to detect
+        // ChipTick timer needed to properly detect input. Main loop needs to run to detect
         // that button is being held and show appropriate status, and to detect when button is
         // released.
 
