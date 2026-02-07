@@ -5,14 +5,14 @@
  *      Author: jameshunt
  */
 
+#ifndef INC_BQ25180_H_
+#define INC_BQ25180_H_
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "microlight/device/i2c.h"
 #include "microlight/device/rgb_led.h"
 #include "microlight/model/log.h"
-
-#ifndef INC_BQ25180_H_
-#define INC_BQ25180_H_
 
 #define BQ25180_I2CADDR_DEFAULT 0x6A
 

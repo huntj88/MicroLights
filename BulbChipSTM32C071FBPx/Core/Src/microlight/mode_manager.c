@@ -83,7 +83,13 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
         manager->readSavedMode(modeIndex, sharedJsonIOBuffer, sharedJsonIOBufferLength);
         parseJson(sharedJsonIOBuffer, sharedJsonIOBufferLength, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
-            // fallback to default
+            char msg[64];
+            int len = snprintf(
+                msg, sizeof(msg), "{\"error\":\"corrupt saved mode\",\"mode\":%u}\n", modeIndex);
+            manager->log(msg, (size_t)len);
+            // TODO: log entire mode JSON for debugging?
+
+            // Fall back to default mode if saved mode is corrupt
             parseJson(defaultModeJson, sharedJsonIOBufferLength, &cliInput);
         }
     }
