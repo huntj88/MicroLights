@@ -158,7 +158,7 @@ void test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex(void) {
     TEST_ASSERT_FALSE(isFakeOff(&manager));
 }
 
-void test_ModeManager_FakeOff_SetsCorrectIndex(void) {
+void test_ModeManager_FakeOff_SetsCorrectIndex_WithoutFlashRead(void) {
     ModeManager manager;
     TEST_ASSERT_TRUE(modeManagerInit(
         &manager,
@@ -895,7 +895,7 @@ void test_ModeManager_LogsEquationCompileError(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_FrontPattern_ContinuesDuringTriggerOverride);
-    RUN_TEST(test_ModeManager_FakeOff_SetsCorrectIndex);
+    RUN_TEST(test_ModeManager_FakeOff_SetsCorrectIndex_WithoutFlashRead);
     RUN_TEST(test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed);
     RUN_TEST(test_ModeManager_IsFakeOff_ReturnsTrueForFakeOffIndex);
     RUN_TEST(test_ModeManager_LoadMode_DisablesAccel_IfModeHasNoAccel);

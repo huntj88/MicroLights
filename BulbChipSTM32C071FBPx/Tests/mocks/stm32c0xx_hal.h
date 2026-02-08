@@ -103,6 +103,8 @@ uint32_t HAL_RCC_GetPCLK1Freq(void);
 #define GPIO_MODE_AF_PP     0x00000002U
 #define GPIO_NOPULL 0
 #define GPIO_SPEED_FREQ_LOW 0
+#define GPIO_AF3_TIM3  3
+#define GPIO_AF11_TIM3 11
 #define GPIO_AF12_TIM3 12
 
 #endif

@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef INC_BQ25180_H_
-#define INC_BQ25180_H_
+#ifndef INC_DEVICE_BQ25180_H_
+#define INC_DEVICE_BQ25180_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -97,4 +97,4 @@ enum ChargeState getChargingState(BQ25180 *chargerIC);
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - send errors over usb to app
 
-#endif /* INC_BQ25180_H_ */
+#endif /* INC_DEVICE_BQ25180_H_ */

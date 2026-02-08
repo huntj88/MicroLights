@@ -110,11 +110,10 @@ bool isFakeOff(ModeManager *manager) {
 }
 
 static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs) {
-    if (!manager) {
-        return;
-    }
     // Legacy: ensure bulb GPIO is forced low when PWM front output is not used.
     manager->writeBulbLedPin(0);
+    // Zero PWM registers for state hygiene even when the timer may be stopped;
+    // applyTimerPolicy() will disable the timer afterward if appropriate.
     rgbShowUserColor(manager->frontLed, 0, 0, 0);
     if (outputs) {
         outputs->frontValid = false;
@@ -122,9 +121,6 @@ static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs) {
 }
 
 static void disableCaseOutputs(ModeManager *manager, ModeOutputs *outputs) {
-    if (!manager) {
-        return;
-    }
     rgbShowUserColor(manager->caseLed, 0, 0, 0);
     if (outputs) {
         outputs->caseValid = false;
@@ -137,7 +133,7 @@ static void handleFrontOutput(
     ModeComponent *component,
     ModeOutputs *outputs,
     uint8_t equationEvalIntervalMs) {
-    if (!manager || !state || !component) {
+    if (!state || !component) {
         disableFrontOutputs(manager, outputs);
         return;
     }
@@ -178,7 +174,7 @@ static void handleCaseOutput(
     ModeComponent *component,
     ModeOutputs *outputs,
     uint8_t equationEvalIntervalMs) {
-    if (!manager || !state || !component) {
+    if (!state || !component) {
         disableCaseOutputs(manager, outputs);
         return;
     }
@@ -279,6 +275,9 @@ ModeOutputs modeTask(
         .caseValid = false,
         .frontType = BULB,
     };
+    if (!manager) {
+        return outputs;
+    }
     if (manager->shouldResetState) {
         ModeEquationError equationError = {0};
         bool initOk = modeStateInitialize(

@@ -110,10 +110,8 @@ ModeOutputs modeTask(
     return nextModeOutputs;
 }
 
-bool mockIsFakeOff = false;
 bool isFakeOff(ModeManager *manager) {
-    (void)manager;
-    return mockIsFakeOff;
+    return manager->currentModeIndex == FAKE_OFF_MODE_INDEX;
 }
 
 bool mockIsEvaluatingButtonPress = false;
@@ -122,8 +120,7 @@ bool isEvaluatingButtonPress(Button *button) {
 }
 
 void fakeOffMode(ModeManager *manager) {
-    // Mock implementation
-    mockIsFakeOff = true;
+    // isFakeOff() derives state from manager->currentModeIndex (set by loadMode).
     loadMode(manager, FAKE_OFF_MODE_INDEX);
 }
 
@@ -163,7 +160,6 @@ void setUp(void) {
     mockButtonResult = ignore;
     mockRgbShowSuccessCalled = false;
     mockLockCalled = false;
-    mockIsFakeOff = false;
     mockIsEvaluatingButtonPress = false;
 
     state = (ChipState){0};  // Reset internal state
@@ -262,7 +258,7 @@ void test_StateTask_ChargeLedDisabled_WhenNotCharging(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = true;
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;
 
     stateTask(&state, 0, (StateTaskFlags){0});
 
@@ -273,7 +269,7 @@ void test_StateTask_ChargeLedDisabled_WhenNotCharging(void) {
 void test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff(void) {
     configureChipState(&state, mockDeps);
 
-    mockIsFakeOff = true;
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;
 
     stateTask(&state, 0, (StateTaskFlags){0});
 
@@ -284,7 +280,6 @@ void test_StateTask_ButtonInterrupt_EnablesCasePwm(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = false;
     mockIsEvaluatingButtonPress = false;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
@@ -312,7 +307,6 @@ void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
 
     mockSettings.minutesUntilAutoOff = 1;  // 1 minute
     mockChargeState = notConnected;
-    mockIsFakeOff = false;
 
     // 1 minute = 600 ticks at 0.1Hz.
     // Logic: ticksUntilAutoOff = minutes * 60 / 10. For 1 min, threshold is 6 ticks.
@@ -348,7 +342,6 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = false;
 
     // Case 1: 1 Minute (6 ticks)
     mockSettings.minutesUntilAutoOff = 1;
@@ -368,7 +361,7 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
 
     // Case 2: 2 Minutes (12 ticks)
     mockSettings.minutesUntilAutoOff = 2;
-    mockIsFakeOff = false;  // Reset to normal mode for second case
+    mockModeManager.currentModeIndex = 0;  // Reset to normal mode for second case
 
     // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
     state.ticksSinceLastUserActivity = 11;
@@ -386,7 +379,7 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = true;  // Already in fake off
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;  // Already in fake off
 
     // Case 1: 1 Minute (6 ticks)
     mockSettings.minutesUntilLockAfterAutoOff = 1;
@@ -421,7 +414,6 @@ void test_TimerPolicy_SkipsRedundantCalls(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = false;
     mockIsEvaluatingButtonPress = false;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
@@ -478,7 +470,6 @@ void test_TimerPolicy_FrontBulbType_DisablesFrontTimer(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsFakeOff = false;
     mockIsEvaluatingButtonPress = false;
 
     // frontValid=true but frontType=BULB — front PWM should stay disabled

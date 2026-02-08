@@ -6,7 +6,8 @@
 #include <sys/mman.h>
 #include "unity.h"
 
-// Include the mock header
+// Include the mock headers
+#include "mock_gpio_moder.h"
 #include "stm32c0xx.h"
 #include "stm32c0xx_hal.h"
 
@@ -48,16 +49,7 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
-    // Simulate MODER register update for fBluePinIsAfMode() hardware read.
-    if (GPIOx && GPIO_Init && GPIO_Init->Pin) {
-        uint16_t pin = GPIO_Init->Pin;
-        uint32_t pos = 0;
-        while ((pin >> pos) != 1U) {
-            pos++;
-        }
-        uint32_t moder_val = GPIO_Init->Mode & 0x3U;
-        GPIOx->MODER = (GPIOx->MODER & ~(0x3U << (pos * 2U))) | (moder_val << (pos * 2U));
-    }
+    mock_simulateModerUpdate(GPIOx, GPIO_Init);
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
 }
