@@ -23,7 +23,7 @@ extern TIM_HandleTypeDef htim17;
 // PA8 → MODER bits [17:16]: 0b00 = Input, 0b01 = Output, 0b10 = AF, 0b11 = Analog
 #define FBLUE_PIN_POS 8U
 #define FBLUE_MODER_MASK (0x3U << (FBLUE_PIN_POS * 2U))
-#define FBLUE_MODER_AF   (0x2U << (FBLUE_PIN_POS * 2U))
+#define FBLUE_MODER_AF (0x2U << (FBLUE_PIN_POS * 2U))
 
 static inline bool fBluePinIsAfMode(void) {
     return (fBlue_GPIO_Port->MODER & FBLUE_MODER_MASK) == FBLUE_MODER_AF;
@@ -100,13 +100,6 @@ uint8_t readButtonPin(void) {
 }
 
 void writeBulbLed(uint8_t state) {
-    // Skip redundant HAL writes when the pin is already in the requested state.
-    static uint8_t lastState = 255;  // sentinel: guarantees first write always reaches hardware
-    if (state == lastState) {
-        return;
-    }
-    lastState = state;
-
     GPIO_PinState pinState = (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET;
     // TODO: remove legacy bulbLed pin once hardware migration is complete.
     HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, pinState);
