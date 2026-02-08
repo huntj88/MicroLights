@@ -97,8 +97,12 @@ void writeBulbLed(uint8_t state) {
     GPIO_PinState pinState = (state == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET;
     // TODO: remove legacy bulbLed pin once hardware migration is complete.
     HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, pinState);
-    configureFrontBlueGpio();
-    HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, pinState);
+    // Only drive fBlue when pin is in GPIO mode. When the front LED timer owns
+    // the pin (AF/PWM mode), writing GPIO would have no visible effect but
+    // reconfiguring to GPIO would break the PWM output.
+    if (!fBluePinIsAfMode) {
+        HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, pinState);
+    }
 }
 
 void enableChipTickTimer(bool enable) {

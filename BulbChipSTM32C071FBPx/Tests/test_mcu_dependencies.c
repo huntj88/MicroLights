@@ -129,13 +129,14 @@ void tearDown(void) {
 // Legacy: bulbLed_Pin is the old single-pin output. Once hardware migration is
 // complete, these tests and the bulbLed_Pin writes in writeBulbLed() can be deleted.
 void test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins(void) {
+    // fBlue starts in GPIO mode, so writeBulbLed should drive both pins
+    TEST_ASSERT_FALSE(fBluePinIsAfMode);
     gpioWriteCount = 0;
 
     writeBulbLed(1);
 
-    // writeBulbLed must drive both the legacy bulbLed pin AND the new fBlue pin
     TEST_ASSERT_GREATER_OR_EQUAL_UINT32_MESSAGE(
-        2, gpioWriteCount, "writeBulbLed should drive at least 2 GPIO pins");
+        2, gpioWriteCount, "writeBulbLed should drive at least 2 GPIO pins in GPIO mode");
 
     bool bulbLedWritten = false;
     bool fBlueWritten = false;
@@ -148,7 +149,7 @@ void test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins(void) {
         }
     }
     TEST_ASSERT_TRUE_MESSAGE(bulbLedWritten, "legacy bulbLed pin should be SET");
-    TEST_ASSERT_TRUE_MESSAGE(fBlueWritten, "fBlue pin should be SET");
+    TEST_ASSERT_TRUE_MESSAGE(fBlueWritten, "fBlue pin should be SET in GPIO mode");
 
     // Verify OFF state drives both pins low
     gpioWriteCount = 0;
@@ -166,7 +167,7 @@ void test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins(void) {
         }
     }
     TEST_ASSERT_TRUE_MESSAGE(bulbLedWritten, "legacy bulbLed pin should be RESET");
-    TEST_ASSERT_TRUE_MESSAGE(fBlueWritten, "fBlue pin should be RESET");
+    TEST_ASSERT_TRUE_MESSAGE(fBlueWritten, "fBlue pin should be RESET in GPIO mode");
 }
 
 void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
@@ -181,24 +182,23 @@ void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_AF_PP, lastGpioInit.Mode);
     TEST_ASSERT_TRUE(fBluePinIsAfMode);
 
-    // --- Step 2: writeBulbLed reconfigures back to GPIO ---
+    // --- Step 2: writeBulbLed does NOT reconfigure when pin is AF ---
     gpioInitCalled = false;
+    gpioWriteCount = 0;
     writeBulbLed(1);
 
-    TEST_ASSERT_TRUE_MESSAGE(gpioInitCalled, "Should reconfigure to GPIO from AF mode");
-    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
-    TEST_ASSERT_FALSE(fBluePinIsAfMode);
+    TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should NOT reconfigure GPIO when pin is AF");
+    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode, "Pin should remain in AF mode");
+    // fBlue should NOT be written when in AF mode
+    bool fBlueWritten = false;
+    for (uint32_t i = 0; i < gpioWriteCount; i++) {
+        if (gpioWrites[i].pin == fBlue_Pin) {
+            fBlueWritten = true;
+        }
+    }
+    TEST_ASSERT_FALSE_MESSAGE(fBlueWritten, "fBlue should not be driven when in AF mode");
 
-    // --- Step 3: enableFrontLedTimer(true) again must reconfigure back to AF ---
-    gpioInitCalled = false;
-    enableFrontLedTimer(true);
-
-    TEST_ASSERT_TRUE_MESSAGE(
-        gpioInitCalled, "Must reconfigure to AF after writeBulbLed switched to GPIO");
-    TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_AF_PP, lastGpioInit.Mode);
-    TEST_ASSERT_TRUE(fBluePinIsAfMode);
-
-    // --- Step 4: enableFrontLedTimer(false) reconfigures to GPIO ---
+    // --- Step 3: enableFrontLedTimer(false) reconfigures to GPIO ---
     gpioInitCalled = false;
     enableFrontLedTimer(false);
 
@@ -206,11 +206,19 @@ void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
     TEST_ASSERT_FALSE(fBluePinIsAfMode);
 
-    // --- Step 5: writeBulbLed should NOT reconfigure (already GPIO) ---
+    // --- Step 4: writeBulbLed should NOT reconfigure (already GPIO) but DOES drive pin ---
     gpioInitCalled = false;
+    gpioWriteCount = 0;
     writeBulbLed(0);
 
     TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip GPIO init when already in GPIO mode");
+    fBlueWritten = false;
+    for (uint32_t i = 0; i < gpioWriteCount; i++) {
+        if (gpioWrites[i].pin == fBlue_Pin) {
+            fBlueWritten = true;
+        }
+    }
+    TEST_ASSERT_TRUE_MESSAGE(fBlueWritten, "fBlue should be driven in GPIO mode");
 }
 
 void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
@@ -235,17 +243,24 @@ void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
     enableFrontLedTimer(true);
     TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip AF init when already in AF mode");
 
-    // Transition back to GPIO mode via writeBulbLed — should reconfigure
+    // writeBulbLed should NOT reconfigure when in AF mode
+    gpioInitCalled = false;
+    writeBulbLed(1);
+    TEST_ASSERT_FALSE_MESSAGE(
+        gpioInitCalled, "writeBulbLed must not reconfigure fBlue when in AF mode");
+    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode, "Pin should still be AF after writeBulbLed");
+
+    // enableFrontLedTimer(false) reconfigures back to GPIO
     gpioInitCalled = false;
     memset(&lastGpioInit, 0, sizeof(lastGpioInit));
 
-    writeBulbLed(1);
+    enableFrontLedTimer(false);
 
     TEST_ASSERT_TRUE(gpioInitCalled);
     TEST_ASSERT_EQUAL_UINT16(fBlue_Pin, lastGpioInit.Pin);
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
 
-    // Calling writeBulbLed again should NOT reconfigure
+    // Calling writeBulbLed again should NOT reconfigure (already GPIO)
     gpioInitCalled = false;
     writeBulbLed(0);
     TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip GPIO init when already in GPIO mode");

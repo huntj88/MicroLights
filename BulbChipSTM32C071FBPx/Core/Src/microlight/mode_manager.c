@@ -69,6 +69,7 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
+    manager->lastBulbPinState = 255;  // invalidate: timer enable/disable may override pin state
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
