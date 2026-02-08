@@ -60,6 +60,7 @@ bool modeManagerInit(
     manager->log = log;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
+    manager->lastBulbPinState = 255;  // sentinel: guarantees first write always reaches hardware
     memset(&manager->modeState, 0, sizeof(manager->modeState));
     return true;
 }
@@ -114,16 +115,23 @@ bool isFakeOff(ModeManager *manager) {
     return manager->currentModeIndex == FAKE_OFF_MODE_INDEX;
 }
 
+// Only call the hardware writeBulbLedPin when the state actually changes.
+static void writeBulbLedIfChanged(ModeManager *manager, uint8_t state) {
+    if (state != manager->lastBulbPinState) {
+        manager->writeBulbLedPin(state);
+        manager->lastBulbPinState = state;
+    }
+}
+
 static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs) {
     if (!manager) {
         return;
     }
     // Legacy: ensure bulb GPIO is forced low when PWM front output is not used.
-    manager->writeBulbLedPin(0);
+    writeBulbLedIfChanged(manager, 0);
     rgbShowUserColor(manager->frontLed, 0, 0, 0);
     if (outputs) {
         outputs->frontValid = false;
-        outputs->frontType = BULB;
     }
 }
 
@@ -170,7 +178,7 @@ static void handleFrontOutput(
             outputs->frontValid = true;
             outputs->frontType = BULB;
         }
-        manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
+        writeBulbLedIfChanged(manager, output.data.bulb == high ? 1 : 0);
         return;
     }
 
@@ -180,7 +188,7 @@ static void handleFrontOutput(
             outputs->frontType = RGB;
         }
         // Legacy: ensure bulb GPIO is forced low when RGB is active.
-        manager->writeBulbLedPin(0);
+        writeBulbLedIfChanged(manager, 0);
         rgbShowUserColor(
             manager->frontLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
         return;

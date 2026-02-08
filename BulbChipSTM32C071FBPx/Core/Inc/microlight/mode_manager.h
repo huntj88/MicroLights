@@ -19,6 +19,7 @@
 
 #define FAKE_OFF_MODE_INDEX 255
 
+// TODO: split deps into separate struct like chipState?
 typedef struct ModeManager {
     Mode currentMode;  // if running out of memory, consider using a pointer here that shares
                        // cliInput.mode
@@ -31,6 +32,7 @@ typedef struct ModeManager {
     Log log;
     ModeState modeState;
     bool shouldResetState;
+    uint8_t lastBulbPinState;  // cached to skip redundant HAL writes (255 = uninitialized)
 } ModeManager;
 
 typedef struct ModeOutputs {

@@ -139,7 +139,7 @@ int main(void) {
         .jsonBuffer = mainJsonBuffer,
         .jsonBufferSize = sizeof(mainJsonBuffer)};
 
-    if (htim1.Init.Period != htim3.Init.Period) {
+    if (htim1.Init.Period != htim3.Init.Period || htim1.Init.Prescaler != htim3.Init.Prescaler) {
         Error_Handler();
     }
 
