@@ -7,17 +7,12 @@
 
 #include "microlight/device/button.h"
 
-bool buttonInit(
-    Button *button,
-    uint8_t (*readButtonPin)(),
-    void (*enableTimers)(bool enable),
-    RGBLed *caseLed) {
-    if (!button || !caseLed || !readButtonPin || !enableTimers) {
+bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *caseLed) {
+    if (!button || !caseLed || !readButtonPin) {
         return false;
     }
 
     button->readButtonPin = readButtonPin;
-    button->enableTimers = enableTimers;
     button->caseLed = caseLed;
 
     button->evalStartMs = 0;
@@ -28,8 +23,10 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
     if (interruptTriggered && button->evalStartMs == 0) {
         button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
-        // Timers interrupts needed to properly detect input
-        button->enableTimers(true);
+
+        // See timer policy in chip_state.
+        // ChipTick timer needed to properly detect input. Main loop needs to run to detect
+        // that button is being held and show appropriate status.
     }
 
     uint32_t elapsedMillis = 0;

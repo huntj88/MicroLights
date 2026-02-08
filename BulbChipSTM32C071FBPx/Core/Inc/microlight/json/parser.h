@@ -1,5 +1,5 @@
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef INC_JSON_PARSER_H_
+#define INC_JSON_PARSER_H_
 
 typedef enum {
     PARSER_OK = 0,
@@ -20,4 +20,4 @@ typedef struct {
 
 const char *parserErrorToString(ParserError err);
 
-#endif  // PARSER_H
+#endif /* INC_JSON_PARSER_H_ */

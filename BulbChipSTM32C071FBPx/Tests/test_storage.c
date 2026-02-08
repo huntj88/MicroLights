@@ -6,7 +6,8 @@
 #include <sys/mman.h>
 #include "unity.h"
 
-// Include the mock header
+// Include the mock headers
+#include "mock_gpio_moder.h"
 #include "stm32c0xx.h"
 #include "stm32c0xx_hal.h"
 
@@ -15,10 +16,14 @@ FLASH_TypeDef mockFlashPeripheral;
 FLASH_TypeDef *FLASH = &mockFlashPeripheral;
 
 // New HAL Mocks/Stubs needed for mcu_dependencies.c
+GPIO_TypeDef mockGPIOA;
 TIM_TypeDef mockTIM1;
+TIM_TypeDef mockTIM3;
 I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim17;
 
 HAL_StatusTypeDef HAL_I2C_Mem_Read(
     I2C_HandleTypeDef *hi2c,
@@ -42,6 +47,9 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(
 }
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     return GPIO_PIN_RESET;
+}
+void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
+    mock_simulateModerUpdate(GPIOx, GPIO_Init);
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
 }
@@ -128,6 +136,8 @@ void setUp(void) {
 
     // Initialize to 0xFF (erased state)
     memset(ptr, 0xFF, len);
+
+    mockGPIOA.MODER = (0x1U << (8U * 2U));  // PA8 in GPIO output mode
 }
 
 void tearDown(void) {

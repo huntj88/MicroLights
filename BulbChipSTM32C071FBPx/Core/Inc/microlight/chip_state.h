@@ -31,21 +31,25 @@ typedef struct {
     MC3479 *accel;
 
     // Callbacks
+    void (*enableChipTickTimer)(bool enable);
+    void (*enableCaseLedTimer)(bool enable);
+    void (*enableFrontLedTimer)(bool enable);
     Log log;
+} ChipDependencies;
+
+typedef struct {
+    ChipDependencies deps;
 
     // State
     uint32_t ticksSinceLastUserActivity;  // auto off timer ticks at 0.1 hz
+
+    // Cached timer states to avoid redundant HAL calls
+    bool lastChipTickEnabled;
+    bool lastCasePwmEnabled;
+    bool lastFrontPwmEnabled;
 } ChipState;
 
-bool configureChipState(
-    ChipState *state,
-    ModeManager *modeManager,
-    ChipSettings *settings,
-    Button *button,
-    BQ25180 *chargerIC,
-    MC3479 *accel,
-    RGBLed *caseLed,
-    Log log);
+bool configureChipState(ChipState *state, ChipDependencies deps);
 
 typedef struct StateTaskFlags {
     bool autoOffTimerInterruptTriggered;

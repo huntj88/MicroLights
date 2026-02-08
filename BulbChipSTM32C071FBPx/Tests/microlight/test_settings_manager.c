@@ -52,6 +52,15 @@ void mock_writeUsbSerial(const char *buf, size_t count) {
     lastSerialOutput[count] = '\0';
 }
 
+void mock_enableChipTickTimer(bool enable) {
+}
+
+void mock_enableCaseLedTimer(bool enable) {
+}
+
+void mock_enableFrontLedTimer(bool enable) {
+}
+
 enum ChargeState getChargingState(BQ25180 *dev) {
     return notConnected;
 }
@@ -64,14 +73,23 @@ void rgbShowSuccess(RGBLed *led) {
 }
 void lock(BQ25180 *dev) {
 }
-void rgbTask(RGBLed *led, uint32_t ms) {
+void rgbTransientTask(RGBLed *led, uint32_t ms) {
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
 }
-void modeTask(
+ModeOutputs modeTask(
     ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+    (void)manager;
+    (void)ms;
+    (void)canUpdateCaseLed;
+    (void)equationEvalIntervalMs;
+    return (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
 }
 bool isFakeOff(ModeManager *manager) {
     return false;
@@ -79,7 +97,7 @@ bool isFakeOff(ModeManager *manager) {
 bool isEvaluatingButtonPress(Button *button) {
     return false;
 }
-void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+void fakeOffMode(ModeManager *manager) {
 }
 
 // Include source files under test
@@ -112,16 +130,21 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     // 2. Configure ChipState with pointer to settingsManager.currentSettings
     configureChipState(
         &state,
-        &mockModeManager,
-        &settingsManager.currentSettings,  // Pass the pointer!
-        &mockButton,
-        &mockCharger,
-        &mockAccel,
-        &mockCaseLed,
-        mock_writeUsbSerial);
+        (ChipDependencies){
+            .modeManager = &mockModeManager,
+            .settings = &settingsManager.currentSettings,
+            .button = &mockButton,
+            .chargerIC = &mockCharger,
+            .accel = &mockAccel,
+            .caseLed = &mockCaseLed,
+            .enableChipTickTimer = mock_enableChipTickTimer,
+            .enableCaseLedTimer = mock_enableCaseLedTimer,
+            .enableFrontLedTimer = mock_enableFrontLedTimer,
+            .log = mock_writeUsbSerial,
+        });
 
     // 3. Verify initial state
-    TEST_ASSERT_EQUAL_UINT8(5, state.settings->modeCount);
+    TEST_ASSERT_EQUAL_UINT8(5, state.deps.settings->modeCount);
 
     // 4. Create new settings
     ChipSettings newSettings;
@@ -135,9 +158,9 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     updateSettings(&settingsManager, &newSettings);
 
     // 6. Verify ChipState sees the change
-    TEST_ASSERT_EQUAL_UINT8(10, state.settings->modeCount);
-    TEST_ASSERT_EQUAL_UINT16(20, state.settings->minutesUntilAutoOff);
-    TEST_ASSERT_EQUAL_UINT8(50, state.settings->equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(10, state.deps.settings->modeCount);
+    TEST_ASSERT_EQUAL_UINT16(20, state.deps.settings->minutesUntilAutoOff);
+    TEST_ASSERT_EQUAL_UINT8(50, state.deps.settings->equationEvalIntervalMs);
 }
 
 void test_SettingsManagerInit_SetsDefaults(void) {

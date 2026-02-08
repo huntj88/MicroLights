@@ -1,5 +1,5 @@
-#ifndef MODE_STATE_H
-#define MODE_STATE_H
+#ifndef INC_MODEL_MODE_STATE_H_
+#define INC_MODEL_MODE_STATE_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -72,4 +72,4 @@ void modeStateTest_resetEquationFreeCounter(void);
 uint32_t modeStateTest_getEquationFreeCounter(void);
 #endif
 
-#endif /* MODE_STATE_H */
+#endif /* INC_MODEL_MODE_STATE_H_ */

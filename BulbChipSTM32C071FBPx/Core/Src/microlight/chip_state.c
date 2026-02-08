@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "microlight/chip_state.h"
@@ -17,101 +17,136 @@
 #include "microlight/model/mode_state.h"
 #include "microlight/settings_manager.h"
 
-bool configureChipState(
-    ChipState *state,
-    ModeManager *modeManager,
-    ChipSettings *settings,
-    Button *button,
-    BQ25180 *chargerIC,
-    MC3479 *accel,
-    RGBLed *caseLed,
-    Log log) {
-    if (!state || !modeManager || !settings || !button || !chargerIC || !accel || !caseLed ||
-        !log) {
+bool configureChipState(ChipState *state, ChipDependencies deps) {
+    if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
+        !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
+        !deps.enableFrontLedTimer || !deps.log) {
         return false;
     }
-    state->modeManager = modeManager;
-    state->settings = settings;
-    state->button = button;
-    state->caseLed = caseLed;
-    state->chargerIC = chargerIC;
-    state->accel = accel;
-    state->log = log;
+    state->deps = deps;
     state->ticksSinceLastUserActivity = 0;
-    enum ChargeState chargeState = getChargingState(state->chargerIC);
+    state->lastChipTickEnabled = false;
+    state->lastCasePwmEnabled = false;
+    state->lastFrontPwmEnabled = false;
+    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
 
     if (chargeState == notConnected) {
-        loadMode(state->modeManager, 0);
+        loadMode(state->deps.modeManager, 0);
     } else {
-        // Enter fake off mode when charging, show led status by enabling led timers
-        fakeOffMode(state->modeManager, true);
+        // Enter fake off mode when charging, show led status by enabling charge led timers
+        fakeOffMode(state->deps.modeManager);
     }
     return true;
 }
 
 // Auto off timer running at 0.1 hz
-// 12 megahertz / 65535 / 1831 = 0.1 hz
-static void handleAutoOffTimer(ChipState *state, bool timerTriggered) {
+// 12 megahertz / 1875 / 64000 = 0.1 hz (TIM17: prescaler=1874, period=63999)
+static void handleAutoOffTimer(
+    ChipState *state, bool timerTriggered, enum ChargeState chargeState) {
     if (timerTriggered) {
-        if (getChargingState(state->chargerIC) == notConnected) {
+        if (chargeState == notConnected) {
             state->ticksSinceLastUserActivity++;
 
             uint16_t ticksUntilAutoOff =
-                state->settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
+                state->deps.settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
             bool autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilAutoOff;
-            if (isFakeOff(state->modeManager)) {
+            if (isFakeOff(state->deps.modeManager)) {
                 uint16_t ticksUntilLockAfterAutoOff =
-                    state->settings->minutesUntilLockAfterAutoOff * 6;
+                    state->deps.settings->minutesUntilLockAfterAutoOff * 6;
                 autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
             }
 
             if (autoOffTimerDone) {
-                if (isFakeOff(state->modeManager)) {
-                    lock(state->chargerIC);
+                if (isFakeOff(state->deps.modeManager)) {
+                    lock(state->deps.chargerIC);
                 } else {
                     // restart timer for transition from fakeOff to shipMode
                     state->ticksSinceLastUserActivity = 0;
 
                     // enter fake off mode
-                    bool enableLedTimers = getChargingState(state->chargerIC) != notConnected;
-                    fakeOffMode(state->modeManager, enableLedTimers);
+                    fakeOffMode(state->deps.modeManager);
                 }
             }
         }
     }
 }
 
-void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
-    handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered);
+static void applyTimerPolicy(
+    ChipState *state,
+    ModeOutputs outputs,
+    bool evaluatingButtonPress,
+    enum ChargeState chargeState) {
+    if (!state || !state->deps.modeManager) {
+        return;
+    }
 
-    bool canUpdateCaseLed = !isEvaluatingButtonPress(state->button);
-    modeTask(
-        state->modeManager,
+    ModeManager *manager = state->deps.modeManager;
+    bool fakeOff = isFakeOff(manager);
+    bool chargeLedEnabled = fakeOff && chargeState != notConnected;
+    bool frontRgbActive = outputs.frontValid && outputs.frontType == RGB;
+    bool caseRgbActive = outputs.caseValid;
+
+    bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
+    bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
+    bool frontPwmEnabled = frontRgbActive;
+
+    if (chipTickEnabled != state->lastChipTickEnabled) {
+        state->deps.enableChipTickTimer(chipTickEnabled);
+        state->lastChipTickEnabled = chipTickEnabled;
+    }
+    if (casePwmEnabled != state->lastCasePwmEnabled) {
+        state->deps.enableCaseLedTimer(casePwmEnabled);
+        state->lastCasePwmEnabled = casePwmEnabled;
+    }
+    if (frontPwmEnabled != state->lastFrontPwmEnabled) {
+        state->deps.enableFrontLedTimer(frontPwmEnabled);
+        state->lastFrontPwmEnabled = frontPwmEnabled;
+    }
+}
+
+void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
+    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
+    handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState);
+
+    bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);
+    bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
+    bool allowModeCaseLedUpdates = !caseLedReservedForButton && !caseLedReservedForStatus;
+
+    ModeOutputs outputs = modeTask(
+        state->deps.modeManager,
         milliseconds,
-        canUpdateCaseLed,
-        state->settings->equationEvalIntervalMs);
+        allowModeCaseLedUpdates,
+        state->deps.settings->equationEvalIntervalMs);
 
     enum ButtonResult buttonResult =
-        buttonInputTask(state->button, milliseconds, flags.buttonInterruptTriggered);
+        buttonInputTask(state->deps.button, milliseconds, flags.buttonInterruptTriggered);
     switch (buttonResult) {
         case ignore:
             break;
-        case clicked:
-            rgbShowSuccess(state->caseLed);
-            uint8_t newModeIndex = state->modeManager->currentModeIndex + 1;
-            if (newModeIndex >= state->settings->modeCount) {
+        case clicked: {
+            rgbShowSuccess(state->deps.caseLed);
+            uint8_t newModeIndex = state->deps.modeManager->currentModeIndex + 1;
+            if (newModeIndex >= state->deps.settings->modeCount) {
                 newModeIndex = 0;
             }
-            loadMode(state->modeManager, newModeIndex);
-            const char *blah = "clicked\n";
-            state->log(blah, strlen(blah));
+            loadMode(state->deps.modeManager, newModeIndex);
+            char msg[48];
+            int len = snprintf(
+                msg, sizeof(msg), "{\"event\":\"modeChanged\",\"index\":%u}\n", newModeIndex);
+            if (len > 0) {
+                state->deps.log(msg, (size_t)len);
+            }
             break;
-        case shutdown:
-            bool enableLedTimers = getChargingState(state->chargerIC) != notConnected;
-            fakeOffMode(state->modeManager, enableLedTimers);
+        }
+        case shutdown: {
+            fakeOffMode(state->deps.modeManager);
+            // Clear outputs so applyTimerPolicy disables front/case PWM timers
+            outputs.frontValid = false;
+            outputs.caseValid = false;
             break;
+        }
         case lockOrHardwareReset:
-            lock(state->chargerIC);
+            lock(state->deps.chargerIC);
             break;
     }
 
@@ -119,17 +154,20 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         state->ticksSinceLastUserActivity = 0;
     }
 
-    rgbTask(state->caseLed, milliseconds);
-    mc3479Task(state->accel, milliseconds);
+    bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
+    applyTimerPolicy(
+        state, outputs, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
 
-    bool unplugLockEnabled = isFakeOff(state->modeManager);
-    bool chargeLedEnabled = isFakeOff(state->modeManager) && canUpdateCaseLed;
+    // No transient status show on front LED, only call for case LED.
+    rgbTransientTask(state->deps.caseLed, milliseconds);
+    mc3479Task(state->deps.accel, milliseconds);
     chargerTask(
-        state->chargerIC,
+        state->deps.chargerIC,
         milliseconds,
         (ChargerTaskFlags){
             .interruptTriggered = flags.chargerInterruptTriggered,
-            .unplugLockEnabled = unplugLockEnabled,
-            .chargeLedEnabled = chargeLedEnabled,
-            .serialEnabled = state->settings->enableChargerSerial});
+            .unplugLockEnabled = isFakeOff(state->deps.modeManager),
+            .chargeLedEnabled = isFakeOff(state->deps.modeManager) && chargeState != notConnected &&
+                                !evaluatingButtonPress,
+            .serialEnabled = state->deps.settings->enableChargerSerial});
 }

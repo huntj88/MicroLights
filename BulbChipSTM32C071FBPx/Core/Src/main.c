@@ -35,7 +35,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -50,8 +49,7 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
-
-UART_HandleTypeDef huart2;
+TIM_HandleTypeDef htim17;
 
 PCD_HandleTypeDef hpcd_USB_DRD_FS;
 
@@ -63,10 +61,10 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USB_PCD_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -105,27 +103,23 @@ int main(void) {
     MX_GPIO_Init();
     MX_I2C1_Init();
     MX_USB_PCD_Init();
-    MX_USART2_UART_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
     MX_TIM3_Init();
+    MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
 
     tusb_init();
-    // TIM1: rgb status led timer - no interrupts
+    // TIM1: case rgb led timer - no interrupts
     // TIM2: chipTick timer - interrupts to increment chipTick
-    // TIM3: autoOff timer - interrupts very very infrequently when in fake off mode to check time
-
-    // TODO: RGB front led, remove bulbLed pin at PA5 (or leave and add/use chip version setting?),
-    // add rgb using TIM3 CH2 (PC14), TIM3 CH3 (PC15), TIM3 CH4 (PA8), refactor auto off to use a
-    // different timer, bulb LEDS should continue to work but on a new pin.
-
-    // TODO: will need another when adding front rgb led, split up led timers.
+    // TIM3: front rgb led timer - no interrupts
+    // TIM17: autoOff timer - interrupts very infrequently when in fake off mode to check time
     static char mainJsonBuffer[PAGE_SECTOR];
     MicroLightDependencies deps = {
         .i2cWriteRegister = i2cWriteRegister,
         .i2cReadRegisters = i2cReadRegisters,
         .writeRgbPwmCaseLed = writeRgbPwmCaseLed,
+        .writeRgbPwmFrontLed = writeRgbPwmFrontLed,
         .writeBulbLed = writeBulbLed,
         .readButtonPin = readButtonPin,
         .usbCdcReadTask = usbCdcReadTask,
@@ -134,20 +128,23 @@ int main(void) {
         .saveSettings = writeSettingsToFlash,
         .readSavedMode = readModeFromFlash,
         .saveMode = writeModeToFlash,
-        .enableTimers = enableTimers,  // TODO: split up timers
+        .enableChipTickTimer = enableChipTickTimer,
+        .enableCaseLedTimer = enableCaseLedTimer,
+        .enableFrontLedTimer = enableFrontLedTimer,
+        .startAutoOffTimer = startAutoOffTimer,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
-        .rgbTimerPeriod =
-            htim1.Init.Period,  // TODO: when another LED added they need to have the same period
+        .rgbTimerPeriod = htim1.Init.Period,
         .jsonBuffer = mainJsonBuffer,
         .jsonBufferSize = sizeof(mainJsonBuffer)};
+
+    if (htim1.Init.Period != htim3.Init.Period || htim1.Init.Prescaler != htim3.Init.Prescaler) {
+        Error_Handler();
+    }
 
     if (!configureMicroLight(&deps)) {
         Error_Handler();
     }
-
-    // auto off timer
-    HAL_TIM_Base_Start_IT(&htim3);  // TODO: function pointer to start auto off timer
 
     /* USER CODE END 2 */
 
@@ -375,14 +372,15 @@ static void MX_TIM3_Init(void) {
 
     TIM_ClockConfigTypeDef sClockSourceConfig = {0};
     TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_OC_InitTypeDef sConfigOC = {0};
 
     /* USER CODE BEGIN TIM3_Init 1 */
 
     /* USER CODE END TIM3_Init 1 */
     htim3.Instance = TIM3;
-    htim3.Init.Prescaler = 1831;
+    htim3.Init.Prescaler = 2;
     htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim3.Init.Period = 65535;
+    htim3.Init.Period = 500;
     htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim3) != HAL_OK) {
@@ -392,46 +390,59 @@ static void MX_TIM3_Init(void) {
     if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK) {
         Error_Handler();
     }
+    if (HAL_TIM_PWM_Init(&htim3) != HAL_OK) {
+        Error_Handler();
+    }
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
     sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK) {
         Error_Handler();
     }
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK) {
+        Error_Handler();
+    }
+    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK) {
+        Error_Handler();
+    }
+    if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4) != HAL_OK) {
+        Error_Handler();
+    }
     /* USER CODE BEGIN TIM3_Init 2 */
 
     /* USER CODE END TIM3_Init 2 */
+    HAL_TIM_MspPostInit(&htim3);
 }
 
 /**
- * @brief USART2 Initialization Function
+ * @brief TIM17 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_USART2_UART_Init(void) {
-    /* USER CODE BEGIN USART2_Init 0 */
+static void MX_TIM17_Init(void) {
+    /* USER CODE BEGIN TIM17_Init 0 */
 
-    /* USER CODE END USART2_Init 0 */
+    /* USER CODE END TIM17_Init 0 */
 
-    /* USER CODE BEGIN USART2_Init 1 */
+    /* USER CODE BEGIN TIM17_Init 1 */
 
-    /* USER CODE END USART2_Init 1 */
-    huart2.Instance = USART2;
-    huart2.Init.BaudRate = 115200;
-    huart2.Init.WordLength = UART_WORDLENGTH_8B;
-    huart2.Init.StopBits = UART_STOPBITS_1;
-    huart2.Init.Parity = UART_PARITY_NONE;
-    huart2.Init.Mode = UART_MODE_TX_RX;
-    huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-    huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-    huart2.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart2) != HAL_OK) {
+    /* USER CODE END TIM17_Init 1 */
+    htim17.Instance = TIM17;
+    htim17.Init.Prescaler = 1874;
+    htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim17.Init.Period = 63999;
+    htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    htim17.Init.RepetitionCounter = 0;
+    htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim17) != HAL_OK) {
         Error_Handler();
     }
-    /* USER CODE BEGIN USART2_Init 2 */
+    /* USER CODE BEGIN TIM17_Init 2 */
 
-    /* USER CODE END USART2_Init 2 */
+    /* USER CODE END TIM17_Init 2 */
 }
 
 /**
@@ -478,6 +489,7 @@ static void MX_GPIO_Init(void) {
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */

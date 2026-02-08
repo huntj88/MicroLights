@@ -7,8 +7,8 @@
  * and to read the most recent absolute acceleration magnitude in units of g.
  */
 
-#ifndef INC_MC3479_H_
-#define INC_MC3479_H_
+#ifndef INC_DEVICE_MC3479_H_
+#define INC_DEVICE_MC3479_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -76,4 +76,4 @@ bool mc3479SampleNow(MC3479 *dev, uint32_t milliseconds);
 
 bool isOverThreshold(MC3479 *dev, uint8_t threshold);
 
-#endif /* INC_MC3479_H_ */
+#endif /* INC_DEVICE_MC3479_H_ */

@@ -5,8 +5,8 @@
  *      Author: jameshunt
  */
 
-#ifndef INC_COMMAND_PARSER_H_
-#define INC_COMMAND_PARSER_H_
+#ifndef INC_JSON_COMMAND_PARSER_H_
+#define INC_JSON_COMMAND_PARSER_H_
 
 #include <stdint.h>
 #include "microlight/json/mode_parser.h"
@@ -51,4 +51,4 @@
 
 void parseJson(const char *buffer, size_t length, CliInput *input);
 
-#endif /* INC_COMMAND_PARSER_H_ */
+#endif /* INC_JSON_COMMAND_PARSER_H_ */

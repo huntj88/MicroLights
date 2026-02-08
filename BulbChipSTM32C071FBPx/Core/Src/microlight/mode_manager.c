@@ -20,21 +20,36 @@ static const char *defaultModeJson =
     "on\",\"front\":{\"pattern\":{\"type\":\"simple\",\"name\":\"on\",\"duration\":100,"
     "\"changeAt\":[{\"ms\":0,\"output\":\"high\"}]}}}}";
 
+static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs);
+static void disableCaseOutputs(ModeManager *manager, ModeOutputs *outputs);
+static void handleFrontOutput(
+    ModeManager *manager,
+    ModeComponentState *state,
+    ModeComponent *component,
+    ModeOutputs *outputs,
+    uint8_t equationEvalIntervalMs);
+static void handleCaseOutput(
+    ModeManager *manager,
+    ModeComponentState *state,
+    ModeComponent *component,
+    ModeOutputs *outputs,
+    uint8_t equationEvalIntervalMs);
+
 bool modeManagerInit(
     ModeManager *manager,
     MC3479 *accel,
     RGBLed *caseLed,
-    void (*enableTimers)(bool enable),
+    RGBLed *frontLed,
     ReadSavedMode readSavedMode,
     void (*writeBulbLedPin)(uint8_t state),
     Log log) {
-    if (!manager || !accel || !caseLed || !enableTimers || !readSavedMode || !writeBulbLedPin ||
-        !log) {
+    if (!manager || !accel || !caseLed || !frontLed || !readSavedMode || !writeBulbLedPin || !log ||
+        caseLed == frontLed) {
         return false;
     }
     manager->accel = accel;
     manager->caseLed = caseLed;
-    manager->enableTimers = enableTimers;
+    manager->frontLed = frontLed;
     manager->readSavedMode = readSavedMode;
     manager->writeBulbLedPin = writeBulbLedPin;
     manager->log = log;
@@ -48,7 +63,6 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
-    manager->enableTimers(true);
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
@@ -64,7 +78,15 @@ static void readBulbMode(ModeManager *manager, uint8_t modeIndex) {
         manager->readSavedMode(modeIndex, sharedJsonIOBuffer, sharedJsonIOBufferLength);
         parseJson(sharedJsonIOBuffer, sharedJsonIOBufferLength, &cliInput);
         if (cliInput.parsedType != parseWriteMode) {
-            // fallback to default
+            char msg[64];
+            int len = snprintf(
+                msg, sizeof(msg), "{\"error\":\"corrupt saved mode\",\"mode\":%u}\n", modeIndex);
+            if (len > 0) {
+                manager->log(msg, (size_t)len);
+            }
+            // TODO: log entire mode JSON for debugging?
+
+            // Fall back to default mode if saved mode is corrupt
             parseJson(defaultModeJson, sharedJsonIOBufferLength, &cliInput);
         }
     }
@@ -78,17 +100,96 @@ void loadMode(ModeManager *manager, uint8_t index) {
 /// @brief switch modes to fakeOff mode, an intermediate mode before the chips lock, enables
 /// switching back on without holding button to get out of lock.
 /// @param manager
-/// @param enableLedTimers true if usb is plugged in to show charging status
-void fakeOffMode(ModeManager *manager, bool enableLedTimers) {
+void fakeOffMode(ModeManager *manager) {
     loadMode(manager, FAKE_OFF_MODE_INDEX);
-    if (!enableLedTimers) {
-        // used for fake off mode when not charging
-        manager->enableTimers(false);
-    }
+    disableFrontOutputs(manager, NULL);
 }
 
 bool isFakeOff(ModeManager *manager) {
     return manager->currentModeIndex == FAKE_OFF_MODE_INDEX;
+}
+
+static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs) {
+    // Legacy: ensure bulb GPIO is forced low when PWM front output is not used.
+    manager->writeBulbLedPin(0);
+    // Zero PWM registers for state hygiene even when the timer may be stopped;
+    // applyTimerPolicy() will disable the timer afterward if appropriate.
+    rgbShowUserColor(manager->frontLed, 0, 0, 0);
+    if (outputs) {
+        outputs->frontValid = false;
+    }
+}
+
+static void disableCaseOutputs(ModeManager *manager, ModeOutputs *outputs) {
+    rgbShowUserColor(manager->caseLed, 0, 0, 0);
+    if (outputs) {
+        outputs->caseValid = false;
+    }
+}
+
+static void handleFrontOutput(
+    ModeManager *manager,
+    ModeComponentState *state,
+    ModeComponent *component,
+    ModeOutputs *outputs,
+    uint8_t equationEvalIntervalMs) {
+    if (!state || !component) {
+        disableFrontOutputs(manager, outputs);
+        return;
+    }
+
+    SimpleOutput output;
+    if (!modeStateGetSimpleOutput(state, component, &output, equationEvalIntervalMs)) {
+        disableFrontOutputs(manager, outputs);
+        return;
+    }
+
+    if (output.type == BULB) {
+        if (outputs) {
+            outputs->frontValid = true;
+            outputs->frontType = BULB;
+        }
+        manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
+        return;
+    }
+
+    if (output.type == RGB) {
+        if (outputs) {
+            outputs->frontValid = true;
+            outputs->frontType = RGB;
+        }
+        // Legacy: ensure bulb GPIO is forced low when RGB is active.
+        manager->writeBulbLedPin(0);
+        rgbShowUserColor(
+            manager->frontLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
+        return;
+    }
+
+    disableFrontOutputs(manager, outputs);
+}
+
+static void handleCaseOutput(
+    ModeManager *manager,
+    ModeComponentState *state,
+    ModeComponent *component,
+    ModeOutputs *outputs,
+    uint8_t equationEvalIntervalMs) {
+    if (!state || !component) {
+        disableCaseOutputs(manager, outputs);
+        return;
+    }
+
+    SimpleOutput output;
+    if (!modeStateGetSimpleOutput(state, component, &output, equationEvalIntervalMs) ||
+        output.type != RGB) {
+        disableCaseOutputs(manager, outputs);
+        return;
+    }
+
+    if (outputs) {
+        outputs->caseValid = true;
+    }
+    rgbShowUserColor(manager->caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
 }
 
 typedef struct {
@@ -164,11 +265,19 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
     return active;
 }
 
-void modeTask(
+ModeOutputs modeTask(
     ModeManager *manager,
     uint32_t milliseconds,
     bool canUpdateCaseLed,
     uint8_t equationEvalIntervalMs) {
+    ModeOutputs outputs = {
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+    if (!manager) {
+        return outputs;
+    }
     if (manager->shouldResetState) {
         ModeEquationError equationError = {0};
         bool initOk = modeStateInitialize(
@@ -183,33 +292,14 @@ void modeTask(
 
     ActiveComponents active = resolveActiveComponents(manager);
 
-    if (active.frontComp && active.frontState) {
-        SimpleOutput output;
-        if (modeStateGetSimpleOutput(
-                active.frontState, active.frontComp, &output, equationEvalIntervalMs)) {
-            if (output.type == BULB) {
-                manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
-            } else {
-                // TODO: RGB front component support
-                manager->writeBulbLedPin(0);
-            }
-        }
-    } else {
-        manager->writeBulbLedPin(0);
-    }
+    handleFrontOutput(
+        manager, active.frontState, active.frontComp, &outputs, equationEvalIntervalMs);
 
     // Update Case LED only if not evaluating button press, need to show shutdown/lock status
     if (canUpdateCaseLed) {
-        if (active.caseComp && active.caseState) {
-            SimpleOutput output;
-            if (modeStateGetSimpleOutput(
-                    active.caseState, active.caseComp, &output, equationEvalIntervalMs) &&
-                output.type == RGB) {
-                rgbShowUserColor(
-                    manager->caseLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
-            }
-        } else {
-            rgbShowUserColor(manager->caseLed, 0, 0, 0);
-        }
+        handleCaseOutput(
+            manager, active.caseState, active.caseComp, &outputs, equationEvalIntervalMs);
     }
+
+    return outputs;
 }

@@ -15,6 +15,7 @@ static BQ25180 chargerIC;
 static Button button;
 static MC3479 accel;
 static RGBLed caseLed;
+static RGBLed frontLed;
 static ModeManager modeManager;
 static SettingsManager settingsManager;
 static USBManager usbManager;
@@ -54,10 +55,11 @@ static bool internalI2cReadRegisters(
 
 bool configureMicroLight(MicroLightDependencies *deps) {
     if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
-        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->readButtonPin ||
-        !deps->enableTimers || !deps->readSavedMode || !deps->writeBulbLed ||
-        !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
-        !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
+        !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
+        !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
+        !deps->enableFrontLedTimer || !deps->startAutoOffTimer || !deps->readSavedMode ||
+        !deps->writeBulbLed || !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings ||
+        !deps->saveMode || !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
         deps->jsonBufferSize == 0) {
         return false;
     }
@@ -74,7 +76,11 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         return false;
     }
 
-    if (!buttonInit(&button, deps->readButtonPin, deps->enableTimers, &caseLed)) {
+    if (!rgbInit(&frontLed, deps->writeRgbPwmFrontLed, (uint16_t)deps->rgbTimerPeriod)) {
+        return false;
+    }
+
+    if (!buttonInit(&button, deps->readButtonPin, &caseLed)) {
         return false;
     }
 
@@ -89,8 +95,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             internalI2cWriteRegister,
             (0x6A << 1),
             internalLog,
-            &caseLed,
-            deps->enableTimers)) {
+            &caseLed)) {
         return false;
     }
 
@@ -98,7 +103,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             &modeManager,
             &accel,
             &caseLed,
-            deps->enableTimers,
+            &frontLed,
             deps->readSavedMode,
             deps->writeBulbLed,
             internalLog)) {
@@ -123,16 +128,29 @@ bool configureMicroLight(MicroLightDependencies *deps) {
 
     if (!configureChipState(
             &chipState,
-            &modeManager,
-            &settingsManager.currentSettings,
-            &button,
-            &chargerIC,
-            &accel,
-            &caseLed,
-            internalLog)) {
+            (ChipDependencies){
+                .modeManager = &modeManager,
+                .settings = &settingsManager.currentSettings,
+                .button = &button,
+                .caseLed = &caseLed,
+                .chargerIC = &chargerIC,
+                .accel = &accel,
+                .enableChipTickTimer = deps->enableChipTickTimer,
+                .enableCaseLedTimer = deps->enableCaseLedTimer,
+                .enableFrontLedTimer = deps->enableFrontLedTimer,
+                .log = internalLog,
+            })) {
         return false;
     }
 
+    // CubeMX's MX_TIM3_Init() → HAL_TIM_MspPostInit() configures PA8 (fBlue)
+    // to AF mode. In a bulb-only configuration applyTimerPolicy() never calls
+    // enableFrontLedTimer(false) (both old and new values are false), so the
+    // pin stays in AF mode and writeBulbLed() skips it. Force GPIO mode here
+    // so bulb output works from the start without requiring a front-PWM cycle.
+    deps->enableFrontLedTimer(false);
+
+    deps->startAutoOffTimer();
     return true;
 }
 

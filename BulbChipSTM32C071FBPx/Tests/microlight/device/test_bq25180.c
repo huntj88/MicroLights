@@ -62,19 +62,9 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 static BQ25180 charger;
 static RGBLed mockLed;
 
-static bool enableTimersCalled = false;
-static bool lastEnableTimersArg = false;
-
-void mock_enableTimers(bool enable) {
-    enableTimersCalled = true;
-    lastEnableTimersArg = enable;
-}
-
 void setUp(void) {
     memset(&charger, 0, sizeof(BQ25180));
     memset(&mockLed, 0, sizeof(RGBLed));
-    enableTimersCalled = false;
-    lastEnableTimersArg = false;
 
     memset(mockRegisters, 0, sizeof(mockRegisters));
     writeCalled = false;
@@ -90,13 +80,7 @@ void setUp(void) {
     rgbDoneChargingCalled = false;
 
     bq25180Init(
-        &charger,
-        mock_readRegisters,
-        mock_writeRegister,
-        0x6A,
-        mock_writeToSerial,
-        &mockLed,
-        mock_enableTimers);
+        &charger, mock_readRegisters, mock_writeRegister, 0x6A, mock_writeToSerial, &mockLed);
 
     // Reset write flag after init, as init performs writes
     writeCalled = false;
@@ -159,6 +143,15 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
 }
 
+void test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled(void) {
+    charger.chargingState = constantCurrent;
+    charger.checkedAtMs = 100;  // Prevent watchdog update
+
+    chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = false});
+
+    TEST_ASSERT_FALSE(rgbConstantCurrentCalled);
+}
+
 void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(void) {
     // Initial state: Not Connected
     charger.chargingState = notConnected;
@@ -179,8 +172,6 @@ void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(voi
 
     // Should show new state
     TEST_ASSERT_TRUE(rgbDoneChargingCalled);
-    TEST_ASSERT_TRUE(enableTimersCalled);
-    TEST_ASSERT_TRUE(lastEnableTimersArg);
 }
 
 void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
@@ -233,6 +224,7 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
+    RUN_TEST(test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled);
     RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
     RUN_TEST(test_ChargerTask_PeriodicallyShowsChargingState);
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);

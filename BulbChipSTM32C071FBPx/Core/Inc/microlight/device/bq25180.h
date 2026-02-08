@@ -5,14 +5,14 @@
  *      Author: jameshunt
  */
 
+#ifndef INC_DEVICE_BQ25180_H_
+#define INC_DEVICE_BQ25180_H_
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "microlight/device/i2c.h"
 #include "microlight/device/rgb_led.h"
 #include "microlight/model/log.h"
-
-#ifndef INC_BQ25180_H_
-#define INC_BQ25180_H_
 
 #define BQ25180_I2CADDR_DEFAULT 0x6A
 
@@ -48,15 +48,12 @@
 
 enum ChargeState { notConnected, notCharging, constantCurrent, constantVoltage, done };
 
-typedef struct BQ25180 BQ25180;  // forward declaration
-
 typedef struct BQ25180 {
     I2CReadRegisters readRegisters;
     I2CWriteRegister writeRegister;
     Log log;
     uint8_t devAddress;
     RGBLed *caseLed;
-    void (*enableTimers)(bool enable);
 
     enum ChargeState chargingState;
     uint32_t checkedAtMs;
@@ -91,8 +88,7 @@ bool bq25180Init(
     I2CWriteRegister writeRegister,
     uint8_t devAddress,
     Log log,
-    RGBLed *caseLed,
-    void (*enableTimers)(bool enable));
+    RGBLed *caseLed);
 
 void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags);
 void lock(BQ25180 *chargerIC);
@@ -101,4 +97,4 @@ enum ChargeState getChargingState(BQ25180 *chargerIC);
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - send errors over usb to app
 
-#endif /* INC_BQ25180_H_ */
+#endif /* INC_DEVICE_BQ25180_H_ */
