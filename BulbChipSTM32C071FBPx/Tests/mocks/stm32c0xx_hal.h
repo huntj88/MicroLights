@@ -45,9 +45,6 @@ typedef struct {
     volatile uint32_t CCR3;
   volatile uint32_t CCR4;
 } TIM_TypeDef;
-// We need a valid pointer for dereferencing if code runs, but for compiled unused functions, 0 is fine?
-// But writeRgbPwmCaseLed uses TIM1->CCR1. It crashes if run. But tests don't run it.
-// If tests run it, we need a mock instance.
 extern TIM_TypeDef mockTIM1;
 #define TIM1  (&mockTIM1)
 extern TIM_TypeDef mockTIM3;
