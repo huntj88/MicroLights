@@ -119,9 +119,9 @@ void enableChipTickTimer(bool enable) {
     }
 }
 
-// Lint false positive from HAL?
-// NOLINTNEXTLINE(bugprone-branch-clone)
 void enableCaseLedTimer(bool enable) {
+    // HAL_TIM_PWM Start/Stop expand to identical-looking branches (lint false positive)
+    // NOLINTNEXTLINE(bugprone-branch-clone)
     if (enable) {
         HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
         HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
