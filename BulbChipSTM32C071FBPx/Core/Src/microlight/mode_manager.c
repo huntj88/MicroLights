@@ -22,11 +22,6 @@ static const char *defaultModeJson =
 
 static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs);
 static void disableCaseOutputs(ModeManager *manager, ModeOutputs *outputs);
-static bool tryGetSimpleOutput(
-    ModeComponentState *state,
-    ModeComponent *component,
-    SimpleOutput *output,
-    uint8_t equationEvalIntervalMs);
 static void handleFrontOutput(
     ModeManager *manager,
     ModeComponentState *state,
@@ -146,17 +141,6 @@ static void disableCaseOutputs(ModeManager *manager, ModeOutputs *outputs) {
     }
 }
 
-static bool tryGetSimpleOutput(
-    ModeComponentState *state,
-    ModeComponent *component,
-    SimpleOutput *output,
-    uint8_t equationEvalIntervalMs) {
-    if (!state || !component || !output) {
-        return false;
-    }
-    return modeStateGetSimpleOutput(state, component, output, equationEvalIntervalMs);
-}
-
 static void handleFrontOutput(
     ModeManager *manager,
     ModeComponentState *state,
@@ -169,7 +153,7 @@ static void handleFrontOutput(
     }
 
     SimpleOutput output;
-    if (!tryGetSimpleOutput(state, component, &output, equationEvalIntervalMs)) {
+    if (!modeStateGetSimpleOutput(state, component, &output, equationEvalIntervalMs)) {
         disableFrontOutputs(manager, outputs);
         return;
     }
@@ -210,7 +194,7 @@ static void handleCaseOutput(
     }
 
     SimpleOutput output;
-    if (!tryGetSimpleOutput(state, component, &output, equationEvalIntervalMs) ||
+    if (!modeStateGetSimpleOutput(state, component, &output, equationEvalIntervalMs) ||
         output.type != RGB) {
         disableCaseOutputs(manager, outputs);
         return;
