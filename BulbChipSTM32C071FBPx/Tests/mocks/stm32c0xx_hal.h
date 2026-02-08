@@ -61,6 +61,7 @@ typedef struct {
 #define RCC_HCLK_DIV4 4
 
 typedef struct {
+    volatile uint32_t MODER;
 } GPIO_TypeDef;
 
 typedef struct {
@@ -71,9 +72,9 @@ typedef struct {
   uint32_t Alternate;
 } GPIO_InitTypeDef;
 
-// These pointers are dereferenced inside HAL_GPIO_WritePin typically.
-// But we are mocking HAL_GPIO_WritePin prototype.
-#define GPIOA ((GPIO_TypeDef *) 0)
+// GPIOA uses a real mock instance so code can read/write MODER register.
+extern GPIO_TypeDef mockGPIOA;
+#define GPIOA (&mockGPIOA)
 #define GPIOB ((GPIO_TypeDef *) 0)
 #define GPIOC ((GPIO_TypeDef *) 0)
 
@@ -101,8 +102,8 @@ uint32_t HAL_RCC_GetPCLK1Freq(void);
 #define TIM_CHANNEL_3 2
 #define TIM_CHANNEL_4 3
 
-#define GPIO_MODE_OUTPUT_PP 0
-#define GPIO_MODE_AF_PP 1
+#define GPIO_MODE_OUTPUT_PP 0x00000001U
+#define GPIO_MODE_AF_PP     0x00000002U
 #define GPIO_NOPULL 0
 #define GPIO_SPEED_FREQ_LOW 0
 #define GPIO_AF12_TIM3 12

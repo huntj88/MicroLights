@@ -18,6 +18,9 @@ TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim17;
 
+// GPIO mock instance for GPIOA — allows code to read/write MODER register.
+GPIO_TypeDef mockGPIOA;
+
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
 static GPIO_TypeDef *lastGpioPort = NULL;
@@ -65,6 +68,18 @@ void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
     lastGpioPort = GPIOx;
     lastGpioInit = *GPIO_Init;
     gpioInitCalled = true;
+
+    // Simulate MODER register update so fBluePinIsAfMode() reads real state.
+    // Determine pin position from bitmask (e.g. GPIO_PIN_8 = 0x0100 → pos 8).
+    if (GPIOx && GPIO_Init->Pin) {
+        uint16_t pin = GPIO_Init->Pin;
+        uint32_t pos = 0;
+        while ((pin >> pos) != 1U) {
+            pos++;
+        }
+        uint32_t moder_val = GPIO_Init->Mode & 0x3U;  // 01=output, 10=AF
+        GPIOx->MODER = (GPIOx->MODER & ~(0x3U << (pos * 2U))) | (moder_val << (pos * 2U));
+    }
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
     if (gpioWriteCount < MAX_GPIO_WRITES) {
@@ -120,7 +135,9 @@ void setUp(void) {
     lastGpioPort = NULL;
     gpioInitCalled = false;
     gpioWriteCount = 0;
-    fBluePinIsAfMode = false;
+    // Set PA8 to GPIO output mode (MODER bits [17:16] = 0b01) — simulates
+    // the pin state after CubeMX init, before any AF reconfiguration.
+    mockGPIOA.MODER = (0x1U << (8U * 2U));
 }
 
 void tearDown(void) {
@@ -130,7 +147,7 @@ void tearDown(void) {
 // complete, these tests and the bulbLed_Pin writes in writeBulbLed() can be deleted.
 void test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins(void) {
     // fBlue starts in GPIO mode, so writeBulbLed should drive both pins
-    TEST_ASSERT_FALSE(fBluePinIsAfMode);
+    TEST_ASSERT_FALSE(fBluePinIsAfMode());
     gpioWriteCount = 0;
 
     writeBulbLed(1);
@@ -172,7 +189,7 @@ void test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins(void) {
 
 void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
     // Start in GPIO mode (default after reset)
-    TEST_ASSERT_FALSE(fBluePinIsAfMode);
+    TEST_ASSERT_FALSE(fBluePinIsAfMode());
 
     // --- Step 1: enableFrontLedTimer(true) reconfigures to AF/PWM ---
     gpioInitCalled = false;
@@ -180,7 +197,7 @@ void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
 
     TEST_ASSERT_TRUE_MESSAGE(gpioInitCalled, "Should reconfigure to AF on first enable");
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_AF_PP, lastGpioInit.Mode);
-    TEST_ASSERT_TRUE(fBluePinIsAfMode);
+    TEST_ASSERT_TRUE(fBluePinIsAfMode());
 
     // --- Step 2: writeBulbLed does NOT reconfigure when pin is AF ---
     gpioInitCalled = false;
@@ -188,7 +205,7 @@ void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
     writeBulbLed(1);
 
     TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should NOT reconfigure GPIO when pin is AF");
-    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode, "Pin should remain in AF mode");
+    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode(), "Pin should remain in AF mode");
     // fBlue should NOT be written when in AF mode
     bool fBlueWritten = false;
     for (uint32_t i = 0; i < gpioWriteCount; i++) {
@@ -204,9 +221,7 @@ void test_EnableFrontLedTimer_GpioReconfigurationRoundTrip(void) {
 
     TEST_ASSERT_TRUE_MESSAGE(gpioInitCalled, "Should reconfigure to GPIO on disable");
     TEST_ASSERT_EQUAL_UINT32(GPIO_MODE_OUTPUT_PP, lastGpioInit.Mode);
-    TEST_ASSERT_FALSE(fBluePinIsAfMode);
-
-    // --- Step 4: writeBulbLed should NOT reconfigure (already GPIO) but DOES drive pin ---
+    TEST_ASSERT_FALSE(fBluePinIsAfMode());
     gpioInitCalled = false;
     gpioWriteCount = 0;
     writeBulbLed(0);
@@ -248,7 +263,7 @@ void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
     writeBulbLed(1);
     TEST_ASSERT_FALSE_MESSAGE(
         gpioInitCalled, "writeBulbLed must not reconfigure fBlue when in AF mode");
-    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode, "Pin should still be AF after writeBulbLed");
+    TEST_ASSERT_TRUE_MESSAGE(fBluePinIsAfMode(), "Pin should still be AF after writeBulbLed");
 
     // enableFrontLedTimer(false) reconfigures back to GPIO
     gpioInitCalled = false;

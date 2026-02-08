@@ -18,11 +18,19 @@ extern TIM_HandleTypeDef htim17;
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
 
 // fBlue pin is shared between GPIO (bulb) and AF (TIM3 PWM) modes.
-// Track current mode to avoid expensive HAL_GPIO_Init on every call.
-static bool fBluePinIsAfMode = false;
+// Read the hardware MODER register to detect current pin configuration
+// and avoid expensive HAL_GPIO_Init on every call.
+// PA8 → MODER bits [17:16]: 0b00 = Input, 0b01 = Output, 0b10 = AF, 0b11 = Analog
+#define FBLUE_PIN_POS 8U
+#define FBLUE_MODER_MASK (0x3U << (FBLUE_PIN_POS * 2U))
+#define FBLUE_MODER_AF   (0x2U << (FBLUE_PIN_POS * 2U))
+
+static inline bool fBluePinIsAfMode(void) {
+    return (fBlue_GPIO_Port->MODER & FBLUE_MODER_MASK) == FBLUE_MODER_AF;
+}
 
 static void configureFrontBlueGpio(void) {
-    if (!fBluePinIsAfMode) {
+    if (!fBluePinIsAfMode()) {
         return;
     }
     GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -34,11 +42,10 @@ static void configureFrontBlueGpio(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
-    fBluePinIsAfMode = false;
 }
 
 static void configureFrontBluePwm(void) {
-    if (fBluePinIsAfMode) {
+    if (fBluePinIsAfMode()) {
         return;
     }
     GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -51,7 +58,6 @@ static void configureFrontBluePwm(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF12_TIM3;
     HAL_GPIO_Init(fBlue_GPIO_Port, &GPIO_InitStruct);
-    fBluePinIsAfMode = true;
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -107,7 +113,7 @@ void writeBulbLed(uint8_t state) {
     // Only drive fBlue when pin is in GPIO mode. When the front LED timer owns
     // the pin (AF/PWM mode), writing GPIO would have no visible effect but
     // reconfiguring to GPIO would break the PWM output.
-    if (!fBluePinIsAfMode) {
+    if (!fBluePinIsAfMode()) {
         HAL_GPIO_WritePin(fBlue_GPIO_Port, fBlue_Pin, pinState);
     }
 }

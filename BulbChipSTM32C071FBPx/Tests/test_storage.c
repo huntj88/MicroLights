@@ -15,6 +15,7 @@ FLASH_TypeDef mockFlashPeripheral;
 FLASH_TypeDef *FLASH = &mockFlashPeripheral;
 
 // New HAL Mocks/Stubs needed for mcu_dependencies.c
+GPIO_TypeDef mockGPIOA;
 TIM_TypeDef mockTIM1;
 TIM_TypeDef mockTIM3;
 I2C_HandleTypeDef hi2c1;
@@ -47,6 +48,16 @@ GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
+    // Simulate MODER register update for fBluePinIsAfMode() hardware read.
+    if (GPIOx && GPIO_Init && GPIO_Init->Pin) {
+        uint16_t pin = GPIO_Init->Pin;
+        uint32_t pos = 0;
+        while ((pin >> pos) != 1U) {
+            pos++;
+        }
+        uint32_t moder_val = GPIO_Init->Mode & 0x3U;
+        GPIOx->MODER = (GPIOx->MODER & ~(0x3U << (pos * 2U))) | (moder_val << (pos * 2U));
+    }
 }
 void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState) {
 }
@@ -134,7 +145,7 @@ void setUp(void) {
     // Initialize to 0xFF (erased state)
     memset(ptr, 0xFF, len);
 
-    fBluePinIsAfMode = false;
+    mockGPIOA.MODER = (0x1U << (8U * 2U));  // PA8 in GPIO output mode
 }
 
 void tearDown(void) {
