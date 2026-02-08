@@ -616,6 +616,9 @@ void test_UpdateMode_AccelTrigger_OverridesPatterns_WhenThresholdMet(void) {
 
     // Should be High and Red
     TEST_ASSERT_EQUAL_UINT8(1, lastWrittenBulbState);
+    // Front trigger overrides to BULB high — front RGB should not have been written
+    // Case trigger overrides to RGB red
+    TEST_ASSERT_EQUAL_UINT8(255, lastRgbR);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbG);
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
@@ -808,6 +811,44 @@ void test_UpdateMode_AccelTrigger_UsesHighestMatchingTrigger_AssumingAscendingOr
     TEST_ASSERT_EQUAL_UINT8(0, lastRgbB);
 }
 
+void test_ModeTask_CaseValid_False_WhenCanUpdateCaseLedFalse(void) {
+    ModeManager manager;
+    modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        &mockFrontLed,
+        mock_readSavedMode,
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
+
+    // Setup active case pattern that would produce caseValid=true
+    manager.currentMode.hasCaseComp = true;
+    manager.currentMode.caseComp.pattern.type = PATTERN_TYPE_SIMPLE;
+    manager.currentMode.caseComp.pattern.data.simple.duration = 1000;
+    manager.currentMode.caseComp.pattern.data.simple.changeAtCount = 1;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].ms = 0;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.type = RGB;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.r = 100;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.g = 200;
+    manager.currentMode.caseComp.pattern.data.simple.changeAt[0].output.data.rgb.b = 50;
+
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
+    manager.shouldResetState = false;
+
+    // canUpdateCaseLed=false should suppress case output
+    ModeOutputs outputs = modeTask(&manager, 100, false, 50);
+
+    TEST_ASSERT_FALSE_MESSAGE(
+        outputs.caseValid, "caseValid should be false when canUpdateCaseLed is false");
+
+    // Verify it IS true when canUpdateCaseLed=true (same state)
+    ModeOutputs outputsEnabled = modeTask(&manager, 200, true, 50);
+
+    TEST_ASSERT_TRUE_MESSAGE(
+        outputsEnabled.caseValid, "caseValid should be true when canUpdateCaseLed is true");
+}
+
 void test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed(void) {
     ModeManager manager;
     RGBLed sharedLed;
@@ -861,6 +902,7 @@ int main(void) {
     RUN_TEST(test_ModeManager_LoadMode_EnablesAccel_IfModeHasAccel);
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_ModeManager_LogsEquationCompileError);
+    RUN_TEST(test_ModeTask_CaseValid_False_WhenCanUpdateCaseLedFalse);
     RUN_TEST(test_ModeTask_NoFrontComponent_ClearsBulbAndFrontOutput);
     RUN_TEST(test_ModeTask_ReturnsCaseRgbActive);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);

@@ -55,7 +55,6 @@ bool modeManagerInit(
     manager->log = log;
     manager->currentModeIndex = 0;
     manager->shouldResetState = true;
-    manager->lastBulbPinState = 255;  // sentinel: guarantees first write always reaches hardware
     memset(&manager->modeState, 0, sizeof(manager->modeState));
     return true;
 }
@@ -64,7 +63,6 @@ void setMode(ModeManager *manager, Mode *mode, uint8_t index) {
     manager->currentMode = *mode;
     manager->currentModeIndex = index;
     manager->shouldResetState = true;
-    manager->lastBulbPinState = 255;  // invalidate: timer enable/disable may override pin state
 
     if (manager->currentMode.hasAccel && manager->currentMode.accel.triggersCount > 0) {
         mc3479Enable(manager->accel);
@@ -111,20 +109,12 @@ bool isFakeOff(ModeManager *manager) {
     return manager->currentModeIndex == FAKE_OFF_MODE_INDEX;
 }
 
-// Only call the hardware writeBulbLedPin when the state actually changes.
-static void writeBulbLedIfChanged(ModeManager *manager, uint8_t state) {
-    if (state != manager->lastBulbPinState) {
-        manager->writeBulbLedPin(state);
-        manager->lastBulbPinState = state;
-    }
-}
-
 static void disableFrontOutputs(ModeManager *manager, ModeOutputs *outputs) {
     if (!manager) {
         return;
     }
     // Legacy: ensure bulb GPIO is forced low when PWM front output is not used.
-    writeBulbLedIfChanged(manager, 0);
+    manager->writeBulbLedPin(0);
     rgbShowUserColor(manager->frontLed, 0, 0, 0);
     if (outputs) {
         outputs->frontValid = false;
@@ -163,7 +153,7 @@ static void handleFrontOutput(
             outputs->frontValid = true;
             outputs->frontType = BULB;
         }
-        writeBulbLedIfChanged(manager, output.data.bulb == high ? 1 : 0);
+        manager->writeBulbLedPin(output.data.bulb == high ? 1 : 0);
         return;
     }
 
@@ -173,7 +163,7 @@ static void handleFrontOutput(
             outputs->frontType = RGB;
         }
         // Legacy: ensure bulb GPIO is forced low when RGB is active.
-        writeBulbLedIfChanged(manager, 0);
+        manager->writeBulbLedPin(0);
         rgbShowUserColor(
             manager->frontLed, output.data.rgb.r, output.data.rgb.g, output.data.rgb.b);
         return;

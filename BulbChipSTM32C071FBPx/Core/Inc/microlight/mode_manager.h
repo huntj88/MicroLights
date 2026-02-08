@@ -32,7 +32,6 @@ typedef struct ModeManager {
     Log log;
     ModeState modeState;
     bool shouldResetState;
-    uint8_t lastBulbPinState;  // cached to skip redundant HAL writes (255 = uninitialized)
 } ModeManager;
 
 typedef struct ModeOutputs {
