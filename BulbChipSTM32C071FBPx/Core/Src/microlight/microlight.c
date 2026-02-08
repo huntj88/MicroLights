@@ -80,7 +80,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         return false;
     }
 
-    if (!buttonInit(&button, deps->readButtonPin, deps->enableChipTickTimer, &caseLed)) {
+    if (!buttonInit(&button, deps->readButtonPin, &caseLed)) {
         return false;
     }
 
@@ -142,6 +142,13 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             })) {
         return false;
     }
+
+    // CubeMX's MX_TIM3_Init() → HAL_TIM_MspPostInit() configures PA8 (fBlue)
+    // to AF mode. In a bulb-only configuration applyTimerPolicy() never calls
+    // enableFrontLedTimer(false) (both old and new values are false), so the
+    // pin stays in AF mode and writeBulbLed() skips it. Force GPIO mode here
+    // so bulb output works from the start without requiring a front-PWM cycle.
+    deps->enableFrontLedTimer(false);
 
     deps->startAutoOffTimer();
     return true;

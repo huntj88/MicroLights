@@ -292,6 +292,29 @@ void test_StateTask_ButtonInterrupt_EnablesCasePwm(void) {
     TEST_ASSERT_TRUE(caseLedTimerEnabled);
 }
 
+void test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff(void) {
+    configureChipState(&state, mockDeps);
+
+    mockChargeState = notConnected;
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;
+    mockIsEvaluatingButtonPress = false;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    // First call in fake-off with no button activity — chip tick should be disabled
+    stateTask(&state, 0, (StateTaskFlags){0});
+    TEST_ASSERT_FALSE(chipTickTimerEnabled);
+
+    // Button interrupt fires — chip tick should be enabled to service the press
+    chipTickTimerCallCount = 0;
+    stateTask(&state, 10, (StateTaskFlags){.buttonInterruptTriggered = true});
+    TEST_ASSERT_TRUE(chipTickTimerEnabled);
+    TEST_ASSERT_GREATER_THAN_UINT32(0, chipTickTimerCallCount);
+}
+
 void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
     configureChipState(&state, mockDeps);
 
@@ -530,6 +553,7 @@ int main(void) {
     RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesCasePwm);
+    RUN_TEST(test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
