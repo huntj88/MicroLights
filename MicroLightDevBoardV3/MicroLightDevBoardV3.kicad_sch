@@ -8813,7 +8813,7 @@
 				)
 			)
 		)
-		(property "Value" "6.8k"
+		(property "Value" "10k"
 			(at 136.652 110.49 0)
 			(effects
 				(font
@@ -8840,6 +8840,15 @@
 			)
 		)
 		(property "Description" "Resistor"
+			(at 133.35 110.49 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "LCSC" "C25744"
 			(at 133.35 110.49 0)
 			(effects
 				(font
