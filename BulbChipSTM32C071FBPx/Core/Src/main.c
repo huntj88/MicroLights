@@ -502,17 +502,11 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(bulbLed_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : chargerIT_Pin */
-    GPIO_InitStruct.Pin = chargerIT_Pin;
+    /*Configure GPIO pins : chargerIT_Pin button_Pin */
+    GPIO_InitStruct.Pin = chargerIT_Pin | button_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(chargerIT_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : button_Pin */
-    GPIO_InitStruct.Pin = button_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(button_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);

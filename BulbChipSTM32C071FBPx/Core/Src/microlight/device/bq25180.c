@@ -25,6 +25,7 @@ static void enableShipMode(BQ25180 *chargerIC);
 static void hardwareReset(BQ25180 *chargerIC);
 static void byteToBinary(uint8_t num, char *buf);
 static void bq25180regsToJson(BQ25180Registers registers, char jsonOutput[], uint32_t len);
+static enum ChargeState readChargingState(BQ25180 *chargerIC);
 
 // =================================================================================================
 // Public Interface
@@ -48,7 +49,8 @@ bool bq25180Init(
     chargerIC->caseLed = caseLed;
 
     chargerIC->chargingState = notConnected;
-    chargerIC->checkedAtMs = 0;
+    chargerIC->chargeStateCachedAtMs = 0;
+    chargerIC->registersReadAtMs = 0;
 
     configureChargerIC(chargerIC);
 
@@ -60,21 +62,22 @@ void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags fla
     enum ChargeState previousState = chargerIC->chargingState;
     uint32_t elapsedMillis = 0;
 
-    if (chargerIC->checkedAtMs != 0) {
-        elapsedMillis = milliseconds - chargerIC->checkedAtMs;
+    if (chargerIC->registersReadAtMs != 0) {
+        elapsedMillis = milliseconds - chargerIC->registersReadAtMs;
     }
 
     // charger i2c watchdog timer will reset if not communicated
     // with for 40 seconds, and 15 seconds after plugged in.
-    if (elapsedMillis > 30000 || chargerIC->checkedAtMs == 0) {
+    if (elapsedMillis > 30000 || chargerIC->registersReadAtMs == 0) {
         if (flags.serialEnabled) {
             char registerJson[BQ25180_JSON_BUFFER_SIZE];
             readAllRegistersJson(chargerIC, registerJson, sizeof(registerJson));
             chargerIC->log(registerJson, strlen(registerJson));
         }
 
-        chargerIC->chargingState = getChargingState(chargerIC);
-        chargerIC->checkedAtMs = milliseconds;
+        chargerIC->chargingState = readChargingState(chargerIC);
+        chargerIC->chargeStateCachedAtMs = milliseconds;
+        chargerIC->registersReadAtMs = milliseconds;
     }
 
     // flash charging state to user every ~1 second (1024ms, 2^10)
@@ -84,8 +87,9 @@ void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags fla
     }
 
     if (flags.interruptTriggered) {
-        enum ChargeState state = getChargingState(chargerIC);
+        enum ChargeState state = readChargingState(chargerIC);
         chargerIC->chargingState = state;
+        chargerIC->chargeStateCachedAtMs = milliseconds;
 
         bool wasDisconnected = previousState != notConnected && state == notConnected;
         if (milliseconds != 0 && wasDisconnected && flags.unplugLockEnabled) {
@@ -101,9 +105,18 @@ void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags fla
     }
 }
 
-enum ChargeState getChargingState(BQ25180 *chargerIC) {
-    // TODO: use chargerIC->chargingState, add timestamp and use cache if checked recently?
+enum ChargeState getChargingState(BQ25180 *chargerIC, uint32_t milliseconds) {
+    uint32_t elapsed = milliseconds - chargerIC->chargeStateCachedAtMs;
+    if (chargerIC->chargeStateCachedAtMs != 0 && elapsed < 1000) {
+        return chargerIC->chargingState;
+    }
 
+    chargerIC->chargingState = readChargingState(chargerIC);
+    chargerIC->chargeStateCachedAtMs = milliseconds;
+    return chargerIC->chargingState;
+}
+
+static enum ChargeState readChargingState(BQ25180 *chargerIC) {
     uint8_t regResult = 0;
     if (!chargerIC->readRegisters(chargerIC->devAddress, BQ25180_STAT0, &regResult, 1)) {
         return notConnected;
@@ -128,7 +141,7 @@ enum ChargeState getChargingState(BQ25180 *chargerIC) {
 }
 
 void lock(BQ25180 *chargerIC) {
-    enum ChargeState state = getChargingState(chargerIC);
+    enum ChargeState state = readChargingState(chargerIC);
     if (state == notConnected) {
         enableShipMode(chargerIC);
     } else {

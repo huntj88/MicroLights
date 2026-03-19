@@ -61,7 +61,8 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
 }
 
-enum ChargeState getChargingState(BQ25180 *dev) {
+enum ChargeState getChargingState(BQ25180 *dev, uint32_t milliseconds) {
+    (void)milliseconds;
     return notConnected;
 }
 void loadMode(ModeManager *manager, uint8_t index) {

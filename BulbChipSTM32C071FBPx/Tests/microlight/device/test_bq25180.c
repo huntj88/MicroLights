@@ -129,7 +129,7 @@ void test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled(void) {
 
 void test_ChargerTask_PeriodicallyShowsChargingState(void) {
     charger.chargingState = constantCurrent;
-    charger.checkedAtMs = 100;  // Prevent watchdog update
+    charger.registersReadAtMs = 100;  // Prevent register read
 
     // Test at (ms & 0x3FF) < 50 (e.g., 1024)
     chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = true});  // ledEnabled = true
@@ -145,7 +145,7 @@ void test_ChargerTask_PeriodicallyShowsChargingState(void) {
 
 void test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled(void) {
     charger.chargingState = constantCurrent;
-    charger.checkedAtMs = 100;  // Prevent watchdog update
+    charger.registersReadAtMs = 100;  // Prevent register read
 
     chargerTask(&charger, 1024, (ChargerTaskFlags){.chargeLedEnabled = false});
 
@@ -155,7 +155,7 @@ void test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled(void) {
 void test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected(void) {
     // Initial state: Not Connected
     charger.chargingState = notConnected;
-    charger.checkedAtMs = 100;  // Prevent watchdog update
+    charger.registersReadAtMs = 100;  // Prevent register read
 
     // New state in registers: Done charging
     mockRegisters[BQ25180_STAT0] = 0b01100000;  // Done charging (Bit 6=1, Bit 5=1)
@@ -181,7 +181,7 @@ void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
     // ... other registers will be 0 by default from setUp
 
     // Force watchdog update condition (checkedAtMs == 0)
-    charger.checkedAtMs = 0;
+    charger.registersReadAtMs = 0;
 
     // Run task with serialEnabled = true
     chargerTask(&charger, 1000, (ChargerTaskFlags){.serialEnabled = true});
@@ -194,7 +194,7 @@ void test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled(void) {
 
 void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
     // Force watchdog update condition (checkedAtMs == 0)
-    charger.checkedAtMs = 0;
+    charger.registersReadAtMs = 0;
 
     // Run task with serialEnabled = true
     chargerTask(&charger, 1000, (ChargerTaskFlags){.serialEnabled = true});

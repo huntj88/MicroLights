@@ -28,9 +28,9 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     state->lastChipTickEnabled = false;
     state->lastCasePwmEnabled = false;
     state->lastFrontPwmEnabled = false;
-    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
 
-    if (chargeState == notConnected) {
+    enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
+    if (initialChargeState == notConnected) {
         loadMode(state->deps.modeManager, 0);
     } else {
         // Enter fake off mode when charging, show led status by enabling charge led timers
@@ -105,7 +105,7 @@ static void applyTimerPolicy(
 }
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
-    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
+    enum ChargeState chargeState = getChargingState(state->deps.chargerIC, milliseconds);
     handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState);
 
     bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);

@@ -51,7 +51,8 @@ void mock_writeUsbSerial(const char *buf, size_t count) {
 
 // External Mocks (Functions called by chip_state.c)
 enum ChargeState mockChargeState = notConnected;
-enum ChargeState getChargingState(BQ25180 *dev) {
+enum ChargeState getChargingState(BQ25180 *dev, uint32_t milliseconds) {
+    (void)milliseconds;
     return mockChargeState;
 }
 
