@@ -49,7 +49,7 @@ extern "C" {
 //--------------------------------------------------------------------
 
 #define CFG_TUSB_MCU OPT_MCU_STM32C0
-#define CFG_TUSB_RHPORT1_MODE (OPT_MODE_DEVICE | OPT_MODE_HIGH_SPEED)
+#define CFG_TUSB_RHPORT0_MODE (OPT_MODE_DEVICE | OPT_MODE_FULL_SPEED)
 
 // defined by board.mk
 #ifndef CFG_TUSB_MCU
