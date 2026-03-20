@@ -155,6 +155,20 @@ void enableFrontLedTimer(bool enable) {
     }
 }
 
+void enableUsbClock(bool enable) {
+    if (enable) {
+        __HAL_RCC_HSI48_ENABLE();
+        while (READ_BIT(RCC->CR, RCC_CR_HSIUSB48RDY) == 0U) {
+        }
+        __HAL_RCC_CRS_CLK_ENABLE();
+        CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
+    } else {
+        CRS->CR &= ~(CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
+        __HAL_RCC_CRS_CLK_DISABLE();
+        __HAL_RCC_HSI48_DISABLE();
+    }
+}
+
 void startAutoOffTimer(void) {
     HAL_TIM_Base_Start_IT(&htim17);
 }

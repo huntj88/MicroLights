@@ -131,6 +131,7 @@ int main(void) {
         .enableChipTickTimer = enableChipTickTimer,
         .enableCaseLedTimer = enableCaseLedTimer,
         .enableFrontLedTimer = enableFrontLedTimer,
+        .enableUsbClock = enableUsbClock,
         .startAutoOffTimer = startAutoOffTimer,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,

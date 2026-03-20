@@ -34,6 +34,7 @@ typedef struct {
     void (*enableChipTickTimer)(bool enable);
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
+    void (*enableUsbClock)(bool enable);
     Log log;
 } ChipDependencies;
 
@@ -47,6 +48,7 @@ typedef struct {
     bool lastChipTickEnabled;
     bool lastCasePwmEnabled;
     bool lastFrontPwmEnabled;
+    bool lastUsbClockEnabled;
 } ChipState;
 
 bool configureChipState(ChipState *state, ChipDependencies deps);

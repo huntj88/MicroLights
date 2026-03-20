@@ -107,4 +107,27 @@ uint32_t HAL_RCC_GetPCLK1Freq(void);
 #define GPIO_AF11_TIM3 11
 #define GPIO_AF12_TIM3 12
 
+// RCC/CRS mock for HSI48 gating (enableUsbClock)
+typedef struct {
+    volatile uint32_t CR;
+} RCC_TypeDef;
+extern RCC_TypeDef mockRCC;
+#define RCC (&mockRCC)
+#define RCC_CR_HSIUSB48ON  0x00000100U
+#define RCC_CR_HSIUSB48RDY 0x00000200U
+#define READ_BIT(REG, BIT) ((REG) & (BIT))
+
+typedef struct {
+    volatile uint32_t CR;
+} CRS_TypeDef;
+extern CRS_TypeDef mockCRS;
+#define CRS (&mockCRS)
+#define CRS_CR_AUTOTRIMEN 0x00000040U
+#define CRS_CR_CEN        0x00000020U
+
+#define __HAL_RCC_HSI48_ENABLE()   (RCC->CR |= RCC_CR_HSIUSB48ON)
+#define __HAL_RCC_HSI48_DISABLE()  (RCC->CR &= ~RCC_CR_HSIUSB48ON)
+#define __HAL_RCC_CRS_CLK_ENABLE()
+#define __HAL_RCC_CRS_CLK_DISABLE()
+
 #endif

@@ -20,7 +20,7 @@
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
-        !deps.enableFrontLedTimer || !deps.log) {
+        !deps.enableFrontLedTimer || !deps.enableUsbClock || !deps.log) {
         return false;
     }
     state->deps = deps;
@@ -30,6 +30,10 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     state->lastFrontPwmEnabled = false;
 
     enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
+    bool usbNeeded = initialChargeState != notConnected;
+    state->lastUsbClockEnabled = usbNeeded;
+    state->deps.enableUsbClock(usbNeeded);
+
     if (initialChargeState == notConnected) {
         loadMode(state->deps.modeManager, 0);
     } else {
@@ -89,6 +93,7 @@ static void applyTimerPolicy(
     bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
     bool frontPwmEnabled = frontRgbActive;
+    bool usbClockEnabled = chargeState != notConnected;
 
     if (chipTickEnabled != state->lastChipTickEnabled) {
         state->deps.enableChipTickTimer(chipTickEnabled);
@@ -101,6 +106,10 @@ static void applyTimerPolicy(
     if (frontPwmEnabled != state->lastFrontPwmEnabled) {
         state->deps.enableFrontLedTimer(frontPwmEnabled);
         state->lastFrontPwmEnabled = frontPwmEnabled;
+    }
+    if (usbClockEnabled != state->lastUsbClockEnabled) {
+        state->deps.enableUsbClock(usbClockEnabled);
+        state->lastUsbClockEnabled = usbClockEnabled;
     }
 }
 

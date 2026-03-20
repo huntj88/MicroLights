@@ -28,9 +28,11 @@ static char lastSerialOutput[100];
 static bool chipTickTimerEnabled = false;
 static bool caseLedTimerEnabled = false;
 static bool frontLedTimerEnabled = false;
+static bool usbClockEnabled = false;
 static uint32_t chipTickTimerCallCount = 0;
 static uint32_t caseLedTimerCallCount = 0;
 static uint32_t frontLedTimerCallCount = 0;
+static uint32_t usbClockCallCount = 0;
 static bool chargerTaskCalled = false;
 static ChargerTaskFlags lastChargerFlags;
 static bool lastModeTaskCanUpdateCaseLed = false;
@@ -75,6 +77,11 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
     frontLedTimerEnabled = enable;
     frontLedTimerCallCount++;
+}
+
+void mock_enableUsbClock(bool enable) {
+    usbClockEnabled = enable;
+    usbClockCallCount++;
 }
 
 enum ButtonResult mockButtonResult = ignore;
@@ -144,9 +151,11 @@ void setUp(void) {
     chipTickTimerEnabled = false;
     caseLedTimerEnabled = false;
     frontLedTimerEnabled = false;
+    usbClockEnabled = false;
     chipTickTimerCallCount = 0;
     caseLedTimerCallCount = 0;
     frontLedTimerCallCount = 0;
+    usbClockCallCount = 0;
     chargerTaskCalled = false;
     memset(&lastChargerFlags, 0, sizeof(lastChargerFlags));
     lastModeTaskCanUpdateCaseLed = false;
@@ -175,6 +184,7 @@ void setUp(void) {
         .enableChipTickTimer = mock_enableChipTickTimer,
         .enableCaseLedTimer = mock_enableCaseLedTimer,
         .enableFrontLedTimer = mock_enableFrontLedTimer,
+        .enableUsbClock = mock_enableUsbClock,
         .log = mock_writeUsbSerial,
     };
 }
