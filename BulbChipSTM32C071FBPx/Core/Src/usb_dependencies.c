@@ -12,6 +12,10 @@ void usbWrite(const char *buf, size_t count) {
     size_t sent = 0;
 
     while (sent < count) {
+        if (!tud_vendor_mounted()) {
+            break;
+        }
+
         uint32_t available = tud_vendor_write_available();
         if (available > 0) {
             uint32_t to_send = (uint32_t)(count - sent);
@@ -21,8 +25,6 @@ void usbWrite(const char *buf, size_t count) {
 
             uint32_t written = tud_vendor_write(buf + sent, to_send);
             sent += written;
-        } else {
-            break;
         }
         tud_task();
     }

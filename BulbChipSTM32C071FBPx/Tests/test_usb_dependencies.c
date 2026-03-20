@@ -16,8 +16,13 @@ static int mock_tud_read_len = 0;
 static int mock_tud_read_idx = 0;
 static int mock_tud_task_calls = 0;
 static int mock_tud_flush_calls = 0;
+static bool mock_tud_mounted = true;
 
 // Mock implementations
+bool tud_vendor_n_mounted(uint8_t itf) {
+    return mock_tud_mounted;
+}
+
 uint32_t tud_vendor_n_write_available(uint8_t itf) {
     return mock_tud_write_available;
 }
@@ -66,6 +71,7 @@ void setUp(void) {
     mock_tud_read_idx = 0;
     mock_tud_task_calls = 0;
     mock_tud_flush_calls = 0;
+    mock_tud_mounted = true;
     memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
     memset(mock_tud_read_buffer, 0, sizeof(mock_tud_read_buffer));
 }
