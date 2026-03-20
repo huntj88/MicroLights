@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 
 import { PatternSelector } from './PatternSelector';
 import {
-  isBinaryPattern,
   isColorPattern,
   type ModeAccelTrigger,
   type ModePattern,
