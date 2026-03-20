@@ -187,7 +187,9 @@ TU_VERIFY_STATIC(sizeof(desc_ms_os_20) == MS_OS_20_DESC_LEN, "Incorrect size");
 // Driver response accordingly to the request and the transfer stage (setup/data/ack)
 // return false to stall control endpoint (e.g unsupported request)
 bool tud_vendor_control_xfer_cb(
-    uint8_t rhport, uint8_t stage, tusb_control_request_t const *request) {
+    uint8_t rhport,  // NOLINT(bugprone-easily-swappable-parameters)
+    uint8_t stage,
+    tusb_control_request_t const *request) {
     // nothing to do with DATA & ACK stage
     if (stage != CONTROL_STAGE_SETUP) {
         return true;
