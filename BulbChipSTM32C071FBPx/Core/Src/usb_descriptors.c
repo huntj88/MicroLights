@@ -39,7 +39,12 @@
      _PID_MAP(VENDOR, 4))
 
 #define USB_VID 0xCafe
-#define USB_BCD 0x0200
+#define USB_BCD 0x0210  // USB 2.1 required for BOS & WebUSB
+
+//--------------------------------------------------------------------+
+// WebUSB / MS OS 2.0 Vendor Requests
+//--------------------------------------------------------------------+
+enum { VENDOR_REQUEST_WEBUSB = 1, VENDOR_REQUEST_MICROSOFT = 2 };
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -49,11 +54,10 @@ tusb_desc_device_t const desc_device = {
     .bDescriptorType = TUSB_DESC_DEVICE,
     .bcdUSB = USB_BCD,
 
-    // Use Interface Association Descriptor (IAD) for CDC
-    // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
-    .bDeviceClass = TUSB_CLASS_MISC,
-    .bDeviceSubClass = MISC_SUBCLASS_COMMON,
-    .bDeviceProtocol = MISC_PROTOCOL_IAD,
+    // Vendor-specific device: class defined at interface level
+    .bDeviceClass = 0x00,
+    .bDeviceSubClass = 0x00,
+    .bDeviceProtocol = 0x00,
     .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
     .idVendor = USB_VID,
@@ -75,29 +79,19 @@ uint8_t const *tud_descriptor_device_cb(void) {
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
-enum { ITF_NUM_CDC_0 = 0, ITF_NUM_CDC_0_DATA, ITF_NUM_CDC_1, ITF_NUM_CDC_1_DATA, ITF_NUM_TOTAL };
+enum { ITF_NUM_VENDOR = 0, ITF_NUM_TOTAL };
 
-#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + CFG_TUD_CDC * TUD_CDC_DESC_LEN)
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_VENDOR_DESC_LEN)
 
-#define EPNUM_CDC_0_NOTIF 0x81
-#define EPNUM_CDC_0_OUT 0x02
-#define EPNUM_CDC_0_IN 0x82
-
-#define EPNUM_CDC_1_NOTIF 0x83
-#define EPNUM_CDC_1_OUT 0x04
-#define EPNUM_CDC_1_IN 0x84
+#define EPNUM_VENDOR_OUT 0x01
+#define EPNUM_VENDOR_IN 0x81
 
 uint8_t const desc_fs_configuration[] = {
     // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
 
-    // 1st CDC: Interface number, string index, EP notification address and size, EP data address
-    // (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_0, 4, EPNUM_CDC_0_NOTIF, 8, EPNUM_CDC_0_OUT, EPNUM_CDC_0_IN, 64),
-
-    // 2nd CDC: Interface number, string index, EP notification address and size, EP data address
-    // (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_1, 4, EPNUM_CDC_1_NOTIF, 8, EPNUM_CDC_1_OUT, EPNUM_CDC_1_IN, 64),
+    // Vendor interface: Interface number, string index, EP Out & IN address, EP size
+    TUD_VENDOR_DESCRIPTOR(ITF_NUM_VENDOR, 4, EPNUM_VENDOR_OUT, EPNUM_VENDOR_IN, 64),
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -107,6 +101,139 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
     (void)index;  // for multiple configurations
 
     return desc_fs_configuration;
+}
+
+//--------------------------------------------------------------------+
+// BOS Descriptor (required for WebUSB)
+//--------------------------------------------------------------------+
+#define BOS_TOTAL_LEN (TUD_BOS_DESC_LEN + TUD_BOS_WEBUSB_DESC_LEN + TUD_BOS_MICROSOFT_OS_DESC_LEN)
+
+#define MS_OS_20_DESC_LEN 0xB2
+
+uint8_t const desc_bos[] = {
+    // total length, number of device caps
+    TUD_BOS_DESCRIPTOR(BOS_TOTAL_LEN, 2),
+
+    // WebUSB: Vendor Code, iLandingPage
+    TUD_BOS_WEBUSB_DESCRIPTOR(VENDOR_REQUEST_WEBUSB, 1),
+
+    // Microsoft OS 2.0 descriptor
+    TUD_BOS_MS_OS_20_DESCRIPTOR(MS_OS_20_DESC_LEN, VENDOR_REQUEST_MICROSOFT),
+};
+
+uint8_t const *tud_descriptor_bos_cb(void) {
+    return desc_bos;
+}
+
+//--------------------------------------------------------------------+
+// WebUSB URL Descriptor
+//--------------------------------------------------------------------+
+#define WEBUSB_URL "micro-lights-configure.vercel.app/"
+
+tusb_desc_webusb_url_t const desc_url = {
+    .bLength = 3 + sizeof(WEBUSB_URL) - 1,
+    .bDescriptorType = 3,  // WEBUSB URL type
+    .bScheme = 1,           // 0: http, 1: https
+    .url = WEBUSB_URL};
+
+//--------------------------------------------------------------------+
+// Microsoft OS 2.0 Descriptor
+//--------------------------------------------------------------------+
+// clang-format off
+uint8_t const desc_ms_os_20[] = {
+    // Set header: length, type, windows version, total length
+    U16_TO_U8S_LE(0x000A), U16_TO_U8S_LE(MS_OS_20_SET_HEADER_DESCRIPTOR),
+    U32_TO_U8S_LE(0x06030000), U16_TO_U8S_LE(MS_OS_20_DESC_LEN),
+
+    // Configuration subset header: length, type, configuration index, reserved, total length
+    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_CONFIGURATION),
+    0, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A),
+
+    // Function Subset header: length, type, first interface, reserved, subset length
+    U16_TO_U8S_LE(0x0008), U16_TO_U8S_LE(MS_OS_20_SUBSET_HEADER_FUNCTION),
+    ITF_NUM_VENDOR, 0, U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08),
+
+    // MS OS 2.0 Compatible ID descriptor: length, type, compatible ID, sub compatible ID
+    U16_TO_U8S_LE(0x0014), U16_TO_U8S_LE(MS_OS_20_FEATURE_COMPATBLE_ID),
+    'W', 'I', 'N', 'U', 'S', 'B', 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,  // sub-compatible
+
+    // MS OS 2.0 Registry property descriptor: length, type
+    U16_TO_U8S_LE(MS_OS_20_DESC_LEN - 0x0A - 0x08 - 0x08 - 0x14),
+    U16_TO_U8S_LE(MS_OS_20_FEATURE_REG_PROPERTY),
+    U16_TO_U8S_LE(0x0007), U16_TO_U8S_LE(0x002A),
+    // wPropertyDataType, wPropertyNameLength and PropertyName "DeviceInterfaceGUIDs\0" in UTF-16
+    'D', 0x00, 'e', 0x00, 'v', 0x00, 'i', 0x00, 'c', 0x00, 'e', 0x00,
+    'I', 0x00, 'n', 0x00, 't', 0x00, 'e', 0x00, 'r', 0x00, 'f', 0x00,
+    'a', 0x00, 'c', 0x00, 'e', 0x00, 'G', 0x00, 'U', 0x00, 'I', 0x00,
+    'D', 0x00, 's', 0x00, 0x00, 0x00,
+    U16_TO_U8S_LE(0x0050),  // wPropertyDataLength
+    // bPropertyData: "{975F44D9-0D08-43FD-8B3E-127CA8AFFF9D}"
+    '{', 0x00, '9', 0x00, '7', 0x00, '5', 0x00, 'F', 0x00, '4', 0x00, '4', 0x00,
+    'D', 0x00, '9', 0x00, '-', 0x00, '0', 0x00, 'D', 0x00, '0', 0x00, '8', 0x00,
+    '-', 0x00, '4', 0x00, '3', 0x00, 'F', 0x00, 'D', 0x00, '-', 0x00, '8', 0x00,
+    'B', 0x00, '3', 0x00, 'E', 0x00, '-', 0x00, '1', 0x00, '2', 0x00, '7', 0x00,
+    'C', 0x00, 'A', 0x00, '8', 0x00, 'A', 0x00, 'F', 0x00, 'F', 0x00, 'F', 0x00,
+    '9', 0x00, 'D', 0x00, '}', 0x00, 0x00, 0x00, 0x00, 0x00,
+};
+// clang-format on
+
+TU_VERIFY_STATIC(sizeof(desc_ms_os_20) == MS_OS_20_DESC_LEN, "Incorrect size");
+
+//--------------------------------------------------------------------+
+// WebUSB Vendor Control Transfer Callback
+//--------------------------------------------------------------------+
+// Invoked when a control transfer occurred on an interface of this class
+// Driver response accordingly to the request and the transfer stage (setup/data/ack)
+// return false to stall control endpoint (e.g unsupported request)
+bool tud_vendor_control_xfer_cb(
+    uint8_t rhport,  // NOLINT(bugprone-easily-swappable-parameters)
+    uint8_t stage,
+    tusb_control_request_t const *request) {
+    // nothing to do with DATA & ACK stage
+    if (stage != CONTROL_STAGE_SETUP) {
+        return true;
+    }
+
+    switch (request->bmRequestType_bit.type) {
+        case TUSB_REQ_TYPE_VENDOR:
+            switch (request->bRequest) {
+                case VENDOR_REQUEST_WEBUSB:
+                    // match vendor request in BOS descriptor — return landing page URL
+                    return tud_control_xfer(
+                        rhport, request, (void *)(uintptr_t)&desc_url, desc_url.bLength);
+
+                case VENDOR_REQUEST_MICROSOFT:
+                    if (request->wIndex == 7) {
+                        // Get Microsoft OS 2.0 compatible descriptor
+                        uint16_t total_len;
+                        memcpy(&total_len, desc_ms_os_20 + 8, 2);
+                        return tud_control_xfer(
+                            rhport, request, (void *)(uintptr_t)desc_ms_os_20, total_len);
+                    } else {
+                        return false;
+                    }
+
+                default:
+                    break;
+            }
+            break;
+
+        case TUSB_REQ_TYPE_CLASS:
+            if (request->bRequest == 0x22) {
+                // WebSerial simulates CDC_REQUEST_SET_CONTROL_LINE_STATE (0x22)
+                // to connect and disconnect.
+                // Response with status OK
+                return tud_control_status(rhport, request);
+            }
+            break;
+
+        default:
+            break;
+    }
+
+    // stall unknown request
+    return false;
 }
 
 //--------------------------------------------------------------------+
@@ -127,7 +254,7 @@ char const *string_desc_arr[] = {
     "github.com/huntj88/MicroLights",  // 1: Manufacturer
     "MicroLight",                      // 2: Product
     NULL,                              // 3: Serials will use unique ID if possible
-    "TinyUSB CDC",                     // 4: CDC Interface
+    "MicroLight WebUSB",               // 4: Vendor Interface
 };
 
 static uint16_t _desc_str[32 + 1];

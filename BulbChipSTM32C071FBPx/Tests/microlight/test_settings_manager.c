@@ -61,7 +61,11 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
 }
 
-enum ChargeState getChargingState(BQ25180 *dev) {
+void mock_enableUsbClock(bool enable) {
+}
+
+enum ChargeState getChargingState(BQ25180 *dev, uint32_t milliseconds) {
+    (void)milliseconds;
     return notConnected;
 }
 void loadMode(ModeManager *manager, uint8_t index) {
@@ -140,6 +144,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
             .enableChipTickTimer = mock_enableChipTickTimer,
             .enableCaseLedTimer = mock_enableCaseLedTimer,
             .enableFrontLedTimer = mock_enableFrontLedTimer,
+            .enableUsbClock = mock_enableUsbClock,
             .log = mock_writeUsbSerial,
         });
 

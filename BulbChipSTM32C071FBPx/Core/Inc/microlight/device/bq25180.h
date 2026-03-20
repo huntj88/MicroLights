@@ -56,7 +56,8 @@ typedef struct BQ25180 {
     RGBLed *caseLed;
 
     enum ChargeState chargingState;
-    uint32_t checkedAtMs;
+    uint32_t chargeStateCachedAtMs;
+    uint32_t registersReadAtMs;
 } BQ25180;
 
 typedef struct BQ25180Registers {
@@ -92,7 +93,7 @@ bool bq25180Init(
 
 void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags);
 void lock(BQ25180 *chargerIC);
-enum ChargeState getChargingState(BQ25180 *chargerIC);
+enum ChargeState getChargingState(BQ25180 *chargerIC, uint32_t milliseconds);
 
 // TODO: Handle interrupts from bq25180 and check status/fault registers
 //       - send errors over usb to app

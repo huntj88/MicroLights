@@ -12,8 +12,8 @@
 #include <stdint.h>
 
 // Returns bytes read
-typedef int32_t (*UsbCdcReadTask)(char *buffer, size_t length);
+typedef int32_t (*UsbReadTask)(char *buffer, size_t length);
 
-typedef void (*UsbWriteToSerial)(const char *buffer, size_t length);
+typedef void (*UsbWrite)(const char *buffer, size_t length);
 
 #endif /* INC_MODEL_USB_H_ */

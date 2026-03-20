@@ -375,6 +375,12 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
     HAL_NVIC_EnableIRQ(USB_DRD_FS_IRQn);
     /* USER CODE BEGIN USB_DRD_FS_MspInit 1 */
 
+    /* Enable CRS clock and auto-trim HSI48 to USB SOF for clock accuracy.
+     * Without CRS, HSI48 has ~2% tolerance which exceeds USB's 0.25% requirement.
+     * Some USB hosts (e.g. Android OTG) reject devices with out-of-spec clocks. */
+    __HAL_RCC_CRS_CLK_ENABLE();
+    CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
+
     /* USER CODE END USB_DRD_FS_MspInit 1 */
 
   }

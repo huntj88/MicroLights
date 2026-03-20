@@ -19,6 +19,8 @@ FLASH_TypeDef *FLASH = &mockFlashPeripheral;
 GPIO_TypeDef mockGPIOA;
 TIM_TypeDef mockTIM1;
 TIM_TypeDef mockTIM3;
+RCC_TypeDef mockRCC = { .CR = RCC_CR_HSIUSB48RDY };
+CRS_TypeDef mockCRS;
 I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;

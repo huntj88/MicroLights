@@ -26,8 +26,8 @@ typedef struct {
     uint8_t (*readButtonPin)(void);
 
     // USB
-    UsbCdcReadTask usbCdcReadTask;
-    UsbWriteToSerial usbWriteToSerial;
+    UsbReadTask usbReadTask;
+    UsbWrite usbWrite;
 
     // Storage
     ReadSavedSettings readSavedSettings;
@@ -39,6 +39,7 @@ typedef struct {
     void (*enableChipTickTimer)(bool enable);
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
+    void (*enableUsbClock)(bool enable);
     void (*startAutoOffTimer)(void);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);

@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 
 import { PatternSelector } from './PatternSelector';
 import {
-  isBinaryPattern,
   isColorPattern,
   type ModeAccelTrigger,
   type ModePattern,
@@ -65,7 +64,6 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
     onChange(next);
   };
 
-  const binaryPatterns = patterns.filter(isBinaryPattern);
   const colorPatterns = patterns.filter(p => isColorPattern(p) || p.type === 'equation');
 
   return (
@@ -122,7 +120,7 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
                 onChange={name => {
                   updatePattern(index, 'front', name);
                 }}
-                patterns={binaryPatterns}
+                patterns={patterns}
               />
               <PatternSelector
                 label={t('modeEditor.caseOverride')}

@@ -30,7 +30,7 @@ static char mock_usb_write_buffer[TEST_JSON_BUFFER_SIZE];
 static int mock_usb_write_idx = 0;
 
 // Callbacks
-int32_t mock_usbCdcReadTask(char usbBuffer[], size_t bufferLength) {
+int32_t mock_usbReadTask(char usbBuffer[], size_t bufferLength) {
     if (mock_usb_read_has_data) {
         size_t len = strlen(mock_usb_read_buffer);
         if (len >= bufferLength) len = bufferLength - 1;
@@ -42,7 +42,7 @@ int32_t mock_usbCdcReadTask(char usbBuffer[], size_t bufferLength) {
     return 0;
 }
 
-void mock_usbWriteToSerial(const char usbBuffer[], size_t bufferLength) {
+void mock_usbWrite(const char usbBuffer[], size_t bufferLength) {
     if (mock_usb_write_idx + bufferLength < TEST_JSON_BUFFER_SIZE) {
         memcpy(&mock_usb_write_buffer[mock_usb_write_idx], usbBuffer, bufferLength);
         mock_usb_write_idx += bufferLength;
@@ -122,11 +122,11 @@ void test_usbInit_success(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
     TEST_ASSERT_TRUE(result);
-    TEST_ASSERT_EQUAL_PTR(mock_usbCdcReadTask, usbManager.usbCdcReadTask);
-    TEST_ASSERT_EQUAL_PTR(mock_usbWriteToSerial, usbManager.usbWriteToSerial);
+    TEST_ASSERT_EQUAL_PTR(mock_usbReadTask, usbManager.usbReadTask);
+    TEST_ASSERT_EQUAL_PTR(mock_usbWrite, usbManager.usbWrite);
 }
 
 void test_usbInit_failure_null_args(void) {
@@ -137,8 +137,8 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         NULL,
@@ -146,8 +146,8 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -155,8 +155,8 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -164,8 +164,8 @@ void test_usbInit_failure_null_args(void) {
         NULL,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -173,8 +173,8 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         NULL,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -182,8 +182,8 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         saveSettings,
         NULL,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial));
+        mock_usbReadTask,
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -192,7 +192,7 @@ void test_usbInit_failure_null_args(void) {
         saveSettings,
         saveMode,
         NULL,
-        mock_usbWriteToSerial));
+        mock_usbWrite));
     TEST_ASSERT_FALSE(usbInit(
         &usbManager,
         &modeManager,
@@ -200,7 +200,7 @@ void test_usbInit_failure_null_args(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
+        mock_usbReadTask,
         NULL));
 }
 
@@ -221,8 +221,8 @@ void test_parse_write_mode_normal(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     // Simulate incoming "writeMode" JSON
     const char *input =
@@ -247,8 +247,8 @@ void test_parse_write_mode_transient(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input =
         "{\"command\":\"writeMode\",\"index\":1,\"mode\":{\"name\":\"transientTest\",\"front\":{"
@@ -272,8 +272,8 @@ void test_parse_read_mode(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input = "{\"command\":\"readMode\",\"index\":1}\n";
     strcpy(mock_usb_read_buffer, input);
@@ -293,8 +293,8 @@ void test_parse_write_settings(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input = "{\"command\":\"writeSettings\"}\n";
     strcpy(mock_usb_read_buffer, input);
@@ -314,8 +314,8 @@ void test_parse_read_settings(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input = "{\"command\":\"readSettings\"}\n";
     strcpy(mock_usb_read_buffer, input);
@@ -334,8 +334,8 @@ void test_parse_dfu(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input = "{\"command\":\"dfu\"}\n";
     strcpy(mock_usb_read_buffer, input);
@@ -354,8 +354,8 @@ void test_parse_multiple_commands(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     // Command 1
     const char *input1 = "{\"command\":\"writeSettings\"}\n";
@@ -391,8 +391,8 @@ void test_malformed_json(void) {
         mock_enter_dfu,
         saveSettings,
         saveMode,
-        mock_usbCdcReadTask,
-        mock_usbWriteToSerial);
+        mock_usbReadTask,
+        mock_usbWrite);
 
     const char *input = "{junk}\n";
     strcpy(mock_usb_read_buffer, input);

@@ -122,8 +122,8 @@ int main(void) {
         .writeRgbPwmFrontLed = writeRgbPwmFrontLed,
         .writeBulbLed = writeBulbLed,
         .readButtonPin = readButtonPin,
-        .usbCdcReadTask = usbCdcReadTask,
-        .usbWriteToSerial = usbWriteToSerial,
+        .usbReadTask = usbReadTask,
+        .usbWrite = usbWrite,
         .readSavedSettings = readSettingsFromFlash,
         .saveSettings = writeSettingsToFlash,
         .readSavedMode = readModeFromFlash,
@@ -131,6 +131,7 @@ int main(void) {
         .enableChipTickTimer = enableChipTickTimer,
         .enableCaseLedTimer = enableCaseLedTimer,
         .enableFrontLedTimer = enableFrontLedTimer,
+        .enableUsbClock = enableUsbClock,
         .startAutoOffTimer = startAutoOffTimer,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
@@ -172,14 +173,14 @@ void SystemClock_Config(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-    __HAL_FLASH_SET_LATENCY(FLASH_LATENCY_0);
+    __HAL_FLASH_SET_LATENCY(FLASH_LATENCY_1);
 
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-    RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV4;
+    RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV1;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 
@@ -195,7 +196,7 @@ void SystemClock_Config(void) {
     RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK) {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK) {
         Error_Handler();
     }
 }
@@ -214,7 +215,7 @@ static void MX_I2C1_Init(void) {
 
     /* USER CODE END I2C1_Init 1 */
     hi2c1.Instance = I2C1;
-    hi2c1.Init.Timing = 0x00402D41;
+    hi2c1.Init.Timing = 0x10805D88;
     hi2c1.Init.OwnAddress1 = 0;
     hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
     hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -502,17 +503,11 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(bulbLed_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : chargerIT_Pin */
-    GPIO_InitStruct.Pin = chargerIT_Pin;
+    /*Configure GPIO pins : chargerIT_Pin button_Pin */
+    GPIO_InitStruct.Pin = chargerIT_Pin | button_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(chargerIT_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : button_Pin */
-    GPIO_InitStruct.Pin = button_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(button_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);

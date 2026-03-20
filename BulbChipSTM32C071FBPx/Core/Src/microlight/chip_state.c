@@ -20,7 +20,7 @@
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
-        !deps.enableFrontLedTimer || !deps.log) {
+        !deps.enableFrontLedTimer || !deps.enableUsbClock || !deps.log) {
         return false;
     }
     state->deps = deps;
@@ -28,9 +28,13 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     state->lastChipTickEnabled = false;
     state->lastCasePwmEnabled = false;
     state->lastFrontPwmEnabled = false;
-    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
 
-    if (chargeState == notConnected) {
+    enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
+    bool usbNeeded = initialChargeState != notConnected;
+    state->lastUsbClockEnabled = usbNeeded;
+    state->deps.enableUsbClock(usbNeeded);
+
+    if (initialChargeState == notConnected) {
         loadMode(state->deps.modeManager, 0);
     } else {
         // Enter fake off mode when charging, show led status by enabling charge led timers
@@ -89,6 +93,7 @@ static void applyTimerPolicy(
     bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
     bool frontPwmEnabled = frontRgbActive;
+    bool usbClockEnabled = chargeState != notConnected;
 
     if (chipTickEnabled != state->lastChipTickEnabled) {
         state->deps.enableChipTickTimer(chipTickEnabled);
@@ -102,10 +107,14 @@ static void applyTimerPolicy(
         state->deps.enableFrontLedTimer(frontPwmEnabled);
         state->lastFrontPwmEnabled = frontPwmEnabled;
     }
+    if (usbClockEnabled != state->lastUsbClockEnabled) {
+        state->deps.enableUsbClock(usbClockEnabled);
+        state->lastUsbClockEnabled = usbClockEnabled;
+    }
 }
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
-    enum ChargeState chargeState = getChargingState(state->deps.chargerIC);
+    enum ChargeState chargeState = getChargingState(state->deps.chargerIC, milliseconds);
     handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState);
 
     bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);

@@ -22,8 +22,8 @@ typedef struct USBManager {
     void (*enterDFU)();
     SaveSettings saveSettings;
     SaveMode saveMode;
-    UsbCdcReadTask usbCdcReadTask;
-    UsbWriteToSerial usbWriteToSerial;
+    UsbReadTask usbReadTask;
+    UsbWrite usbWrite;
 } USBManager;
 
 bool usbInit(
@@ -33,8 +33,8 @@ bool usbInit(
     void (*enterDFU)(),
     SaveSettings saveSettings,
     SaveMode saveMode,
-    UsbCdcReadTask usbCdcReadTask,
-    UsbWriteToSerial usbWriteToSerial);
+    UsbReadTask usbReadTask,
+    UsbWrite usbWrite);
 
 void usbTask(USBManager *usbManager);
 

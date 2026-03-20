@@ -17,7 +17,7 @@ describe('SerialConnectButton', () => {
     vi.clearAllMocks();
   });
 
-  it('renders not supported message when Web Serial is not supported', () => {
+  it('renders not supported message when WebUSB is not supported', () => {
     (useSerialStore as unknown as Mock).mockImplementation(
       (selector?: (state: unknown) => unknown) => {
         const state = {

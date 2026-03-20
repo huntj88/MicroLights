@@ -1,65 +1,46 @@
-/// <reference types="w3c-web-serial" />
+/// <reference types="w3c-web-usb" />
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { serialManager } from './serial-manager';
 
-// Mock classes for Stream API
-class MockWritableStreamDefaultWriter {
-  write = vi.fn().mockResolvedValue(undefined);
-  close = vi.fn().mockResolvedValue(undefined);
-  releaseLock = vi.fn();
+// Mock USBDevice
+class MockUSBDevice {
+  opened = false;
+  open = vi.fn().mockImplementation(async () => {
+    this.opened = true;
+  });
+  close = vi.fn().mockImplementation(async () => {
+    this.opened = false;
+  });
+  selectConfiguration = vi.fn().mockResolvedValue(undefined);
+  claimInterface = vi.fn().mockResolvedValue(undefined);
+  releaseInterface = vi.fn().mockResolvedValue(undefined);
+  transferOut = vi.fn().mockResolvedValue({ status: 'ok' });
+  transferIn = vi.fn().mockResolvedValue({
+    data: new DataView(new ArrayBuffer(0)),
+    status: 'ok',
+  });
 }
 
-class MockReadableStreamDefaultReader {
-  read = vi.fn().mockResolvedValue({ value: undefined, done: true });
-  cancel = vi.fn().mockResolvedValue(undefined);
-  releaseLock = vi.fn();
-}
-
-class MockSerialPort {
-  readable: ReadableStream | null = null;
-  writable: WritableStream | null = null;
-  open = vi.fn().mockResolvedValue(undefined);
-  close = vi.fn().mockResolvedValue(undefined);
-
-  constructor() {
-    // We need to simulate the streams being available after open
-    // For simplicity in tests, we can assign them directly or via mocks
-    this.readable = {
-      getReader: vi.fn().mockReturnValue(new MockReadableStreamDefaultReader()),
-      pipeThrough: vi.fn().mockReturnThis(),
-    } as unknown as ReadableStream;
-
-    this.writable = {
-      getWriter: vi.fn().mockReturnValue(new MockWritableStreamDefaultWriter()),
-    } as unknown as WritableStream;
-  }
-}
-
-describe('WebSerialManager', () => {
-  let mockSerial: {
-    requestPort: ReturnType<typeof vi.fn>;
+describe('WebUSBManager', () => {
+  let mockUsb: {
+    requestDevice: ReturnType<typeof vi.fn>;
     addEventListener: ReturnType<typeof vi.fn>;
     removeEventListener: ReturnType<typeof vi.fn>;
   };
-  let mockPort: MockSerialPort;
+  let mockDevice: MockUSBDevice;
 
   beforeEach(() => {
-    // Reset singleton state if possible or just rely on isolation
-    // Since serialManager is a singleton, we might need to be careful.
-    // Ideally, we would export the class to test it in isolation,
-    // but for now we will try to reset it via disconnect if needed.
-
-    mockPort = new MockSerialPort();
-    mockSerial = {
-      requestPort: vi.fn().mockResolvedValue(mockPort),
+    mockDevice = new MockUSBDevice();
+    mockUsb = {
+      requestDevice: vi.fn().mockResolvedValue(mockDevice),
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
     };
 
-    // Mock navigator.serial
-    Object.defineProperty(navigator, 'serial', {
-      value: mockSerial,
+    // Mock navigator.usb
+    Object.defineProperty(navigator, 'usb', {
+      value: mockUsb,
       configurable: true,
     });
   });
@@ -72,7 +53,7 @@ describe('WebSerialManager', () => {
   it('reports support correctly', () => {
     expect(serialManager.isSupported()).toBe(true);
 
-    Object.defineProperty(navigator, 'serial', {
+    Object.defineProperty(navigator, 'usb', {
       value: undefined,
       configurable: true,
     });
@@ -85,8 +66,12 @@ describe('WebSerialManager', () => {
 
     await serialManager.connect();
 
-    expect(mockSerial.requestPort).toHaveBeenCalled();
-    expect(mockPort.open).toHaveBeenCalledWith({ baudRate: 115200 });
+    expect(mockUsb.requestDevice).toHaveBeenCalledWith({
+      filters: [{ vendorId: 0xcafe }],
+    });
+    expect(mockDevice.open).toHaveBeenCalled();
+    expect(mockDevice.selectConfiguration).toHaveBeenCalledWith(1);
+    expect(mockDevice.claimInterface).toHaveBeenCalledWith(0);
     expect(statusSpy).toHaveBeenCalledWith('connecting', undefined);
     expect(statusSpy).toHaveBeenCalledWith('connected', undefined);
     expect(serialManager.getStatus()).toBe('connected');
@@ -94,7 +79,7 @@ describe('WebSerialManager', () => {
 
   it('handles connection failure', async () => {
     const error = new Error('User cancelled');
-    mockSerial.requestPort.mockRejectedValue(error);
+    mockUsb.requestDevice.mockRejectedValue(error);
     const statusSpy = vi.fn();
     serialManager.on('connection-status', statusSpy);
 
@@ -106,36 +91,30 @@ describe('WebSerialManager', () => {
   });
 
   it('sends data when connected', async () => {
-    // Setup the writer mock before connecting
-    const mockWriter = new MockWritableStreamDefaultWriter();
-    (
-      mockPort.writable as unknown as { getWriter: ReturnType<typeof vi.fn> }
-    ).getWriter.mockReturnValue(mockWriter);
-
     await serialManager.connect();
 
     await serialManager.send('test');
 
-    expect(mockWriter.write).toHaveBeenCalled();
+    expect(mockDevice.transferOut).toHaveBeenCalled();
   });
 
   it('throws when sending while disconnected', async () => {
-    await expect(serialManager.send('test')).rejects.toThrow('Serial port not connected');
+    await expect(serialManager.send('test')).rejects.toThrow('USB device not connected');
   });
 
   it('disconnects and cleans up', async () => {
     await serialManager.connect();
 
-    // Let's just verify the port close is called
     await serialManager.disconnect();
 
-    expect(mockPort.close).toHaveBeenCalled();
+    expect(mockDevice.releaseInterface).toHaveBeenCalledWith(0);
+    expect(mockDevice.close).toHaveBeenCalled();
     expect(serialManager.getStatus()).toBe('disconnected');
   });
 
   it('aborts connection if disconnected while opening', async () => {
     let resolveOpen: ((value: void | PromiseLike<void>) => void) | undefined;
-    mockPort.open.mockImplementation(
+    mockDevice.open.mockImplementation(
       () =>
         new Promise<void>(res => {
           resolveOpen = res;
@@ -144,14 +123,13 @@ describe('WebSerialManager', () => {
 
     const connectPromise = serialManager.connect();
 
-    // Allow requestPort to resolve and enter openWithPort
+    // Allow requestDevice to resolve and enter openDevice
     await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(serialManager.getStatus()).toBe('connecting');
 
-    // Call disconnect
+    // Call disconnect — runs synchronously since device isn't assigned yet
     const disconnectPromise = serialManager.disconnect();
-    expect(serialManager.getStatus()).toBe('disconnecting');
 
     // Finish open
     if (resolveOpen) resolveOpen();
@@ -159,7 +137,7 @@ describe('WebSerialManager', () => {
     await expect(connectPromise).rejects.toThrow('Connection aborted');
     await disconnectPromise;
 
-    expect(mockPort.close).toHaveBeenCalled();
+    expect(mockDevice.close).toHaveBeenCalled();
     expect(serialManager.getStatus()).toBe('disconnected');
   });
 
@@ -167,14 +145,14 @@ describe('WebSerialManager', () => {
     await serialManager.connect();
 
     // Mock close to take some time so we can overlap calls
-    mockPort.close.mockImplementation(() => new Promise(res => setTimeout(res, 10)));
+    mockDevice.close.mockImplementation(() => new Promise(res => setTimeout(res, 10)));
 
     const p1 = serialManager.disconnect();
     const p2 = serialManager.disconnect();
 
     await Promise.all([p1, p2]);
 
-    expect(mockPort.close).toHaveBeenCalledTimes(1);
+    expect(mockDevice.close).toHaveBeenCalledTimes(1);
     expect(serialManager.getStatus()).toBe('disconnected');
   });
 });
