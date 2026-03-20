@@ -10,6 +10,8 @@
 
 void usbWrite(const char *buf, size_t count) {
     size_t sent = 0;
+    uint16_t retries = 0;
+    const uint16_t maxRetries = 1000;
 
     while (sent < count) {
         if (!tud_vendor_mounted()) {
@@ -25,6 +27,12 @@ void usbWrite(const char *buf, size_t count) {
 
             uint32_t written = tud_vendor_write(buf + sent, to_send);
             sent += written;
+            retries = 0;
+        } else {
+            retries++;
+            if (retries >= maxRetries) {
+                break;
+            }
         }
         tud_task();
     }
