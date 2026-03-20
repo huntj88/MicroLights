@@ -1,10 +1,17 @@
-/// <reference types="w3c-web-serial" />
+/// <reference types="w3c-web-usb" />
 import { type SerialLogEntry } from '@/components/serial-log/SerialLogPanel';
 
-// Web Serial Manager for newline-delimited messages (NDJSON or raw text)
-// - Maintains a single connection
+// WebUSB Manager for newline-delimited messages (NDJSON or raw text)
+// - Maintains a single connection via vendor-specific USB class
 // - Sends strings directly, or stringifies objects
-// - Receives line-delimited data
+// - Receives line-delimited data over bulk transfers
+
+const USB_VENDOR_ID = 0xcafe;
+const USB_CONFIGURATION = 1;
+const USB_INTERFACE = 0;
+const USB_ENDPOINT_OUT = 1; // EPNUM_VENDOR_OUT (0x01)
+const USB_ENDPOINT_IN = 1; // EPNUM_VENDOR_IN (0x81, without direction bit)
+const USB_PACKET_SIZE = 64;
 
 export type SerialEventType = 'connection-status' | 'data' | 'log';
 
@@ -23,12 +30,12 @@ export interface SerialEvents {
 
 type Listener<K extends keyof SerialEvents> = SerialEvents[K];
 
-class WebSerialManager {
-  private port: SerialPort | null = null;
-  private reader: ReadableStreamDefaultReader<string> | null = null;
-  private writer: WritableStreamDefaultWriter<Uint8Array> | null = null;
+class WebUSBManager {
+  private device: USBDevice | null = null;
   private abortCtl: AbortController | null = null;
   private _status: ConnectionStatus = 'disconnected';
+  private encoder = new TextEncoder();
+  private decoder = new TextDecoder();
 
   private listeners: { [K in keyof SerialEvents]: Set<Listener<K>> } = {
     'connection-status': new Set(),
@@ -37,7 +44,7 @@ class WebSerialManager {
   };
 
   isSupported(): boolean {
-    return typeof navigator !== 'undefined' && !!navigator.serial;
+    return typeof navigator !== 'undefined' && !!navigator.usb;
   }
 
   getStatus(): ConnectionStatus {
@@ -55,7 +62,7 @@ class WebSerialManager {
         // @ts-expect-error - TS can't infer the variadic param type across union events
         l(...args);
       } catch (e) {
-        console.error('Error in serial listener', e);
+        console.error('Error in USB listener', e);
       }
     }
   }
@@ -81,139 +88,112 @@ class WebSerialManager {
     this.emit('log', entry);
   }
 
-  async connect(options?: { baudRate?: number }): Promise<void> {
+  async connect(): Promise<void> {
     if (!this.isSupported()) {
-      throw new Error('Web Serial not supported');
+      throw new Error('WebUSB not supported');
     }
     if (this._status === 'connected' || this._status === 'connecting') return;
 
     this.setStatus('connecting');
 
     try {
-      // Request a port from the user
-      const serialApi = navigator.serial;
-      const port: SerialPort = await serialApi.requestPort({ filters: [{ usbVendorId: 0xCafe }] });
-      await this.openWithPort(port, options);
+      const device = await navigator.usb.requestDevice({
+        filters: [{ vendorId: USB_VENDOR_ID }],
+      });
+      await this.openDevice(device);
     } catch (err) {
       this.setStatus('disconnected', err);
       throw err;
     }
   }
 
-  private async openWithPort(port: SerialPort, options?: { baudRate?: number }) {
+  private async openDevice(device: USBDevice) {
     try {
-      const baudRate = options?.baudRate ?? 115200;
-      await port.open({ baudRate });
+      await device.open();
 
       if (this._status !== 'connecting') {
-        await port.close();
+        await device.close();
         throw new Error('Connection aborted');
       }
 
-      const writer = port.writable?.getWriter();
-      if (!writer) {
-        throw new Error('Unable to acquire writable stream');
-      }
+      await device.selectConfiguration(USB_CONFIGURATION);
+      await device.claimInterface(USB_INTERFACE);
 
-      // Prepare reader pipeline: Binary -> Text -> Lines
-      const decoderStream = new TextDecoderStream();
-
-      const readable = port.readable;
-      if (!readable) {
-        writer.releaseLock();
-        throw new Error('Unable to acquire readable stream');
-      }
-
+      this.device = device;
       this.abortCtl = new AbortController();
-      const signal = this.abortCtl.signal;
-
-      class LineSplitterTransformer implements Transformer<string, string> {
-        private buffer = '';
-        transform(chunk: string, controller: TransformStreamDefaultController<string>) {
-          const data = this.buffer + chunk;
-          const parts = data.split(/\r?\n/);
-          for (let i = 0; i < parts.length - 1; i++) controller.enqueue(parts[i]);
-          this.buffer = parts[parts.length - 1] ?? '';
-        }
-        flush(controller: TransformStreamDefaultController<string>) {
-          if (this.buffer.length) controller.enqueue(this.buffer);
-          this.buffer = '';
-        }
-      }
-      const lineSplitter = new TransformStream<string, string>(new LineSplitterTransformer());
-
-      const reader = readable
-        .pipeThrough(decoderStream as unknown as ReadableWritablePair<string, Uint8Array>)
-        .pipeThrough(lineSplitter)
-        .getReader();
-
-      this.port = port;
-      this.writer = writer;
-      this.reader = reader;
 
       this.setStatus('connected');
-      this.log('inbound', 'Connected to serial port');
+      this.log('inbound', 'Connected to USB device');
 
       // Start read loop
-      this.readLoop(signal).catch((err: unknown) => {
+      this.readLoop(this.abortCtl.signal).catch((err: unknown) => {
         this.setStatus('error', err);
         void this.disconnect();
       });
 
       // Handle disconnects
-      navigator.serial.addEventListener('disconnect', this.handleDisconnect);
+      navigator.usb.addEventListener('disconnect', this.handleDisconnect);
     } catch (err) {
-      if (this.port?.readable) {
-        this.writer?.releaseLock();
-        await this.port.close();
+      try {
+        await device.close();
+      } catch {
+        /* ignore */
       }
       throw err;
     }
   }
 
-  private handleDisconnect = (e: Event) => {
-    const tgt = (e as unknown as { target?: unknown }).target ?? null;
-    if (tgt === this.port) {
+  private handleDisconnect = (e: USBConnectionEvent) => {
+    if (e.device === this.device) {
       this.log('inbound', 'Device disconnected');
       void this.disconnect();
     }
   };
 
   private async readLoop(signal: AbortSignal) {
-    if (!this.reader) return;
+    if (!this.device) return;
 
-    try {
-      while (this._status === 'connected' && !signal.aborted) {
-        const { value, done } = await this.reader.read();
-        if (done) break;
+    let buffer = '';
 
-        // Try to parse JSON, but always emit raw
-        let parsed: unknown;
-        try {
-          parsed = JSON.parse(value);
-        } catch {
-          // Not JSON, that's fine
+    while (this._status === 'connected' && !signal.aborted) {
+      const result = await this.device.transferIn(USB_ENDPOINT_IN, USB_PACKET_SIZE);
+
+      if (result.data && result.data.byteLength > 0) {
+        buffer += this.decoder.decode(result.data);
+
+        // Split on newlines and emit complete lines
+        const parts = buffer.split(/\r?\n/);
+        // Keep the last (possibly incomplete) chunk in the buffer
+        buffer = parts[parts.length - 1] ?? '';
+
+        for (let i = 0; i < parts.length - 1; i++) {
+          const line = parts[i];
+          if (line.length === 0) continue;
+
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(line);
+          } catch {
+            // Not JSON, that's fine
+          }
+
+          this.emit('data', line, parsed);
+          this.log('inbound', line);
         }
-
-        this.emit('data', value, parsed);
-        this.log('inbound', value);
       }
-    } finally {
-      this.reader.releaseLock();
     }
   }
 
   async send(data: unknown): Promise<void> {
-    if (this._status !== 'connected' || !this.writer) {
-      throw new Error('Serial port not connected');
+    if (this._status !== 'connected' || !this.device) {
+      throw new Error('USB device not connected');
     }
 
     const isString = typeof data === 'string';
     const payload = isString ? data : JSON.stringify(data);
     const line = payload + '\n';
 
-    const encoder = new TextEncoder();
-    await this.writer.write(encoder.encode(line));
+    await this.device.transferOut(USB_ENDPOINT_OUT, this.encoder.encode(line));
 
     this.log('outbound', payload);
   }
@@ -223,7 +203,7 @@ class WebSerialManager {
 
     this.setStatus('disconnecting');
 
-    navigator.serial.removeEventListener('disconnect', this.handleDisconnect);
+    navigator.usb.removeEventListener('disconnect', this.handleDisconnect);
 
     try {
       this.abortCtl?.abort();
@@ -232,41 +212,22 @@ class WebSerialManager {
     }
 
     try {
-      if (this.reader) {
-        await this.reader.cancel().catch(() => {
+      if (this.device) {
+        await this.device.releaseInterface(USB_INTERFACE).catch(() => {
           /* ignore */
         });
-        this.reader.releaseLock();
+        await this.device.close().catch(() => {
+          /* ignore */
+        });
       }
     } catch {
       /* ignore */
     }
-    this.reader = null;
-
-    try {
-      if (this.writer) {
-        await this.writer.close().catch(() => {
-          /* ignore */
-        });
-        this.writer.releaseLock();
-      }
-    } catch {
-      /* ignore */
-    }
-    this.writer = null;
-
-    try {
-      await this.port?.close().catch(() => {
-        /* ignore */
-      });
-    } catch {
-      /* ignore */
-    }
-    this.port = null;
+    this.device = null;
 
     this.setStatus('disconnected');
     this.log('inbound', 'Disconnected');
   }
 }
 
-export const serialManager = new WebSerialManager();
+export const serialManager = new WebUSBManager();

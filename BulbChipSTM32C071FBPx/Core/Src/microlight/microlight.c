@@ -22,8 +22,8 @@ static USBManager usbManager;
 static ChipState chipState;
 
 static void internalLog(const char *buffer, size_t length) {
-    if (usbManager.usbWriteToSerial != NULL) {
-        usbManager.usbWriteToSerial(buffer, length);
+    if (usbManager.usbWrite != NULL) {
+        usbManager.usbWrite(buffer, length);
     }
 }
 
@@ -60,7 +60,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         !deps->enableFrontLedTimer || !deps->enableUsbClock || !deps->startAutoOffTimer ||
         !deps->readSavedMode ||
         !deps->writeBulbLed || !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings ||
-        !deps->saveMode || !deps->usbCdcReadTask || !deps->usbWriteToSerial || !deps->jsonBuffer ||
+        !deps->saveMode || !deps->usbReadTask || !deps->usbWrite || !deps->jsonBuffer ||
         deps->jsonBufferSize == 0) {
         return false;
     }
@@ -122,8 +122,8 @@ bool configureMicroLight(MicroLightDependencies *deps) {
             deps->enterDFU,
             deps->saveSettings,
             deps->saveMode,
-            deps->usbCdcReadTask,
-            deps->usbWriteToSerial)) {
+            deps->usbReadTask,
+            deps->usbWrite)) {
         return false;
     }
 

@@ -5,7 +5,7 @@
     "useDefineForClassFields": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "types": ["vite/client", "w3c-web-serial"],
+    "types": ["vite/client", "w3c-web-usb"],
     "skipLibCheck": true,
 
     /* Bundler mode */

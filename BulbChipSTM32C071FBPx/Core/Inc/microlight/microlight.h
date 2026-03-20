@@ -26,8 +26,8 @@ typedef struct {
     uint8_t (*readButtonPin)(void);
 
     // USB
-    UsbCdcReadTask usbCdcReadTask;
-    UsbWriteToSerial usbWriteToSerial;
+    UsbReadTask usbReadTask;
+    UsbWrite usbWrite;
 
     // Storage
     ReadSavedSettings readSavedSettings;
