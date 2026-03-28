@@ -25,7 +25,6 @@
  * This file is part of the TinyUSB stack.
  */
 
-#include "board.h"
 #include "board_api.h"
 #include "stm32c0xx_hal.h"
 
@@ -43,108 +42,23 @@ void USB_IRQHandler(void) {
 }
 
 //--------------------------------------------------------------------+
-// MACRO TYPEDEF CONSTANT ENUM
-//--------------------------------------------------------------------+
-
-void board_init(void) {
-    HAL_Init();
-
-    // Enable the HSIUSB48 48 MHz oscillator.
-    RCC->CR |= RCC_CR_HSIUSB48ON;
-
-    // Wait for HSIUSB48 to be ready.
-    while (!(RCC->CR & RCC_CR_HSIUSB48RDY)) {
-    }
-
-    // Change the SYSCLK source to HSIUSB48.
-    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_SYSCLKSOURCE_HSIUSB48;
-
-    // Wait for the SYSCLK source to change.
-    while ((RCC->CFGR & RCC_CFGR_SWS) >> RCC_CFGR_SWS_Pos != RCC_SYSCLKSOURCE_HSIUSB48) {
-    }
-
-    // Disable HSI48 to save power.
-    RCC->CR &= ~RCC_CR_HSION;
-
-    // Enable peripheral clocks.
-    RCC->APBENR1 = RCC_APBENR1_USBEN | RCC_APBENR1_CRSEN | RCC_APBENR1_USART2EN;
-    RCC->APBENR2 = RCC_APBENR2_USART1EN;
-
-    // Enable all GPIO clocks.
-    RCC->IOPENR = 0x2F;
-
-    // Turn on CRS to make the HSIUSB48 clock more precise when USB is connected.
-    CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
-
-#if CFG_TUSB_OS == OPT_OS_NONE
-    // 1ms tick timer
-    SysTick_Config(SystemCoreClock / 1000);
-#elif CFG_TUSB_OS == OPT_OS_FREERTOS
-    // Explicitly disable systick to prevent its ISR runs before scheduler start
-    SysTick->CTRL &= ~1U;
-
-    // If freeRTOS is used, IRQ priority is limit by max syscall ( smaller is higher )
-    NVIC_SetPriority(USB_DRD_FS_IRQn, configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY);
-#endif
-
-    // LED
-    {
-        GPIO_InitTypeDef gpio_init = {0};
-        gpio_init.Pin = LED_PIN;
-        gpio_init.Mode = GPIO_MODE_OUTPUT_PP;
-        HAL_GPIO_Init(LED_PORT, &gpio_init);
-        board_led_write(false);
-    }
-
-    // Button
-    {
-        GPIO_InitTypeDef gpio_init = {0};
-        gpio_init.Pin = BUTTON_PIN;
-        gpio_init.Mode = GPIO_MODE_INPUT;
-        gpio_init.Pull = BUTTON_STATE_ACTIVE ? GPIO_PULLDOWN : GPIO_PULLUP;
-        HAL_GPIO_Init(BUTTON_PORT, &gpio_init);
-    }
-}
-
-//--------------------------------------------------------------------+
 // Board porting API
 //--------------------------------------------------------------------+
 
-void board_led_write(bool state) {
-    GPIO_PinState pin_state = (GPIO_PinState)(state ? LED_STATE_ON : (1 - LED_STATE_ON));
-    HAL_GPIO_WritePin(LED_PORT, LED_PIN, pin_state);
-}
-
-uint32_t board_button_read(void) {
-    return BUTTON_STATE_ACTIVE == HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN);
-}
-
-size_t board_get_unique_id(uint8_t uid[], size_t max_len) {
-    (void)max_len;
+size_t board_get_unique_id(uint8_t uid[], size_t buf_size) {
     volatile uint32_t *stm32_uuid = (volatile uint32_t *)UID_BASE;
     uint32_t *id32 = (uint32_t *)(uintptr_t)uid;
-    uint8_t const len = 12;
+    uint8_t const uid_len = 12;
+
+    if (buf_size < uid_len) return 0;
 
     id32[0] = stm32_uuid[0];
     id32[1] = stm32_uuid[1];
     id32[2] = stm32_uuid[2];
 
-    return len;
+    return uid_len;
 }
 
-int board_uart_read(uint8_t *buf, int len) {  // NOLINT(readability-non-const-parameter)
-    (void)buf;
-    (void)len;
-    return 0;
-}
-
-int board_uart_write(void const *buf, int len) {
-    (void)buf;
-    (void)len;
-    return 0;
-}
-
-#if CFG_TUSB_OS == OPT_OS_NONE
 volatile uint32_t system_ticks = 0;
 
 void SysTick_Handler_TinyUSB(void) {
@@ -154,14 +68,7 @@ void SysTick_Handler_TinyUSB(void) {
 uint32_t board_millis(void) {
     return system_ticks;
 }
-#endif
 
 void HardFault_Handler_TinyUSB(void) {
     __asm("BKPT #0\n");
 }
-
-// Required by __libc_init_array in startup code if we are compiling using
-// -nostdlib/-nostartfiles.
-// void _init(void) {
-// TODO: needed?
-//}
