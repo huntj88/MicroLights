@@ -7,6 +7,7 @@
 
 #include "mcu_dependencies.h"
 #include "main.h"
+#include "tusb.h"
 
 extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim1;
@@ -162,7 +163,11 @@ void enableUsbClock(bool enable) {
         }
         __HAL_RCC_CRS_CLK_ENABLE();
         CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
+        __HAL_RCC_USB_CLK_ENABLE();
+        tud_connect();
     } else {
+        tud_disconnect();
+        __HAL_RCC_USB_CLK_DISABLE();
         CRS->CR &= ~(CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
         __HAL_RCC_CRS_CLK_DISABLE();
         __HAL_RCC_HSI48_DISABLE();
