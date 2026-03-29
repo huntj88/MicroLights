@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 import { PatternSelector } from './PatternSelector';
-import {
-  isColorPattern,
-  type ModeAccelTrigger,
-  type ModePattern,
-} from '../../app/models/mode';
+import { isColorPattern, type ModeAccelTrigger, type ModePattern } from '../../app/models/mode';
 import { Section } from '../common/Section';
 
 interface Props {
@@ -100,7 +96,9 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
                   value={trigger.threshold}
                   onChange={e => {
                     const val = parseInt(e.target.value, 10);
-                    updateTrigger(index, { threshold: Number.isNaN(val) ? 0 : Math.min(255, Math.max(0, val)) });
+                    updateTrigger(index, {
+                      threshold: Number.isNaN(val) ? 0 : Math.min(255, Math.max(0, val)),
+                    });
                   }}
                 />
                 <p className="theme-muted text-xs mt-1">{t('modeEditor.thresholdHelper')}</p>

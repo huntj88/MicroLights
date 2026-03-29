@@ -113,7 +113,11 @@ describe('StyledButton', () => {
   });
 
   it('forwards additional HTML attributes', () => {
-    render(<StyledButton data-testid="my-btn" aria-label="action">Go</StyledButton>);
+    render(
+      <StyledButton data-testid="my-btn" aria-label="action">
+        Go
+      </StyledButton>,
+    );
     expect(screen.getByTestId('my-btn')).toBeInTheDocument();
     expect(screen.getByLabelText('action')).toBeInTheDocument();
   });

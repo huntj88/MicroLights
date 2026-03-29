@@ -37,7 +37,9 @@ export const SimplePatternPreview = ({ pattern, className = '' }: Props) => {
   }, [pattern]);
 
   return (
-    <div className={`h-6 sm:h-4 w-full flex rounded overflow-hidden border theme-border ${className}`}>
+    <div
+      className={`h-6 sm:h-4 w-full flex rounded overflow-hidden border theme-border ${className}`}
+    >
       {segments.map(seg => (
         <div
           key={seg.key}

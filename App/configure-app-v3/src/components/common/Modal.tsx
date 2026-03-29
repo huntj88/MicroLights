@@ -28,7 +28,9 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'md' }: Mod
       }
     };
     document.addEventListener('keydown', handleKeyDown);
-    return () => { document.removeEventListener('keydown', handleKeyDown); };
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, onClose]);
 
   // Lock body scroll when open

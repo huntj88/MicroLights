@@ -82,7 +82,9 @@ describe('SerialLogPage', () => {
     fireEvent.click(screen.getByText('Settings'));
 
     // Modal should be open
-    expect(screen.getByText('Configure Settings')).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: 'serialLog.configureSettings.title' }),
+    ).toBeInTheDocument();
 
     // It should have sent readSettings
     // eslint-disable-next-line @typescript-eslint/unbound-method

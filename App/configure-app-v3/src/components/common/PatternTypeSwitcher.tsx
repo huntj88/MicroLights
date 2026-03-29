@@ -14,7 +14,10 @@ export const PatternTypeSwitcher = () => {
   const isRgb = location.pathname.includes(ROUTES.rgbPattern);
 
   return (
-    <nav className="flex md:hidden overflow-hidden rounded-full border theme-border" aria-label={t('nav.patterns')}>
+    <nav
+      className="flex md:hidden overflow-hidden rounded-full border theme-border"
+      aria-label={t('nav.patterns')}
+    >
       <NavLink
         to={`/${ROUTES.rgbPattern}`}
         className={`flex-1 text-center px-4 py-2 text-sm font-medium transition-colors min-h-[44px] flex items-center justify-center ${

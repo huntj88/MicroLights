@@ -109,77 +109,78 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Configure Settings" maxWidth="md">
-      <h2 className="mb-4 text-xl font-bold text-[rgb(var(--surface-contrast)/1)]">Configure Settings</h2>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('serialLog.configureSettings.title')}
+      maxWidth="md"
+    >
+      {isLoading ? (
+        <div className="flex justify-center py-8">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--surface-muted)/0.3)] border-t-[rgb(var(--accent)/1)]" />
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {defaults &&
+            Object.keys(defaults).map(key => {
+              const isBoolean = typeof defaults[key] === 'boolean';
+              const value = settings[key];
 
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-[rgb(var(--surface-muted)/0.3)] border-t-[rgb(var(--accent)/1)]" />
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {defaults &&
-              Object.keys(defaults).map(key => {
-                const isBoolean = typeof defaults[key] === 'boolean';
-                const value = settings[key];
-
-                return (
-                  <div key={key}>
-                    <label
-                      htmlFor={`setting-${key}`}
-                      className="block text-sm font-medium theme-muted"
-                    >
-                      {humanizeCamelCase(key)}
-                    </label>
-                    {isBoolean ? (
-                      <div className="mt-1 flex items-center">
-                        <input
-                          id={`setting-${key}`}
-                          type="checkbox"
-                          className="h-5 w-5 rounded border theme-border bg-[rgb(var(--surface-raised)/1)] accent-[rgb(var(--accent)/1)]"
-                          checked={!!value}
-                          onChange={e => {
-                            setSettings(prev => ({
-                              ...prev,
-                              [key]: e.target.checked,
-                            }));
-                          }}
-                        />
-                        <span className="ml-2 text-sm theme-muted">
-                          {value ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </div>
-                    ) : (
+              return (
+                <div key={key}>
+                  <label
+                    htmlFor={`setting-${key}`}
+                    className="block text-sm font-medium theme-muted"
+                  >
+                    {humanizeCamelCase(key)}
+                  </label>
+                  {isBoolean ? (
+                    <div className="mt-1 flex items-center">
                       <input
                         id={`setting-${key}`}
-                        type="number"
-                        className="mt-1 block w-full rounded-md border theme-border bg-[rgb(var(--surface-raised)/0.5)] px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
-                        value={value as number}
+                        type="checkbox"
+                        className="h-5 w-5 rounded border theme-border bg-[rgb(var(--surface-raised)/1)] accent-[rgb(var(--accent)/1)]"
+                        checked={!!value}
                         onChange={e => {
                           setSettings(prev => ({
                             ...prev,
-                            [key]: parseInt(e.target.value) || 0,
+                            [key]: e.target.checked,
                           }));
                         }}
                       />
-                    )}
-                    <p className="mt-1 text-xs theme-muted">
-                      Default: {String(defaults[key])}
-                    </p>
-                  </div>
-                );
-              })}
-          </div>
-        )}
-
-        <div className="mt-6 flex justify-end space-x-3">
-          <StyledButton onClick={onClose} variant="secondary">
-            {t('common.actions.cancel')}
-          </StyledButton>
-          <StyledButton onClick={() => void handleSave()} variant="primary" disabled={isLoading}>
-            {t('common.actions.save')}
-          </StyledButton>
+                      <span className="ml-2 text-sm theme-muted">
+                        {value ? 'Enabled' : 'Disabled'}
+                      </span>
+                    </div>
+                  ) : (
+                    <input
+                      id={`setting-${key}`}
+                      type="number"
+                      className="mt-1 block w-full rounded-md border theme-border bg-[rgb(var(--surface-raised)/0.5)] px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
+                      value={value as number}
+                      onChange={e => {
+                        setSettings(prev => ({
+                          ...prev,
+                          [key]: parseInt(e.target.value) || 0,
+                        }));
+                      }}
+                    />
+                  )}
+                  <p className="mt-1 text-xs theme-muted">Default: {String(defaults[key])}</p>
+                </div>
+              );
+            })}
         </div>
+      )}
+
+      <div className="mt-6 flex justify-end space-x-3">
+        <StyledButton onClick={onClose} variant="secondary">
+          {t('common.actions.cancel')}
+        </StyledButton>
+        <StyledButton onClick={() => void handleSave()} variant="primary" disabled={isLoading}>
+          {t('common.actions.save')}
+        </StyledButton>
+      </div>
     </Modal>
   );
 };

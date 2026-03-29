@@ -38,9 +38,7 @@ export const FlashModal = ({ isOpen, onClose, onConfirm }: FlashModalProps) => {
             </StyledButton>
           ))}
         </div>
-        <p className="mt-2 text-sm theme-muted">
-          {t('common.hints.flashIndex')}
-        </p>
+        <p className="mt-2 text-sm theme-muted">{t('common.hints.flashIndex')}</p>
       </div>
 
       <div className="flex justify-end space-x-3">

@@ -91,7 +91,9 @@ export const ColorPreview = ({
     });
 
     ro.observe(container);
-    return () => { ro.disconnect(); };
+    return () => {
+      ro.disconnect();
+    };
   }, [draw]);
 
   // Re-draw when data or theme changes

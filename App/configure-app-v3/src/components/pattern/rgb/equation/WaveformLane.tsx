@@ -8,15 +8,9 @@ interface WaveformLaneProps {
   points: number[];
   currentTime: number;
   totalDuration: number;
-  height?: number;
 }
 
-export const WaveformLane = ({
-  color,
-  points,
-  currentTime,
-  totalDuration,
-}: WaveformLaneProps) => {
+export const WaveformLane = ({ color, points, currentTime, totalDuration }: WaveformLaneProps) => {
   const { t } = useTranslation();
   const { resolved: theme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -110,7 +104,9 @@ export const WaveformLane = ({
     });
 
     ro.observe(container);
-    return () => { ro.disconnect(); };
+    return () => {
+      ro.disconnect();
+    };
   }, [draw]);
 
   // Re-draw when data or theme changes

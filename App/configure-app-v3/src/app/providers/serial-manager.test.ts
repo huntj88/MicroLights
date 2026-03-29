@@ -6,10 +6,10 @@ import { serialManager } from './serial-manager';
 // Mock USBDevice
 class MockUSBDevice {
   opened = false;
-  open = vi.fn().mockImplementation(async () => {
+  open = vi.fn().mockImplementation(() => {
     this.opened = true;
   });
-  close = vi.fn().mockImplementation(async () => {
+  close = vi.fn().mockImplementation(() => {
     this.opened = false;
   });
   selectConfiguration = vi.fn().mockResolvedValue(undefined);

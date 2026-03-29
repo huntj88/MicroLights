@@ -10,13 +10,14 @@ import { vi } from 'vitest';
   }
   observe() {
     // Fire callback once with a stub entry so components can initialize
-    this.cb(
-      [{ contentRect: { width: 300, height: 100 } } as ResizeObserverEntry],
-      this,
-    );
+    this.cb([{ contentRect: { width: 300, height: 100 } } as ResizeObserverEntry], this);
   }
-  unobserve() { /* noop */ }
-  disconnect() { /* noop */ }
+  unobserve() {
+    /* noop */
+  }
+  disconnect() {
+    /* noop */
+  }
 };
 
 vi.mock('react-i18next', () => ({

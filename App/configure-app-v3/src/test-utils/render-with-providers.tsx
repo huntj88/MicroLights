@@ -31,21 +31,47 @@ export const renderWithProviders = (ui: ReactElement, options?: ExtendedRenderOp
 /**
  * Render with viewport set to a mobile width (375px).
  * Useful for testing responsive behavior in jsdom.
+ * Restores the previous innerWidth via the returned `cleanup` helper.
  */
 export const renderMobile = (ui: ReactElement, options?: ExtendedRenderOptions) => {
+  const prev = window.innerWidth;
   Object.defineProperty(window, 'innerWidth', { value: 375, writable: true, configurable: true });
   window.dispatchEvent(new Event('resize'));
-  return renderWithProviders(ui, options);
+  const result = renderWithProviders(ui, options);
+  return {
+    ...result,
+    cleanup: () => {
+      Object.defineProperty(window, 'innerWidth', {
+        value: prev,
+        writable: true,
+        configurable: true,
+      });
+      window.dispatchEvent(new Event('resize'));
+    },
+  };
 };
 
 /**
  * Render with viewport set to a desktop width (1280px).
  * Useful for testing responsive behavior in jsdom.
+ * Restores the previous innerWidth via the returned `cleanup` helper.
  */
 export const renderDesktop = (ui: ReactElement, options?: ExtendedRenderOptions) => {
+  const prev = window.innerWidth;
   Object.defineProperty(window, 'innerWidth', { value: 1280, writable: true, configurable: true });
   window.dispatchEvent(new Event('resize'));
-  return renderWithProviders(ui, options);
+  const result = renderWithProviders(ui, options);
+  return {
+    ...result,
+    cleanup: () => {
+      Object.defineProperty(window, 'innerWidth', {
+        value: prev,
+        writable: true,
+        configurable: true,
+      });
+      window.dispatchEvent(new Event('resize'));
+    },
+  };
 };
 
 /**
@@ -61,17 +87,28 @@ export const auditTouchTargets = (container: HTMLElement): HTMLElement[] => {
   const interactiveSelectors = 'button, a[href], input, select, textarea, [role="button"]';
   const elements = Array.from(container.querySelectorAll<HTMLElement>(interactiveSelectors));
 
-  // Pattern matches min-h-[Npx] where N >= 44, or h-11, h-12, etc.
-  const minHeightPattern = /\bmin-h-\[(\d+)px\]|\bh-(1[1-9]|[2-9]\d)/;
-  const minWidthPattern = /\bmin-w-\[(\d+)px\]|\bw-(1[1-9]|[2-9]\d)/;
+  const MIN_TOUCH_PX = 44;
+
+  /** Check whether the class list contains a min-h/min-w or h-/w- class >= minPx */
+  const meetsSize = (classes: string, axis: 'h' | 'w'): boolean => {
+    // Match min-h-[Npx] / min-w-[Npx]
+    const arbRegex = axis === 'h' ? /\bmin-h-\[(\d+)px\]/g : /\bmin-w-\[(\d+)px\]/g;
+    for (const m of classes.matchAll(arbRegex)) {
+      if (parseInt(m[1], 10) >= MIN_TOUCH_PX) return true;
+    }
+    // Match Tailwind scale utilities h-11 (44px), h-12 (48px), etc.
+    const scaleRegex = axis === 'h' ? /\bh-(1[1-9]|[2-9]\d)/ : /\bw-(1[1-9]|[2-9]\d)/;
+    return scaleRegex.test(classes);
+  };
 
   return elements.filter(el => {
     const classes = el.className;
-    const hasMinHeight = minHeightPattern.test(classes);
-    const hasMinWidth = minWidthPattern.test(classes);
-    // Elements that are inline (inputs with type text/number) only need height
-    const isInlineInput = el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA';
-    return isInlineInput ? !hasMinHeight : !(hasMinHeight || hasMinWidth);
+    const hasMinHeight = meetsSize(classes, 'h');
+    const hasMinWidth = meetsSize(classes, 'w');
+    // Inline inputs only need sufficient height
+    const isInlineInput =
+      el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA';
+    return isInlineInput ? !hasMinHeight : !(hasMinHeight && hasMinWidth);
   });
 };
 

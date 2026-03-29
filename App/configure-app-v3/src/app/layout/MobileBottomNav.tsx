@@ -17,13 +17,13 @@ const tabs = [
   {
     labelKey: 'nav.mode' as const,
     icon: LayersIcon,
-    getPath: (_?: string) => `/${ROUTES.mode}`,
+    getPath: () => `/${ROUTES.mode}`,
     isActive: (pathname: string) => pathname.startsWith(`/${ROUTES.mode}`),
   },
   {
     labelKey: 'nav.serialLog' as const,
     icon: RadioIcon,
-    getPath: (_?: string) => `/${ROUTES.serialLog}`,
+    getPath: () => `/${ROUTES.serialLog}`,
     isActive: (pathname: string) => pathname.startsWith(`/${ROUTES.serialLog}`),
   },
 ];
@@ -60,15 +60,14 @@ export const MobileBottomNav = () => {
   return (
     <nav
       role="navigation"
-      aria-label={t('nav.patterns')}
+      aria-label={t('nav.menu')}
       className="fixed bottom-0 inset-x-0 z-30 md:hidden border-t theme-border bg-[rgb(var(--surface)/0.95)] backdrop-blur-md pb-[env(safe-area-inset-bottom)]"
     >
       <div className="flex items-center justify-around">
         {tabs.map(tab => {
           const Icon = tab.icon;
           const isActive = tab.isActive(location.pathname);
-          const path =
-            tab.labelKey === 'nav.patterns' ? resolvePatternPath() : tab.getPath(lastPatternRoute);
+          const path = tab.labelKey === 'nav.patterns' ? resolvePatternPath() : tab.getPath();
 
           return (
             <NavLink

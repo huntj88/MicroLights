@@ -19,7 +19,12 @@ export const ChargerStatusModal = ({ isOpen, onClose, registers }: ChargerStatus
   const decodedRegisters = decodeBQ25180Registers(registers);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t('serialLog.chargerStatus.title')} maxWidth="lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('serialLog.chargerStatus.title')}
+      maxWidth="lg"
+    >
       <header className="mb-4 flex items-center justify-between">
         <h3 className="text-xl font-semibold">{t('serialLog.chargerStatus.title')}</h3>
         <button
@@ -33,10 +38,7 @@ export const ChargerStatusModal = ({ isOpen, onClose, registers }: ChargerStatus
       <div className="flex-1 overflow-y-auto pr-2">
         <div className="space-y-6">
           {decodedRegisters.map(reg => (
-            <div
-              key={reg.name}
-              className="rounded-lg border theme-border p-4"
-            >
+            <div key={reg.name} className="rounded-lg border theme-border p-4">
               <div className="mb-2 flex items-center justify-between">
                 <h4 className="font-semibold theme-accent">{reg.name}</h4>
                 <code className="rounded bg-[rgb(var(--surface)/0.5)] px-2 py-0.5 text-xs font-mono">
@@ -49,7 +51,7 @@ export const ChargerStatusModal = ({ isOpen, onClose, registers }: ChargerStatus
                   {reg.fields.map(field => (
                     <div key={field.name} className="flex flex-col text-sm">
                       <span className="theme-muted">{field.name}</span>
-                        <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
                         <span className="font-medium">{field.description}</span>
                         <span className="text-xs theme-muted">({field.value})</span>
                       </div>

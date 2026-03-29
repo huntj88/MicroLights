@@ -36,7 +36,11 @@ export const StyledButton = ({
   };
 
   return (
-    <button className={`${baseStyles} ${sizeStyles[size]} ${variants[variant]} ${className}`} type="button" {...props}>
+    <button
+      className={`${baseStyles} ${sizeStyles[size]} ${variants[variant]} ${className}`}
+      type="button"
+      {...props}
+    >
       {children}
     </button>
   );

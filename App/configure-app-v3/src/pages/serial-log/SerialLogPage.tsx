@@ -14,10 +14,7 @@ import { SettingsModal } from '@/components/serial-log/SettingsModal';
 export const SerialLogPage = () => {
   const { t } = useTranslation();
 
-  const isMobileOS = useMemo(
-    () => /android|iphone|ipad|ipod/i.test(navigator.userAgent),
-    [],
-  );
+  const isMobileOS = useMemo(() => /android|iphone|ipad|ipod/i.test(navigator.userAgent), []);
 
   const logs = useSerialStore(s => s.logs);
   const status = useSerialStore(s => s.status);
@@ -104,9 +101,7 @@ export const SerialLogPage = () => {
         >
           DFU
         </StyledButton>
-        {isMobileOS && (
-          <p className="text-xs theme-muted">DFU is only available on desktop</p>
-        )}
+        {isMobileOS && <p className="text-xs theme-muted">DFU is only available on desktop</p>}
       </div>
 
       <SerialLogPanel onChange={handleChange} value={panelState} />
