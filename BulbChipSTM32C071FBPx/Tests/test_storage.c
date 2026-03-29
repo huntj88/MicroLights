@@ -72,6 +72,14 @@ void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t *pFL
 uint32_t HAL_RCC_GetPCLK1Freq(void) {
     return 1000000;
 }
+HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
+    return HAL_OK;
+}
+
+// TinyUSB stubs
+bool tud_connect(void) { return true; }
+bool tud_disconnect(void) { return true; }
+bool tud_connected(void) { return false; }
 
 // Mock implementations
 HAL_StatusTypeDef HAL_FLASH_Unlock(void) {
