@@ -13,7 +13,7 @@ export const SerialConnectButton = () => {
 
   if (!isSupported) {
     return (
-      <div className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+      <div className="rounded-lg theme-error-bg px-3 py-2 text-sm border">
         {t('serialLog.notSupported')}
       </div>
     );

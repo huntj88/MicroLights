@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSerialStore } from '@/app/providers/serial-store';
@@ -13,6 +13,8 @@ import { SettingsModal } from '@/components/serial-log/SettingsModal';
 
 export const SerialLogPage = () => {
   const { t } = useTranslation();
+
+  const isMobileOS = useMemo(() => /android|iphone|ipad|ipod/i.test(navigator.userAgent), []);
 
   const logs = useSerialStore(s => s.logs);
   const status = useSerialStore(s => s.status);
@@ -44,11 +46,11 @@ export const SerialLogPage = () => {
   };
 
   return (
-    <section className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
         <div className="space-y-2">
-          <h2 className="text-3xl font-semibold">{t('serialLog.title')}</h2>
-          <p className="theme-muted">{t('serialLog.subtitle')}</p>
+          <h2 className="text-xl font-semibold sm:text-3xl">{t('serialLog.title')}</h2>
+          <p className="text-sm theme-muted">{t('serialLog.subtitle')}</p>
         </div>
 
         <SerialConnectButton />
@@ -65,13 +67,13 @@ export const SerialLogPage = () => {
                   ? 'bg-yellow-400 animate-pulse'
                   : status === 'error'
                     ? 'bg-red-500'
-                    : 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-[rgb(var(--surface-muted)/0.4)]'
           }`}
         />
         <span className="capitalize">{status}</span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-2">
         <StyledButton
           onClick={() => {
             void (async () => {
@@ -94,10 +96,14 @@ export const SerialLogPage = () => {
         </StyledButton>
         <StyledButton
           onClick={() => void send({ command: 'dfu' })}
-          disabled={status !== 'connected'}
+          disabled={isMobileOS || status !== 'connected'}
+          title={isMobileOS ? t('serialLog.actions.dfuDesktopOnly') : undefined}
         >
-          DFU
+          {t('serialLog.actions.dfu')}
         </StyledButton>
+        {isMobileOS && (
+          <p className="text-xs theme-muted">{t('serialLog.actions.dfuDesktopOnly')}</p>
+        )}
       </div>
 
       <SerialLogPanel onChange={handleChange} value={panelState} />

@@ -35,13 +35,13 @@ describe('AccelTriggerEditor', () => {
     );
 
     fireEvent.click(screen.getByText('modeEditor.addTrigger'));
-    expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ threshold: 1.5 })]);
+    expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ threshold: 150 })]);
   });
 
   it('renders triggers', () => {
     const triggers = [
       {
-        threshold: 2.5,
+        threshold: 200,
         front: undefined,
         case: undefined,
       },
@@ -50,13 +50,13 @@ describe('AccelTriggerEditor', () => {
       <AccelTriggerEditor triggers={triggers} onChange={vi.fn()} patterns={mockPatterns} />,
     );
 
-    expect(screen.getByDisplayValue('2.5')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('200')).toBeInTheDocument();
   });
 
   it('updates threshold', () => {
     const triggers = [
       {
-        threshold: 2.5,
+        threshold: 200,
         front: undefined,
         case: undefined,
       },
@@ -66,14 +66,14 @@ describe('AccelTriggerEditor', () => {
       <AccelTriggerEditor triggers={triggers} onChange={onChange} patterns={mockPatterns} />,
     );
 
-    fireEvent.change(screen.getByDisplayValue('2.5'), { target: { value: '3.0' } });
-    expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ threshold: 3.0 })]);
+    fireEvent.change(screen.getByDisplayValue('200'), { target: { value: '180' } });
+    expect(onChange).toHaveBeenCalledWith([expect.objectContaining({ threshold: 180 })]);
   });
 
   it('removes trigger', () => {
     const triggers = [
       {
-        threshold: 2.5,
+        threshold: 200,
         front: undefined,
         case: undefined,
       },
@@ -90,7 +90,7 @@ describe('AccelTriggerEditor', () => {
   it('updates pattern override', () => {
     const triggers = [
       {
-        threshold: 2.5,
+        threshold: 200,
         front: undefined,
         case: undefined,
       },
@@ -113,7 +113,7 @@ describe('AccelTriggerEditor', () => {
   it('clears pattern override', () => {
     const triggers: ModeAccelTrigger[] = [
       {
-        threshold: 2.5,
+        threshold: 200,
         front: {
           pattern: {
             type: 'simple',

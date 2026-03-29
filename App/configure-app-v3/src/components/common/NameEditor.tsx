@@ -17,7 +17,7 @@ export const NameEditor = ({ name, onChange, label, placeholder, helperText }: N
     <label className="flex flex-col gap-1 text-sm">
       <span className="font-bold theme-muted">{label}</span>
       <input
-        className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none transition-colors"
+        className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 min-h-[44px] text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none transition-colors"
         onChange={handleChange}
         placeholder={placeholder}
         type="text"

@@ -167,7 +167,7 @@ describe('EquationRgbPatternPanel', () => {
 
     renderComponent({ onChange: handleChange, pattern });
 
-    const moveUpButtons = screen.getAllByTitle('patternEditor.steps.moveUp');
+    const moveUpButtons = screen.getAllByLabelText('a11y.moveUp');
     // The first section's move up should be disabled or not present.
     // We want to click the second one (index 1).
 

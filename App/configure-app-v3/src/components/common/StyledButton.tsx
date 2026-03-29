@@ -3,16 +3,24 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 interface StyledButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'success' | 'warning';
+  size?: 'sm' | 'md' | 'lg';
 }
 
 export const StyledButton = ({
   children,
   variant = 'secondary',
+  size = 'md',
   className = '',
   ...props
 }: StyledButtonProps) => {
   const baseStyles =
-    'px-4 py-2 rounded-full font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm';
+    'rounded-full font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.97]';
+
+  const sizeStyles = {
+    sm: 'px-3 py-2 text-xs min-h-[44px] min-w-[44px]',
+    md: 'px-4 py-2.5 text-sm min-h-[44px] min-w-[44px]',
+    lg: 'px-6 py-3 text-base min-h-[44px] min-w-[44px]',
+  };
 
   const variants = {
     primary:
@@ -28,7 +36,11 @@ export const StyledButton = ({
   };
 
   return (
-    <button className={`${baseStyles} ${variants[variant]} ${className}`} type="button" {...props}>
+    <button
+      className={`${baseStyles} ${sizeStyles[size]} ${variants[variant]} ${className}`}
+      type="button"
+      {...props}
+    >
       {children}
     </button>
   );

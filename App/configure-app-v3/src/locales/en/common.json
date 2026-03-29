@@ -34,7 +34,18 @@
     "bulbPattern": "Bulb Patterns",
     "mode": "Modes",
     "serialLog": "Serial Log",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "patterns": "Patterns",
+    "openSettings": "Open settings"
+  },
+  "a11y": {
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "deleteItem": "Delete",
+    "expandHelp": "Show help",
+    "collapseHelp": "Hide help"
   },
   "layout": {
     "skipToContent": "Skip to main content",
@@ -105,7 +116,7 @@
       }
     },
     "equation": {
-      "title": "Equation RGB Pattern Editor",
+      "title": "Equation method",
       "description": "Create complex patterns using mathematical equations.",
       "help": {
         "title": "Equation Help:",
@@ -134,8 +145,8 @@
     }
   },
   "bulbPattern": {
-    "title": "Bulb Pattern Studio",
-    "subtitle": "Design intensity patterns for binary or single-channel bulbs.",
+    "title": "Bulb Patterns",
+    "subtitle": "Design patterns for binary or single-channel bulbs.",
     "high": "High",
     "low": "Low",
     "form": {
@@ -194,7 +205,9 @@
       "clear": "Clear log",
       "send": "Send payload",
       "viewChargerStatus": "View Charger Status",
-      "importMode": "Import Mode"
+      "importMode": "Import Mode",
+      "dfu": "DFU",
+      "dfuDesktopOnly": "DFU is only available on desktop"
     },
     "chargerStatus": {
       "title": "Charger Status",
@@ -219,6 +232,9 @@
     "direction": {
       "inbound": "incoming",
       "outbound": "outgoing"
+    },
+    "configureSettings": {
+      "title": "Configure Settings"
     }
   },
   "settings": {

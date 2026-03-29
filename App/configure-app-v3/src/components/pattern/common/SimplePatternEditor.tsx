@@ -12,6 +12,7 @@ import { z } from 'zod';
 
 import { PatternNameEditor } from './PatternNameEditor';
 import type { PatternChange, SimplePattern } from '../../../app/models/mode';
+import { Modal } from '../../common/Modal';
 import { PanelContainer } from '../../common/PanelContainer';
 import { Section } from '../../common/Section';
 import { StyledButton } from '../../common/StyledButton';
@@ -140,6 +141,7 @@ export const SimplePatternEditor = <T,>({
   const [modalValue, setModalValue] = useState<T>(defaultValue);
   const [modalDurationMs, setModalDurationMs] = useState(DEFAULT_DURATION_MS);
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
+  const stepEditorRef = useRef<HTMLDivElement>(null);
 
   // Animation state
   const [currentTime, setCurrentTime] = useState(0);
@@ -208,6 +210,13 @@ export const SimplePatternEditor = <T,>({
     }
     return steps[steps.length - 1].value;
   }, [steps, emptyValue, currentTime]);
+
+  // Scroll step editor into view when selected on mobile
+  useEffect(() => {
+    if (selectedStepIndex !== null && stepEditorRef.current?.scrollIntoView) {
+      stepEditorRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [selectedStepIndex]);
 
   useEffect(() => {
     setStepDurationDrafts(previous => {
@@ -465,12 +474,12 @@ export const SimplePatternEditor = <T,>({
             : t('patternEditor.preview.summary', { total: totalDuration })}
         </p>
 
-        <div className="flex gap-4">
-          <div className="w-16 h-[56px] rounded border theme-border shadow-sm flex-shrink-0 overflow-hidden flex items-center justify-center bg-[rgb(var(--surface-raised))]">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch sm:gap-4">
+          <div className="w-full h-10 sm:w-16 sm:h-[56px] rounded border theme-border shadow-sm flex-shrink-0 overflow-hidden flex items-center justify-center bg-[rgb(var(--surface-raised))]">
             {renderSwatch({ value: currentValue })}
           </div>
 
-          <div className="flex flex-1 min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
+          <div className="flex flex-1 min-h-[48px] sm:min-h-[56px] items-stretch overflow-hidden rounded-xl border theme-border bg-[rgb(var(--surface-raised)/0.5)]">
             {steps.length === 0 ? (
               <div className="flex flex-1 items-center justify-center text-sm">
                 <span className="theme-muted">{t('patternEditor.preview.empty')}</span>
@@ -480,7 +489,7 @@ export const SimplePatternEditor = <T,>({
             )}
             <button
               aria-label={t('patternEditor.form.addButton')}
-              className="flex min-w-[56px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
+              className="flex min-w-[48px] min-h-[48px] items-center justify-center border-l theme-border bg-[rgb(var(--surface-raised)/0.4)] text-xl font-semibold text-[rgb(var(--accent)/1)] transition hover:bg-[rgb(var(--surface-raised)/0.6)]"
               onClick={openAddModal}
               title={t('patternEditor.form.addButton')}
               type="button"
@@ -492,157 +501,158 @@ export const SimplePatternEditor = <T,>({
       </Section>
 
       {selectedStepIndex !== null && steps[selectedStepIndex] && (
-        <Section
-          title={`${t('patternEditor.steps.title')} #${String(selectedStepIndex + 1)}`}
-          actions={
-            <button
-              aria-label={t('patternEditor.steps.closeEditor')}
-              className="rounded-full p-1 theme-muted hover:text-[rgb(var(--surface-contrast)/1)] hover:bg-[rgb(var(--surface-raised)/1)] transition-colors"
-              onClick={() => {
-                setSelectedStepIndex(null);
-              }}
-              type="button"
-            >
-              ✕
-            </button>
-          }
-        >
-          <div className="flex flex-wrap items-center gap-6 mb-4">
-            <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
-              <span>{labels.valueLabel}</span>
-              {renderInput({
-                value: steps[selectedStepIndex].value,
-                onChange: newValue => {
-                  handleStepValueChange(steps[selectedStepIndex].id, newValue);
-                },
-              })}
-            </label>
+        <div ref={stepEditorRef}>
+          <Section
+            title={`${t('patternEditor.steps.title')} #${String(selectedStepIndex + 1)}`}
+            actions={
+              <button
+                aria-label={t('patternEditor.steps.closeEditor')}
+                className="rounded-full min-h-[44px] min-w-[44px] flex items-center justify-center theme-muted hover:text-[rgb(var(--surface-contrast)/1)] hover:bg-[rgb(var(--surface-raised)/1)] transition-colors"
+                onClick={() => {
+                  setSelectedStepIndex(null);
+                }}
+                type="button"
+              >
+                ✕
+              </button>
+            }
+          >
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-6 mb-4">
+              <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                <span>{labels.valueLabel}</span>
+                {renderInput({
+                  value: steps[selectedStepIndex].value,
+                  onChange: newValue => {
+                    handleStepValueChange(steps[selectedStepIndex].id, newValue);
+                  },
+                })}
+              </label>
 
-            <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
-              <span>{t('patternEditor.form.durationLabel')}</span>
-              <div className="relative">
-                <input
-                  className="w-24 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border pl-3 pr-8 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
-                  inputMode="numeric"
-                  min={1}
-                  onChange={event => {
-                    handleStepDurationChange(steps[selectedStepIndex].id, event.target.value);
-                  }}
-                  step={1}
-                  type="number"
-                  value={
-                    stepDurationDrafts[steps[selectedStepIndex].id] ??
-                    String(steps[selectedStepIndex].durationMs)
-                  }
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs theme-muted">
-                  ms
-                </span>
-              </div>
-            </label>
-          </div>
+              <label className="flex items-center gap-3 text-sm font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                <span>{t('patternEditor.form.durationLabel')}</span>
+                <div className="relative">
+                  <input
+                    className="w-full sm:w-28 rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border pl-3 pr-8 py-2 min-h-[44px] text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none text-sm"
+                    inputMode="numeric"
+                    min={1}
+                    onChange={event => {
+                      handleStepDurationChange(steps[selectedStepIndex].id, event.target.value);
+                    }}
+                    step={1}
+                    type="number"
+                    value={
+                      stepDurationDrafts[steps[selectedStepIndex].id] ??
+                      String(steps[selectedStepIndex].durationMs)
+                    }
+                  />
+                  <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs theme-muted">
+                    ms
+                  </span>
+                </div>
+              </label>
+            </div>
 
-          <div className="flex flex-wrap gap-2">
-            <StyledButton
-              disabled={selectedStepIndex === 0}
-              onClick={() => {
-                handleMove(steps[selectedStepIndex].id, 'up');
-              }}
-            >
-              ← {t('patternEditor.steps.moveUp')}
-            </StyledButton>
-            <StyledButton
-              disabled={selectedStepIndex === steps.length - 1}
-              onClick={() => {
-                handleMove(steps[selectedStepIndex].id, 'down');
-              }}
-            >
-              {t('patternEditor.steps.moveDown')} →
-            </StyledButton>
-            <div className="flex-1" />
-            <StyledButton
-              onClick={() => {
-                handleDuplicate(steps[selectedStepIndex].id);
-              }}
-            >
-              {t('patternEditor.steps.duplicate')}
-            </StyledButton>
-            <StyledButton
-              variant="danger"
-              onClick={() => {
-                handleRemove(steps[selectedStepIndex].id);
-              }}
-            >
-              {t('patternEditor.steps.remove')}
-            </StyledButton>
-          </div>
-        </Section>
+            <div className="flex flex-wrap gap-2">
+              <StyledButton
+                disabled={selectedStepIndex === 0}
+                onClick={() => {
+                  handleMove(steps[selectedStepIndex].id, 'up');
+                }}
+              >
+                ← {t('patternEditor.steps.moveUp')}
+              </StyledButton>
+              <StyledButton
+                disabled={selectedStepIndex === steps.length - 1}
+                onClick={() => {
+                  handleMove(steps[selectedStepIndex].id, 'down');
+                }}
+              >
+                {t('patternEditor.steps.moveDown')} →
+              </StyledButton>
+              <div className="flex-1" />
+              <StyledButton
+                onClick={() => {
+                  handleDuplicate(steps[selectedStepIndex].id);
+                }}
+              >
+                {t('patternEditor.steps.duplicate')}
+              </StyledButton>
+              <StyledButton
+                variant="danger"
+                onClick={() => {
+                  handleRemove(steps[selectedStepIndex].id);
+                }}
+              >
+                {t('patternEditor.steps.remove')}
+              </StyledButton>
+            </div>
+          </Section>
+        </div>
       )}
 
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div
-            aria-modal="true"
-            className="w-full max-w-sm space-y-4 rounded-2xl theme-border border bg-[rgb(var(--surface-raised)/0.95)] p-6 shadow-xl text-[rgb(var(--surface-contrast)/1)]"
-            role="dialog"
-          >
-            <header className="space-y-1">
-              <h4 className="text-lg font-semibold">{t('patternEditor.addModal.title')}</h4>
-              <p className="theme-muted text-sm">
-                {t('patternEditor.preview.summary', {
-                  total: totalDuration + (canConfirmModal ? parsedModalDuration : 0),
-                })}
-              </p>
-            </header>
-            <div className="space-y-4">
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
-                  {labels.valueLabel}
+        <Modal
+          isOpen={isAddModalOpen}
+          onClose={handleModalCancel}
+          title={t('patternEditor.addModal.title')}
+          maxWidth="sm"
+        >
+          <header className="space-y-1">
+            <h4 className="text-lg font-semibold">{t('patternEditor.addModal.title')}</h4>
+            <p className="theme-muted text-sm">
+              {t('patternEditor.preview.summary', {
+                total: totalDuration + (canConfirmModal ? parsedModalDuration : 0),
+              })}
+            </p>
+          </header>
+          <div className="space-y-4">
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                {labels.valueLabel}
+              </span>
+              {renderInput({
+                value: modalValue,
+                onChange: handleModalValueChange,
+                id: 'simple-pattern-modal-value',
+              })}
+              {labels.valueHelper && (
+                <span className="theme-muted text-xs" id="simple-pattern-modal-value-helper">
+                  {labels.valueHelper}
                 </span>
-                {renderInput({
-                  value: modalValue,
-                  onChange: handleModalValueChange,
-                  id: 'simple-pattern-modal-value',
-                })}
-                {labels.valueHelper && (
-                  <span className="theme-muted text-xs" id="simple-pattern-modal-value-helper">
-                    {labels.valueHelper}
-                  </span>
-                )}
-              </label>
-              <label className="flex flex-col gap-2 text-sm">
-                <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
-                  {t('patternEditor.form.durationLabel')}
-                </span>
-                <input
-                  aria-describedby="simple-pattern-modal-duration-helper"
-                  className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
-                  inputMode="numeric"
-                  min={1}
-                  onChange={handleModalDurationChange}
-                  step={1}
-                  type="number"
-                  value={modalDurationMs}
-                />
-                <span className="theme-muted text-xs" id="simple-pattern-modal-duration-helper">
-                  {t('patternEditor.form.durationHelper')}
-                </span>
-              </label>
-            </div>
-            <footer className="flex justify-end gap-3">
-              <StyledButton variant="ghost" onClick={handleModalCancel}>
-                {t('patternEditor.addModal.cancel')}
-              </StyledButton>
-              <StyledButton
-                variant="primary"
-                disabled={!canConfirmModal}
-                onClick={handleModalConfirm}
-              >
-                {t('patternEditor.addModal.confirm')}
-              </StyledButton>
-            </footer>
+              )}
+            </label>
+            <label className="flex flex-col gap-2 text-sm">
+              <span className="font-medium text-[rgb(var(--surface-contrast)/0.8)]">
+                {t('patternEditor.form.durationLabel')}
+              </span>
+              <input
+                aria-describedby="simple-pattern-modal-duration-helper"
+                className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 min-h-[44px] text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none"
+                inputMode="numeric"
+                min={1}
+                onChange={handleModalDurationChange}
+                step={1}
+                type="number"
+                value={modalDurationMs}
+              />
+              <span className="theme-muted text-xs" id="simple-pattern-modal-duration-helper">
+                {t('patternEditor.form.durationHelper')}
+              </span>
+            </label>
           </div>
-        </div>
+          <footer className="flex justify-end gap-3 mt-4">
+            <StyledButton variant="ghost" onClick={handleModalCancel}>
+              {t('patternEditor.addModal.cancel')}
+            </StyledButton>
+            <StyledButton
+              variant="primary"
+              disabled={!canConfirmModal}
+              onClick={handleModalConfirm}
+            >
+              {t('patternEditor.addModal.confirm')}
+            </StyledButton>
+          </footer>
+        </Modal>
       )}
     </PanelContainer>
   );

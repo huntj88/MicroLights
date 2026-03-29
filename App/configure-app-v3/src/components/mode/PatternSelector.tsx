@@ -18,7 +18,7 @@ export const PatternSelector = ({ value, onChange, patterns, label }: Props) => 
     <div className="space-y-1">
       <label className="text-sm font-medium theme-muted">{label}</label>
       <select
-        className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none transition-colors"
+        className="w-full rounded-xl bg-[rgb(var(--surface-raised)/0.5)] theme-border border px-3 py-2 min-h-[44px] text-[rgb(var(--surface-contrast)/1)] focus:border-[rgb(var(--accent)/1)] focus:outline-none transition-colors"
         value={value ?? ''}
         onChange={e => {
           onChange(e.target.value);

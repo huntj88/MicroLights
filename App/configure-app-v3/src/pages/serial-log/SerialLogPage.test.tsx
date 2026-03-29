@@ -49,7 +49,7 @@ describe('SerialLogPage', () => {
     render(<SerialLogPage />);
     expect(screen.getByText('Read Modes')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
-    expect(screen.getByText('DFU')).toBeInTheDocument();
+    expect(screen.getByText('serialLog.actions.dfu')).toBeInTheDocument();
   });
 
   it('sends readMode command for all slots', async () => {
@@ -82,7 +82,9 @@ describe('SerialLogPage', () => {
     fireEvent.click(screen.getByText('Settings'));
 
     // Modal should be open
-    expect(screen.getByText('Configure Settings')).toBeInTheDocument();
+    expect(
+      screen.getByRole('dialog', { name: 'serialLog.configureSettings.title' }),
+    ).toBeInTheDocument();
 
     // It should have sent readSettings
     // eslint-disable-next-line @typescript-eslint/unbound-method
@@ -131,7 +133,7 @@ describe('SerialLogPage', () => {
 
   it('sends dfu command', () => {
     render(<SerialLogPage />);
-    fireEvent.click(screen.getByText('DFU'));
+    fireEvent.click(screen.getByText('serialLog.actions.dfu'));
     expect(mockSend).toHaveBeenCalledWith({ command: 'dfu' });
   });
 
@@ -153,6 +155,25 @@ describe('SerialLogPage', () => {
     render(<SerialLogPage />);
     expect(screen.getByText('Read Modes').closest('button')).toBeDisabled();
     expect(screen.getByText('Settings').closest('button')).toBeDisabled();
-    expect(screen.getByText('DFU').closest('button')).toBeDisabled();
+    expect(screen.getByText('serialLog.actions.dfu').closest('button')).toBeDisabled();
+  });
+
+  it('disables DFU button on mobile OS and shows info message', () => {
+    const originalUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
+      configurable: true,
+    });
+
+    render(<SerialLogPage />);
+    const dfuButton = screen.getByText('serialLog.actions.dfu').closest('button');
+    expect(dfuButton).toBeDisabled();
+    expect(dfuButton).toHaveAttribute('title', 'serialLog.actions.dfuDesktopOnly');
+    expect(screen.getByText('serialLog.actions.dfuDesktopOnly')).toBeInTheDocument();
+
+    Object.defineProperty(navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
   });
 });

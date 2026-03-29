@@ -76,7 +76,7 @@ export const ModeEditor = ({ mode, onChange, patterns }: Props) => {
       />
 
       <Section title={t('modeEditor.patternsTitle') || 'Patterns'}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
           <PatternSelector
             label={t('modeEditor.frontLabel')}
             value={mode.front?.pattern.name}

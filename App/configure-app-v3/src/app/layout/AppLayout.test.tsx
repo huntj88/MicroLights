@@ -1,5 +1,4 @@
 import toast from 'react-hot-toast';
-import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 
 import { renderWithProviders, screen } from '@/test-utils/render-with-providers';
@@ -10,13 +9,17 @@ import { serialManager } from '../providers/serial-manager';
 vi.mock('react-hot-toast');
 
 describe('AppLayout', () => {
-  it('renders navigation links with localized labels', () => {
-    renderWithProviders(
-      <MemoryRouter initialEntries={['/']}>
-        <AppLayout />
-      </MemoryRouter>,
-    );
+  it('renders app name and settings gear on mobile', () => {
+    renderWithProviders(<AppLayout />, { routerEntries: ['/'] });
 
+    expect(screen.getByText('app.name')).toBeInTheDocument();
+    expect(screen.getByLabelText('nav.openSettings')).toBeInTheDocument();
+  });
+
+  it('renders desktop navigation links', () => {
+    renderWithProviders(<AppLayout />, { routerEntries: ['/'] });
+
+    // Desktop nav should contain nav links (hidden via CSS on mobile)
     expect(screen.getByRole('link', { name: 'nav.home' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'nav.settings' })).toBeInTheDocument();
   });
@@ -24,11 +27,7 @@ describe('AppLayout', () => {
   it('shows error toast when serial data contains "error"', () => {
     const onSpy = vi.spyOn(serialManager, 'on');
 
-    renderWithProviders(
-      <MemoryRouter initialEntries={['/']}>
-        <AppLayout />
-      </MemoryRouter>,
-    );
+    renderWithProviders(<AppLayout />, { routerEntries: ['/'] });
 
     const dataListenerCall = onSpy.mock.calls.find(args => args[0] === 'data');
     expect(dataListenerCall).toBeDefined();

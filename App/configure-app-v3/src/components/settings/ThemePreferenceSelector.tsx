@@ -72,7 +72,7 @@ export const ThemePreferenceSelector = ({ value, onChange }: ThemePreferenceSele
           return (
             <label
               key={option.key}
-              className="theme-panel theme-border flex cursor-pointer flex-col gap-2 rounded-xl border p-4 transition-colors hover:border-[rgb(var(--accent)/1)]"
+              className="theme-panel theme-border flex cursor-pointer flex-col gap-2 rounded-xl border p-4 min-h-[44px] transition-colors hover:border-[rgb(var(--accent)/1)]"
               htmlFor={inputId}
             >
               <span className="flex items-center justify-between">

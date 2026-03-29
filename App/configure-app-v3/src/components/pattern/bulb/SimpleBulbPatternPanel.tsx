@@ -38,7 +38,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
           </span>
           <button
             aria-checked={value === 'high'}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))] focus:ring-offset-2 ${
+            className={`relative inline-flex h-8 w-14 sm:h-6 sm:w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent))] focus:ring-offset-2 ${
               value === 'high' ? 'bg-[rgb(var(--accent))]' : 'bg-[rgb(var(--surface-muted))]'
             }`}
             onClick={() => {
@@ -50,8 +50,8 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
             <span className="sr-only">{t('bulbPattern.form.stateLabel')}</span>
             <span
               className={`${
-                value === 'high' ? 'translate-x-6' : 'translate-x-1'
-              } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+                value === 'high' ? 'translate-x-8 sm:translate-x-6' : 'translate-x-1'
+              } inline-block h-6 w-6 sm:h-4 sm:w-4 transform rounded-full bg-white transition-transform`}
             />
           </button>
           <span
@@ -70,7 +70,7 @@ export const SimpleBulbPatternPanel = ({ value, onChange }: SimpleBulbPatternPan
             duration: durationMs,
           })}
           aria-pressed={isSelected}
-          className={`flex flex-1 items-center justify-center text-xs font-medium transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/1)] focus:ring-inset ${
+          className={`flex flex-1 items-center justify-center text-xs font-medium transition-all min-w-[12px] cursor-pointer active:opacity-80 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[rgb(var(--accent)/1)] focus:ring-inset ${
             isSelected
               ? 'z-10 scale-[1.02] shadow-lg ring-2 ring-[rgb(var(--accent)/1)] ring-inset'
               : ''

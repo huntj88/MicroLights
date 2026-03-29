@@ -61,20 +61,20 @@ export const ModePage = () => {
   };
 
   return (
-    <section className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
         <div className="space-y-2">
-          <h2 className="text-3xl font-semibold">{t('mode.title')}</h2>
-          <p className="theme-muted">{t('mode.subtitle')}</p>
+          <h2 className="text-xl font-semibold sm:text-3xl">{t('mode.title')}</h2>
+          <p className="text-sm theme-muted">{t('mode.subtitle')}</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-2">
           <SerialTestButton data={editingMode} type="mode" disabled={!isValid} />
           <SerialFlashButton mode={editingMode} disabled={!isValid} />
           <SerialConnectButton />
         </div>
       </header>
 
-      <div className="space-y-6 rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-6">
+      <div className="space-y-4 sm:space-y-6 rounded-xl sm:rounded-2xl border border-dashed theme-border bg-[rgb(var(--surface-raised)/0.35)] p-4 sm:p-6">
         <StorageControls
           items={availableModeNames}
           selectedItem={selectedModeName}

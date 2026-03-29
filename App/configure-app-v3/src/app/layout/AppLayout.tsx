@@ -3,6 +3,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet } from 'react-router-dom';
 
+import { MobileBottomNav } from './MobileBottomNav';
+import { SettingsIcon } from '../../components/icons/NavIcons';
 import { serialManager } from '../providers/serial-manager';
 import { ROUTES, routeOrder } from '../router/constants';
 
@@ -27,7 +29,7 @@ export const AppLayout = () => {
   }, []);
 
   return (
-    <div className="theme-surface flex min-h-screen flex-col">
+    <div className="theme-surface flex min-h-[100dvh] flex-col pb-[env(safe-area-inset-bottom)]">
       <Toaster
         position="bottom-right"
         toastOptions={{
@@ -42,12 +44,21 @@ export const AppLayout = () => {
         {t('layout.skipToContent')}
       </a>
       <header className="border-b border-solid theme-border backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-          <div>
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+          <NavLink to="/" className="no-underline">
             <p className="text-xs uppercase tracking-widest theme-muted">{t('app.tagline')}</p>
-            <h1 className="text-xl font-semibold">{t('app.name')}</h1>
-          </div>
-          <nav aria-label={t('app.name')} className="flex items-center gap-3 text-sm">
+            <h1 className="text-lg font-semibold sm:text-xl">{t('app.name')}</h1>
+          </NavLink>
+          {/* Mobile settings gear */}
+          <NavLink
+            to="/settings"
+            className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-[rgb(var(--surface-raised)/0.5)] transition-colors theme-muted"
+            aria-label={t('nav.openSettings')}
+          >
+            <SettingsIcon className="h-5 w-5" />
+          </NavLink>
+          {/* Desktop nav */}
+          <nav aria-label={t('app.name')} className="hidden md:flex items-center gap-3 text-sm">
             {routeOrder.map(routeKey => {
               const href = resolvePath(routeKey);
               return (
@@ -71,10 +82,11 @@ export const AppLayout = () => {
           </nav>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8" id="main">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-4 sm:py-8 pb-20 md:pb-8" id="main">
         <Outlet />
       </main>
-      <footer className="border-t border-solid theme-border">
+      <MobileBottomNav />
+      <footer className="hidden md:block border-t border-solid theme-border">
         <div className="mx-auto max-w-6xl px-4 py-4 text-sm theme-muted">
           {t('layout.footer', { year: currentYear })}
         </div>

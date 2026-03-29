@@ -165,7 +165,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-2">
         <button
-          className="rounded-full border border-solid theme-border px-3 py-1 text-sm transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
+          className="rounded-full border border-solid theme-border px-3 py-2.5 min-h-[44px] text-sm transition-colors hover:bg-[rgb(var(--surface-raised)/1)]"
           disabled={value.entries.length === 0}
           onClick={handleClear}
           type="button"
@@ -186,7 +186,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
         <label className="flex flex-col gap-2 text-sm">
           <span className="font-medium">{t('serialLog.fields.payloadLabel')}</span>
           <textarea
-            className="theme-panel theme-border min-h-[96px] rounded-xl border p-3 font-mono text-sm"
+            className="theme-panel theme-border min-h-[80px] sm:min-h-[96px] rounded-xl border p-3 font-mono text-sm"
             onChange={handlePayloadChange}
             placeholder={t('serialLog.fields.payloadPlaceholder')}
             value={value.pendingPayload}
@@ -194,7 +194,7 @@ export const SerialLogPanel = ({ value, onChange }: SerialLogPanelProps) => {
         </label>
         <div className="flex justify-end">
           <button
-            className="rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2 text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01]"
+            className="w-full sm:w-auto rounded-full bg-[rgb(var(--accent)/1)] px-4 py-2.5 min-h-[44px] text-sm font-medium text-[rgb(var(--surface-contrast)/1)] transition-transform hover:scale-[1.01]"
             type="submit"
             disabled={!value.pendingPayload.trim()}
           >
