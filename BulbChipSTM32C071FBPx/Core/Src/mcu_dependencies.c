@@ -29,6 +29,12 @@ extern TIM_HandleTypeDef htim17;
 #define I2C_TIMING_48MHZ 0x10805D88U
 #define I2C_TIMING_12MHZ 0x00402D41U
 
+// PWM timer prescaler values to maintain ~8 kHz PWM across clock speeds.
+// 12 MHz / (2+1) / (500+1) ≈ 7984 Hz
+// 48 MHz / (11+1) / (500+1) ≈ 7984 Hz
+#define PWM_PRESCALER_12MHZ 2U
+#define PWM_PRESCALER_48MHZ 11U
+
 // Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
 static uint32_t tickMultiplier = 0;
 
@@ -182,6 +188,11 @@ void enableUsbClock(bool enable) {
         hi2c1.Init.Timing = I2C_TIMING_48MHZ;
         HAL_I2C_Init(&hi2c1);
 
+        // Scale PWM prescaler to keep frequency constant at ~8 kHz.
+        // PSC is shadow-registered: new value loads at next counter overflow (glitch-free).
+        __HAL_TIM_SET_PRESCALER(&htim1, PWM_PRESCALER_48MHZ);
+        __HAL_TIM_SET_PRESCALER(&htim3, PWM_PRESCALER_48MHZ);
+
         tud_connect();
     } else {
         tud_disconnect();
@@ -196,6 +207,10 @@ void enableUsbClock(bool enable) {
 
         hi2c1.Init.Timing = I2C_TIMING_12MHZ;
         HAL_I2C_Init(&hi2c1);
+
+        // Restore PWM prescaler for 12 MHz clock speed.
+        __HAL_TIM_SET_PRESCALER(&htim1, PWM_PRESCALER_12MHZ);
+        __HAL_TIM_SET_PRESCALER(&htim3, PWM_PRESCALER_12MHZ);
 
         __HAL_RCC_USB_CLK_DISABLE();
         CRS->CR &= ~(CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
