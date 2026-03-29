@@ -155,4 +155,23 @@ describe('SerialLogPage', () => {
     expect(screen.getByText('Settings').closest('button')).toBeDisabled();
     expect(screen.getByText('DFU').closest('button')).toBeDisabled();
   });
+
+  it('disables DFU button on mobile OS and shows info message', () => {
+    const originalUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)',
+      configurable: true,
+    });
+
+    render(<SerialLogPage />);
+    const dfuButton = screen.getByText('DFU').closest('button');
+    expect(dfuButton).toBeDisabled();
+    expect(dfuButton).toHaveAttribute('title', 'DFU is only available on desktop');
+    expect(screen.getByText('DFU is only available on desktop')).toBeInTheDocument();
+
+    Object.defineProperty(navigator, 'userAgent', {
+      value: originalUserAgent,
+      configurable: true,
+    });
+  });
 });

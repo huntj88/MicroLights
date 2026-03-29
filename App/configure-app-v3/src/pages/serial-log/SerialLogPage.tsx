@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useSerialStore } from '@/app/providers/serial-store';
@@ -13,6 +13,11 @@ import { SettingsModal } from '@/components/serial-log/SettingsModal';
 
 export const SerialLogPage = () => {
   const { t } = useTranslation();
+
+  const isMobileOS = useMemo(
+    () => /android|iphone|ipad|ipod/i.test(navigator.userAgent),
+    [],
+  );
 
   const logs = useSerialStore(s => s.logs);
   const status = useSerialStore(s => s.status);
@@ -94,10 +99,14 @@ export const SerialLogPage = () => {
         </StyledButton>
         <StyledButton
           onClick={() => void send({ command: 'dfu' })}
-          disabled={status !== 'connected'}
+          disabled={isMobileOS || status !== 'connected'}
+          title={isMobileOS ? 'DFU is only available on desktop' : undefined}
         >
           DFU
         </StyledButton>
+        {isMobileOS && (
+          <p className="text-xs theme-muted">DFU is only available on desktop</p>
+        )}
       </div>
 
       <SerialLogPanel onChange={handleChange} value={panelState} />
