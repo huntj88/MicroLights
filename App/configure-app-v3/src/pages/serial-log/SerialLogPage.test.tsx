@@ -49,7 +49,7 @@ describe('SerialLogPage', () => {
     render(<SerialLogPage />);
     expect(screen.getByText('Read Modes')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
-    expect(screen.getByText('DFU')).toBeInTheDocument();
+    expect(screen.getByText('serialLog.actions.dfu')).toBeInTheDocument();
   });
 
   it('sends readMode command for all slots', async () => {
@@ -133,7 +133,7 @@ describe('SerialLogPage', () => {
 
   it('sends dfu command', () => {
     render(<SerialLogPage />);
-    fireEvent.click(screen.getByText('DFU'));
+    fireEvent.click(screen.getByText('serialLog.actions.dfu'));
     expect(mockSend).toHaveBeenCalledWith({ command: 'dfu' });
   });
 
@@ -155,7 +155,7 @@ describe('SerialLogPage', () => {
     render(<SerialLogPage />);
     expect(screen.getByText('Read Modes').closest('button')).toBeDisabled();
     expect(screen.getByText('Settings').closest('button')).toBeDisabled();
-    expect(screen.getByText('DFU').closest('button')).toBeDisabled();
+    expect(screen.getByText('serialLog.actions.dfu').closest('button')).toBeDisabled();
   });
 
   it('disables DFU button on mobile OS and shows info message', () => {
@@ -166,10 +166,10 @@ describe('SerialLogPage', () => {
     });
 
     render(<SerialLogPage />);
-    const dfuButton = screen.getByText('DFU').closest('button');
+    const dfuButton = screen.getByText('serialLog.actions.dfu').closest('button');
     expect(dfuButton).toBeDisabled();
-    expect(dfuButton).toHaveAttribute('title', 'DFU is only available on desktop');
-    expect(screen.getByText('DFU is only available on desktop')).toBeInTheDocument();
+    expect(dfuButton).toHaveAttribute('title', 'serialLog.actions.dfuDesktopOnly');
+    expect(screen.getByText('serialLog.actions.dfuDesktopOnly')).toBeInTheDocument();
 
     Object.defineProperty(navigator, 'userAgent', {
       value: originalUserAgent,

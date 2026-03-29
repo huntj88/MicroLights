@@ -11,7 +11,7 @@ export const PatternTypeSwitcher = () => {
   const { t } = useTranslation();
   const location = useLocation();
 
-  const isRgb = location.pathname.includes(ROUTES.rgbPattern);
+  const isRgb = location.pathname.startsWith(`/${ROUTES.rgbPattern}`);
 
   return (
     <nav

@@ -97,11 +97,13 @@ export const SerialLogPage = () => {
         <StyledButton
           onClick={() => void send({ command: 'dfu' })}
           disabled={isMobileOS || status !== 'connected'}
-          title={isMobileOS ? 'DFU is only available on desktop' : undefined}
+          title={isMobileOS ? t('serialLog.actions.dfuDesktopOnly') : undefined}
         >
-          DFU
+          {t('serialLog.actions.dfu')}
         </StyledButton>
-        {isMobileOS && <p className="text-xs theme-muted">DFU is only available on desktop</p>}
+        {isMobileOS && (
+          <p className="text-xs theme-muted">{t('serialLog.actions.dfuDesktopOnly')}</p>
+        )}
       </div>
 
       <SerialLogPanel onChange={handleChange} value={panelState} />

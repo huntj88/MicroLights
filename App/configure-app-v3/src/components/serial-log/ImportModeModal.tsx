@@ -131,6 +131,7 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
         <h3 className="text-xl font-semibold">{t('serialLog.importMode.title')}</h3>
         <button
           onClick={onClose}
+          aria-label={t('common.actions.close')}
           className="rounded-lg p-2 hover:bg-[rgb(var(--surface-muted)/0.15)] transition-colors"
         >
           ✕

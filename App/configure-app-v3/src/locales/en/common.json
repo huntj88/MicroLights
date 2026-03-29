@@ -205,7 +205,9 @@
       "clear": "Clear log",
       "send": "Send payload",
       "viewChargerStatus": "View Charger Status",
-      "importMode": "Import Mode"
+      "importMode": "Import Mode",
+      "dfu": "DFU",
+      "dfuDesktopOnly": "DFU is only available on desktop"
     },
     "chargerStatus": {
       "title": "Charger Status",
