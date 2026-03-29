@@ -21,7 +21,7 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
     onChange([
       ...triggers,
       {
-        threshold: 1.5,
+        threshold: 150,
         front: undefined,
         case: undefined,
       },
@@ -93,12 +93,14 @@ export const AccelTriggerEditor = ({ triggers, onChange, patterns }: Props) => {
                 <label className="text-sm font-medium">{t('modeEditor.thresholdLabel')}</label>
                 <input
                   type="number"
-                  step="0.1"
+                  step="1"
                   min="0"
+                  max="255"
                   className="theme-input w-full rounded-md border px-3 py-2 min-h-[44px]"
                   value={trigger.threshold}
                   onChange={e => {
-                    updateTrigger(index, { threshold: parseFloat(e.target.value) || 0 });
+                    const val = parseInt(e.target.value, 10);
+                    updateTrigger(index, { threshold: Number.isNaN(val) ? 0 : Math.min(255, Math.max(0, val)) });
                   }}
                 />
                 <p className="theme-muted text-xs mt-1">{t('modeEditor.thresholdHelper')}</p>
