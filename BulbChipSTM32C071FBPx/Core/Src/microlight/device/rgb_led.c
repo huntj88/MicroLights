@@ -7,6 +7,7 @@
 
 #include "microlight/device/rgb_led.h"
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -32,11 +33,21 @@ static const uint8_t gammaLUT[256] = {
     238, 240, 242, 244, 246, 248, 251, 253, 255,
 };
 
+// Scale a gamma-corrected 0-255 color value to a PWM duty cycle in [0, period].
+//
+// Conceptually: duty = corrected * (period / 255)
+// Each color step maps to one increment of the PWM range. However, integer truncation
+// in (period / 255) loses precision for small periods, so we rearrange to multiply first:
+//   duty = (corrected * period) / 255
+//
+// The division by 255 is then replaced with a multiply-shift approximation:
+//   x / 255 == (x * 0x8081) >> 23, exact for x in [0, 130559].
+// The intermediate product (x * 0x8081) must fit in a uint32_t, which constrains max period:
+//   255 * period * 0x8081 <= UINT32_MAX  =>  period <= 511
 static uint16_t colorRangeToDuty(const RGBLed *device, uint8_t value) {
     uint8_t corrected = gammaLUT[value];
-    // Multiply first for better precision, then fast divide by 255 using shifts
     uint32_t product = (uint32_t)corrected * device->period;
-    return (uint16_t)((product + 1 + ((product + 1) >> 8)) >> 8);
+    return (uint16_t)((product * 0x8081U) >> 23);
 }
 
 // TODO: move transient side effect to different function
@@ -60,6 +71,10 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
     if (!device || !writePwm) {
         return false;
     }
+
+    // Max period for colorRangeToDuty: 255 * period * 0x8081 must fit in uint32_t.
+    // 255 * 512 * 0x8081 = 4,295,032,320 > UINT32_MAX, so period must be <= 511.
+    assert(period <= 511);
 
     device->writePwm = writePwm;
     device->period = period;
