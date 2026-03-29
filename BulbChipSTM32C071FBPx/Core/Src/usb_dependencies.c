@@ -66,9 +66,9 @@ int32_t usbReadTask(char usbBuffer[], size_t bufferLength) {
             readBufCount = 0;
             return 0;
         }
-        char c = readBuf[readBufPos++];
-        usbBuffer[jsonIndex++] = c;
-        if (c == '\n') {
+        char chr = readBuf[readBufPos++];
+        usbBuffer[jsonIndex++] = chr;
+        if (chr == '\n') {
             int32_t len = (int32_t)jsonIndex;
             jsonIndex = 0;
             return len;
@@ -90,9 +90,9 @@ int32_t usbReadTask(char usbBuffer[], size_t bufferLength) {
             readBufCount = 0;
         } else {
             while (readBufPos < readBufCount) {
-                char c = readBuf[readBufPos++];
-                usbBuffer[jsonIndex++] = c;
-                if (c == '\n') {
+                char chr = readBuf[readBufPos++];
+                usbBuffer[jsonIndex++] = chr;
+                if (chr == '\n') {
                     int32_t len = (int32_t)jsonIndex;
                     jsonIndex = 0;
                     return len;

@@ -50,7 +50,9 @@ size_t board_get_unique_id(uint8_t uid[], size_t buf_size) {
     uint32_t *id32 = (uint32_t *)(uintptr_t)uid;
     uint8_t const uid_len = 12;
 
-    if (buf_size < uid_len) return 0;
+    if (buf_size < uid_len) {
+        return 0;
+    }
 
     id32[0] = stm32_uuid[0];
     id32[1] = stm32_uuid[1];
