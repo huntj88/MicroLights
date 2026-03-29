@@ -150,8 +150,8 @@ extern CRS_TypeDef mockCRS;
 #define MODIFY_REG(REG, CLEARMASK, SETMASK)  ((REG) = (((REG) & (~(CLEARMASK))) | (SETMASK)))
 #endif
 
-// Timer prescaler macro
-#define __HAL_TIM_SET_PRESCALER(__HANDLE__, __PRESC__)  ((void)(__PRESC__))
+// Timer prescaler macro — persists value so tests can assert the change
+#define __HAL_TIM_SET_PRESCALER(__HANDLE__, __PRESC__)  ((__HANDLE__)->Init.Prescaler = (__PRESC__))
 
 // System / tick stubs
 static inline void SystemCoreClockUpdate(void) {}

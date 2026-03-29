@@ -154,6 +154,9 @@ void setUp(void) {
     tudDisconnectCalled = false;
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
+    // Reset timer prescalers to a known sentinel so tests can detect changes
+    htim1.Init.Prescaler = 0xFFFFFFFFU;
+    htim3.Init.Prescaler = 0xFFFFFFFFU;
     // Set PA8 to GPIO output mode (MODER bits [17:16] = 0b01) — simulates
     // the pin state after CubeMX init, before any AF reconfiguration.
     mockGPIOA.MODER = (0x1U << (8U * 2U));
@@ -316,6 +319,13 @@ void test_EnableUsbClock_Enable_SetsUpClocksAndI2C(void) {
     TEST_ASSERT_EQUAL_HEX32_MESSAGE(
         I2C_TIMING_48MHZ, hi2c1.Init.Timing, "I2C timing should be set for 48 MHz");
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount, "HAL_I2C_Init should be called once");
+    // PWM prescalers should be updated for 48 MHz (constant PWM frequency)
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_48MHZ, htim1.Init.Prescaler,
+        "TIM1 prescaler should be set for 48 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_48MHZ, htim3.Init.Prescaler,
+        "TIM3 prescaler should be set for 48 MHz");
     // tud_connect should be called
     TEST_ASSERT_TRUE_MESSAGE(tudConnectCalled, "tud_connect should be called");
     TEST_ASSERT_FALSE_MESSAGE(tudDisconnectCalled, "tud_disconnect should NOT be called");
@@ -342,6 +352,13 @@ void test_EnableUsbClock_Disable_TearsDownClocksAndI2C(void) {
         I2C_TIMING_12MHZ, hi2c1.Init.Timing, "I2C timing should be set for 12 MHz");
     TEST_ASSERT_EQUAL_UINT32_MESSAGE(
         1, i2cInitCallCount, "HAL_I2C_Init should be called once on disable");
+    // PWM prescalers should be restored for 12 MHz (constant PWM frequency)
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_12MHZ, htim1.Init.Prescaler,
+        "TIM1 prescaler should be set for 12 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_12MHZ, htim3.Init.Prescaler,
+        "TIM3 prescaler should be set for 12 MHz");
     // tud_disconnect should be called
     TEST_ASSERT_TRUE_MESSAGE(tudDisconnectCalled, "tud_disconnect should be called");
     TEST_ASSERT_FALSE_MESSAGE(tudConnectCalled, "tud_connect should NOT be called on disable");
