@@ -7,3 +7,5 @@
 Drivers
 libs/
 lint_report.md
+compile_commands.json
+.vscode/

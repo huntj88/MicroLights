@@ -133,7 +133,7 @@ uint8_t const *tud_descriptor_bos_cb(void) {
 tusb_desc_webusb_url_t const desc_url = {
     .bLength = 3 + sizeof(WEBUSB_URL) - 1,
     .bDescriptorType = 3,  // WEBUSB URL type
-    .bScheme = 1,           // 0: http, 1: https
+    .bScheme = 1,          // 0: http, 1: https
     .url = WEBUSB_URL};
 
 //--------------------------------------------------------------------+

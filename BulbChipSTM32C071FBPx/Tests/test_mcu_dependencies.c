@@ -13,7 +13,7 @@ FLASH_TypeDef mockFlashPeripheral;
 FLASH_TypeDef *FLASH = &mockFlashPeripheral;
 TIM_TypeDef mockTIM1;
 TIM_TypeDef mockTIM3;
-RCC_TypeDef mockRCC = { .CR = RCC_CR_HSIUSB48RDY };
+RCC_TypeDef mockRCC = {.CR = RCC_CR_HSIUSB48RDY};
 CRS_TypeDef mockCRS;
 I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim1;
@@ -23,6 +23,9 @@ TIM_HandleTypeDef htim17;
 
 // GPIO mock instance for GPIOA — allows code to read/write MODER register.
 GPIO_TypeDef mockGPIOA;
+
+// I2C init tracking
+static uint32_t i2cInitCallCount = 0;
 
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
@@ -99,6 +102,17 @@ void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t *pFL
 uint32_t HAL_RCC_GetPCLK1Freq(void) {
     return 1000000;
 }
+HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
+    i2cInitCallCount++;
+    return HAL_OK;
+}
+
+// TinyUSB stubs
+static bool tudConnectCalled = false;
+static bool tudDisconnectCalled = false;
+bool tud_connect(void) { tudConnectCalled = true; return true; }
+bool tud_disconnect(void) { tudDisconnectCalled = true; return true; }
+bool tud_connected(void) { return false; }
 
 // Flash stubs — not under test here, just satisfying linker
 HAL_StatusTypeDef HAL_FLASH_Unlock(void) {
@@ -127,6 +141,11 @@ void setUp(void) {
     lastGpioPort = NULL;
     gpioInitCalled = false;
     gpioWriteCount = 0;
+    i2cInitCallCount = 0;
+    tudConnectCalled = false;
+    tudDisconnectCalled = false;
+    mockRCC.CR = RCC_CR_HSIUSB48RDY;
+    mockCRS.CR = 0;
     // Set PA8 to GPIO output mode (MODER bits [17:16] = 0b01) — simulates
     // the pin state after CubeMX init, before any AF reconfiguration.
     mockGPIOA.MODER = (0x1U << (8U * 2U));
@@ -273,9 +292,88 @@ void test_FrontBluePin_ReconfiguresBetweenGpioAndPwm(void) {
     TEST_ASSERT_FALSE_MESSAGE(gpioInitCalled, "Should skip GPIO init when already in GPIO mode");
 }
 
+void test_EnableUsbClock_Enable_SetsUpClocksAndI2C(void) {
+    mockRCC.CR = RCC_CR_HSIUSB48RDY;  // HSI48 ready bit already set so while-loop exits
+    mockCRS.CR = 0;
+    hi2c1.Init.Timing = 0;
+
+    enableUsbClock(true);
+
+    // HSI48 should be enabled
+    TEST_ASSERT_BITS_HIGH_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR,
+                                  "HSI48 should be enabled");
+    // CRS auto-trim and enable bits should be set
+    TEST_ASSERT_BITS_HIGH_MESSAGE(CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR,
+                                  "CRS should have AUTOTRIMEN and CEN set");
+    // I2C timing should be reconfigured for 48 MHz
+    TEST_ASSERT_EQUAL_HEX32_MESSAGE(I2C_TIMING_48MHZ, hi2c1.Init.Timing,
+                                    "I2C timing should be set for 48 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount,
+                                     "HAL_I2C_Init should be called once");
+    // tud_connect should be called
+    TEST_ASSERT_TRUE_MESSAGE(tudConnectCalled, "tud_connect should be called");
+    TEST_ASSERT_FALSE_MESSAGE(tudDisconnectCalled, "tud_disconnect should NOT be called");
+}
+
+void test_EnableUsbClock_Disable_TearsDownClocksAndI2C(void) {
+    // First enable so there's something to tear down
+    mockRCC.CR = RCC_CR_HSIUSB48RDY;
+    enableUsbClock(true);
+    // Reset tracking
+    i2cInitCallCount = 0;
+    tudConnectCalled = false;
+    tudDisconnectCalled = false;
+
+    enableUsbClock(false);
+
+    // HSI48 should be disabled
+    TEST_ASSERT_BITS_LOW_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR,
+                                 "HSI48 should be disabled");
+    // CRS bits should be cleared
+    TEST_ASSERT_BITS_LOW_MESSAGE(CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR,
+                                 "CRS AUTOTRIMEN and CEN should be cleared");
+    // I2C timing should be reconfigured for 12 MHz
+    TEST_ASSERT_EQUAL_HEX32_MESSAGE(I2C_TIMING_12MHZ, hi2c1.Init.Timing,
+                                    "I2C timing should be set for 12 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount,
+                                     "HAL_I2C_Init should be called once on disable");
+    // tud_disconnect should be called
+    TEST_ASSERT_TRUE_MESSAGE(tudDisconnectCalled, "tud_disconnect should be called");
+    TEST_ASSERT_FALSE_MESSAGE(tudConnectCalled, "tud_connect should NOT be called on disable");
+}
+
+void test_EnableUsbClock_InvalidatesTickMultiplier(void) {
+    // Prime the multiplier cache by calling convertTicksToMilliseconds
+    htim2.Init.Prescaler = 47;
+    htim2.Init.Period = 999;
+    uint32_t ms1 = convertTicksToMilliseconds(100);
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, tickMultiplier,
+                                  "tickMultiplier should be cached after first call");
+
+    // Enable USB clock — should reset the multiplier
+    mockRCC.CR = RCC_CR_HSIUSB48RDY;
+    enableUsbClock(true);
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, tickMultiplier,
+                                     "tickMultiplier should be reset after enableUsbClock(true)");
+
+    // Re-prime the cache
+    ms1 = convertTicksToMilliseconds(100);
+    (void)ms1;
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, tickMultiplier,
+                                  "tickMultiplier should be cached again");
+
+    // Disable USB clock — should reset the multiplier again
+    enableUsbClock(false);
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, tickMultiplier,
+                                     "tickMultiplier should be reset after enableUsbClock(false)");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_EnableFrontLedTimer_GpioReconfigurationRoundTrip);
+    RUN_TEST(test_EnableUsbClock_Disable_TearsDownClocksAndI2C);
+    RUN_TEST(test_EnableUsbClock_Enable_SetsUpClocksAndI2C);
+    RUN_TEST(test_EnableUsbClock_InvalidatesTickMultiplier);
     RUN_TEST(test_FrontBluePin_ReconfiguresBetweenGpioAndPwm);
     RUN_TEST(test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins);
     return UNITY_END();

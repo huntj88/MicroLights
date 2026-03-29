@@ -74,6 +74,7 @@ void setUp(void) {
     mock_tud_mounted = true;
     memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
     memset(mock_tud_read_buffer, 0, sizeof(mock_tud_read_buffer));
+    usbReadTaskReset();
 }
 
 void tearDown(void) {
@@ -158,9 +159,65 @@ void test_usbReadTask_overflow(void) {
     TEST_ASSERT_NOT_NULL(strstr(mock_tud_write_buffer, "payload too long"));
 }
 
+void test_usbReadTask_multiple_commands_in_one_read(void) {
+    // Simulate two commands arriving in a single USB read
+    const char *input = "cmd1\ncmd2\n";
+    strcpy(mock_tud_read_buffer, input);
+    mock_tud_read_len = strlen(input);
+
+    char buf[100];
+
+    // First call should return the first command
+    int len = usbReadTask(buf, 100);
+    TEST_ASSERT_EQUAL(5, len);  // "cmd1\n"
+    buf[len] = '\0';
+    TEST_ASSERT_EQUAL_STRING("cmd1\n", buf);
+
+    // Second call should return the second command from leftover buffer
+    len = usbReadTask(buf, 100);
+    TEST_ASSERT_EQUAL(5, len);  // "cmd2\n"
+    buf[len] = '\0';
+    TEST_ASSERT_EQUAL_STRING("cmd2\n", buf);
+
+    // Third call should return 0, no more data
+    len = usbReadTask(buf, 100);
+    TEST_ASSERT_EQUAL(0, len);
+}
+
+void test_usbReadTask_leftover_overflow(void) {
+    // Scenario: Two commands arrive in one read. The first command is consumed.
+    // The second command's leftover bytes cause an overflow when processed
+    // with a tiny buffer on the next call.
+    //
+    // "ab\n" + "cdefghijk" = 12 bytes in one USB read.
+    // First call with bufferLength=100 returns "ab\n" (3 bytes).
+    // Leftover: "cdefghijk" (9 bytes) sitting in the internal readBuf.
+    // Second call with bufferLength=5: processing leftovers, once jsonIndex
+    // reaches 5 the guard (jsonIndex + 1 > bufferLength) triggers overflow.
+    const char *input = "ab\ncdefghijk";
+    strcpy(mock_tud_read_buffer, input);
+    mock_tud_read_len = (int)strlen(input);
+
+    char buf[100];
+
+    // First call — consumes "ab\n"
+    int len = usbReadTask(buf, 100);
+    TEST_ASSERT_EQUAL(3, len);
+
+    // Second call with a small buffer — leftover "cdefghijk" overflows
+    mock_tud_write_idx = 0;
+    memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
+    char smallBuf[5];
+    len = usbReadTask(smallBuf, 5);
+    TEST_ASSERT_EQUAL(0, len);  // overflow returns 0
+    TEST_ASSERT_NOT_NULL(strstr(mock_tud_write_buffer, "payload too long"));
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_usbReadTask_full_line);
+    RUN_TEST(test_usbReadTask_leftover_overflow);
+    RUN_TEST(test_usbReadTask_multiple_commands_in_one_read);
     RUN_TEST(test_usbReadTask_no_data);
     RUN_TEST(test_usbReadTask_overflow);
     RUN_TEST(test_usbReadTask_split_line);

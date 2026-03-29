@@ -4,6 +4,11 @@
 #include "stm32c0xx.h"  // Access HAL_StatusTypeDef etc
 
 typedef struct {
+    uint32_t Timing;
+} I2C_InitTypeDef;
+
+typedef struct {
+    I2C_InitTypeDef Init;
 } I2C_HandleTypeDef;
 
 typedef struct {
@@ -129,5 +134,28 @@ extern CRS_TypeDef mockCRS;
 #define __HAL_RCC_HSI48_DISABLE()  (RCC->CR &= ~RCC_CR_HSIUSB48ON)
 #define __HAL_RCC_CRS_CLK_ENABLE()
 #define __HAL_RCC_CRS_CLK_DISABLE()
+#define __HAL_RCC_USB_CLK_ENABLE()
+#define __HAL_RCC_USB_CLK_DISABLE()
+
+// Flash latency macros
+#define FLASH_LATENCY_0  0x00000000U
+#define FLASH_LATENCY_1  0x00000001U
+#define __HAL_FLASH_SET_LATENCY(__LATENCY__)  ((void)(__LATENCY__))
+
+// RCC HSI divider constants
+#define RCC_CR_HSIDIV    0x0000E000U
+#define RCC_HSI_DIV1     0x00000000U
+#define RCC_HSI_DIV4     0x00004000U
+#ifndef MODIFY_REG
+#define MODIFY_REG(REG, CLEARMASK, SETMASK)  ((REG) = (((REG) & (~(CLEARMASK))) | (SETMASK)))
+#endif
+
+// System / tick stubs
+static inline void SystemCoreClockUpdate(void) {}
+static inline void HAL_InitTick(uint32_t TickPriority) { (void)TickPriority; }
+static uint32_t uwTickPrio;
+
+// I2C init
+HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c);
 
 #endif

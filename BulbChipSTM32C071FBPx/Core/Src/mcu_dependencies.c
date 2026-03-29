@@ -7,6 +7,7 @@
 
 #include "mcu_dependencies.h"
 #include "main.h"
+#include "tusb.h"
 
 extern I2C_HandleTypeDef hi2c1;
 extern TIM_HandleTypeDef htim1;
@@ -24,6 +25,12 @@ extern TIM_HandleTypeDef htim17;
 #define FBLUE_PIN_POS 8U
 #define FBLUE_MODER_MASK (0x3U << (FBLUE_PIN_POS * 2U))
 #define FBLUE_MODER_AF (0x2U << (FBLUE_PIN_POS * 2U))
+
+#define I2C_TIMING_48MHZ 0x10805D88U
+#define I2C_TIMING_12MHZ 0x00402D41U
+
+// Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
+static uint32_t tickMultiplier = 0;
 
 static inline bool fBluePinIsAfMode(void) {
     return (fBlue_GPIO_Port->MODER & FBLUE_MODER_MASK) == FBLUE_MODER_AF;
@@ -162,7 +169,35 @@ void enableUsbClock(bool enable) {
         }
         __HAL_RCC_CRS_CLK_ENABLE();
         CRS->CR |= CRS_CR_AUTOTRIMEN | CRS_CR_CEN;
+        __HAL_RCC_USB_CLK_ENABLE();
+
+        // Boost SYSCLK to 48 MHz for faster USB enumeration.
+        // Increase flash latency before raising clock speed.
+        __HAL_FLASH_SET_LATENCY(FLASH_LATENCY_1);
+        MODIFY_REG(RCC->CR, RCC_CR_HSIDIV, RCC_HSI_DIV1);
+        SystemCoreClockUpdate();
+        HAL_InitTick(uwTickPrio);
+        tickMultiplier = 0;
+
+        hi2c1.Init.Timing = I2C_TIMING_48MHZ;
+        HAL_I2C_Init(&hi2c1);
+
+        tud_connect();
     } else {
+        tud_disconnect();
+
+        // Drop SYSCLK back to 12 MHz to save power.
+        // Reduce clock speed before lowering flash latency.
+        MODIFY_REG(RCC->CR, RCC_CR_HSIDIV, RCC_HSI_DIV4);
+        __HAL_FLASH_SET_LATENCY(FLASH_LATENCY_0);
+        SystemCoreClockUpdate();
+        HAL_InitTick(uwTickPrio);
+        tickMultiplier = 0;
+
+        hi2c1.Init.Timing = I2C_TIMING_12MHZ;
+        HAL_I2C_Init(&hi2c1);
+
+        __HAL_RCC_USB_CLK_DISABLE();
         CRS->CR &= ~(CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
         __HAL_RCC_CRS_CLK_DISABLE();
         __HAL_RCC_HSI48_DISABLE();
@@ -228,11 +263,10 @@ static uint32_t calculateTickMultiplier(void) {
  *   (assuming millisecondsPerTick < ~4000ms) and the intermediate result within uint64_t.
  */
 uint32_t convertTicksToMilliseconds(uint32_t ticks) {
-    static uint32_t multiplier = 0;
-    if (multiplier == 0) {
-        multiplier = calculateTickMultiplier();
+    if (tickMultiplier == 0) {
+        tickMultiplier = calculateTickMultiplier();
     }
-    return (uint32_t)(((uint64_t)ticks * multiplier) >> 20);
+    return (uint32_t)(((uint64_t)ticks * tickMultiplier) >> 20);
 }
 
 void writeSettingsToFlash(const char str[], size_t length) {

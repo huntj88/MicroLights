@@ -40,7 +40,7 @@ jobs:
       working-directory: BulbChipSTM32C071FBPx
       run: |
         chmod +x setup.sh
-        ./setup.sh
+        ./setup.sh --tests-only
 
     - name: Run Firmware Tests
       working-directory: BulbChipSTM32C071FBPx
