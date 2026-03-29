@@ -150,6 +150,9 @@ extern CRS_TypeDef mockCRS;
 #define MODIFY_REG(REG, CLEARMASK, SETMASK)  ((REG) = (((REG) & (~(CLEARMASK))) | (SETMASK)))
 #endif
 
+// Timer prescaler macro
+#define __HAL_TIM_SET_PRESCALER(__HANDLE__, __PRESC__)  ((void)(__PRESC__))
+
 // System / tick stubs
 static inline void SystemCoreClockUpdate(void) {}
 static inline void HAL_InitTick(uint32_t TickPriority) { (void)TickPriority; }

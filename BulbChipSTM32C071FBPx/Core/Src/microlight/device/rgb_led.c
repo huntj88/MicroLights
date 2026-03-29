@@ -110,29 +110,29 @@ void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) 
 }
 
 void rgbShowSuccess(RGBLed *device) {
-    showColor(device, 10, 10, 10, true);
+    showColor(device, 50, 50, 50, true);
 }
 
 void rgbShowLocked(RGBLed *device) {
-    showColor(device, 0, 0, 20, false);
+    showColor(device, 0, 0, 65, false);
 }
 
 void rgbShowShutdown(RGBLed *device) {
-    showColor(device, 20, 20, 20, true);
+    showColor(device, 65, 65, 65, true);
 }
 
 void rgbShowNotCharging(RGBLed *device) {
-    showColor(device, 10, 0, 10, true);
+    showColor(device, 50, 0, 50, true);
 }
 
 void rgbShowConstantCurrentCharging(RGBLed *device) {
-    showColor(device, 2, 0, 0, true);
+    showColor(device, 25, 0, 0, true);
 }
 
 void rgbShowConstantVoltageCharging(RGBLed *device) {
-    showColor(device, 2, 2, 0, true);
+    showColor(device, 25, 25, 0, true);
 }
 
 void rgbShowDoneCharging(RGBLed *device) {
-    showColor(device, 0, 2, 0, true);
+    showColor(device, 0, 25, 0, true);
 }
