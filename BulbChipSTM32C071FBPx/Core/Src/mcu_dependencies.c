@@ -301,3 +301,42 @@ void readModeFromFlash(uint8_t mode, char buffer[], size_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     readStringFromFlash(page, buffer, length);
 }
+
+// Blink case LED white forever using direct register writes.
+// Safe to call from any fault context — requires only that TIM1 is running.
+// Uses a busy-loop delay since HAL/SysTick state cannot be trusted.
+// Blink period is ~150 ms on at 48 MHz, ~600 ms at 12 MHz (cosmetic only).
+#define BLINK_DELAY_LOOPS 300000U
+__attribute__((noreturn)) void blinkCaseLedWhiteForever(void) {
+    __disable_irq();
+
+    if (!(TIM1->CR1 & TIM_CR1_CEN)) {
+        while (1) {
+        }  // TIM1 not running, just hang
+    }
+
+    volatile uint32_t delay;
+    while (1) {
+        TIM1->CCR1 = TIM1->ARR;
+        TIM1->CCR2 = TIM1->ARR;
+        TIM1->CCR3 = TIM1->ARR;
+        for (delay = 0; delay < BLINK_DELAY_LOOPS; delay++) {
+        }
+        TIM1->CCR1 = 0;
+        TIM1->CCR2 = 0;
+        TIM1->CCR3 = 0;
+        for (delay = 0; delay < BLINK_DELAY_LOOPS; delay++) {
+        }
+    }
+}
+
+// Override newlib's assert handler to blink white on the case LED before halting.
+// Called by assert() when the expression is false (debug builds only).
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) — fixed newlib signature
+void __assert_func(const char *file, int line, const char *func, const char *failedexpr) {
+    (void)file;
+    (void)line;
+    (void)func;
+    (void)failedexpr;
+    blinkCaseLedWhiteForever();
+}

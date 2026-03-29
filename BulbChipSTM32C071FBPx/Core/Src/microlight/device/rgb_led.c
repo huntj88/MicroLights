@@ -7,7 +7,6 @@
 
 #include "microlight/device/rgb_led.h"
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -74,7 +73,9 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
 
     // Max period for colorRangeToDuty: 255 * period * 0x8081 must fit in uint32_t.
     // 255 * 512 * 0x8081 = 4,295,032,320 > UINT32_MAX, so period must be <= 511.
-    assert(period <= 511);
+    if (period > 511) {
+        return false;
+    }
 
     device->writePwm = writePwm;
     device->period = period;

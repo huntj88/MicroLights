@@ -45,11 +45,14 @@ typedef enum {
 #define GPIO_PIN_All               ((uint16_t)0xFFFF)  /* All pins selected */
 
 typedef struct {
+    volatile uint32_t CR1;
     volatile uint32_t CCR1;
     volatile uint32_t CCR2;
     volatile uint32_t CCR3;
-  volatile uint32_t CCR4;
+    volatile uint32_t CCR4;
+    volatile uint32_t ARR;
 } TIM_TypeDef;
+#define TIM_CR1_CEN  (0x1U)
 extern TIM_TypeDef mockTIM1;
 #define TIM1  (&mockTIM1)
 extern TIM_TypeDef mockTIM3;

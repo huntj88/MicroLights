@@ -34,4 +34,6 @@ void enableUsbClock(bool enable);
 void startAutoOffTimer(void);
 uint32_t convertTicksToMilliseconds(uint32_t ticks);
 
+__attribute__((noreturn)) void blinkCaseLedWhiteForever(void);
+
 #endif /* INC_MCU_DEPENDENCIES_H_ */
