@@ -110,9 +110,17 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
 // TinyUSB stubs
 static bool tudConnectCalled = false;
 static bool tudDisconnectCalled = false;
-bool tud_connect(void) { tudConnectCalled = true; return true; }
-bool tud_disconnect(void) { tudDisconnectCalled = true; return true; }
-bool tud_connected(void) { return false; }
+bool tud_connect(void) {
+    tudConnectCalled = true;
+    return true;
+}
+bool tud_disconnect(void) {
+    tudDisconnectCalled = true;
+    return true;
+}
+bool tud_connected(void) {
+    return false;
+}
 
 // Flash stubs — not under test here, just satisfying linker
 HAL_StatusTypeDef HAL_FLASH_Unlock(void) {
@@ -146,6 +154,9 @@ void setUp(void) {
     tudDisconnectCalled = false;
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
+    // Reset timer prescalers to a known sentinel so tests can detect changes
+    htim1.Init.Prescaler = 0xFFFFFFFFU;
+    htim3.Init.Prescaler = 0xFFFFFFFFU;
     // Set PA8 to GPIO output mode (MODER bits [17:16] = 0b01) — simulates
     // the pin state after CubeMX init, before any AF reconfiguration.
     mockGPIOA.MODER = (0x1U << (8U * 2U));
@@ -300,16 +311,19 @@ void test_EnableUsbClock_Enable_SetsUpClocksAndI2C(void) {
     enableUsbClock(true);
 
     // HSI48 should be enabled
-    TEST_ASSERT_BITS_HIGH_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR,
-                                  "HSI48 should be enabled");
+    TEST_ASSERT_BITS_HIGH_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR, "HSI48 should be enabled");
     // CRS auto-trim and enable bits should be set
-    TEST_ASSERT_BITS_HIGH_MESSAGE(CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR,
-                                  "CRS should have AUTOTRIMEN and CEN set");
+    TEST_ASSERT_BITS_HIGH_MESSAGE(
+        CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR, "CRS should have AUTOTRIMEN and CEN set");
     // I2C timing should be reconfigured for 48 MHz
-    TEST_ASSERT_EQUAL_HEX32_MESSAGE(I2C_TIMING_48MHZ, hi2c1.Init.Timing,
-                                    "I2C timing should be set for 48 MHz");
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount,
-                                     "HAL_I2C_Init should be called once");
+    TEST_ASSERT_EQUAL_HEX32_MESSAGE(
+        I2C_TIMING_48MHZ, hi2c1.Init.Timing, "I2C timing should be set for 48 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount, "HAL_I2C_Init should be called once");
+    // PWM prescalers should be updated for 48 MHz (constant PWM frequency)
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_48MHZ, htim1.Init.Prescaler, "TIM1 prescaler should be set for 48 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_48MHZ, htim3.Init.Prescaler, "TIM3 prescaler should be set for 48 MHz");
     // tud_connect should be called
     TEST_ASSERT_TRUE_MESSAGE(tudConnectCalled, "tud_connect should be called");
     TEST_ASSERT_FALSE_MESSAGE(tudDisconnectCalled, "tud_disconnect should NOT be called");
@@ -327,16 +341,20 @@ void test_EnableUsbClock_Disable_TearsDownClocksAndI2C(void) {
     enableUsbClock(false);
 
     // HSI48 should be disabled
-    TEST_ASSERT_BITS_LOW_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR,
-                                 "HSI48 should be disabled");
+    TEST_ASSERT_BITS_LOW_MESSAGE(RCC_CR_HSIUSB48ON, mockRCC.CR, "HSI48 should be disabled");
     // CRS bits should be cleared
-    TEST_ASSERT_BITS_LOW_MESSAGE(CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR,
-                                 "CRS AUTOTRIMEN and CEN should be cleared");
+    TEST_ASSERT_BITS_LOW_MESSAGE(
+        CRS_CR_AUTOTRIMEN | CRS_CR_CEN, mockCRS.CR, "CRS AUTOTRIMEN and CEN should be cleared");
     // I2C timing should be reconfigured for 12 MHz
-    TEST_ASSERT_EQUAL_HEX32_MESSAGE(I2C_TIMING_12MHZ, hi2c1.Init.Timing,
-                                    "I2C timing should be set for 12 MHz");
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE(1, i2cInitCallCount,
-                                     "HAL_I2C_Init should be called once on disable");
+    TEST_ASSERT_EQUAL_HEX32_MESSAGE(
+        I2C_TIMING_12MHZ, hi2c1.Init.Timing, "I2C timing should be set for 12 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        1, i2cInitCallCount, "HAL_I2C_Init should be called once on disable");
+    // PWM prescalers should be restored for 12 MHz (constant PWM frequency)
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_12MHZ, htim1.Init.Prescaler, "TIM1 prescaler should be set for 12 MHz");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        PWM_PRESCALER_12MHZ, htim3.Init.Prescaler, "TIM3 prescaler should be set for 12 MHz");
     // tud_disconnect should be called
     TEST_ASSERT_TRUE_MESSAGE(tudDisconnectCalled, "tud_disconnect should be called");
     TEST_ASSERT_FALSE_MESSAGE(tudConnectCalled, "tud_connect should NOT be called on disable");
@@ -347,25 +365,24 @@ void test_EnableUsbClock_InvalidatesTickMultiplier(void) {
     htim2.Init.Prescaler = 47;
     htim2.Init.Period = 999;
     uint32_t ms1 = convertTicksToMilliseconds(100);
-    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, tickMultiplier,
-                                  "tickMultiplier should be cached after first call");
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(
+        0, tickMultiplier, "tickMultiplier should be cached after first call");
 
     // Enable USB clock — should reset the multiplier
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     enableUsbClock(true);
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, tickMultiplier,
-                                     "tickMultiplier should be reset after enableUsbClock(true)");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, tickMultiplier, "tickMultiplier should be reset after enableUsbClock(true)");
 
     // Re-prime the cache
     ms1 = convertTicksToMilliseconds(100);
     (void)ms1;
-    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, tickMultiplier,
-                                  "tickMultiplier should be cached again");
+    TEST_ASSERT_NOT_EQUAL_MESSAGE(0, tickMultiplier, "tickMultiplier should be cached again");
 
     // Disable USB clock — should reset the multiplier again
     enableUsbClock(false);
-    TEST_ASSERT_EQUAL_UINT32_MESSAGE(0, tickMultiplier,
-                                     "tickMultiplier should be reset after enableUsbClock(false)");
+    TEST_ASSERT_EQUAL_UINT32_MESSAGE(
+        0, tickMultiplier, "tickMultiplier should be reset after enableUsbClock(false)");
 }
 
 int main(void) {

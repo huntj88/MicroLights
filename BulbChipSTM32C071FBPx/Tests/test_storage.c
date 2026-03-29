@@ -77,9 +77,15 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
 }
 
 // TinyUSB stubs
-bool tud_connect(void) { return true; }
-bool tud_disconnect(void) { return true; }
-bool tud_connected(void) { return false; }
+bool tud_connect(void) {
+    return true;
+}
+bool tud_disconnect(void) {
+    return true;
+}
+bool tud_connected(void) {
+    return false;
+}
 
 // Mock implementations
 HAL_StatusTypeDef HAL_FLASH_Unlock(void) {

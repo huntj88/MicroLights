@@ -105,6 +105,10 @@ if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_command_parser..
 gcc $CFLAGS Tests/microlight/json/test_command_parser.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c -o Tests/build/test_command_parser
 run_test ./Tests/build/test_command_parser
 
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_rgb_led..."; fi
+gcc $CFLAGS Tests/microlight/device/test_rgb_led.c $UNITY_SRC -o Tests/build/test_rgb_led
+run_test ./Tests/build/test_rgb_led
+
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_bq25180..."; fi
 gcc $CFLAGS Tests/microlight/device/test_bq25180.c $UNITY_SRC $LWJSON_SRC -o Tests/build/test_bq25180
 run_test ./Tests/build/test_bq25180

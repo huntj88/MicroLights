@@ -29,6 +29,12 @@ extern TIM_HandleTypeDef htim17;
 #define I2C_TIMING_48MHZ 0x10805D88U
 #define I2C_TIMING_12MHZ 0x00402D41U
 
+// PWM timer prescaler values to maintain ~8 kHz PWM across clock speeds.
+// 12 MHz / (2+1) / (500+1) ≈ 7984 Hz
+// 48 MHz / (11+1) / (500+1) ≈ 7984 Hz
+#define PWM_PRESCALER_12MHZ 2U
+#define PWM_PRESCALER_48MHZ 11U
+
 // Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
 static uint32_t tickMultiplier = 0;
 
@@ -182,6 +188,11 @@ void enableUsbClock(bool enable) {
         hi2c1.Init.Timing = I2C_TIMING_48MHZ;
         HAL_I2C_Init(&hi2c1);
 
+        // Scale PWM prescaler to keep frequency constant at ~8 kHz.
+        // PSC is shadow-registered: new value loads at next counter overflow (glitch-free).
+        __HAL_TIM_SET_PRESCALER(&htim1, PWM_PRESCALER_48MHZ);
+        __HAL_TIM_SET_PRESCALER(&htim3, PWM_PRESCALER_48MHZ);
+
         tud_connect();
     } else {
         tud_disconnect();
@@ -196,6 +207,10 @@ void enableUsbClock(bool enable) {
 
         hi2c1.Init.Timing = I2C_TIMING_12MHZ;
         HAL_I2C_Init(&hi2c1);
+
+        // Restore PWM prescaler for 12 MHz clock speed.
+        __HAL_TIM_SET_PRESCALER(&htim1, PWM_PRESCALER_12MHZ);
+        __HAL_TIM_SET_PRESCALER(&htim3, PWM_PRESCALER_12MHZ);
 
         __HAL_RCC_USB_CLK_DISABLE();
         CRS->CR &= ~(CRS_CR_AUTOTRIMEN | CRS_CR_CEN);
@@ -285,4 +300,43 @@ void writeModeToFlash(uint8_t mode, const char str[], size_t length) {
 void readModeFromFlash(uint8_t mode, char buffer[], size_t length) {
     uint32_t page = BULB_PAGE_0 + mode;
     readStringFromFlash(page, buffer, length);
+}
+
+// Blink case LED white forever using direct register writes.
+// Safe to call from any fault context — requires only that TIM1 is running.
+// Uses a busy-loop delay since HAL/SysTick state cannot be trusted.
+// Blink period is ~150 ms on at 48 MHz, ~600 ms at 12 MHz (cosmetic only).
+#define BLINK_DELAY_LOOPS 300000U
+__attribute__((noreturn)) void blinkCaseLedWhiteForever(void) {
+    __disable_irq();
+
+    if (!(TIM1->CR1 & TIM_CR1_CEN)) {
+        while (1) {
+        }  // TIM1 not running, just hang
+    }
+
+    volatile uint32_t delay;
+    while (1) {
+        TIM1->CCR1 = TIM1->ARR;
+        TIM1->CCR2 = TIM1->ARR;
+        TIM1->CCR3 = TIM1->ARR;
+        for (delay = 0; delay < BLINK_DELAY_LOOPS; delay++) {
+        }
+        TIM1->CCR1 = 0;
+        TIM1->CCR2 = 0;
+        TIM1->CCR3 = 0;
+        for (delay = 0; delay < BLINK_DELAY_LOOPS; delay++) {
+        }
+    }
+}
+
+// Override newlib's assert handler to blink white on the case LED before halting.
+// Called by assert() when the expression is false (debug builds only).
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) — fixed newlib signature
+void __assert_func(const char *file, int line, const char *func, const char *failedexpr) {
+    (void)file;
+    (void)line;
+    (void)func;
+    (void)failedexpr;
+    blinkCaseLedWhiteForever();
 }
