@@ -42,7 +42,7 @@ export const SectionLane = ({
         </h3>
         <div className="flex items-center gap-2">
           <label
-            className="flex items-center gap-1 text-xs theme-muted cursor-pointer hover:text-[rgb(var(--surface-contrast)/1)] transition-colors"
+            className="flex items-center gap-2 min-h-[44px] cursor-pointer select-none text-xs theme-muted hover:text-[rgb(var(--surface-contrast)/1)] transition-colors"
             title={t(
               'rgbPattern.equation.sections.loopTooltip',
               'Loop back to first section after last section finishes',
@@ -54,13 +54,13 @@ export const SectionLane = ({
               onChange={e => {
                 onToggleLoop(e.target.checked);
               }}
-              className="rounded bg-[rgb(var(--surface-raised)/1)] theme-border border text-[rgb(var(--accent)/1)] focus:ring-[rgb(var(--accent)/1)] focus:ring-offset-[rgb(var(--surface)/1)]"
+              className="h-5 w-5 rounded bg-[rgb(var(--surface-raised)/1)] theme-border border accent-[rgb(var(--accent)/1)]"
             />
             {t('rgbPattern.equation.sections.loop', 'Loop')}
           </label>
           <button
             onClick={onAddSection}
-            className="px-2 py-1 text-xs bg-[rgb(var(--surface-raised)/1)] hover:bg-[rgb(var(--surface-raised)/0.8)] rounded text-[rgb(var(--surface-contrast)/1)] transition-colors"
+            className="px-3 py-2 text-sm min-h-[44px] bg-[rgb(var(--surface-raised)/1)] hover:bg-[rgb(var(--surface-raised)/0.8)] rounded-lg text-[rgb(var(--surface-contrast)/1)] transition-colors"
           >
             {t('rgbPattern.equation.sections.add')}
           </button>
@@ -109,7 +109,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
 
   return (
     <div className="bg-[rgb(var(--surface-raised)/0.5)] rounded-lg p-2 flex flex-col gap-2 border theme-border">
-      <div className="flex justify-between items-start gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-2">
         <div className="flex-1 flex flex-col gap-1">
           <label className="text-xs theme-muted">
             {t('rgbPattern.equation.sections.equationLabel')}
@@ -120,11 +120,11 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
             onChange={e => {
               onUpdate({ equation: e.target.value });
             }}
-            className="w-full bg-[rgb(var(--surface)/0.5)] theme-border border rounded px-2 py-1 text-sm font-mono text-[rgb(var(--accent)/1)] focus:outline-none focus:border-[rgb(var(--accent)/1)]"
+            className="w-full bg-[rgb(var(--surface)/0.5)] theme-border border rounded px-3 py-2 min-h-[44px] text-sm font-mono text-[rgb(var(--accent)/1)] focus:outline-none focus:border-[rgb(var(--accent)/1)]"
             placeholder={t('rgbPattern.equation.sections.equationPlaceholder')}
           />
         </div>
-        <div className="flex flex-col gap-1 w-24">
+        <div className="flex flex-col gap-1 w-full sm:w-28">
           <label className="text-xs theme-muted">{t('patternEditor.form.durationLabel')}</label>
           <input
             type="number"
@@ -133,7 +133,7 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
               const val = parseInt(e.target.value);
               onUpdate({ duration: Number.isNaN(val) ? NaN : val });
             }}
-            className="w-full bg-[rgb(var(--surface)/0.5)] theme-border border rounded px-2 py-1 text-sm text-[rgb(var(--surface-contrast)/1)] focus:outline-none focus:border-[rgb(var(--accent)/1)]"
+            className="w-full bg-[rgb(var(--surface)/0.5)] theme-border border rounded px-3 py-2 min-h-[44px] text-sm text-[rgb(var(--surface-contrast)/1)] focus:outline-none focus:border-[rgb(var(--accent)/1)]"
           />
         </div>
       </div>
@@ -144,8 +144,8 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
             onMove('up');
           }}
           disabled={index === 0}
-          className="theme-muted hover:text-[rgb(var(--surface-contrast)/1)] disabled:opacity-30 transition-colors"
-          title={t('patternEditor.steps.moveUp')}
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg hover:bg-[rgb(var(--surface-muted)/0.15)] active:bg-[rgb(var(--surface-muted)/0.25)] disabled:opacity-30 theme-muted transition-colors"
+          aria-label={t('a11y.moveUp')}
         >
           ↑
         </button>
@@ -154,15 +154,15 @@ const SectionItem = ({ section, index, total, onUpdate, onDelete, onMove }: Sect
             onMove('down');
           }}
           disabled={index === total - 1}
-          className="theme-muted hover:text-[rgb(var(--surface-contrast)/1)] disabled:opacity-30 transition-colors"
-          title={t('patternEditor.steps.moveDown')}
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg hover:bg-[rgb(var(--surface-muted)/0.15)] active:bg-[rgb(var(--surface-muted)/0.25)] disabled:opacity-30 theme-muted transition-colors"
+          aria-label={t('a11y.moveDown')}
         >
           ↓
         </button>
         <div className="w-px bg-[rgb(var(--surface-muted)/0.3)] mx-1"></div>
         <button
           onClick={onDelete}
-          className="text-red-500 hover:text-red-400 text-xs transition-colors"
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] px-3 rounded-lg text-red-500 hover:bg-red-500/10 active:bg-red-500/20 text-sm transition-colors"
         >
           {t('rgbPattern.equation.sections.delete')}
         </button>

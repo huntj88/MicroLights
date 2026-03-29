@@ -18,6 +18,14 @@
   --warning: 234 179 8;
 }
 
+html {
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
 html,
 body,
 #root {
@@ -31,6 +39,62 @@ body {
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+/* Global touch-target enforcement (§16.1) */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-expanded {
+  position: relative;
+}
+
+.touch-target-expanded::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* Theming error utilities (§17.2) */
+.theme-error {
+  color: rgb(239 68 68 / 1);
+}
+
+.theme-error-bg {
+  background-color: rgb(239 68 68 / 0.1);
+  border-color: rgb(239 68 68 / 0.2);
+  color: rgb(239 68 68 / 1);
+}
+
+/* Prevent iOS auto-zoom on inputs with font-size < 16px (§16.3) */
+input,
+select,
+textarea {
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 0.875rem;
+  }
+}
+
+/* Global focus-visible ring (§16.5) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role='switch']:focus-visible,
+[role='tab']:focus-visible {
+  outline: 2px solid rgb(var(--accent) / 1);
+  outline-offset: 2px;
 }
 
 [data-theme='light'] {

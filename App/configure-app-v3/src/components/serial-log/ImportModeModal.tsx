@@ -6,6 +6,7 @@ import { type Mode, type ModePattern, type ModeComponent } from '@/app/models/mo
 import { useModeStore } from '@/app/providers/mode-store';
 import { usePatternStore } from '@/app/providers/pattern-store';
 
+import { Modal } from '../common/Modal';
 import { StyledButton } from '../common/StyledButton';
 
 interface ImportModeModalProps {
@@ -125,20 +126,19 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="flex w-full max-w-md flex-col rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
-        <header className="mb-4 flex items-center justify-between">
-          <h3 className="text-xl font-semibold">{t('serialLog.importMode.title')}</h3>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            ✕
-          </button>
-        </header>
+    <Modal isOpen={isOpen} onClose={onClose} title={t('serialLog.importMode.title')} maxWidth="md">
+      <header className="mb-4 flex items-center justify-between">
+        <h3 className="text-xl font-semibold">{t('serialLog.importMode.title')}</h3>
+        <button
+          onClick={onClose}
+          className="rounded-lg p-2 hover:bg-[rgb(var(--surface-muted)/0.15)] transition-colors"
+        >
+          ✕
+        </button>
+      </header>
 
         <div className="space-y-4">
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm theme-muted">
             {t('serialLog.importMode.description')}
           </p>
 
@@ -146,12 +146,12 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
             <div className="flex items-center gap-2">
               <span className="font-medium">{t('serialLog.importMode.importFullMode')}</span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
+            <p className="text-xs theme-muted">
               {t('serialLog.importMode.modeHelp')}
             </p>
 
             <div className="mt-2">
-              <label htmlFor="modeName" className="block text-xs font-medium text-gray-500">
+              <label htmlFor="modeName" className="block text-xs font-medium theme-muted">
                 {t('common.labels.name', 'Name')}
               </label>
               <input
@@ -161,10 +161,10 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
                 onChange={e => {
                   setModeName(e.target.value);
                 }}
-                className="mt-1 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
+                className="mt-1 w-full rounded-lg border theme-border bg-transparent px-3 py-2 text-sm focus:border-[rgb(var(--accent)/1)] focus:outline-none"
               />
               {isModeOverwrite && (
-                <div className="mt-2 text-xs text-yellow-600 dark:text-yellow-400">
+                <div className="mt-2 text-xs text-yellow-600">
                   {t('serialLog.importMode.overwriteWarning')}
                 </div>
               )}
@@ -176,12 +176,12 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium">{t('serialLog.importMode.patterns')}</h4>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs theme-muted">
                 {t('serialLog.importMode.patternsHelp')}
               </p>
-              <div className="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+              <div className="space-y-2 rounded-lg border theme-border p-3">
                 {hasDuplicateNames && (
-                  <div className="text-xs text-red-500 dark:text-red-400">
+                  <div className="text-xs text-red-500">
                     {t(
                       'serialLog.importMode.duplicatePatternNames',
                       'Pattern names must be unique',
@@ -201,14 +201,14 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
                           onChange={e => {
                             setPatternNames(prev => ({ ...prev, [pattern.name]: e.target.value }));
                           }}
-                          className="w-full rounded border border-gray-300 bg-transparent px-2 py-1 text-sm focus:border-blue-500 focus:outline-none dark:border-gray-600"
+                          className="w-full rounded border theme-border bg-transparent px-2 py-1 text-sm focus:border-[rgb(var(--accent)/1)] focus:outline-none"
                         />
-                        <span className="whitespace-nowrap text-xs text-gray-500">
+                        <span className="whitespace-nowrap text-xs theme-muted">
                           ({pattern.type})
                         </span>
                       </div>
                       {exists && (
-                        <div className="ml-4 text-xs text-yellow-600 dark:text-yellow-400">
+                        <div className="ml-4 text-xs text-yellow-600">
                           {t('serialLog.importMode.overwritePatternWarning')}
                         </div>
                       )}
@@ -219,15 +219,15 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
             </div>
           )}
 
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs font-mono dark:border-gray-700 dark:bg-gray-900">
-            <div className="mb-1 text-xs font-semibold text-gray-500">JSON Preview</div>
-            <pre className="max-h-32 overflow-y-auto whitespace-pre-wrap break-all">
+          <div className="rounded-lg border theme-border bg-[rgb(var(--surface)/0.5)] p-3 text-xs font-mono">
+            <div className="mb-1 text-xs font-semibold theme-muted">JSON Preview</div>
+            <pre className="max-h-24 sm:max-h-32 overflow-y-auto whitespace-pre-wrap break-all">
               {JSON.stringify(mode, null, 2)}
             </pre>
           </div>
         </div>
 
-        <footer className="mt-6 flex justify-end gap-3 border-t border-gray-100 pt-4 dark:border-gray-700">
+        <footer className="mt-6 flex justify-end gap-3 border-t theme-border pt-4">
           <StyledButton onClick={onClose} variant="secondary">
             {t('common.actions.cancel')}
           </StyledButton>
@@ -239,7 +239,6 @@ export const ImportModeModal = ({ isOpen, onClose, mode }: ImportModeModalProps)
             {isOverwrite ? t('common.actions.overwrite') : t('common.actions.import')}
           </StyledButton>
         </footer>
-      </div>
-    </div>
+    </Modal>
   );
 };

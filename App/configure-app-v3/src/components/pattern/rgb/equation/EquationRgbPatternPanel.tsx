@@ -201,21 +201,25 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
         }}
       />
 
-      <div className="bg-[rgb(var(--surface-raised)/0.5)] p-3 rounded-xl text-sm theme-muted border theme-border">
-        <p>
-          <strong>{t('rgbPattern.equation.help.title')}</strong>{' '}
-          <Trans i18nKey="rgbPattern.equation.help.description">
-            Use <code>t</code> for time (seconds) and <code>Duration</code> for section duration
-            (seconds). Standard Math functions are available (e.g., <code>sin(t)</code>,{' '}
-            <code>cos(t)</code>, <code>exp(t)</code>, <code>abs(t)</code>). Output is clamped to
-            0-255.
-          </Trans>
-        </p>
-        <p className="mt-1 text-xs">
-          {t('rgbPattern.equation.help.examples')} <code>255 * abs(sin(t))</code>,{' '}
-          <code>255 * (t / Duration)</code>, <code>255 * exp(-t)</code>
-        </p>
-      </div>
+      <details className="bg-[rgb(var(--surface-raised)/0.5)] p-3 rounded-xl text-sm theme-muted border theme-border">
+        <summary className="cursor-pointer font-medium">
+          {t('rgbPattern.equation.help.title')}
+        </summary>
+        <div className="mt-2 space-y-1 text-xs">
+          <p>
+            <Trans i18nKey="rgbPattern.equation.help.description">
+              Use <code>t</code> for time (seconds) and <code>Duration</code> for section duration
+              (seconds). Standard Math functions are available (e.g., <code>sin(t)</code>,{' '}
+              <code>cos(t)</code>, <code>exp(t)</code>, <code>abs(t)</code>). Output is clamped to
+              0-255.
+            </Trans>
+          </p>
+          <p>
+            {t('rgbPattern.equation.help.examples')} <code>255 * abs(sin(t))</code>,{' '}
+            <code>255 * (t / Duration)</code>, <code>255 * exp(-t)</code>
+          </p>
+        </div>
+      </details>
 
       {/* Preview Area */}
       <Section
@@ -266,7 +270,7 @@ export const EquationRgbPatternPanel = ({ pattern, onChange }: EquationRgbPatter
       </Section>
 
       {/* Section Management Area */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <SectionLane
           color="red"
           sections={pattern.red.sections}

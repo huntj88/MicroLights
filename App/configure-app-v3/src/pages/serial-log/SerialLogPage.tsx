@@ -44,11 +44,11 @@ export const SerialLogPage = () => {
   };
 
   return (
-    <section className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
+    <section className="space-y-4 sm:space-y-6">
+      <header className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between sm:gap-4">
         <div className="space-y-2">
-          <h2 className="text-3xl font-semibold">{t('serialLog.title')}</h2>
-          <p className="theme-muted">{t('serialLog.subtitle')}</p>
+          <h2 className="text-xl font-semibold sm:text-3xl">{t('serialLog.title')}</h2>
+          <p className="text-sm theme-muted">{t('serialLog.subtitle')}</p>
         </div>
 
         <SerialConnectButton />
@@ -65,13 +65,13 @@ export const SerialLogPage = () => {
                   ? 'bg-yellow-400 animate-pulse'
                   : status === 'error'
                     ? 'bg-red-500'
-                    : 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-[rgb(var(--surface-muted)/0.4)]'
           }`}
         />
         <span className="capitalize">{status}</span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:gap-2">
         <StyledButton
           onClick={() => {
             void (async () => {

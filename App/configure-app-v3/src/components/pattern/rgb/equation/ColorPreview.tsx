@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { useTheme } from '../../../../app/providers/theme-context';
 
@@ -22,7 +22,7 @@ export const ColorPreview = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { resolved: theme } = useTheme();
 
-  useEffect(() => {
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -72,7 +72,32 @@ export const ColorPreview = ({
     ctx.strokeStyle = `rgb(${surfaceContrast})`;
     ctx.lineWidth = 2;
     ctx.stroke();
-  }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration, theme]);
+  }, [redPoints, greenPoints, bluePoints, currentTime, totalDuration]);
+
+  // ResizeObserver to set canvas intrinsic dimensions to match CSS pixel size × DPR
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width } = entry.contentRect;
+      const dpr = window.devicePixelRatio || 1;
+      const heightPx = container.clientHeight || 64;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(heightPx * dpr);
+      draw();
+    });
+
+    ro.observe(container);
+    return () => { ro.disconnect(); };
+  }, [draw]);
+
+  // Re-draw when data or theme changes
+  useEffect(() => {
+    draw();
+  }, [draw, theme]);
 
   // Calculate current color for a swatch
   const currentIndex = Math.floor((currentTime / totalDuration) * Math.max(redPoints.length, 1));
@@ -82,17 +107,17 @@ export const ColorPreview = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         {showSwatch && (
           <div
-            className="w-16 h-16 rounded border theme-border shadow-sm"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded border theme-border shadow-sm"
             style={{
               backgroundColor: `rgb(${currentR.toString()}, ${currentG.toString()}, ${currentB.toString()})`,
             }}
           />
         )}
-        <div className="flex-1 h-16 bg-[rgb(var(--surface-raised))] rounded overflow-hidden relative border theme-border">
-          <canvas ref={canvasRef} width={800} height={64} className="w-full h-full" />
+        <div className="flex-1 h-12 sm:h-16 bg-[rgb(var(--surface-raised))] rounded overflow-hidden relative border theme-border">
+          <canvas ref={canvasRef} className="w-full h-full" />
         </div>
       </div>
     </div>

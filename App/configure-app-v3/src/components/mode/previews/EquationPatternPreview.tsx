@@ -11,7 +11,7 @@ export const EquationPatternPreview = ({ pattern, className = '' }: Props) => {
   const { redPoints, greenPoints, bluePoints, totalDuration } = useEquationWaveforms(pattern);
 
   return (
-    <div className={`h-4 w-full rounded overflow-hidden border theme-border ${className}`}>
+    <div className={`h-6 sm:h-4 w-full rounded overflow-hidden border theme-border ${className}`}>
       <ColorPreview
         redPoints={redPoints}
         greenPoints={greenPoints}

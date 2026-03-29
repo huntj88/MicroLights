@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { useTheme } from '../../../../app/providers/theme-context';
@@ -16,7 +16,6 @@ export const WaveformLane = ({
   points,
   currentTime,
   totalDuration,
-  height = 100,
 }: WaveformLaneProps) => {
   const { t } = useTranslation();
   const { resolved: theme } = useTheme();
@@ -34,7 +33,7 @@ export const WaveformLane = ({
     blue: 'rgba(59, 130, 246, 0.2)',
   }[color];
 
-  useEffect(() => {
+  const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -92,17 +91,42 @@ export const WaveformLane = ({
     ctx.setLineDash([4, 4]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [points, currentTime, totalDuration, strokeColor, fillColor, theme]);
+  }, [points, currentTime, totalDuration, strokeColor, fillColor]);
+
+  // ResizeObserver to set canvas intrinsic dimensions to match CSS pixel size × DPR
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    if (!container) return;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width } = entry.contentRect;
+      const dpr = window.devicePixelRatio || 1;
+      const heightPx = container.clientHeight || 100;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(heightPx * dpr);
+      draw();
+    });
+
+    ro.observe(container);
+    return () => { ro.disconnect(); };
+  }, [draw]);
+
+  // Re-draw when data or theme changes
+  useEffect(() => {
+    draw();
+  }, [draw, theme]);
 
   return (
-    <div className="relative bg-[rgb(var(--surface-raised))] rounded border theme-border overflow-hidden">
+    <div className="relative bg-[rgb(var(--surface-raised))] rounded border theme-border overflow-hidden h-20 sm:h-24 md:h-[100px]">
       <div
         className="absolute top-1 left-2 text-xs font-bold uppercase opacity-50"
         style={{ color: strokeColor }}
       >
         {t(`rgbPattern.equation.colors.${color}`)}
       </div>
-      <canvas ref={canvasRef} width={800} height={height} className="w-full h-full block" />
+      <canvas ref={canvasRef} className="w-full h-full block" />
     </div>
   );
 };
