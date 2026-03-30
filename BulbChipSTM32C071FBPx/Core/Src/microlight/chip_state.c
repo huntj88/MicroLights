@@ -17,8 +17,12 @@
 #include "microlight/model/mode_state.h"
 #include "microlight/settings_manager.h"
 
-static void handleStopModeWake(
-    ChipState *state, uint16_t lockThresholdMinutes, uint16_t wakeIntervalSeconds);
+typedef struct {
+    uint16_t wakeIntervalSeconds;
+    uint16_t lockThresholdMinutes;
+} StopModeWakeConfig;
+
+static void handleStopModeWake(ChipState *state, StopModeWakeConfig config);
 static void enterShutdown(ChipState *state, enum ChargeState chargeState);
 static void prepareForLowPowerShutdown(ChipState *state);
 
@@ -88,7 +92,11 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
             return;
         }
 
-        handleStopModeWake(state, lockThresholdMinutes, 60U);
+        StopModeWakeConfig wakeConfig = {
+            .wakeIntervalSeconds = 60U,
+            .lockThresholdMinutes = lockThresholdMinutes,
+        };
+        handleStopModeWake(state, wakeConfig);
         return;
     }
 
@@ -119,20 +127,20 @@ static void prepareForLowPowerShutdown(ChipState *state) {
     }
 }
 
-static void handleStopModeWake(
-    ChipState *state, uint16_t lockThresholdMinutes, uint16_t wakeIntervalSeconds) {
-    uint16_t elapsedMinutes = 0;
+static void handleStopModeWake(ChipState *state, StopModeWakeConfig config) {
+    uint32_t elapsedSeconds = 0;
+    uint32_t lockThresholdSeconds = (uint32_t)config.lockThresholdMinutes * 60U;
 
     while (true) {
-        state->deps.enterStopModeWithRtcAlarm(wakeIntervalSeconds);
+        state->deps.enterStopModeWithRtcAlarm(config.wakeIntervalSeconds);
 
         if (state->deps.wasWakeFromButton()) {
             state->deps.systemReset();
             return;
         }
 
-        elapsedMinutes++;
-        if (elapsedMinutes >= lockThresholdMinutes) {
+        elapsedSeconds += config.wakeIntervalSeconds;
+        if (elapsedSeconds >= lockThresholdSeconds) {
             lock(state->deps.chargerIC);
             return;
         }

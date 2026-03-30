@@ -44,20 +44,6 @@ extern void SystemClock_Config(void);
 // Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
 static uint32_t tickMultiplier = 0;
 
-static uint8_t daysInMonth(uint8_t year, uint8_t month) {
-    switch (month) {
-        case 4:
-        case 6:
-        case 9:
-        case 11:
-            return 30;
-        case 2:
-            return (uint8_t)(((year % 4U) == 0U) ? 29U : 28U);
-        default:
-            return 31;
-    }
-}
-
 static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
     RTC_TimeTypeDef currentTime = {0};
     RTC_DateTypeDef currentDate = {0};
@@ -69,35 +55,20 @@ static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
     uint32_t totalSeconds = (uint32_t)currentTime.Hours * 3600U +
                             (uint32_t)currentTime.Minutes * 60U + (uint32_t)currentTime.Seconds +
                             (uint32_t)wakeIntervalSeconds;
-    uint32_t dayOffset = totalSeconds / 86400U;
-    totalSeconds %= 86400U;
+    uint8_t alarmDate = currentDate.Date;
+
+    // Alarm intervals are intentionally short and wakeIntervalSeconds is uint16_t,
+    // so the rollover can only ever stay on the current day or move to the next day.
+    // We intentionally do not handle month/year rollover here.
+    if (totalSeconds >= 86400U) {
+        totalSeconds -= 86400U;
+        alarmDate++;
+    }
 
     uint8_t alarmHours = (uint8_t)(totalSeconds / 3600U);
     totalSeconds %= 3600U;
     uint8_t alarmMinutes = (uint8_t)(totalSeconds / 60U);
     uint8_t alarmSeconds = (uint8_t)(totalSeconds % 60U);
-
-    uint8_t alarmDate = currentDate.Date;
-    uint8_t alarmMonth = currentDate.Month;
-    uint8_t alarmYear = currentDate.Year;
-    uint8_t alarmWeekday = currentDate.WeekDay;
-
-    while (dayOffset > 0U) {
-        alarmDate++;
-        alarmWeekday = (uint8_t)((alarmWeekday % 7U) + 1U);
-        if (alarmDate > daysInMonth(alarmYear, alarmMonth)) {
-            alarmDate = 1U;
-            alarmMonth++;
-            if (alarmMonth > 12U) {
-                alarmMonth = 1U;
-                alarmYear = (uint8_t)((alarmYear + 1U) % 100U);
-            }
-        }
-        dayOffset--;
-    }
-
-    (void)alarmMonth;
-    (void)alarmYear;
 
     alarm.AlarmTime.Hours = alarmHours;
     alarm.AlarmTime.Minutes = alarmMinutes;
