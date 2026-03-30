@@ -58,11 +58,10 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
         !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
         !deps->enableFrontLedTimer || !deps->enableAutoOffTimer || !deps->enableUsbClock ||
-        !deps->enterStandbyMode || !deps->enterStopModeWithRtcAlarm ||
-        !deps->wasWakeFromButton || !deps->systemReset ||
-        !deps->readSavedMode || !deps->writeBulbLed || !deps->readSavedSettings ||
-        !deps->enterDFU || !deps->saveSettings || !deps->saveMode || !deps->usbReadTask ||
-        !deps->usbWrite || !deps->jsonBuffer || deps->jsonBufferSize == 0) {
+        !deps->enterStandbyMode || !deps->enterStopModeWithRtcAlarm || !deps->wasWakeFromButton ||
+        !deps->systemReset || !deps->readSavedMode || !deps->writeBulbLed ||
+        !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
+        !deps->usbReadTask || !deps->usbWrite || !deps->jsonBuffer || deps->jsonBufferSize == 0) {
         return false;
     }
 
