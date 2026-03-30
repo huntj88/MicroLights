@@ -39,6 +39,8 @@ static bool lastModeTaskCanUpdateCaseLed = false;
 static ModeOutputs nextModeOutputs;
 static uint32_t enterStandbyModeCallCount = 0;
 static uint32_t enterStopModeCallCount = 0;
+static uint32_t autoOffTimerEnableCallCount = 0;
+static bool autoOffTimerEnabled = false;
 static uint16_t lastStopWakeIntervalSeconds = 0;
 static bool mockWakeFromButton = false;
 static bool mockSystemResetCalled = false;
@@ -82,6 +84,11 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
     frontLedTimerEnabled = enable;
     frontLedTimerCallCount++;
+}
+
+void mock_enableAutoOffTimer(bool enable) {
+    autoOffTimerEnabled = enable;
+    autoOffTimerEnableCallCount++;
 }
 
 void mock_enableUsbClock(bool enable) {
@@ -146,13 +153,13 @@ void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
     lastStopWakeIntervalSeconds = wakeIntervalSeconds;
 }
 
-bool wasWakeFromButton(void) {
+bool mock_wasWakeFromButton(void) {
     bool didWakeFromButton = mockWakeFromButton;
     mockWakeFromButton = false;
     return didWakeFromButton;
 }
 
-void NVIC_SystemReset(void) {
+void mock_systemReset(void) {
     mockSystemResetCalled = true;
 }
 
@@ -185,6 +192,8 @@ void setUp(void) {
     lastModeTaskCanUpdateCaseLed = false;
     enterStandbyModeCallCount = 0;
     enterStopModeCallCount = 0;
+    autoOffTimerEnableCallCount = 0;
+    autoOffTimerEnabled = false;
     lastStopWakeIntervalSeconds = 0;
     mockWakeFromButton = false;
     mockSystemResetCalled = false;
@@ -213,7 +222,12 @@ void setUp(void) {
         .enableChipTickTimer = mock_enableChipTickTimer,
         .enableCaseLedTimer = mock_enableCaseLedTimer,
         .enableFrontLedTimer = mock_enableFrontLedTimer,
+        .enableAutoOffTimer = mock_enableAutoOffTimer,
         .enableUsbClock = mock_enableUsbClock,
+        .enterStandbyMode = enterStandbyMode,
+        .enterStopModeWithRtcAlarm = enterStopModeWithRtcAlarm,
+        .wasWakeFromButton = mock_wasWakeFromButton,
+        .systemReset = mock_systemReset,
         .log = mock_writeUsbSerial,
     };
 }
@@ -273,6 +287,8 @@ void test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging(void) {
 
     TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
 }
 
 void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(void) {
@@ -289,6 +305,8 @@ void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(voi
     TEST_ASSERT_EQUAL_UINT16(60, lastStopWakeIntervalSeconds);
     TEST_ASSERT_TRUE(mockLockCalled);
     TEST_ASSERT_FALSE(mockSystemResetCalled);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
 }
 
 void test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower(void) {
@@ -452,6 +470,24 @@ void test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled(void) {
 
     TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+}
+
+void test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
+    mockChargeState = notConnected;
+    state.ticksSinceLastUserActivity = 6;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
@@ -663,6 +699,7 @@ void test_TimerPolicy_FrontBulbType_DisablesFrontTimer(void) {
 
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode);
     RUN_TEST(test_AutoOffTimer_DoesNothing_WhenManualShutdownOnly);
     RUN_TEST(test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled);
     RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);

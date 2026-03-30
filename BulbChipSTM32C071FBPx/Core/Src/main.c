@@ -135,8 +135,12 @@ int main(void) {
         .enableChipTickTimer = enableChipTickTimer,
         .enableCaseLedTimer = enableCaseLedTimer,
         .enableFrontLedTimer = enableFrontLedTimer,
+        .enableAutoOffTimer = enableAutoOffTimer,
         .enableUsbClock = enableUsbClock,
-        .startAutoOffTimer = startAutoOffTimer,
+        .enterStandbyMode = enterStandbyMode,
+        .enterStopModeWithRtcAlarm = enterStopModeWithRtcAlarm,
+        .wasWakeFromButton = wasWakeFromButton,
+        .systemReset = NVIC_SystemReset,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .rgbTimerPeriod = htim1.Init.Period,
@@ -584,13 +588,7 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pin = button_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : chargerIT_Pin */
-    GPIO_InitStruct.Pin = chargerIT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(button_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : bulbLed_Pin */
     GPIO_InitStruct.Pin = bulbLed_Pin;
@@ -598,6 +596,12 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(bulbLed_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : chargerIT_Pin */
+    GPIO_InitStruct.Pin = chargerIT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(chargerIT_GPIO_Port, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);

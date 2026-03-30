@@ -78,7 +78,8 @@ uint32_t HAL_RCC_GetPCLK1Freq(void) {
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
     return HAL_OK;
 }
-HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
+HAL_StatusTypeDef HAL_RTC_GetTime(
+    RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
     (void)hrtc;
     (void)Format;
     memset(sTime, 0, sizeof(*sTime));

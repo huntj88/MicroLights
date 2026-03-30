@@ -41,6 +41,8 @@ static uint32_t lastWakeUpPinDisable = 0;
 static uint32_t enterStopModeCallCount = 0;
 static uint32_t enterStandbyModeCallCount = 0;
 static uint32_t systemClockConfigCallCount = 0;
+static uint32_t autoOffTimerStartCallCount = 0;
+static uint32_t autoOffTimerStopCallCount = 0;
 
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
@@ -107,9 +109,15 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel) {
     return HAL_OK;
 }
 HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim) {
+    if (htim == &htim17) {
+        autoOffTimerStartCallCount++;
+    }
     return HAL_OK;
 }
 HAL_StatusTypeDef HAL_TIM_Base_Stop_IT(TIM_HandleTypeDef *htim) {
+    if (htim == &htim17) {
+        autoOffTimerStopCallCount++;
+    }
     return HAL_OK;
 }
 void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t *pFLatency) {
@@ -121,7 +129,8 @@ HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
     i2cInitCallCount++;
     return HAL_OK;
 }
-HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
+HAL_StatusTypeDef HAL_RTC_GetTime(
+    RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
     (void)hrtc;
     (void)Format;
     *sTime = mockRtcTime;
@@ -246,6 +255,8 @@ void setUp(void) {
     enterStopModeCallCount = 0;
     enterStandbyModeCallCount = 0;
     systemClockConfigCallCount = 0;
+    autoOffTimerStartCallCount = 0;
+    autoOffTimerStopCallCount = 0;
     memset(&mockPWR, 0, sizeof(mockPWR));
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
@@ -491,6 +502,14 @@ void test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags(void) {
     TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
 }
 
+void test_EnableAutoOffTimer_UsesTim17(void) {
+    enableAutoOffTimer(true);
+    enableAutoOffTimer(false);
+
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerStartCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerStopCallCount);
+}
+
 void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
     mockRtcTime = (RTC_TimeTypeDef){.Hours = 1, .Minutes = 2, .Seconds = 3};
     mockRtcDate = (RTC_DateTypeDef){.WeekDay = 1, .Month = 1, .Date = 1, .Year = 0};
@@ -524,6 +543,7 @@ void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
 
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_EnableAutoOffTimer_UsesTim17);
     RUN_TEST(test_EnableFrontLedTimer_GpioReconfigurationRoundTrip);
     RUN_TEST(test_EnableUsbClock_Disable_TearsDownClocksAndI2C);
     RUN_TEST(test_EnableUsbClock_Enable_SetsUpClocksAndI2C);

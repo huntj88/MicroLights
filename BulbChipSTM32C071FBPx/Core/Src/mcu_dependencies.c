@@ -67,8 +67,7 @@ static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
     HAL_RTC_GetDate(&hrtc, &currentDate, RTC_FORMAT_BIN);
 
     uint32_t totalSeconds = (uint32_t)currentTime.Hours * 3600U +
-                            (uint32_t)currentTime.Minutes * 60U +
-                            (uint32_t)currentTime.Seconds +
+                            (uint32_t)currentTime.Minutes * 60U + (uint32_t)currentTime.Seconds +
                             (uint32_t)wakeIntervalSeconds;
     uint32_t dayOffset = totalSeconds / 86400U;
     totalSeconds %= 86400U;
@@ -298,8 +297,12 @@ void enableUsbClock(bool enable) {
     }
 }
 
-void startAutoOffTimer(void) {
-    HAL_TIM_Base_Start_IT(&htim17);
+void enableAutoOffTimer(bool enable) {
+    if (enable) {
+        HAL_TIM_Base_Start_IT(&htim17);
+    } else {
+        HAL_TIM_Base_Stop_IT(&htim17);
+    }
 }
 
 void enterStandbyMode(void) {

@@ -61,6 +61,9 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
 }
 
+void mock_enableAutoOffTimer(bool enable) {
+}
+
 void mock_enableUsbClock(bool enable) {
 }
 
@@ -108,10 +111,10 @@ void enterStandbyMode(void) {
 void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
     (void)wakeIntervalSeconds;
 }
-bool wasWakeFromButton(void) {
+bool mock_wasWakeFromButton(void) {
     return false;
 }
-void NVIC_SystemReset(void) {
+void mock_systemReset(void) {
 }
 
 // Include source files under test
@@ -154,7 +157,12 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
             .enableChipTickTimer = mock_enableChipTickTimer,
             .enableCaseLedTimer = mock_enableCaseLedTimer,
             .enableFrontLedTimer = mock_enableFrontLedTimer,
+            .enableAutoOffTimer = mock_enableAutoOffTimer,
             .enableUsbClock = mock_enableUsbClock,
+            .enterStandbyMode = enterStandbyMode,
+            .enterStopModeWithRtcAlarm = enterStopModeWithRtcAlarm,
+            .wasWakeFromButton = mock_wasWakeFromButton,
+            .systemReset = mock_systemReset,
             .log = mock_writeUsbSerial,
         });
 
@@ -194,7 +202,8 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(90, settingsManager.currentSettings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(10, settingsManager.currentSettings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
-    TEST_ASSERT_EQUAL_UINT8(DEFAULT_SHUTDOWN_POLICY, settingsManager.currentSettings.shutdownPolicy);
+    TEST_ASSERT_EQUAL_UINT8(
+        DEFAULT_SHUTDOWN_POLICY, settingsManager.currentSettings.shutdownPolicy);
 }
 
 void mock_readSavedSettings_Matching(char buffer[], size_t length) {

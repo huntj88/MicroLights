@@ -10,8 +10,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "stm32c0xx.h"
-#include "mcu_dependencies.h"
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/json/mode_parser.h"
@@ -27,7 +25,9 @@ static void prepareForLowPowerShutdown(ChipState *state);
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
-        !deps.enableFrontLedTimer || !deps.enableUsbClock || !deps.log) {
+        !deps.enableFrontLedTimer || !deps.enableAutoOffTimer || !deps.enableUsbClock ||
+        !deps.enterStandbyMode || !deps.enterStopModeWithRtcAlarm || !deps.wasWakeFromButton ||
+        !deps.systemReset || !deps.log) {
         return false;
     }
     state->deps = deps;
@@ -92,10 +92,12 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
         return;
     }
 
-    enterStandbyMode();
+    state->deps.enterStandbyMode();
 }
 
 static void prepareForLowPowerShutdown(ChipState *state) {
+    state->deps.enableAutoOffTimer(false);
+
     if (state->lastChipTickEnabled) {
         state->deps.enableChipTickTimer(false);
         state->lastChipTickEnabled = false;
@@ -122,10 +124,10 @@ static void handleStopModeWake(
     uint16_t elapsedMinutes = 0;
 
     while (true) {
-        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
+        state->deps.enterStopModeWithRtcAlarm(wakeIntervalSeconds);
 
-        if (wasWakeFromButton()) {
-            NVIC_SystemReset();
+        if (state->deps.wasWakeFromButton()) {
+            state->deps.systemReset();
             return;
         }
 

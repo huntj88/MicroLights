@@ -34,7 +34,12 @@ typedef struct {
     void (*enableChipTickTimer)(bool enable);
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
+    void (*enableAutoOffTimer)(bool enable);
     void (*enableUsbClock)(bool enable);
+    void (*enterStandbyMode)(void);
+    void (*enterStopModeWithRtcAlarm)(uint16_t wakeIntervalSeconds);
+    bool (*wasWakeFromButton)(void);
+    void (*systemReset)(void);
     Log log;
 } ChipDependencies;
 
