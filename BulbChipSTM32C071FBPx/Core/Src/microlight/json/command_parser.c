@@ -88,6 +88,21 @@ static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings, ParserEr
         settings->equationEvalIntervalMs = (uint8_t)token->u.num_int;
     }
 
+    token = lwjson_find(lwjson, "shutdownPolicy");
+    if (token != NULL) {
+        if (token->u.num_int < 0) {
+            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
+            snprintf(ctx->path, sizeof(ctx->path), "shutdownPolicy");
+            return false;
+        }
+        if (token->u.num_int > autoOffAndAutoLock) {
+            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
+            snprintf(ctx->path, sizeof(ctx->path), "shutdownPolicy");
+            return false;
+        }
+        settings->shutdownPolicy = (uint8_t)token->u.num_int;
+    }
+
     token = lwjson_find(lwjson, "enableChargerSerial");
     if (token != NULL) {
         if (token->type == LWJSON_TYPE_TRUE) {

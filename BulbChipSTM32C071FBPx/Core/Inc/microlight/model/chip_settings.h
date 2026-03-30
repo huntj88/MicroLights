@@ -15,9 +15,16 @@
 #define DEFAULT_MINUTES_UNTIL_AUTO_OFF 90
 #define DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF 10
 #define DEFAULT_EQUATION_EVAL_INTERVAL_MS 20
+#define DEFAULT_SHUTDOWN_POLICY 0
 #define DEFAULT_ENABLE_CHARGER_SERIAL false
 #define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
     false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
+
+enum ShutdownPolicy {
+    manualShutdownOnly = 0,
+    autoOffNoAutoLock = 1,
+    autoOffAndAutoLock = 2,
+};
 
 // X-Macro to define settings: X(type, name, default_value)
 #define CHIP_SETTINGS_MAP(X)                                                            \
@@ -25,6 +32,7 @@
     X(uint8_t, minutesUntilAutoOff, DEFAULT_MINUTES_UNTIL_AUTO_OFF)                     \
     X(uint8_t, minutesUntilLockAfterAutoOff, DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF) \
     X(uint8_t, equationEvalIntervalMs, DEFAULT_EQUATION_EVAL_INTERVAL_MS)               \
+    X(uint8_t, shutdownPolicy, DEFAULT_SHUTDOWN_POLICY)                                 \
     X(bool, enableChargerSerial, DEFAULT_ENABLE_CHARGER_SERIAL)                         \
     X(bool, enableI2cFailureReporting, DEFAULT_ENABLE_I2C_FAILURE_REPORTING)
 

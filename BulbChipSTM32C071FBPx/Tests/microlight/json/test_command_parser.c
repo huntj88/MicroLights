@@ -81,7 +81,8 @@ void test_ParseJson_WriteSettings_RejectsIntegerForBoolean(void) {
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":7,\"minutesUntilAutoOff\":20,"
-        "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50}";
+        "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50,"
+        "\"shutdownPolicy\":1}";
 
     parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
 
@@ -90,6 +91,7 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     TEST_ASSERT_EQUAL_UINT8(20, cliInput.settings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(30, cliInput.settings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, cliInput.settings.equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(1, cliInput.settings.shutdownPolicy);
 }
 
 void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
@@ -120,6 +122,13 @@ void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
     TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
     TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
     TEST_ASSERT_EQUAL_STRING("equationEvalIntervalMs", cliInput.errorContext.path);
+
+    // Invalid shutdownPolicy (>2)
+    char *json5 = "{\"command\":\"writeSettings\",\"shutdownPolicy\":3}";
+    parseJson((uint8_t *)json5, strlen(json5) + 1, &cliInput);
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("shutdownPolicy", cliInput.errorContext.path);
 }
 
 void test_ParseJson_Dfu_SetsDfuAction(void) {

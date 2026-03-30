@@ -10,10 +10,12 @@
 #include "tusb.h"
 
 extern I2C_HandleTypeDef hi2c1;
+extern RTC_HandleTypeDef hrtc;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim17;
+extern void SystemClock_Config(void);
 
 #define SETTINGS_PAGE 56  // 2K flash reserved for settings starting at page 56
 #define BULB_PAGE_0 57    // 14K flash reserved for bulb modes starting at page 57
@@ -35,8 +37,85 @@ extern TIM_HandleTypeDef htim17;
 #define PWM_PRESCALER_12MHZ 2U
 #define PWM_PRESCALER_48MHZ 11U
 
+#define BUTTON_WAKEUP_PIN PWR_WAKEUP_PIN2_LOW
+#define BUTTON_WAKEUP_PIN_MASK PWR_WAKEUP_PIN2
+#define BUTTON_WAKEUP_FLAG PWR_FLAG_WUF2
+
 // Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
 static uint32_t tickMultiplier = 0;
+
+static uint8_t daysInMonth(uint8_t year, uint8_t month) {
+    switch (month) {
+        case 4:
+        case 6:
+        case 9:
+        case 11:
+            return 30;
+        case 2:
+            return (uint8_t)(((year % 4U) == 0U) ? 29U : 28U);
+        default:
+            return 31;
+    }
+}
+
+static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
+    RTC_TimeTypeDef currentTime = {0};
+    RTC_DateTypeDef currentDate = {0};
+    RTC_AlarmTypeDef alarm = {0};
+
+    HAL_RTC_GetTime(&hrtc, &currentTime, RTC_FORMAT_BIN);
+    HAL_RTC_GetDate(&hrtc, &currentDate, RTC_FORMAT_BIN);
+
+    uint32_t totalSeconds = (uint32_t)currentTime.Hours * 3600U +
+                            (uint32_t)currentTime.Minutes * 60U +
+                            (uint32_t)currentTime.Seconds +
+                            (uint32_t)wakeIntervalSeconds;
+    uint32_t dayOffset = totalSeconds / 86400U;
+    totalSeconds %= 86400U;
+
+    uint8_t alarmHours = (uint8_t)(totalSeconds / 3600U);
+    totalSeconds %= 3600U;
+    uint8_t alarmMinutes = (uint8_t)(totalSeconds / 60U);
+    uint8_t alarmSeconds = (uint8_t)(totalSeconds % 60U);
+
+    uint8_t alarmDate = currentDate.Date;
+    uint8_t alarmMonth = currentDate.Month;
+    uint8_t alarmYear = currentDate.Year;
+    uint8_t alarmWeekday = currentDate.WeekDay;
+
+    while (dayOffset > 0U) {
+        alarmDate++;
+        alarmWeekday = (uint8_t)((alarmWeekday % 7U) + 1U);
+        if (alarmDate > daysInMonth(alarmYear, alarmMonth)) {
+            alarmDate = 1U;
+            alarmMonth++;
+            if (alarmMonth > 12U) {
+                alarmMonth = 1U;
+                alarmYear = (uint8_t)((alarmYear + 1U) % 100U);
+            }
+        }
+        dayOffset--;
+    }
+
+    (void)alarmMonth;
+    (void)alarmYear;
+
+    alarm.AlarmTime.Hours = alarmHours;
+    alarm.AlarmTime.Minutes = alarmMinutes;
+    alarm.AlarmTime.Seconds = alarmSeconds;
+    alarm.AlarmTime.SubSeconds = 0;
+    alarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    alarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    alarm.AlarmMask = RTC_ALARMMASK_NONE;
+    alarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+    alarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+    alarm.AlarmDateWeekDay = alarmDate;
+    alarm.Alarm = RTC_ALARM_A;
+
+    HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A);
+    __HAL_RTC_ALARM_CLEAR_FLAG(&hrtc, RTC_FLAG_ALRAF);
+    HAL_RTC_SetAlarm_IT(&hrtc, &alarm, RTC_FORMAT_BIN);
+}
 
 static inline bool fBluePinIsAfMode(void) {
     return (fBlue_GPIO_Port->MODER & FBLUE_MODER_MASK) == FBLUE_MODER_AF;
@@ -221,6 +300,40 @@ void enableUsbClock(bool enable) {
 
 void startAutoOffTimer(void) {
     HAL_TIM_Base_Start_IT(&htim17);
+}
+
+void enterStandbyMode(void) {
+    HAL_PWR_DisableWakeUpPin(BUTTON_WAKEUP_PIN_MASK);
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WUF | PWR_FLAG_SB);
+    HAL_PWR_EnableWakeUpPin(BUTTON_WAKEUP_PIN);
+
+    HAL_SuspendTick();
+    HAL_PWR_EnterSTANDBYMode();
+    HAL_ResumeTick();
+}
+
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
+    HAL_PWR_DisableWakeUpPin(BUTTON_WAKEUP_PIN_MASK);
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WUF | PWR_FLAG_SB);
+    HAL_PWR_EnableWakeUpPin(BUTTON_WAKEUP_PIN);
+
+    scheduleRtcAlarmInSeconds(wakeIntervalSeconds);
+
+    HAL_SuspendTick();
+    HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
+    SystemClock_Config();
+    HAL_ResumeTick();
+
+    HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A);
+    __HAL_RTC_ALARM_CLEAR_FLAG(&hrtc, RTC_FLAG_ALRAF);
+}
+
+bool wasWakeFromButton(void) {
+    bool didWakeFromButton = (__HAL_PWR_GET_FLAG(BUTTON_WAKEUP_FLAG) != 0U);
+    if (didWakeFromButton) {
+        __HAL_PWR_CLEAR_FLAG(BUTTON_WAKEUP_FLAG);
+    }
+    return didWakeFromButton;
 }
 
 static uint32_t calculateTickMultiplier(void) {

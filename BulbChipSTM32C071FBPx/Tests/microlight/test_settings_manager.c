@@ -103,6 +103,16 @@ bool isEvaluatingButtonPress(Button *button) {
 }
 void fakeOffMode(ModeManager *manager) {
 }
+void enterStandbyMode(void) {
+}
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
+    (void)wakeIntervalSeconds;
+}
+bool wasWakeFromButton(void) {
+    return false;
+}
+void NVIC_SystemReset(void) {
+}
 
 // Include source files under test
 #include "../../Core/Src/microlight/chip_state.c"
@@ -158,6 +168,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     newSettings.minutesUntilAutoOff = 20;
     newSettings.minutesUntilLockAfterAutoOff = 5;
     newSettings.equationEvalIntervalMs = 50;
+    newSettings.shutdownPolicy = autoOffNoAutoLock;
 
     // 5. Call updateSettings
     updateSettings(&settingsManager, &newSettings);
@@ -166,6 +177,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     TEST_ASSERT_EQUAL_UINT8(10, state.deps.settings->modeCount);
     TEST_ASSERT_EQUAL_UINT16(20, state.deps.settings->minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, state.deps.settings->equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(autoOffNoAutoLock, state.deps.settings->shutdownPolicy);
 }
 
 void test_SettingsManagerInit_SetsDefaults(void) {
@@ -182,6 +194,7 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(90, settingsManager.currentSettings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(10, settingsManager.currentSettings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(DEFAULT_SHUTDOWN_POLICY, settingsManager.currentSettings.shutdownPolicy);
 }
 
 void mock_readSavedSettings_Matching(char buffer[], size_t length) {
@@ -216,6 +229,7 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
     cliInput.parsedType = parseWriteSettings;
     cliInput.settings.modeCount = 5;
     cliInput.settings.equationEvalIntervalMs = 20;  // Default
+    cliInput.settings.shutdownPolicy = autoOffAndAutoLock;
 
     settingsManagerInit(&settingsManager, mock_readSavedSettings_OldVersion);
 

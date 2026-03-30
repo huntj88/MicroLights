@@ -119,7 +119,7 @@ enum ChargeState getChargingState(BQ25180 *chargerIC, uint32_t milliseconds) {
 static enum ChargeState readChargingState(BQ25180 *chargerIC) {
     uint8_t regResult = 0;
     if (!chargerIC->readRegisters(chargerIC->devAddress, BQ25180_STAT0, &regResult, 1)) {
-        return notConnected;
+        return chargerIC->chargingState;
     }
 
     if ((regResult & 0b01000000) > 0) {

@@ -34,6 +34,10 @@ void enableUsbClock(bool enable);
 void startAutoOffTimer(void);
 uint32_t convertTicksToMilliseconds(uint32_t ticks);
 
+void enterStandbyMode(void);
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds);
+bool wasWakeFromButton(void);
+
 __attribute__((noreturn)) void blinkCaseLedWhiteForever(void);
 
 #endif /* INC_MCU_DEPENDENCIES_H_ */

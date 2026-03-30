@@ -33,7 +33,8 @@
  *   "command": "writeSettings",
  *   "modeCount": 5,
  *   "minutesUntilAutoOff": 30,
- *   "minutesUntilLockAfterAutoOff": 60
+ *   "minutesUntilLockAfterAutoOff": 60,
+ *   "shutdownPolicy": 2
  * }
  *
  * Read Settings:

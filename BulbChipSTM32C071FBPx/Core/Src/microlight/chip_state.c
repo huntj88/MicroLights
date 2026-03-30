@@ -10,12 +10,19 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "stm32c0xx.h"
+#include "mcu_dependencies.h"
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"
 #include "microlight/json/mode_parser.h"
 #include "microlight/mode_manager.h"
 #include "microlight/model/mode_state.h"
 #include "microlight/settings_manager.h"
+
+static void handleStopModeWake(
+    ChipState *state, uint16_t lockThresholdMinutes, uint16_t wakeIntervalSeconds);
+static void enterShutdown(ChipState *state, enum ChargeState chargeState);
+static void prepareForLowPowerShutdown(ChipState *state);
 
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
@@ -28,7 +35,6 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     state->lastChipTickEnabled = false;
     state->lastCasePwmEnabled = false;
     state->lastFrontPwmEnabled = false;
-
     enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
     bool usbNeeded = initialChargeState != notConnected;
     state->lastUsbClockEnabled = usbNeeded;
@@ -45,32 +51,88 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
 
 // Auto off timer running at 0.1 hz
 // 12 megahertz / 1875 / 64000 = 0.1 hz (TIM17: prescaler=1874, period=63999)
-static void handleAutoOffTimer(
+static bool handleAutoOffTimer(
     ChipState *state, bool timerTriggered, enum ChargeState chargeState) {
-    if (timerTriggered) {
-        if (chargeState == notConnected) {
-            state->ticksSinceLastUserActivity++;
+    if (!timerTriggered || chargeState != notConnected ||
+        state->deps.settings->shutdownPolicy == manualShutdownOnly ||
+        isFakeOff(state->deps.modeManager)) {
+        return false;
+    }
 
-            uint16_t ticksUntilAutoOff =
-                state->deps.settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
-            bool autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilAutoOff;
-            if (isFakeOff(state->deps.modeManager)) {
-                uint16_t ticksUntilLockAfterAutoOff =
-                    state->deps.settings->minutesUntilLockAfterAutoOff * 6;
-                autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
-            }
+    state->ticksSinceLastUserActivity++;
 
-            if (autoOffTimerDone) {
-                if (isFakeOff(state->deps.modeManager)) {
-                    lock(state->deps.chargerIC);
-                } else {
-                    // restart timer for transition from fakeOff to shipMode
-                    state->ticksSinceLastUserActivity = 0;
+    uint16_t ticksUntilAutoOff =
+        state->deps.settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
+    bool autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilAutoOff;
+    if (autoOffTimerDone) {
+        state->ticksSinceLastUserActivity = 0;
+        enterShutdown(state, chargeState);
+        return true;
+    }
 
-                    // enter fake off mode
-                    fakeOffMode(state->deps.modeManager);
-                }
-            }
+    return false;
+}
+
+static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
+    if (chargeState != notConnected) {
+        fakeOffMode(state->deps.modeManager);
+        return;
+    }
+
+    prepareForLowPowerShutdown(state);
+
+    if (state->deps.settings->shutdownPolicy == autoOffAndAutoLock) {
+        uint16_t lockThresholdMinutes = state->deps.settings->minutesUntilLockAfterAutoOff;
+        if (lockThresholdMinutes == 0U) {
+            lock(state->deps.chargerIC);
+            return;
+        }
+
+        handleStopModeWake(state, lockThresholdMinutes, 60U);
+        return;
+    }
+
+    enterStandbyMode();
+}
+
+static void prepareForLowPowerShutdown(ChipState *state) {
+    if (state->lastChipTickEnabled) {
+        state->deps.enableChipTickTimer(false);
+        state->lastChipTickEnabled = false;
+    }
+
+    if (state->lastCasePwmEnabled) {
+        state->deps.enableCaseLedTimer(false);
+        state->lastCasePwmEnabled = false;
+    }
+
+    if (state->lastFrontPwmEnabled) {
+        state->deps.enableFrontLedTimer(false);
+        state->lastFrontPwmEnabled = false;
+    }
+
+    if (state->lastUsbClockEnabled) {
+        state->deps.enableUsbClock(false);
+        state->lastUsbClockEnabled = false;
+    }
+}
+
+static void handleStopModeWake(
+    ChipState *state, uint16_t lockThresholdMinutes, uint16_t wakeIntervalSeconds) {
+    uint16_t elapsedMinutes = 0;
+
+    while (true) {
+        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
+
+        if (wasWakeFromButton()) {
+            NVIC_SystemReset();
+            return;
+        }
+
+        elapsedMinutes++;
+        if (elapsedMinutes >= lockThresholdMinutes) {
+            lock(state->deps.chargerIC);
+            return;
         }
     }
 }
@@ -115,7 +177,9 @@ static void applyTimerPolicy(
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     enum ChargeState chargeState = getChargingState(state->deps.chargerIC, milliseconds);
-    handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState);
+    if (handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState)) {
+        return;
+    }
 
     bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);
     bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
@@ -148,7 +212,10 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
             break;
         }
         case shutdown: {
-            fakeOffMode(state->deps.modeManager);
+            enterShutdown(state, chargeState);
+            if (chargeState == notConnected) {
+                return;
+            }
             // Clear outputs so applyTimerPolicy disables front/case PWM timers
             outputs.frontValid = false;
             outputs.caseValid = false;
