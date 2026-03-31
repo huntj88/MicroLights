@@ -102,6 +102,8 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
 static void prepareForLowPowerShutdown(ChipState *state) {
     state->deps.enableAutoOffTimer(false);
 
+    mc3479Disable(state->deps.accel);
+
     if (state->lastChipTickEnabled) {
         state->deps.enableChipTickTimer(false);
         state->lastChipTickEnabled = false;

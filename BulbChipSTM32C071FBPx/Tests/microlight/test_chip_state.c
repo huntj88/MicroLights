@@ -45,6 +45,7 @@ static uint16_t lastStopWakeIntervalSeconds = 0;
 static uint16_t lastLockThresholdMinutes = 0;
 static bool mockWakeFromButton = false;
 static bool mockSystemResetCalled = false;
+static uint32_t mc3479DisableCallCount = 0;
 
 // Mock Function Implementations
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
@@ -113,6 +114,10 @@ void lock(BQ25180 *dev) {
 }
 
 void rgbTransientTask(RGBLed *led, uint32_t ms) {
+}
+void mc3479Disable(MC3479 *dev) {
+    (void)dev;
+    mc3479DisableCallCount++;
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
@@ -219,6 +224,7 @@ void setUp(void) {
     lastLockThresholdMinutes = 0;
     mockWakeFromButton = false;
     mockSystemResetCalled = false;
+    mc3479DisableCallCount = 0;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
         .caseValid = false,
@@ -351,6 +357,7 @@ void test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower(vo
     TEST_ASSERT_FALSE(chipTickTimerEnabled);
     TEST_ASSERT_FALSE(caseLedTimerEnabled);
     TEST_ASSERT_FALSE(frontLedTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, mc3479DisableCallCount);
 }
 
 void test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode(void) {
