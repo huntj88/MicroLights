@@ -58,7 +58,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
         !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
         !deps->enableFrontLedTimer || !deps->enableAutoOffTimer || !deps->enableUsbClock ||
-        !deps->enterStandbyMode || !deps->enterStopModeWithRtcAlarm || !deps->wasWakeFromButton ||
+        !deps->enterStandbyMode || !deps->waitForButtonWakeOrAutoLock ||
         !deps->systemReset || !deps->readSavedMode || !deps->writeBulbLed ||
         !deps->readSavedSettings || !deps->enterDFU || !deps->saveSettings || !deps->saveMode ||
         !deps->usbReadTask || !deps->usbWrite || !deps->jsonBuffer || deps->jsonBufferSize == 0) {
@@ -142,8 +142,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
                 .enableAutoOffTimer = deps->enableAutoOffTimer,
                 .enableUsbClock = deps->enableUsbClock,
                 .enterStandbyMode = deps->enterStandbyMode,
-                .enterStopModeWithRtcAlarm = deps->enterStopModeWithRtcAlarm,
-                .wasWakeFromButton = deps->wasWakeFromButton,
+                .waitForButtonWakeOrAutoLock = deps->waitForButtonWakeOrAutoLock,
                 .systemReset = deps->systemReset,
                 .log = internalLog,
             })) {

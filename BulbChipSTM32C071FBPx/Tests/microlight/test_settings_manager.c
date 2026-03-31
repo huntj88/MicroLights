@@ -111,7 +111,9 @@ void enterStandbyMode(void) {
 void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
     (void)wakeIntervalSeconds;
 }
-bool mock_wasWakeFromButton(void) {
+bool mock_waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
+    (void)wakeIntervalSeconds;
+    (void)lockThresholdMinutes;
     return false;
 }
 void mock_systemReset(void) {
@@ -160,8 +162,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
             .enableAutoOffTimer = mock_enableAutoOffTimer,
             .enableUsbClock = mock_enableUsbClock,
             .enterStandbyMode = enterStandbyMode,
-            .enterStopModeWithRtcAlarm = enterStopModeWithRtcAlarm,
-            .wasWakeFromButton = mock_wasWakeFromButton,
+            .waitForButtonWakeOrAutoLock = mock_waitForButtonWakeOrAutoLock,
             .systemReset = mock_systemReset,
             .log = mock_writeUsbSerial,
         });

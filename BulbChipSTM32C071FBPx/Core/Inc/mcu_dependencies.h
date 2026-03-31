@@ -36,7 +36,7 @@ uint32_t convertTicksToMilliseconds(uint32_t ticks);
 
 void enterStandbyMode(void);
 void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds);
-bool wasWakeFromButton(void);
+bool waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes);
 
 __attribute__((noreturn)) void blinkCaseLedWhiteForever(void);
 

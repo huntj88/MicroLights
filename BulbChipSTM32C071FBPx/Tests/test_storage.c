@@ -140,6 +140,8 @@ void HAL_PWR_EnterSTANDBYMode(void) {
 }
 void SystemClock_Config(void) {
 }
+void Error_Handler(void) {
+}
 
 // TinyUSB stubs
 bool tud_connect(void) {

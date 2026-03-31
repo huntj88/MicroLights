@@ -44,19 +44,30 @@ extern void SystemClock_Config(void);
 // Cached tick-to-millisecond multiplier (file scope so enableUsbClock can invalidate it)
 static uint32_t tickMultiplier = 0;
 
-static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
+static bool requireHalOk(HAL_StatusTypeDef status) {
+    if (status != HAL_OK) {
+        Error_Handler();
+        return false;
+    }
+    return true;
+}
+
+static bool scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
     RTC_TimeTypeDef currentTime = {0};
     RTC_DateTypeDef currentDate = {0};
     RTC_AlarmTypeDef alarm = {0};
 
-    HAL_RTC_GetTime(&hrtc, &currentTime, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&hrtc, &currentDate, RTC_FORMAT_BIN);
+    if (!requireHalOk(HAL_RTC_GetTime(&hrtc, &currentTime, RTC_FORMAT_BIN)) ||
+        !requireHalOk(HAL_RTC_GetDate(&hrtc, &currentDate, RTC_FORMAT_BIN))) {
+        return false;
+    }
 
     uint32_t totalSeconds = (uint32_t)currentTime.Hours * 3600U +
                             (uint32_t)currentTime.Minutes * 60U + (uint32_t)currentTime.Seconds +
                             (uint32_t)wakeIntervalSeconds;
     uint8_t alarmDate = currentDate.Date;
 
+    // We only care about relative wake intervals while the chip remains in stop mode.
     // Alarm intervals are intentionally short and wakeIntervalSeconds is uint16_t,
     // so the rollover can only ever stay on the current day or move to the next day.
     // We intentionally do not handle month/year rollover here.
@@ -82,9 +93,11 @@ static void scheduleRtcAlarmInSeconds(uint16_t wakeIntervalSeconds) {
     alarm.AlarmDateWeekDay = alarmDate;
     alarm.Alarm = RTC_ALARM_A;
 
-    HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A);
+    if (!requireHalOk(HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A))) {
+        return false;
+    }
     __HAL_RTC_ALARM_CLEAR_FLAG(&hrtc, RTC_FLAG_ALRAF);
-    HAL_RTC_SetAlarm_IT(&hrtc, &alarm, RTC_FORMAT_BIN);
+    return requireHalOk(HAL_RTC_SetAlarm_IT(&hrtc, &alarm, RTC_FORMAT_BIN));
 }
 
 static inline bool fBluePinIsAfMode(void) {
@@ -291,23 +304,45 @@ void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WUF | PWR_FLAG_SB);
     HAL_PWR_EnableWakeUpPin(BUTTON_WAKEUP_PIN);
 
-    scheduleRtcAlarmInSeconds(wakeIntervalSeconds);
+    if (!scheduleRtcAlarmInSeconds(wakeIntervalSeconds)) {
+        return;
+    }
 
     HAL_SuspendTick();
     HAL_PWR_EnterSTOPMode(PWR_MAINREGULATOR_ON, PWR_STOPENTRY_WFI);
     SystemClock_Config();
     HAL_ResumeTick();
 
-    HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A);
+    if (!requireHalOk(HAL_RTC_DeactivateAlarm(&hrtc, RTC_ALARM_A))) {
+        return;
+    }
     __HAL_RTC_ALARM_CLEAR_FLAG(&hrtc, RTC_FLAG_ALRAF);
 }
 
-bool wasWakeFromButton(void) {
+static bool wasWakeFromButton(void) {
     bool didWakeFromButton = (__HAL_PWR_GET_FLAG(BUTTON_WAKEUP_FLAG) != 0U);
     if (didWakeFromButton) {
         __HAL_PWR_CLEAR_FLAG(BUTTON_WAKEUP_FLAG);
     }
     return didWakeFromButton;
+}
+
+bool waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
+    uint32_t elapsedSeconds = 0;
+    uint32_t lockThresholdSeconds = (uint32_t)lockThresholdMinutes * 60U;
+
+    while (true) {
+        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
+
+        if (wasWakeFromButton()) {
+            return true;
+        }
+
+        elapsedSeconds += wakeIntervalSeconds;
+        if (elapsedSeconds >= lockThresholdSeconds) {
+            return false;
+        }
+    }
 }
 
 static uint32_t calculateTickMultiplier(void) {

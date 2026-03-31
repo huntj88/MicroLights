@@ -42,6 +42,7 @@ static uint32_t enterStopModeCallCount = 0;
 static uint32_t autoOffTimerEnableCallCount = 0;
 static bool autoOffTimerEnabled = false;
 static uint16_t lastStopWakeIntervalSeconds = 0;
+static uint16_t lastLockThresholdMinutes = 0;
 static bool mockWakeFromButton = false;
 static bool mockSystemResetCalled = false;
 
@@ -159,6 +160,26 @@ bool mock_wasWakeFromButton(void) {
     return didWakeFromButton;
 }
 
+bool mock_waitForButtonWakeOrAutoLock(
+    uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
+    uint32_t elapsedSeconds = 0;
+    uint32_t lockThresholdSeconds = (uint32_t)lockThresholdMinutes * 60U;
+
+    lastLockThresholdMinutes = lockThresholdMinutes;
+
+    while (true) {
+        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
+        if (mock_wasWakeFromButton()) {
+            return true;
+        }
+
+        elapsedSeconds += wakeIntervalSeconds;
+        if (elapsedSeconds >= lockThresholdSeconds) {
+            return false;
+        }
+    }
+}
+
 void mock_systemReset(void) {
     mockSystemResetCalled = true;
 }
@@ -195,6 +216,7 @@ void setUp(void) {
     autoOffTimerEnableCallCount = 0;
     autoOffTimerEnabled = false;
     lastStopWakeIntervalSeconds = 0;
+    lastLockThresholdMinutes = 0;
     mockWakeFromButton = false;
     mockSystemResetCalled = false;
     nextModeOutputs = (ModeOutputs){
@@ -225,8 +247,7 @@ void setUp(void) {
         .enableAutoOffTimer = mock_enableAutoOffTimer,
         .enableUsbClock = mock_enableUsbClock,
         .enterStandbyMode = enterStandbyMode,
-        .enterStopModeWithRtcAlarm = enterStopModeWithRtcAlarm,
-        .wasWakeFromButton = mock_wasWakeFromButton,
+        .waitForButtonWakeOrAutoLock = mock_waitForButtonWakeOrAutoLock,
         .systemReset = mock_systemReset,
         .log = mock_writeUsbSerial,
     };
@@ -303,6 +324,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(voi
 
     TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
     TEST_ASSERT_EQUAL_UINT16(60, lastStopWakeIntervalSeconds);
+    TEST_ASSERT_EQUAL_UINT16(2, lastLockThresholdMinutes);
     TEST_ASSERT_TRUE(mockLockCalled);
     TEST_ASSERT_FALSE(mockSystemResetCalled);
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);

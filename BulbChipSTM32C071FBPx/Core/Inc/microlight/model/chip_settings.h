@@ -11,20 +11,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DEFAULT_MODE_COUNT 0
-#define DEFAULT_MINUTES_UNTIL_AUTO_OFF 90
-#define DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF 10
-#define DEFAULT_EQUATION_EVAL_INTERVAL_MS 20
-#define DEFAULT_SHUTDOWN_POLICY 0
-#define DEFAULT_ENABLE_CHARGER_SERIAL false
-#define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
-    false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
-
 enum ShutdownPolicy {
     manualShutdownOnly = 0,
     autoOffNoAutoLock = 1,
     autoOffAndAutoLock = 2,
 };
+
+#define DEFAULT_MODE_COUNT 0
+#define DEFAULT_MINUTES_UNTIL_AUTO_OFF 90
+#define DEFAULT_MINUTES_UNTIL_LOCK_AFTER_AUTO_OFF 10
+#define DEFAULT_EQUATION_EVAL_INTERVAL_MS 20
+#define DEFAULT_SHUTDOWN_POLICY autoOffAndAutoLock
+#define DEFAULT_ENABLE_CHARGER_SERIAL false
+#define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
+    false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
 
 // X-Macro to define settings: X(type, name, default_value)
 #define CHIP_SETTINGS_MAP(X)                                                            \

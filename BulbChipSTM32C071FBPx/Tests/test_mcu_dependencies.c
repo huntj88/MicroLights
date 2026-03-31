@@ -43,6 +43,7 @@ static uint32_t enterStandbyModeCallCount = 0;
 static uint32_t systemClockConfigCallCount = 0;
 static uint32_t autoOffTimerStartCallCount = 0;
 static uint32_t autoOffTimerStopCallCount = 0;
+static uint32_t errorHandlerCallCount = 0;
 
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
@@ -197,6 +198,10 @@ void SystemClock_Config(void) {
     systemClockConfigCallCount++;
 }
 
+void Error_Handler(void) {
+    errorHandlerCallCount++;
+}
+
 // TinyUSB stubs
 static bool tudConnectCalled = false;
 static bool tudDisconnectCalled = false;
@@ -257,6 +262,7 @@ void setUp(void) {
     systemClockConfigCallCount = 0;
     autoOffTimerStartCallCount = 0;
     autoOffTimerStopCallCount = 0;
+    errorHandlerCallCount = 0;
     memset(&mockPWR, 0, sizeof(mockPWR));
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
@@ -529,6 +535,23 @@ void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
     TEST_ASSERT_EQUAL_UINT32(2, rtcDeactivateAlarmCallCount);
     TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(1, systemClockConfigCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, errorHandlerCallCount);
+}
+
+void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
+
+    TEST_ASSERT_FALSE(wokeFromButton);
+    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
+}
+
+void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
+    mockPWR.SR1 = PWR_SR1_WUF2;
+
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
+
+    TEST_ASSERT_TRUE(wokeFromButton);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
 }
 
 void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
@@ -551,6 +574,8 @@ int main(void) {
     RUN_TEST(test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags);
     RUN_TEST(test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock);
     RUN_TEST(test_FrontBluePin_ReconfiguresBetweenGpioAndPwm);
+    RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout);
+    RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake);
     RUN_TEST(test_WasWakeFromButton_ReturnsTrueAndClearsFlag);
     RUN_TEST(test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins);
     return UNITY_END();

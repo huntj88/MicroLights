@@ -17,12 +17,6 @@
 #include "microlight/model/mode_state.h"
 #include "microlight/settings_manager.h"
 
-typedef struct {
-    uint16_t wakeIntervalSeconds;
-    uint16_t lockThresholdMinutes;
-} StopModeWakeConfig;
-
-static void handleStopModeWake(ChipState *state, StopModeWakeConfig config);
 static void enterShutdown(ChipState *state, enum ChargeState chargeState);
 static void prepareForLowPowerShutdown(ChipState *state);
 
@@ -30,7 +24,7 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
         !deps.enableFrontLedTimer || !deps.enableAutoOffTimer || !deps.enableUsbClock ||
-        !deps.enterStandbyMode || !deps.enterStopModeWithRtcAlarm || !deps.wasWakeFromButton ||
+        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock ||
         !deps.systemReset || !deps.log) {
         return false;
     }
@@ -92,11 +86,13 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
             return;
         }
 
-        StopModeWakeConfig wakeConfig = {
-            .wakeIntervalSeconds = 60U,
-            .lockThresholdMinutes = lockThresholdMinutes,
-        };
-        handleStopModeWake(state, wakeConfig);
+        bool wokeFromButton = state->deps.waitForButtonWakeOrAutoLock(60U, lockThresholdMinutes);
+        if (wokeFromButton) {
+            state->deps.systemReset();
+            return;
+        }
+
+        lock(state->deps.chargerIC);
         return;
     }
 
@@ -124,26 +120,6 @@ static void prepareForLowPowerShutdown(ChipState *state) {
     if (state->lastUsbClockEnabled) {
         state->deps.enableUsbClock(false);
         state->lastUsbClockEnabled = false;
-    }
-}
-
-static void handleStopModeWake(ChipState *state, StopModeWakeConfig config) {
-    uint32_t elapsedSeconds = 0;
-    uint32_t lockThresholdSeconds = (uint32_t)config.lockThresholdMinutes * 60U;
-
-    while (true) {
-        state->deps.enterStopModeWithRtcAlarm(config.wakeIntervalSeconds);
-
-        if (state->deps.wasWakeFromButton()) {
-            state->deps.systemReset();
-            return;
-        }
-
-        elapsedSeconds += config.wakeIntervalSeconds;
-        if (elapsedSeconds >= lockThresholdSeconds) {
-            lock(state->deps.chargerIC);
-            return;
-        }
     }
 }
 
