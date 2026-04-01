@@ -120,10 +120,10 @@ static void prepareForLowPowerShutdown(ChipState *state) {
         state->lastCasePwmEnabled = false;
     }
 
-    if (state->lastFrontPwmEnabled) {
-        state->deps.enableFrontLedTimer(false);
-        state->lastFrontPwmEnabled = false;
-    }
+    // Force GPIO mode and drive the legacy bulb/front-blue pin low even if
+    // cached PWM state says the front timer was already disabled.
+    state->deps.enableFrontLedTimer(false);
+    state->lastFrontPwmEnabled = false;
 
     if (state->lastUsbClockEnabled) {
         state->deps.enableUsbClock(false);

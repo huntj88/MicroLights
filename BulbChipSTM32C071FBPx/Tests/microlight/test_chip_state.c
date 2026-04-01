@@ -368,6 +368,23 @@ void test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower(vo
     TEST_ASSERT_EQUAL_UINT32(1, mc3479DisableCallCount);
 }
 
+void test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled(void) {
+    configureChipState(&state, mockDeps);
+
+    state.lastFrontPwmEnabled = false;
+    frontLedTimerEnabled = true;
+    frontLedTimerCallCount = 0;
+
+    mockSettings.shutdownPolicy = manualShutdownOnly;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32(1, frontLedTimerCallCount);
+    TEST_ASSERT_FALSE(frontLedTimerEnabled);
+}
+
 void test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode(void) {
     configureChipState(&state, mockDeps);
 
@@ -791,6 +808,7 @@ int main(void) {
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled);
