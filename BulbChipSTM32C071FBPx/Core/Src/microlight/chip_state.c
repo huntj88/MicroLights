@@ -5,11 +5,11 @@
  *      Author: jameshunt
  */
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"

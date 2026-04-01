@@ -300,9 +300,13 @@ void enterStandbyMode(void) {
 }
 
 void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WUF | PWR_FLAG_SB);
+#else
     HAL_PWR_DisableWakeUpPin(BUTTON_WAKEUP_PIN_MASK);
     __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WUF | PWR_FLAG_SB);
     HAL_PWR_EnableWakeUpPin(BUTTON_WAKEUP_PIN);
+#endif
 
     if (!scheduleRtcAlarmInSeconds(wakeIntervalSeconds)) {
         return;
@@ -320,11 +324,15 @@ void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
 }
 
 static bool wasWakeFromButton(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    return readButtonPin() == 0U;
+#else
     bool didWakeFromButton = (__HAL_PWR_GET_FLAG(BUTTON_WAKEUP_FLAG) != 0U);
     if (didWakeFromButton) {
         __HAL_PWR_CLEAR_FLAG(BUTTON_WAKEUP_FLAG);
     }
     return didWakeFromButton;
+#endif
 }
 
 bool waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {

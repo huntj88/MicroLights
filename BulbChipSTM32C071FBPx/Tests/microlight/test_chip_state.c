@@ -808,10 +808,10 @@ int main(void) {
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode);
     RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
     RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);

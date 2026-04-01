@@ -4,6 +4,7 @@
 #include "unity.h"
 
 // Include the mock headers
+#include "main.h"
 #include "mock_gpio_moder.h"
 #include "stm32c0xx.h"
 #include "stm32c0xx_hal.h"
@@ -46,6 +47,7 @@ static uint32_t autoOffTimerStopCallCount = 0;
 static uint32_t errorHandlerCallCount = 0;
 static GPIO_TypeDef *lastGpioReadPort = NULL;
 static uint16_t lastGpioReadPin = 0;
+static GPIO_PinState mockButtonPinState = GPIO_PIN_RESET;
 
 #define PWR_FLAG_REGISTER_SELECTOR_MASK 0x00030000u
 
@@ -93,6 +95,9 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
     lastGpioReadPort = GPIOx;
     lastGpioReadPin = GPIO_Pin;
+    if (GPIOx == button_GPIO_Port && GPIO_Pin == button_Pin) {
+        return mockButtonPinState;
+    }
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
@@ -275,6 +280,7 @@ void setUp(void) {
     errorHandlerCallCount = 0;
     lastGpioReadPort = NULL;
     lastGpioReadPin = 0;
+    mockButtonPinState = GPIO_PIN_RESET;
     memset(&mockPWR, 0, sizeof(mockPWR));
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
@@ -521,6 +527,8 @@ void test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags(void) {
 }
 
 void test_ReadButtonPin_UsesConfiguredButtonPin(void) {
+    mockButtonPinState = GPIO_PIN_RESET;
+
     TEST_ASSERT_EQUAL_UINT8(0, readButtonPin());
     TEST_ASSERT_EQUAL_PTR(button_GPIO_Port, lastGpioReadPort);
     TEST_ASSERT_EQUAL_UINT16(button_Pin, lastGpioReadPin);
@@ -540,10 +548,15 @@ void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
 
     enterStopModeWithRtcAlarm(60);
 
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    TEST_ASSERT_EQUAL_UINT32(0, wakeUpPinDisableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, wakeUpPinEnableCallCount);
+#else
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinDisableCallCount);
     TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN_MASK, lastWakeUpPinDisable);
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinEnableCallCount);
     TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN, lastWakeUpPinEnable);
+#endif
     TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF | PWR_FLAG_SB, mockPWR.SCR);
     TEST_ASSERT_EQUAL_UINT32(1, rtcSetAlarmCallCount);
     TEST_ASSERT_EQUAL_UINT8(1, lastRtcAlarm.AlarmTime.Hours);
@@ -557,6 +570,10 @@ void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
 }
 
 void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_SET;
+#endif
+
     bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
 
     TEST_ASSERT_FALSE(wokeFromButton);
@@ -564,7 +581,11 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
 }
 
 void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_RESET;
+#else
     mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
+#endif
 
     bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
 
@@ -573,6 +594,13 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
 }
 
 void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_RESET;
+    TEST_ASSERT_TRUE(wasWakeFromButton());
+
+    mockButtonPinState = GPIO_PIN_SET;
+    TEST_ASSERT_FALSE(wasWakeFromButton());
+#else
     mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
 
     TEST_ASSERT_TRUE(wasWakeFromButton());
@@ -580,6 +608,7 @@ void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
 
     mockPWR.SR1 = 0;
     TEST_ASSERT_FALSE(wasWakeFromButton());
+#endif
 }
 
 int main(void) {

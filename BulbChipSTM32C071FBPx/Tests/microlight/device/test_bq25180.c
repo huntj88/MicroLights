@@ -105,8 +105,7 @@ void test_Bq25180Init_Configures160SecondHardwareResetWatchdog(void) {
         &freshCharger, mock_readRegisters, mock_writeRegister, 0x6A, mock_writeToSerial, &mockLed);
 
     TEST_ASSERT_EQUAL_UINT8(
-        BQ25180_WATCHDOG_160S_HW_RESET,
-        mockRegisters[BQ25180_IC_CTRL] & BQ25180_WATCHDOG_SEL_MASK);
+        BQ25180_WATCHDOG_160S_HW_RESET, mockRegisters[BQ25180_IC_CTRL] & BQ25180_WATCHDOG_SEL_MASK);
 }
 
 void test_DisableWatchdog_DisablesHostWatchdog(void) {
@@ -114,7 +113,8 @@ void test_DisableWatchdog_DisablesHostWatchdog(void) {
 
     TEST_ASSERT_TRUE(writeCalled);
     TEST_ASSERT_EQUAL_UINT8(BQ25180_IC_CTRL, lastWrittenReg);
-    TEST_ASSERT_EQUAL_UINT8(BQ25180_WATCHDOG_DISABLED, lastWrittenValue & BQ25180_WATCHDOG_SEL_MASK);
+    TEST_ASSERT_EQUAL_UINT8(
+        BQ25180_WATCHDOG_DISABLED, lastWrittenValue & BQ25180_WATCHDOG_SEL_MASK);
 }
 
 void test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled(void) {

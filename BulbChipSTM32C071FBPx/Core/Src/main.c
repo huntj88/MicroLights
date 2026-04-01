@@ -601,6 +601,14 @@ static void MX_GPIO_Init(void) {
     HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    // Legacy boards have the button on PA7, new boards have the button on PA4. WKUP2 only available
+    // on PA4. Bias PA4 high so the fixed wakeup pad is not left floating on legacy.
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#endif
     /* USER CODE END MX_GPIO_Init_2 */
 }
 
