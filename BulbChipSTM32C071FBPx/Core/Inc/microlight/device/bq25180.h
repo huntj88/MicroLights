@@ -46,6 +46,10 @@
 #define TS_CONTROL_DEFAULT 0b00000000   // Default value for TS_CONTROL register (Offset = 0xB)
 #define MASK_ID_DEFAULT 0b11000000      // Default value for MASK_ID register (Offset = 0xC)
 
+#define BQ25180_WATCHDOG_SEL_MASK 0b00000011
+#define BQ25180_WATCHDOG_160S_HW_RESET 0b00000001
+#define BQ25180_WATCHDOG_DISABLED 0b00000011
+
 enum ChargeState { notConnected, notCharging, constantCurrent, constantVoltage, done };
 
 typedef struct BQ25180 {
@@ -92,6 +96,7 @@ bool bq25180Init(
     RGBLed *caseLed);
 
 void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags flags);
+void disableWatchdog(BQ25180 *chargerIC);
 void lock(BQ25180 *chargerIC);
 enum ChargeState getChargingState(BQ25180 *chargerIC, uint32_t milliseconds);
 

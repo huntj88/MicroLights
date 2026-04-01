@@ -46,6 +46,7 @@ static uint16_t lastLockThresholdMinutes = 0;
 static bool mockWakeFromButton = false;
 static bool mockSystemResetCalled = false;
 static uint32_t mc3479DisableCallCount = 0;
+static uint32_t disableWatchdogCallCount = 0;
 
 // Mock Function Implementations
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
@@ -111,6 +112,11 @@ void rgbShowSuccess(RGBLed *led) {
 bool mockLockCalled = false;
 void lock(BQ25180 *dev) {
     mockLockCalled = true;
+}
+
+void disableWatchdog(BQ25180 *dev) {
+    (void)dev;
+    disableWatchdogCallCount++;
 }
 
 void rgbTransientTask(RGBLed *led, uint32_t ms) {
@@ -224,6 +230,7 @@ void setUp(void) {
     mockWakeFromButton = false;
     mockSystemResetCalled = false;
     mc3479DisableCallCount = 0;
+    disableWatchdogCallCount = 0;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
         .caseValid = false,
@@ -315,6 +322,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging(void) {
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
     TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(void) {
@@ -334,6 +342,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(voi
     TEST_ASSERT_FALSE(mockSystemResetCalled);
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
     TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower(void) {
@@ -371,6 +380,7 @@ void test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode(void) {
 
     TEST_ASSERT_TRUE(mockLockCalled);
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging(void) {
@@ -386,6 +396,7 @@ void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging(void) {
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
     TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
 }
 
 void test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging(void) {
@@ -500,6 +511,7 @@ void test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled(void) {
     TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
     TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode(void) {
@@ -516,6 +528,7 @@ void test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode(void) {
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
     TEST_ASSERT_FALSE(autoOffTimerEnabled);
     TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {

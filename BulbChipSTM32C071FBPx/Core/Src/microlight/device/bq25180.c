@@ -14,7 +14,7 @@
 static void readAllRegistersJson(BQ25180 *chargerIC, char jsonOutput[], uint32_t len);
 static BQ25180Registers readAllRegisters(BQ25180 *chargerIC);
 static void configureChargerIC(BQ25180 *chargerIC);
-static void configureRegister_IC_CTRL(BQ25180 *chargerIC);
+static void configureRegister_IC_CTRL(BQ25180 *chargerIC, uint8_t watchdogConfig);
 static void configureRegister_ICHG_CTRL(BQ25180 *chargerIC);
 static void configureRegister_VBAT_CTRL(BQ25180 *chargerIC);
 static void configureRegister_CHARGECTRL1(BQ25180 *chargerIC);
@@ -66,8 +66,8 @@ void chargerTask(BQ25180 *chargerIC, uint32_t milliseconds, ChargerTaskFlags fla
         elapsedMillis = milliseconds - chargerIC->registersReadAtMs;
     }
 
-    // charger i2c watchdog timer will reset if not communicated
-    // with for 40 seconds, and 15 seconds after plugged in.
+    // Refresh the charger state well before the 160 s host watchdog can expire.
+    // A separate VIN watchdog path is configured in SYS_REG.
     if (elapsedMillis > 30000 || chargerIC->registersReadAtMs == 0) {
         if (flags.serialEnabled) {
             char registerJson[BQ25180_JSON_BUFFER_SIZE];
@@ -178,7 +178,7 @@ static void showChargingState(BQ25180 *chargerIC, enum ChargeState state) {
 // =================================================================================================
 
 static void configureChargerIC(BQ25180 *chargerIC) {
-    configureRegister_IC_CTRL(chargerIC);
+    configureRegister_IC_CTRL(chargerIC, BQ25180_WATCHDOG_160S_HW_RESET);
     configureRegister_ICHG_CTRL(chargerIC);
     configureRegister_VBAT_CTRL(chargerIC);
     configureRegister_CHARGECTRL1(chargerIC);
@@ -186,10 +186,14 @@ static void configureChargerIC(BQ25180 *chargerIC) {
     configureRegister_MASK_ID(chargerIC);
 }
 
-static void configureRegister_IC_CTRL(BQ25180 *chargerIC) {
+static void configureRegister_IC_CTRL(BQ25180 *chargerIC, uint8_t watchdogConfig) {
     uint8_t newConfig = IC_CTRL_DEFAULT;
     uint8_t tsEnabledMask = 0b10000000;
+
     newConfig &= ~tsEnabledMask;  // disable ts current changes (no thermistor on my project?)
+    newConfig &= (uint8_t)~BQ25180_WATCHDOG_SEL_MASK;
+    newConfig |= watchdogConfig;
+
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_IC_CTRL, newConfig);
 }
 
@@ -373,4 +377,10 @@ static void enableShipMode(BQ25180 *chargerIC) {
 
 static void hardwareReset(BQ25180 *chargerIC) {
     chargerIC->writeRegister(chargerIC->devAddress, BQ25180_SHIP_RST, 0b01100001);
+}
+
+void disableWatchdog(BQ25180 *chargerIC) {
+    // Disable the host watchdog before long Stop/Standby intervals so the charger
+    // does not reset its register state while the MCU is intentionally asleep.
+    configureRegister_IC_CTRL(chargerIC, BQ25180_WATCHDOG_DISABLED);
 }

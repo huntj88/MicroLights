@@ -80,9 +80,13 @@ void rgbShowSuccess(RGBLed *led) {
 }
 void lock(BQ25180 *dev) {
 }
+void disableWatchdog(BQ25180 *dev) {
+}
 void rgbTransientTask(RGBLed *led, uint32_t ms) {
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
+}
+void mc3479Disable(MC3479 *dev) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
 }

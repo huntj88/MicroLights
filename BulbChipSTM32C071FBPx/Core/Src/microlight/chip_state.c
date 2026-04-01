@@ -102,6 +102,10 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
 static void prepareForLowPowerShutdown(ChipState *state) {
     state->deps.enableAutoOffTimer(false);
 
+    // The BQ25180 host watchdog must be disabled before long MCU sleep intervals,
+    // or it can reset charger state while we are intentionally in Stop/Standby.
+    // Will be re initialized when the system wakes up
+    disableWatchdog(state->deps.chargerIC);
     mc3479Disable(state->deps.accel);
 
     if (state->lastChipTickEnabled) {
