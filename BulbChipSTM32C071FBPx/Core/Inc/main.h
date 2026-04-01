@@ -82,6 +82,11 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN Private defines */
 
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+#undef button_Pin
+#define button_Pin GPIO_PIN_7
+#endif
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

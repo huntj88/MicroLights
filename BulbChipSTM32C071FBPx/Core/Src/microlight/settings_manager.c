@@ -6,6 +6,7 @@
  */
 
 #include "microlight/settings_manager.h"
+#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -39,6 +40,9 @@ static void loadSettingsFromFlash(SettingsManager *manager, char *buffer, CliInp
 }
 
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    assert(newSettings->shutdownPolicy == autoOffAndAutoLock);
+#endif
     manager->currentSettings = *newSettings;
 }
 

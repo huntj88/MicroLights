@@ -121,6 +121,10 @@ if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mcu_dependencies
 gcc $CFLAGS Tests/test_mcu_dependencies.c $UNITY_SRC -o Tests/build/test_mcu_dependencies
 run_test ./Tests/build/test_mcu_dependencies
 
+if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_mcu_dependencies_legacy_button..."; fi
+gcc $CFLAGS -DMICROLIGHT_LEGACY_PCB_BUTTON_PA7 Tests/test_mcu_dependencies.c $UNITY_SRC -o Tests/build/test_mcu_dependencies_legacy_button
+run_test ./Tests/build/test_mcu_dependencies_legacy_button
+
 if [ "$SHOW_ALL" -eq 1 ]; then echo "Compiling and running test_usb_manager..."; fi
 gcc $CFLAGS Tests/microlight/test_usb_manager.c $UNITY_SRC $LWJSON_SRC Core/Src/microlight/json/command_parser.c Core/Src/microlight/json/mode_parser.c Core/Src/microlight/json/parser.c Core/Src/microlight/model/cli_model.c Core/Src/microlight/json/json_buf.c Core/Src/microlight/usb_manager.c -lm -o Tests/build/test_usb_manager
 run_test ./Tests/build/test_usb_manager

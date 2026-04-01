@@ -44,6 +44,14 @@ static uint32_t systemClockConfigCallCount = 0;
 static uint32_t autoOffTimerStartCallCount = 0;
 static uint32_t autoOffTimerStopCallCount = 0;
 static uint32_t errorHandlerCallCount = 0;
+static GPIO_TypeDef *lastGpioReadPort = NULL;
+static uint16_t lastGpioReadPin = 0;
+
+#define PWR_FLAG_REGISTER_SELECTOR_MASK 0x00030000u
+
+static uint32_t pwrStatusBits(uint32_t flag) {
+    return flag & ~PWR_FLAG_REGISTER_SELECTOR_MASK;
+}
 
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
@@ -83,6 +91,8 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(
     return HAL_OK;
 }
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
+    lastGpioReadPort = GPIOx;
+    lastGpioReadPin = GPIO_Pin;
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
@@ -263,6 +273,8 @@ void setUp(void) {
     autoOffTimerStartCallCount = 0;
     autoOffTimerStopCallCount = 0;
     errorHandlerCallCount = 0;
+    lastGpioReadPort = NULL;
+    lastGpioReadPin = 0;
     memset(&mockPWR, 0, sizeof(mockPWR));
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
@@ -501,11 +513,17 @@ void test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags(void) {
     enterStandbyMode();
 
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinDisableCallCount);
-    TEST_ASSERT_EQUAL_UINT32(PWR_WAKEUP_PIN2, lastWakeUpPinDisable);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN_MASK, lastWakeUpPinDisable);
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinEnableCallCount);
-    TEST_ASSERT_EQUAL_UINT32(PWR_WAKEUP_PIN2_LOW, lastWakeUpPinEnable);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN, lastWakeUpPinEnable);
     TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF | PWR_FLAG_SB, mockPWR.SCR);
     TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
+}
+
+void test_ReadButtonPin_UsesConfiguredButtonPin(void) {
+    TEST_ASSERT_EQUAL_UINT8(0, readButtonPin());
+    TEST_ASSERT_EQUAL_PTR(button_GPIO_Port, lastGpioReadPort);
+    TEST_ASSERT_EQUAL_UINT16(button_Pin, lastGpioReadPin);
 }
 
 void test_EnableAutoOffTimer_UsesTim17(void) {
@@ -523,9 +541,9 @@ void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
     enterStopModeWithRtcAlarm(60);
 
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinDisableCallCount);
-    TEST_ASSERT_EQUAL_UINT32(PWR_WAKEUP_PIN2, lastWakeUpPinDisable);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN_MASK, lastWakeUpPinDisable);
     TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinEnableCallCount);
-    TEST_ASSERT_EQUAL_UINT32(PWR_WAKEUP_PIN2_LOW, lastWakeUpPinEnable);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN, lastWakeUpPinEnable);
     TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF | PWR_FLAG_SB, mockPWR.SCR);
     TEST_ASSERT_EQUAL_UINT32(1, rtcSetAlarmCallCount);
     TEST_ASSERT_EQUAL_UINT8(1, lastRtcAlarm.AlarmTime.Hours);
@@ -546,7 +564,7 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
 }
 
 void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
-    mockPWR.SR1 = PWR_SR1_WUF2;
+    mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
 
     bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
 
@@ -555,10 +573,10 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
 }
 
 void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
-    mockPWR.SR1 = PWR_SR1_WUF2;
+    mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
 
     TEST_ASSERT_TRUE(wasWakeFromButton());
-    TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF2, mockPWR.SCR);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_FLAG, mockPWR.SCR);
 
     mockPWR.SR1 = 0;
     TEST_ASSERT_FALSE(wasWakeFromButton());
@@ -574,6 +592,7 @@ int main(void) {
     RUN_TEST(test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags);
     RUN_TEST(test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock);
     RUN_TEST(test_FrontBluePin_ReconfiguresBetweenGpioAndPwm);
+    RUN_TEST(test_ReadButtonPin_UsesConfiguredButtonPin);
     RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout);
     RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake);
     RUN_TEST(test_WasWakeFromButton_ReturnsTrueAndClearsFlag);

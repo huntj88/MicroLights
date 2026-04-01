@@ -131,6 +131,15 @@ void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
     TEST_ASSERT_EQUAL_STRING("shutdownPolicy", cliInput.errorContext.path);
 }
 
+void test_ParseJson_WriteSettings_AcceptsAutoOffAndAutoLockShutdownPolicy(void) {
+    char *json = "{\"command\":\"writeSettings\",\"shutdownPolicy\":2}";
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseWriteSettings, cliInput.parsedType);
+    TEST_ASSERT_EQUAL_UINT8(2, cliInput.settings.shutdownPolicy);
+}
+
 void test_ParseJson_Dfu_SetsDfuAction(void) {
     char *json = "{\"command\":\"dfu\"}";
 
@@ -153,6 +162,7 @@ int main(void) {
     RUN_TEST(test_ParseJson_InvalidJson_DoesNotCrash);
     RUN_TEST(test_ParseJson_ReadMode_SetsReadAction);
     RUN_TEST(test_ParseJson_WriteMode_ParsesIndexAndData);
+    RUN_TEST(test_ParseJson_WriteSettings_AcceptsAutoOffAndAutoLockShutdownPolicy);
     RUN_TEST(test_ParseJson_WriteSettings_ParsesBooleanValues);
     RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsIntegerForBoolean);

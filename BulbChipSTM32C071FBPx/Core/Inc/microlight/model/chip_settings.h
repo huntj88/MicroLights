@@ -26,6 +26,12 @@ enum ShutdownPolicy {
 #define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
     false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
 
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+_Static_assert(
+    DEFAULT_SHUTDOWN_POLICY == autoOffAndAutoLock,
+    "Legacy PA7 button build requires default shutdownPolicy = 2 (autoOffAndAutoLock)");
+#endif
+
 // X-Macro to define settings: X(type, name, default_value)
 #define CHIP_SETTINGS_MAP(X)                                                            \
     X(uint8_t, modeCount, DEFAULT_MODE_COUNT)                                           \

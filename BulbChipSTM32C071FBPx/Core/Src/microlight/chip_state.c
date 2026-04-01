@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #include "microlight/chip_state.h"
 #include "microlight/json/command_parser.h"
@@ -28,6 +29,7 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
         !deps.log) {
         return false;
     }
+
     state->deps = deps;
     state->ticksSinceLastUserActivity = 0;
     state->lastChipTickEnabled = false;
