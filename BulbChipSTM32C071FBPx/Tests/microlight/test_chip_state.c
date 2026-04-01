@@ -497,6 +497,41 @@ void test_AutoOffTimer_DoesNothing_WhenManualShutdownOnly(void) {
     TEST_ASSERT_FALSE(mockLockCalled);
 }
 
+void test_AutoOffTimer_DoesNothing_WhenCharging(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockChargeState = constantCurrent;
+    state.ticksSinceLastUserActivity = 7;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_FALSE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
+    TEST_ASSERT_EQUAL_UINT32(7, state.ticksSinceLastUserActivity);
+}
+
+void test_AutoOffTimer_DoesNothing_WhenFakeOff(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockChargeState = notConnected;
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;
+    state.ticksSinceLastUserActivity = 7;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_FALSE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
+    TEST_ASSERT_EQUAL_UINT32(7, state.ticksSinceLastUserActivity);
+}
+
 void test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled(void) {
     configureChipState(&state, mockDeps);
 
@@ -741,6 +776,8 @@ void test_TimerPolicy_FrontBulbType_DisablesFrontTimer(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode);
+    RUN_TEST(test_AutoOffTimer_DoesNothing_WhenCharging);
+    RUN_TEST(test_AutoOffTimer_DoesNothing_WhenFakeOff);
     RUN_TEST(test_AutoOffTimer_DoesNothing_WhenManualShutdownOnly);
     RUN_TEST(test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled);
     RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);
