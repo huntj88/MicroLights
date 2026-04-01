@@ -42,7 +42,8 @@ typedef struct {
     void (*enableAutoOffTimer)(bool enable);
     void (*enableUsbClock)(bool enable);
     void (*enterStandbyMode)(void);
-    bool (*waitForButtonWakeOrAutoLock)(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes);
+    bool (*waitForButtonWakeOrAutoLock)(
+        uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes);
     void (*systemReset)(void);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);

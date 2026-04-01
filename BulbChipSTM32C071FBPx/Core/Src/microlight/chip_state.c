@@ -24,8 +24,8 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
         !deps.enableFrontLedTimer || !deps.enableAutoOffTimer || !deps.enableUsbClock ||
-        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock ||
-        !deps.systemReset || !deps.log) {
+        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock || !deps.systemReset ||
+        !deps.log) {
         return false;
     }
     state->deps = deps;

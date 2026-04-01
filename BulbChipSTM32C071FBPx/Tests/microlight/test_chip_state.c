@@ -165,8 +165,7 @@ bool mock_wasWakeFromButton(void) {
     return didWakeFromButton;
 }
 
-bool mock_waitForButtonWakeOrAutoLock(
-    uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
+bool mock_waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
     uint32_t elapsedSeconds = 0;
     uint32_t lockThresholdSeconds = (uint32_t)lockThresholdMinutes * 60U;
 
