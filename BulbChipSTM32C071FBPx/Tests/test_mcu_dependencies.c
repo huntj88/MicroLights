@@ -574,10 +574,15 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
     mockButtonPinState = GPIO_PIN_SET;
 #endif
 
-    bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(2);
 
     TEST_ASSERT_FALSE(wokeFromButton);
-    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(
+        120,
+        lastRtcAlarm.AlarmTime.Hours * 3600U + lastRtcAlarm.AlarmTime.Minutes * 60U +
+            lastRtcAlarm.AlarmTime.Seconds -
+            (mockRtcTime.Hours * 3600U + mockRtcTime.Minutes * 60U + mockRtcTime.Seconds));
 }
 
 void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
@@ -587,7 +592,7 @@ void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
     mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
 #endif
 
-    bool wokeFromButton = waitForButtonWakeOrAutoLock(60, 2);
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(2);
 
     TEST_ASSERT_TRUE(wokeFromButton);
     TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);

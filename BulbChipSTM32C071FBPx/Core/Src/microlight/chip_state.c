@@ -88,7 +88,7 @@ static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
             return;
         }
 
-        bool wokeFromButton = state->deps.waitForButtonWakeOrAutoLock(60U, lockThresholdMinutes);
+        bool wokeFromButton = state->deps.waitForButtonWakeOrAutoLock(lockThresholdMinutes);
         if (wokeFromButton) {
             state->deps.systemReset();
             return;

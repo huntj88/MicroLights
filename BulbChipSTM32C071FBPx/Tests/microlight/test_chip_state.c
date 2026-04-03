@@ -171,23 +171,13 @@ bool mock_wasWakeFromButton(void) {
     return didWakeFromButton;
 }
 
-bool mock_waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
-    uint32_t elapsedSeconds = 0;
-    uint32_t lockThresholdSeconds = (uint32_t)lockThresholdMinutes * 60U;
+bool mock_waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
+    uint16_t lockThresholdSeconds = (uint16_t)lockThresholdMinutes * 60U;
 
     lastLockThresholdMinutes = lockThresholdMinutes;
 
-    while (true) {
-        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
-        if (mock_wasWakeFromButton()) {
-            return true;
-        }
-
-        elapsedSeconds += wakeIntervalSeconds;
-        if (elapsedSeconds >= lockThresholdSeconds) {
-            return false;
-        }
-    }
+    enterStopModeWithRtcAlarm(lockThresholdSeconds);
+    return mock_wasWakeFromButton();
 }
 
 void mock_systemReset(void) {
@@ -335,8 +325,8 @@ void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(voi
 
     stateTask(&state, 0, (StateTaskFlags){0});
 
-    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
-    TEST_ASSERT_EQUAL_UINT16(60, lastStopWakeIntervalSeconds);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT16(120, lastStopWakeIntervalSeconds);
     TEST_ASSERT_EQUAL_UINT16(2, lastLockThresholdMinutes);
     TEST_ASSERT_TRUE(mockLockCalled);
     TEST_ASSERT_FALSE(mockSystemResetCalled);
@@ -579,7 +569,7 @@ void test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode(void) {
 
     TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
     TEST_ASSERT_FALSE(autoOffTimerEnabled);
-    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
     TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
@@ -661,7 +651,7 @@ void test_Settings_MinutesUntilLockAfterAutoOff_ChangesStopLockTimeout(void) {
     stateTask(&state, 0, (StateTaskFlags){0});
 
     TEST_ASSERT_TRUE(mockLockCalled);
-    TEST_ASSERT_EQUAL_UINT32(2, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
 }
 
 void test_StateTask_StopMode_ButtonWake_ResetsSystem(void) {

@@ -335,22 +335,11 @@ static bool wasWakeFromButton(void) {
 #endif
 }
 
-bool waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
-    uint32_t elapsedSeconds = 0;
-    uint32_t lockThresholdSeconds = (uint32_t)lockThresholdMinutes * 60U;
+bool waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
+    uint16_t lockThresholdSeconds = (uint16_t)lockThresholdMinutes * 60U;
 
-    while (true) {
-        enterStopModeWithRtcAlarm(wakeIntervalSeconds);
-
-        if (wasWakeFromButton()) {
-            return true;
-        }
-
-        elapsedSeconds += wakeIntervalSeconds;
-        if (elapsedSeconds >= lockThresholdSeconds) {
-            return false;
-        }
-    }
+    enterStopModeWithRtcAlarm(lockThresholdSeconds);
+    return wasWakeFromButton();
 }
 
 static uint32_t calculateTickMultiplier(void) {

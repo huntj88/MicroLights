@@ -115,8 +115,7 @@ void enterStandbyMode(void) {
 void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
     (void)wakeIntervalSeconds;
 }
-bool mock_waitForButtonWakeOrAutoLock(uint16_t wakeIntervalSeconds, uint16_t lockThresholdMinutes) {
-    (void)wakeIntervalSeconds;
+bool mock_waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
     (void)lockThresholdMinutes;
     return false;
 }
