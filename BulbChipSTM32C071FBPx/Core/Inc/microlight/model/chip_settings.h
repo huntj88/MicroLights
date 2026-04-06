@@ -11,10 +11,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define SHUTDOWN_POLICY_MAP(X)                            \
+    X(manualShutdownOnly, 0, "Manual shutdown only")      \
+    X(autoOffNoAutoLock, 1, "Auto off without auto lock") \
+    X(autoOffAndAutoLock, 2, "Auto off and auto lock")
+
 enum ShutdownPolicy {
-    manualShutdownOnly = 0,
-    autoOffNoAutoLock = 1,
-    autoOffAndAutoLock = 2,
+#define X_ENUM(name, value, label) name = value,
+    SHUTDOWN_POLICY_MAP(X_ENUM)
+#undef X_ENUM
 };
 
 #define DEFAULT_MODE_COUNT 0

@@ -13,7 +13,8 @@
 #include "model/cli_model.h"
 #include "model/storage.h"
 
-#define SETTINGS_DEFAULTS_JSON_SIZE 192  // unit test ensures we update this if the size changes
+#define SETTINGS_DEFAULTS_JSON_SIZE 192
+#define SETTINGS_METADATA_JSON_SIZE 320
 
 typedef struct SettingsManager {
     ChipSettings currentSettings;
@@ -24,6 +25,7 @@ bool settingsManagerInit(
     SettingsManager *manager, void (*readSavedSettings)(char buffer[], size_t length));
 void updateSettings(SettingsManager *manager, ChipSettings *newSettings);
 int getSettingsDefaultsJson(char *buffer, size_t len);
+int getSettingsMetadataJson(char *buffer, size_t len);
 int getSettingsResponse(SettingsManager *manager, char *buffer, size_t len);
 
 #endif /* INC_SETTINGS_MANAGER_H_ */
