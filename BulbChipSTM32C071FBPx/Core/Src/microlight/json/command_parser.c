@@ -42,6 +42,10 @@ static bool parseUint8Setting(
         return true;
     }
 
+    if (token->type != LWJSON_TYPE_NUM_INT) {
+        return setParserError(ctx, PARSER_ERR_INVALID_VARIANT, path);
+    }
+
     if (token->u.num_int < 0) {
         return setParserError(ctx, PARSER_ERR_VALUE_TOO_SMALL, path);
     }

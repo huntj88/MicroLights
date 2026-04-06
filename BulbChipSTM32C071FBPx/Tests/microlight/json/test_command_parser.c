@@ -78,6 +78,32 @@ void test_ParseJson_WriteSettings_RejectsIntegerForBoolean(void) {
     TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
 }
 
+void test_ParseJson_WriteSettings_RejectsNonIntegerForUint8Setting(void) {
+    char *jsonString = "{\"command\":\"writeSettings\",\"modeCount\":\"7\"}";
+
+    parseJson((uint8_t *)jsonString, strlen(jsonString) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+
+    char *jsonBool = "{\"command\":\"writeSettings\",\"modeCount\":true}";
+
+    parseJson((uint8_t *)jsonBool, strlen(jsonBool) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+
+    char *jsonFloat = "{\"command\":\"writeSettings\",\"modeCount\":1.5}";
+
+    parseJson((uint8_t *)jsonFloat, strlen(jsonFloat) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+}
+
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":7,\"minutesUntilAutoOff\":20,"
@@ -167,5 +193,6 @@ int main(void) {
     RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsIntegerForBoolean);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsInvalidValues);
+    RUN_TEST(test_ParseJson_WriteSettings_RejectsNonIntegerForUint8Setting);
     return UNITY_END();
 }
