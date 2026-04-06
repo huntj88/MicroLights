@@ -6,6 +6,7 @@
  */
 
 #include "microlight/usb_manager.h"
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "microlight/chip_state.h"
@@ -80,6 +81,9 @@ static void handleJson(USBManager *usbManager, char buffer[], size_t length) {
         }
         case parseWriteSettings: {
             ChipSettings settings = cliInput.settings;
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+            assert(settings.shutdownPolicy == autoOffAndAutoLock);
+#endif
             usbManager->saveSettings(buffer, length);
             updateSettings(usbManager->settingsManager, &settings);
             break;
