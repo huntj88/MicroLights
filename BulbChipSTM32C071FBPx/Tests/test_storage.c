@@ -22,10 +22,13 @@ TIM_TypeDef mockTIM3;
 RCC_TypeDef mockRCC = {.CR = RCC_CR_HSIUSB48RDY};
 CRS_TypeDef mockCRS;
 I2C_HandleTypeDef hi2c1;
+RTC_HandleTypeDef hrtc;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim17;
+PWR_TypeDef mockPWR;
+uint16_t mockLastExtiClearedLine;
 
 HAL_StatusTypeDef HAL_I2C_Mem_Read(
     I2C_HandleTypeDef *hi2c,
@@ -74,6 +77,70 @@ uint32_t HAL_RCC_GetPCLK1Freq(void) {
 }
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
     return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_GetTime(
+    RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
+    (void)hrtc;
+    (void)Format;
+    memset(sTime, 0, sizeof(*sTime));
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_GetDate(
+    const RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format) {
+    (void)hrtc;
+    (void)Format;
+    memset(sDate, 0, sizeof(*sDate));
+    sDate->Date = 1;
+    sDate->Month = 1;
+    sDate->WeekDay = 1;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(
+    RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format) {
+    (void)hrtc;
+    (void)sAlarm;
+    (void)Format;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alarm) {
+    (void)hrtc;
+    (void)Alarm;
+    return HAL_OK;
+}
+void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinPolarity) {
+    (void)WakeUpPinPolarity;
+}
+void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx) {
+    (void)WakeUpPinx;
+}
+HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+void HAL_PWREx_EnablePullUpPullDownConfig(void) {
+}
+void HAL_PWREx_DisablePullUpPullDownConfig(void) {
+}
+void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry) {
+    (void)Regulator;
+    (void)STOPEntry;
+}
+void HAL_PWR_EnterSTANDBYMode(void) {
+}
+void SystemClock_Config(void) {
+}
+void Error_Handler(void) {
 }
 
 // TinyUSB stubs

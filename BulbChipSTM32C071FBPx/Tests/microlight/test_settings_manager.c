@@ -61,6 +61,9 @@ void mock_enableCaseLedTimer(bool enable) {
 void mock_enableFrontLedTimer(bool enable) {
 }
 
+void mock_enableAutoOffTimer(bool enable) {
+}
+
 void mock_enableUsbClock(bool enable) {
 }
 
@@ -77,9 +80,13 @@ void rgbShowSuccess(RGBLed *led) {
 }
 void lock(BQ25180 *dev) {
 }
+void disableWatchdog(BQ25180 *dev) {
+}
 void rgbTransientTask(RGBLed *led, uint32_t ms) {
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
+}
+void mc3479Disable(MC3479 *dev) {
 }
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
 }
@@ -102,6 +109,17 @@ bool isEvaluatingButtonPress(Button *button) {
     return false;
 }
 void fakeOffMode(ModeManager *manager) {
+}
+void enterStandbyMode(void) {
+}
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
+    (void)wakeIntervalSeconds;
+}
+bool mock_waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
+    (void)lockThresholdMinutes;
+    return false;
+}
+void mock_systemReset(void) {
 }
 
 // Include source files under test
@@ -144,7 +162,11 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
             .enableChipTickTimer = mock_enableChipTickTimer,
             .enableCaseLedTimer = mock_enableCaseLedTimer,
             .enableFrontLedTimer = mock_enableFrontLedTimer,
+            .enableAutoOffTimer = mock_enableAutoOffTimer,
             .enableUsbClock = mock_enableUsbClock,
+            .enterStandbyMode = enterStandbyMode,
+            .waitForButtonWakeOrAutoLock = mock_waitForButtonWakeOrAutoLock,
+            .systemReset = mock_systemReset,
             .log = mock_writeUsbSerial,
         });
 
@@ -158,6 +180,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     newSettings.minutesUntilAutoOff = 20;
     newSettings.minutesUntilLockAfterAutoOff = 5;
     newSettings.equationEvalIntervalMs = 50;
+    newSettings.shutdownPolicy = autoOffNoAutoLock;
 
     // 5. Call updateSettings
     updateSettings(&settingsManager, &newSettings);
@@ -166,6 +189,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     TEST_ASSERT_EQUAL_UINT8(10, state.deps.settings->modeCount);
     TEST_ASSERT_EQUAL_UINT16(20, state.deps.settings->minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, state.deps.settings->equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(autoOffNoAutoLock, state.deps.settings->shutdownPolicy);
 }
 
 void test_SettingsManagerInit_SetsDefaults(void) {
@@ -182,6 +206,8 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(90, settingsManager.currentSettings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(10, settingsManager.currentSettings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(
+        DEFAULT_SHUTDOWN_POLICY, settingsManager.currentSettings.shutdownPolicy);
 }
 
 void mock_readSavedSettings_Matching(char buffer[], size_t length) {
@@ -216,6 +242,7 @@ void test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing(void) {
     cliInput.parsedType = parseWriteSettings;
     cliInput.settings.modeCount = 5;
     cliInput.settings.equationEvalIntervalMs = 20;  // Default
+    cliInput.settings.shutdownPolicy = autoOffAndAutoLock;
 
     settingsManagerInit(&settingsManager, mock_readSavedSettings_OldVersion);
 
@@ -256,6 +283,52 @@ void test_SettingsJson_KeysMatchMacroCount(void) {
     lwjson_free(&lwjson);
 }
 
+void test_SettingsMetadataJson_ContainsShutdownPolicyOptions(void) {
+    char buf[SETTINGS_METADATA_JSON_SIZE];
+
+    getSettingsMetadataJson(buf, sizeof(buf));
+
+    lwjson_token_t tokens[128];
+    lwjson_t lwjson;
+    lwjson_init(&lwjson, tokens, LWJSON_ARRAYSIZE(tokens));
+    TEST_ASSERT_EQUAL(lwjsonOK, lwjson_parse(&lwjson, buf));
+
+    const lwjson_token_t *shutdownPolicyToken = lwjson_find(&lwjson, "shutdownPolicy");
+    TEST_ASSERT_NOT_NULL(shutdownPolicyToken);
+
+    const lwjson_token_t *typeToken = lwjson_find(&lwjson, "shutdownPolicy.type");
+    TEST_ASSERT_NOT_NULL(typeToken);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_STRING, typeToken->type);
+    TEST_ASSERT_EQUAL_size_t(strlen("enum"), typeToken->u.str.token_value_len);
+    TEST_ASSERT_EQUAL_STRING_LEN(
+        "enum", typeToken->u.str.token_value, typeToken->u.str.token_value_len);
+
+    const lwjson_token_t *optionsToken = lwjson_find(&lwjson, "shutdownPolicy.options");
+    TEST_ASSERT_NOT_NULL(optionsToken);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_OBJECT, optionsToken->type);
+
+    int optionCount = 0;
+    for (const lwjson_token_t *child = optionsToken->u.first_child; child != NULL;
+         child = child->next) {
+        optionCount++;
+    }
+
+    int macroCount = 0;
+#define X_COUNT(name, value, label) macroCount++;
+    SHUTDOWN_POLICY_MAP(X_COUNT)
+#undef X_COUNT
+
+    TEST_ASSERT_EQUAL(macroCount, optionCount);
+
+    const lwjson_token_t *autoOffToken =
+        lwjson_find(&lwjson, "shutdownPolicy.options.autoOffNoAutoLock");
+    TEST_ASSERT_NOT_NULL(autoOffToken);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_NUM_INT, autoOffToken->type);
+    TEST_ASSERT_EQUAL_INT(autoOffNoAutoLock, autoOffToken->u.num_int);
+
+    lwjson_free(&lwjson);
+}
+
 void test_generateSettingsResponse_WithSettings(void) {
     SettingsManager settingsManager;
     memset(&settingsManager, 0, sizeof(SettingsManager));
@@ -271,13 +344,17 @@ void test_generateSettingsResponse_WithSettings(void) {
     // 1. Verify full string content
     char defaultsBuf[256];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+    char metadataBuf[SETTINGS_METADATA_JSON_SIZE];
+    getSettingsMetadataJson(metadataBuf, sizeof(metadataBuf));
 
     char expected[1024];
     // The mock writes valid settings, so we expect them in the output
     sprintf(
         expected,
-        "{\"settings\":{\"modeCount\":0,\"equationEvalIntervalMs\":20},\"defaults\":%s}\n",
-        defaultsBuf);
+        "{\"settings\":{\"modeCount\":0,\"equationEvalIntervalMs\":20},\"defaults\":%s,"
+        "\"metadata\":%s}\n",
+        defaultsBuf,
+        metadataBuf);
 
     TEST_ASSERT_EQUAL_STRING(expected, buffer);
 
@@ -296,6 +373,9 @@ void test_generateSettingsResponse_WithSettings(void) {
     t = lwjson_find(&lwjson, "defaults");
     TEST_ASSERT_NOT_NULL(t);
 
+    t = lwjson_find(&lwjson, "metadata");
+    TEST_ASSERT_NOT_NULL(t);
+
     lwjson_free(&lwjson);
 }
 
@@ -311,9 +391,15 @@ void test_generateSettingsResponse_NullSettings(void) {
     // 1. Verify full string content
     char defaultsBuf[256];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+    char metadataBuf[SETTINGS_METADATA_JSON_SIZE];
+    getSettingsMetadataJson(metadataBuf, sizeof(metadataBuf));
 
     char expected[1024];
-    sprintf(expected, "{\"settings\":null,\"defaults\":%s}\n", defaultsBuf);
+    sprintf(
+        expected,
+        "{\"settings\":null,\"defaults\":%s,\"metadata\":%s}\n",
+        defaultsBuf,
+        metadataBuf);
 
     TEST_ASSERT_EQUAL_STRING(expected, buffer);
 
@@ -329,6 +415,9 @@ void test_generateSettingsResponse_NullSettings(void) {
     TEST_ASSERT_EQUAL(LWJSON_TYPE_NULL, t->type);
 
     t = lwjson_find(&lwjson, "defaults");
+    TEST_ASSERT_NOT_NULL(t);
+
+    t = lwjson_find(&lwjson, "metadata");
     TEST_ASSERT_NOT_NULL(t);
 
     lwjson_free(&lwjson);
@@ -347,6 +436,16 @@ void test_SettingsDefaultsJson_FitsInBufferSize(void) {
         "Defaults JSON too large for buffer, increase size if needed");
 }
 
+void test_SettingsMetadataJson_FitsInBufferSize(void) {
+    char buffer[SETTINGS_METADATA_JSON_SIZE];
+    int len = getSettingsMetadataJson(buffer, sizeof(buffer));
+
+    TEST_ASSERT_LESS_THAN_INT_MESSAGE(
+        SETTINGS_METADATA_JSON_SIZE,
+        len,
+        "Metadata JSON too large for buffer, increase size if needed");
+}
+
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_SettingsDefaultsJson_FitsInBufferSize);
@@ -354,6 +453,8 @@ int main(void) {
     RUN_TEST(test_SettingsManagerInit_DoesNotWriteFlash_WhenFlashMatches);
     RUN_TEST(test_SettingsManagerInit_MergesDefaults_WhenNewFieldMissing);
     RUN_TEST(test_SettingsManagerInit_SetsDefaults);
+    RUN_TEST(test_SettingsMetadataJson_ContainsShutdownPolicyOptions);
+    RUN_TEST(test_SettingsMetadataJson_FitsInBufferSize);
     RUN_TEST(test_UpdateSettings_UpdatesChipStateSettings);
     RUN_TEST(test_generateSettingsResponse_NullSettings);
     RUN_TEST(test_generateSettingsResponse_WithSettings);

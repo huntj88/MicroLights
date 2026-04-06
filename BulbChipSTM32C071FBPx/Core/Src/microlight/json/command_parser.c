@@ -25,84 +25,88 @@ static int32_t jsonLength(const char *buffer, size_t length) {
     return -1;
 }
 
+static bool setParserError(ParserErrorContext *ctx, ParserError error, const char *path) {
+    ctx->error = error;
+    snprintf(ctx->path, sizeof(ctx->path), "%s", path);
+    return false;
+}
+
+static bool parseUint8Setting(
+    lwjson_t *lwjson,
+    const char *path,
+    uint8_t maxValue,
+    uint8_t *destination,
+    ParserErrorContext *ctx) {
+    const lwjson_token_t *token = lwjson_find(lwjson, path);
+    if (token == NULL) {
+        return true;
+    }
+
+    if (token->type != LWJSON_TYPE_NUM_INT) {
+        return setParserError(ctx, PARSER_ERR_INVALID_VARIANT, path);
+    }
+
+    if (token->u.num_int < 0) {
+        return setParserError(ctx, PARSER_ERR_VALUE_TOO_SMALL, path);
+    }
+    if (token->u.num_int > maxValue) {
+        return setParserError(ctx, PARSER_ERR_VALUE_TOO_LARGE, path);
+    }
+
+    *destination = (uint8_t)token->u.num_int;
+    return true;
+}
+
+static bool parseBoolSetting(
+    lwjson_t *lwjson, const char *path, bool *destination, ParserErrorContext *ctx) {
+    const lwjson_token_t *token = lwjson_find(lwjson, path);
+    if (token == NULL) {
+        return true;
+    }
+
+    if (token->type == LWJSON_TYPE_TRUE) {
+        *destination = true;
+        return true;
+    }
+    if (token->type == LWJSON_TYPE_FALSE) {
+        *destination = false;
+        return true;
+    }
+
+    return setParserError(ctx, PARSER_ERR_INVALID_VARIANT, path);
+}
+
+static uint8_t maxUint8SettingValue(const char *path) {
+    if (strcmp(path, "modeCount") == 0) {
+        return 7U;
+    }
+    if (strcmp(path, "shutdownPolicy") == 0) {
+        return (uint8_t)autoOffAndAutoLock;
+    }
+    return UINT8_MAX;
+}
+
+#define PARSE_SETTING_uint8_t(name, def)                                                        \
+    if (!parseUint8Setting(lwjson, #name, maxUint8SettingValue(#name), &settings->name, ctx)) { \
+        return false;                                                                           \
+    }
+
+#define PARSE_SETTING_bool(name, def)                             \
+    if (!parseBoolSetting(lwjson, #name, &settings->name, ctx)) { \
+        return false;                                             \
+    }
+
+#define PARSE_SETTING(type, name, def) PARSE_SETTING_##type(name, def)
+
 static bool parseSettingsJson(lwjson_t *lwjson, ChipSettings *settings, ParserErrorContext *ctx) {
-    const lwjson_token_t *token;
-
-    token = lwjson_find(lwjson, "modeCount");
-    if (token != NULL) {
-        if (token->u.num_int < 0) {
-            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
-            snprintf(ctx->path, sizeof(ctx->path), "modeCount");
-            return false;
-        }
-        if (token->u.num_int > 7) {
-            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
-            snprintf(ctx->path, sizeof(ctx->path), "modeCount");
-            return false;
-        }
-        settings->modeCount = (uint8_t)token->u.num_int;
-    }
-
-    token = lwjson_find(lwjson, "minutesUntilAutoOff");
-    if (token != NULL) {
-        if (token->u.num_int < 0) {
-            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
-            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilAutoOff");
-            return false;
-        }
-        if (token->u.num_int > 255) {
-            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
-            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilAutoOff");
-            return false;
-        }
-        settings->minutesUntilAutoOff = (uint8_t)token->u.num_int;
-    }
-
-    token = lwjson_find(lwjson, "minutesUntilLockAfterAutoOff");
-    if (token != NULL) {
-        if (token->u.num_int < 0) {
-            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
-            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilLockAfterAutoOff");
-            return false;
-        }
-        if (token->u.num_int > 255) {
-            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
-            snprintf(ctx->path, sizeof(ctx->path), "minutesUntilLockAfterAutoOff");
-            return false;
-        }
-        settings->minutesUntilLockAfterAutoOff = (uint8_t)token->u.num_int;
-    }
-
-    token = lwjson_find(lwjson, "equationEvalIntervalMs");
-    if (token != NULL) {
-        if (token->u.num_int < 0) {
-            ctx->error = PARSER_ERR_VALUE_TOO_SMALL;
-            snprintf(ctx->path, sizeof(ctx->path), "equationEvalIntervalMs");
-            return false;
-        }
-        if (token->u.num_int > 255) {
-            ctx->error = PARSER_ERR_VALUE_TOO_LARGE;
-            snprintf(ctx->path, sizeof(ctx->path), "equationEvalIntervalMs");
-            return false;
-        }
-        settings->equationEvalIntervalMs = (uint8_t)token->u.num_int;
-    }
-
-    token = lwjson_find(lwjson, "enableChargerSerial");
-    if (token != NULL) {
-        if (token->type == LWJSON_TYPE_TRUE) {
-            settings->enableChargerSerial = true;
-        } else if (token->type == LWJSON_TYPE_FALSE) {
-            settings->enableChargerSerial = false;
-        } else {
-            ctx->error = PARSER_ERR_INVALID_VARIANT;
-            snprintf(ctx->path, sizeof(ctx->path), "enableChargerSerial");
-            return false;
-        }
-    }
+    CHIP_SETTINGS_MAP(PARSE_SETTING);
 
     return true;
 }
+
+#undef PARSE_SETTING
+#undef PARSE_SETTING_bool
+#undef PARSE_SETTING_uint8_t
 
 static void handleWriteMode(lwjson_t *lwjson, CliInput *input) {
     const lwjson_token_t *token;

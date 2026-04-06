@@ -31,8 +31,12 @@ void enableChipTickTimer(bool enable);
 void enableCaseLedTimer(bool enable);
 void enableFrontLedTimer(bool enable);
 void enableUsbClock(bool enable);
-void startAutoOffTimer(void);
+void enableAutoOffTimer(bool enable);
 uint32_t convertTicksToMilliseconds(uint32_t ticks);
+
+void enterStandbyMode(void);
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds);
+bool waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes);
 
 __attribute__((noreturn)) void blinkCaseLedWhiteForever(void);
 

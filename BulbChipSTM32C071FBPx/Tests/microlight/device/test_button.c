@@ -113,8 +113,39 @@ void test_ButtonInputTask_UpdatesCaseLed_DuringPress(void) {
     TEST_ASSERT_TRUE(rgbLockedCalled);
 }
 
+void test_ButtonInputTask_IgnoresReleasedInterruptBounce(void) {
+    enum ButtonResult result = buttonInputTask(&button, 100, true);
+
+    TEST_ASSERT_EQUAL(ignore, result);
+    TEST_ASSERT_FALSE(rgbNoColorCalled);
+    TEST_ASSERT_FALSE(isEvaluatingButtonPress(&button));
+
+    result = buttonInputTask(&button, 200, false);
+
+    TEST_ASSERT_EQUAL(ignore, result);
+    TEST_ASSERT_FALSE(rgbSuccessCalled);
+}
+
+void test_ButtonInputTask_CancelsPressReleasedBeforeDebounce(void) {
+    mockButtonPinState = 0;
+    buttonInputTask(&button, 100, true);
+
+    mockButtonPinState = 1;
+    enum ButtonResult result = buttonInputTask(&button, 120, false);
+
+    TEST_ASSERT_EQUAL(ignore, result);
+    TEST_ASSERT_FALSE(isEvaluatingButtonPress(&button));
+
+    result = buttonInputTask(&button, 200, false);
+
+    TEST_ASSERT_EQUAL(ignore, result);
+    TEST_ASSERT_FALSE(rgbSuccessCalled);
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_ButtonInputTask_CancelsPressReleasedBeforeDebounce);
+    RUN_TEST(test_ButtonInputTask_IgnoresReleasedInterruptBounce);
     RUN_TEST(test_ButtonInputTask_ReturnsClicked_AfterShortPress);
     RUN_TEST(test_ButtonInputTask_ReturnsIgnore_Idle);
     RUN_TEST(test_ButtonInputTask_ReturnsShutdown_AfterLongPress);

@@ -46,6 +46,8 @@
 
 I2C_HandleTypeDef hi2c1;
 
+RTC_HandleTypeDef hrtc;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -65,6 +67,7 @@ static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_RTC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -107,6 +110,7 @@ int main(void) {
     MX_TIM2_Init();
     MX_TIM3_Init();
     MX_TIM17_Init();
+    MX_RTC_Init();
     /* USER CODE BEGIN 2 */
 
     tusb_init();
@@ -131,8 +135,11 @@ int main(void) {
         .enableChipTickTimer = enableChipTickTimer,
         .enableCaseLedTimer = enableCaseLedTimer,
         .enableFrontLedTimer = enableFrontLedTimer,
+        .enableAutoOffTimer = enableAutoOffTimer,
         .enableUsbClock = enableUsbClock,
-        .startAutoOffTimer = startAutoOffTimer,
+        .enterStandbyMode = enterStandbyMode,
+        .waitForButtonWakeOrAutoLock = waitForButtonWakeOrAutoLock,
+        .systemReset = NVIC_SystemReset,
         .enterDFU = setBootloaderFlagAndReset,
         .convertTicksToMilliseconds = convertTicksToMilliseconds,
         .rgbTimerPeriod = htim1.Init.Period,
@@ -178,10 +185,12 @@ void SystemClock_Config(void) {
     /** Initializes the RCC Oscillators according to the specified parameters
      * in the RCC_OscInitTypeDef structure.
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_HSI48;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSI48;
     RCC_OscInitStruct.HSIState = RCC_HSI_ON;
     RCC_OscInitStruct.HSIDiv = RCC_HSI_DIV4;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.LSIState = RCC_LSI_ON;
     RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
 
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
@@ -241,6 +250,84 @@ static void MX_I2C1_Init(void) {
     /* USER CODE BEGIN I2C1_Init 2 */
 
     /* USER CODE END I2C1_Init 2 */
+}
+
+/**
+ * @brief RTC Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_RTC_Init(void) {
+    /* USER CODE BEGIN RTC_Init 0 */
+
+    /* USER CODE END RTC_Init 0 */
+
+    RTC_TimeTypeDef sTime = {0};
+    RTC_DateTypeDef sDate = {0};
+    RTC_AlarmTypeDef sAlarm = {0};
+
+    /* USER CODE BEGIN RTC_Init 1 */
+
+    /* USER CODE END RTC_Init 1 */
+
+    /** Initialize RTC Only
+     */
+    hrtc.Instance = RTC;
+    hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+    hrtc.Init.AsynchPrediv = 127;
+    hrtc.Init.SynchPrediv = 255;
+    hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+    hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+    hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+    hrtc.Init.OutPutPullUp = RTC_OUTPUT_PULLUP_NONE;
+    if (HAL_RTC_Init(&hrtc) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /* USER CODE BEGIN Check_RTC_BKUP */
+
+    /* USER CODE END Check_RTC_BKUP */
+
+    /** Initialize RTC and set the Time and Date
+     */
+    sTime.Hours = 0x0;
+    sTime.Minutes = 0x0;
+    sTime.Seconds = 0x0;
+    sTime.SubSeconds = 0x0;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK) {
+        Error_Handler();
+    }
+    sDate.WeekDay = RTC_WEEKDAY_MONDAY;
+    sDate.Month = RTC_MONTH_JANUARY;
+    sDate.Date = 0x1;
+    sDate.Year = 0x0;
+
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK) {
+        Error_Handler();
+    }
+
+    /** Enable the Alarm A
+     */
+    sAlarm.AlarmTime.Hours = 0x0;
+    sAlarm.AlarmTime.Minutes = 0x0;
+    sAlarm.AlarmTime.Seconds = 0x0;
+    sAlarm.AlarmTime.SubSeconds = 0x0;
+    sAlarm.AlarmTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sAlarm.AlarmTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    sAlarm.AlarmMask = RTC_ALARMMASK_NONE;
+    sAlarm.AlarmSubSecondMask = RTC_ALARMSUBSECONDMASK_ALL;
+    sAlarm.AlarmDateWeekDaySel = RTC_ALARMDATEWEEKDAYSEL_DATE;
+    sAlarm.AlarmDateWeekDay = 0x1;
+    sAlarm.Alarm = RTC_ALARM_A;
+    if (HAL_RTC_SetAlarm_IT(&hrtc, &sAlarm, RTC_FORMAT_BCD) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN RTC_Init 2 */
+
+    /* USER CODE END RTC_Init 2 */
 }
 
 /**
@@ -496,6 +583,12 @@ static void MX_GPIO_Init(void) {
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(bulbLed_GPIO_Port, bulbLed_Pin, GPIO_PIN_RESET);
 
+    /*Configure GPIO pins : button_Pin chargerIT_Pin */
+    GPIO_InitStruct.Pin = button_Pin | chargerIT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /*Configure GPIO pin : bulbLed_Pin */
     GPIO_InitStruct.Pin = bulbLed_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -503,17 +596,19 @@ static void MX_GPIO_Init(void) {
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(bulbLed_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : chargerIT_Pin button_Pin */
-    GPIO_InitStruct.Pin = chargerIT_Pin | button_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI4_15_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(EXTI4_15_IRQn);
 
     /* USER CODE BEGIN MX_GPIO_Init_2 */
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    // Legacy boards have the button on PA7, new boards have the button on PA4. WKUP2 only available
+    // on PA4. Bias PA4 high so the fixed wakeup pad is not left floating on legacy.
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#endif
     /* USER CODE END MX_GPIO_Init_2 */
 }
 

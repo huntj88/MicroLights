@@ -37,6 +37,16 @@ static bool chargerTaskCalled = false;
 static ChargerTaskFlags lastChargerFlags;
 static bool lastModeTaskCanUpdateCaseLed = false;
 static ModeOutputs nextModeOutputs;
+static uint32_t enterStandbyModeCallCount = 0;
+static uint32_t enterStopModeCallCount = 0;
+static uint32_t autoOffTimerEnableCallCount = 0;
+static bool autoOffTimerEnabled = false;
+static uint16_t lastStopWakeIntervalSeconds = 0;
+static uint16_t lastLockThresholdMinutes = 0;
+static bool mockWakeFromButton = false;
+static bool mockSystemResetCalled = false;
+static uint32_t mc3479DisableCallCount = 0;
+static uint32_t disableWatchdogCallCount = 0;
 
 // Mock Function Implementations
 uint32_t mock_convertTicksToMs(uint32_t ticks) {
@@ -79,6 +89,11 @@ void mock_enableFrontLedTimer(bool enable) {
     frontLedTimerCallCount++;
 }
 
+void mock_enableAutoOffTimer(bool enable) {
+    autoOffTimerEnabled = enable;
+    autoOffTimerEnableCallCount++;
+}
+
 void mock_enableUsbClock(bool enable) {
     usbClockEnabled = enable;
     usbClockCallCount++;
@@ -99,7 +114,16 @@ void lock(BQ25180 *dev) {
     mockLockCalled = true;
 }
 
+void disableWatchdog(BQ25180 *dev) {
+    (void)dev;
+    disableWatchdogCallCount++;
+}
+
 void rgbTransientTask(RGBLed *led, uint32_t ms) {
+}
+void mc3479Disable(MC3479 *dev) {
+    (void)dev;
+    mc3479DisableCallCount++;
 }
 void mc3479Task(MC3479 *dev, uint32_t ms) {
 }
@@ -132,6 +156,34 @@ void fakeOffMode(ModeManager *manager) {
     loadMode(manager, FAKE_OFF_MODE_INDEX);
 }
 
+void enterStandbyMode(void) {
+    enterStandbyModeCallCount++;
+}
+
+void enterStopModeWithRtcAlarm(uint16_t wakeIntervalSeconds) {
+    enterStopModeCallCount++;
+    lastStopWakeIntervalSeconds = wakeIntervalSeconds;
+}
+
+bool mock_wasWakeFromButton(void) {
+    bool didWakeFromButton = mockWakeFromButton;
+    mockWakeFromButton = false;
+    return didWakeFromButton;
+}
+
+bool mock_waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
+    uint16_t lockThresholdSeconds = (uint16_t)lockThresholdMinutes * 60U;
+
+    lastLockThresholdMinutes = lockThresholdMinutes;
+
+    enterStopModeWithRtcAlarm(lockThresholdSeconds);
+    return mock_wasWakeFromButton();
+}
+
+void mock_systemReset(void) {
+    mockSystemResetCalled = true;
+}
+
 // Include the source files under test to access static state
 #include "../../Core/Src/microlight/chip_state.c"
 #include "../../Core/Src/microlight/model/mode_state.c"
@@ -159,6 +211,16 @@ void setUp(void) {
     chargerTaskCalled = false;
     memset(&lastChargerFlags, 0, sizeof(lastChargerFlags));
     lastModeTaskCanUpdateCaseLed = false;
+    enterStandbyModeCallCount = 0;
+    enterStopModeCallCount = 0;
+    autoOffTimerEnableCallCount = 0;
+    autoOffTimerEnabled = false;
+    lastStopWakeIntervalSeconds = 0;
+    lastLockThresholdMinutes = 0;
+    mockWakeFromButton = false;
+    mockSystemResetCalled = false;
+    mc3479DisableCallCount = 0;
+    disableWatchdogCallCount = 0;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
         .caseValid = false,
@@ -184,7 +246,11 @@ void setUp(void) {
         .enableChipTickTimer = mock_enableChipTickTimer,
         .enableCaseLedTimer = mock_enableCaseLedTimer,
         .enableFrontLedTimer = mock_enableFrontLedTimer,
+        .enableAutoOffTimer = mock_enableAutoOffTimer,
         .enableUsbClock = mock_enableUsbClock,
+        .enterStandbyMode = enterStandbyMode,
+        .waitForButtonWakeOrAutoLock = mock_waitForButtonWakeOrAutoLock,
+        .systemReset = mock_systemReset,
         .log = mock_writeUsbSerial,
     };
 }
@@ -233,24 +299,111 @@ void test_StateTask_ButtonResult_Clicked_WrapsModeIndex(void) {
     TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);
 }
 
-void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers(void) {
+void test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging(void) {
     configureChipState(&state, mockDeps);
 
+    mockSettings.shutdownPolicy = manualShutdownOnly;
     mockButtonResult = shutdown;
     mockChargeState = notConnected;
+
     stateTask(&state, 0, (StateTaskFlags){0});
 
-    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
-void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers(void) {
+void test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled(void) {
     configureChipState(&state, mockDeps);
 
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT16(120, lastStopWakeIntervalSeconds);
+    TEST_ASSERT_EQUAL_UINT16(2, lastLockThresholdMinutes);
+    TEST_ASSERT_TRUE(mockLockCalled);
+    TEST_ASSERT_FALSE(mockSystemResetCalled);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
+}
+
+void test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower(void) {
+    configureChipState(&state, mockDeps);
+
+    state.lastChipTickEnabled = true;
+    state.lastCasePwmEnabled = true;
+    state.lastFrontPwmEnabled = true;
+    chipTickTimerEnabled = true;
+    caseLedTimerEnabled = true;
+    frontLedTimerEnabled = true;
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilLockAfterAutoOff = 1;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_FALSE(chipTickTimerEnabled);
+    TEST_ASSERT_FALSE(caseLedTimerEnabled);
+    TEST_ASSERT_FALSE(frontLedTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, mc3479DisableCallCount);
+}
+
+void test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled(void) {
+    configureChipState(&state, mockDeps);
+
+    state.lastFrontPwmEnabled = false;
+    frontLedTimerEnabled = true;
+    frontLedTimerCallCount = 0;
+
+    mockSettings.shutdownPolicy = manualShutdownOnly;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_EQUAL_UINT32(1, frontLedTimerCallCount);
+    TEST_ASSERT_FALSE(frontLedTimerEnabled);
+}
+
+void test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilLockAfterAutoOff = 0;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_TRUE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
+}
+
+void test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
     mockButtonResult = shutdown;
     mockChargeState = constantCurrent;
+
     stateTask(&state, 0, (StateTaskFlags){0});
 
     TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
 }
 
 void test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging(void) {
@@ -336,20 +489,88 @@ void test_StateTask_ButtonResult_Lock_LocksCharger(void) {
     TEST_ASSERT_TRUE(mockLockCalled);
 }
 
-void test_AutoOffTimer_EntersFakeOff_AfterTimeout(void) {
+void test_AutoOffTimer_DoesNothing_WhenManualShutdownOnly(void) {
     configureChipState(&state, mockDeps);
 
+    mockSettings.shutdownPolicy = manualShutdownOnly;
     mockSettings.minutesUntilAutoOff = 1;  // 1 minute
     mockChargeState = notConnected;
-
-    // 1 minute = 600 ticks at 0.1Hz.
-    // Logic: ticksUntilAutoOff = minutes * 60 / 10. For 1 min, threshold is 6 ticks.
-
     state.ticksSinceLastUserActivity = 7;  // Exceeds 6
 
     stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
 
-    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_FALSE(mockLockCalled);
+}
+
+void test_AutoOffTimer_DoesNothing_WhenCharging(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockChargeState = constantCurrent;
+    state.ticksSinceLastUserActivity = 7;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_FALSE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
+    TEST_ASSERT_EQUAL_UINT32(7, state.ticksSinceLastUserActivity);
+}
+
+void test_AutoOffTimer_DoesNothing_WhenFakeOff(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockChargeState = notConnected;
+    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;
+    state.ticksSinceLastUserActivity = 7;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_FALSE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(0, disableWatchdogCallCount);
+    TEST_ASSERT_EQUAL_UINT32(7, state.ticksSinceLastUserActivity);
+}
+
+void test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockChargeState = notConnected;
+    state.ticksSinceLastUserActivity = 7;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
+}
+
+void test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilAutoOff = 1;
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
+    mockChargeState = notConnected;
+    state.ticksSinceLastUserActivity = 6;
+
+    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerEnableCallCount);
+    TEST_ASSERT_FALSE(autoOffTimerEnabled);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, disableWatchdogCallCount);
 }
 
 void test_Settings_ModeCount_LimitsModeCycling(void) {
@@ -375,6 +596,7 @@ void test_Settings_ModeCount_LimitsModeCycling(void) {
 void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
     configureChipState(&state, mockDeps);
 
+    mockSettings.shutdownPolicy = autoOffNoAutoLock;
     mockChargeState = notConnected;
 
     // Case 1: 1 Minute (6 ticks)
@@ -391,57 +613,60 @@ void test_Settings_MinutesUntilAutoOff_ChangesTimeout(void) {
     // Just above threshold (starts at 6, increments to 7 inside interrupt. 7 > 6 is True)
     state.ticksSinceLastUserActivity = 6;
     stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
-    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);  // Changed
+    TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
 
     // Case 2: 2 Minutes (12 ticks)
     mockSettings.minutesUntilAutoOff = 2;
-    mockModeManager.currentModeIndex = 0;  // Reset to normal mode for second case
+    enterStandbyModeCallCount = 0;
 
     // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
     state.ticksSinceLastUserActivity = 11;
     lastLoadedModeIndex = 0;  // Reset
     stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
-    TEST_ASSERT_EQUAL_UINT8(0, lastLoadedModeIndex);  // No change
+    TEST_ASSERT_EQUAL_UINT32(0, enterStandbyModeCallCount);  // No change
 
     // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
     state.ticksSinceLastUserActivity = 12;
     stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
-    TEST_ASSERT_EQUAL_UINT8(FAKE_OFF_MODE_INDEX, lastLoadedModeIndex);  // Changed
+    TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);  // Changed
 }
 
-void test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout(void) {
+void test_Settings_MinutesUntilLockAfterAutoOff_ChangesStopLockTimeout(void) {
     configureChipState(&state, mockDeps);
 
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
     mockChargeState = notConnected;
-    mockModeManager.currentModeIndex = FAKE_OFF_MODE_INDEX;  // Already in fake off
 
-    // Case 1: 1 Minute (6 ticks)
     mockSettings.minutesUntilLockAfterAutoOff = 1;
     mockLockCalled = false;
+    mockButtonResult = shutdown;
 
-    // Just below threshold (starts at 5, increments to 6. 6 > 6 is False)
-    state.ticksSinceLastUserActivity = 5;
-    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
-    TEST_ASSERT_FALSE(mockLockCalled);
-
-    // Just above threshold (starts at 6, increments to 7. 7 > 6 is True)
-    state.ticksSinceLastUserActivity = 6;
-    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
+    stateTask(&state, 0, (StateTaskFlags){0});
     TEST_ASSERT_TRUE(mockLockCalled);
 
-    // Case 2: 2 Minutes (12 ticks)
     mockSettings.minutesUntilLockAfterAutoOff = 2;
     mockLockCalled = false;
+    enterStopModeCallCount = 0;
 
-    // Above 1 min threshold, but below 2 min (starts at 11, increments to 12. 12 > 12 is False)
-    state.ticksSinceLastUserActivity = 11;
-    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
-    TEST_ASSERT_FALSE(mockLockCalled);
+    stateTask(&state, 0, (StateTaskFlags){0});
 
-    // Above 2 min threshold (starts at 12, increments to 13. 13 > 12 is True)
-    state.ticksSinceLastUserActivity = 12;
-    stateTask(&state, 0, (StateTaskFlags){.autoOffTimerInterruptTriggered = true});
     TEST_ASSERT_TRUE(mockLockCalled);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+}
+
+void test_StateTask_StopMode_ButtonWake_ResetsSystem(void) {
+    configureChipState(&state, mockDeps);
+
+    mockSettings.shutdownPolicy = autoOffAndAutoLock;
+    mockSettings.minutesUntilLockAfterAutoOff = 2;
+    mockButtonResult = shutdown;
+    mockChargeState = notConnected;
+    mockWakeFromButton = true;
+
+    stateTask(&state, 0, (StateTaskFlags){0});
+
+    TEST_ASSERT_TRUE(mockSystemResetCalled);
+    TEST_ASSERT_FALSE(mockLockCalled);
 }
 
 void test_TimerPolicy_SkipsRedundantCalls(void) {
@@ -557,22 +782,31 @@ void test_TimerPolicy_FrontBulbType_DisablesFrontTimer(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_AutoOffTimer_EntersFakeOff_AfterTimeout);
+    RUN_TEST(test_AutoOffTimer_AutoLock_StopsAutoOffTimer_BeforeStopMode);
+    RUN_TEST(test_AutoOffTimer_DoesNothing_WhenCharging);
+    RUN_TEST(test_AutoOffTimer_DoesNothing_WhenFakeOff);
+    RUN_TEST(test_AutoOffTimer_DoesNothing_WhenManualShutdownOnly);
+    RUN_TEST(test_AutoOffTimer_EntersStandby_AfterTimeout_WhenAutoOffEnabled);
     RUN_TEST(test_ConfigureChipState_WhenCharging_EntersFakeOff);
     RUN_TEST(test_ConfigureChipState_WhenNotCharging_LoadsModeZero);
     RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
-    RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesLockTimeout);
+    RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesStopLockTimeout);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesCasePwm);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging_EnablesLedTimers);
-    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenNotCharging_DisablesLedTimers);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_DisablesActiveTimers_BeforeLowPower);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersFakeOff_WhenCharging);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStandby_WhenNotCharging);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_EntersStopMode_WhenAutoLockEnabled);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled);
+    RUN_TEST(test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode);
     RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
     RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);
     RUN_TEST(test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging);
+    RUN_TEST(test_StateTask_StopMode_ButtonWake_ResetsSystem);
     RUN_TEST(test_TimerPolicy_FrontBulbType_DisablesFrontTimer);
     RUN_TEST(test_TimerPolicy_SkipsRedundantCalls);
     return UNITY_END();

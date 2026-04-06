@@ -87,6 +87,31 @@ int getSettingsDefaultsJson(char *buffer, size_t length) {
     return offset;
 }
 
+// TODO: generalize if adding more enums in the future
+int getSettingsMetadataJson(char *buffer, size_t length) {
+    int offset = 0;
+
+    offset = appendJson(buffer, length, offset, "{");
+    offset = appendJson(buffer, length, offset, "\"shutdownPolicy\":{");
+    offset = appendJson(buffer, length, offset, "\"type\":\"enum\",\"options\":{");
+
+    bool first = true;
+#define X_OPTION(name, value, label)                                        \
+    if (!first) {                                                           \
+        offset = appendJson(buffer, length, offset, ",");                   \
+    }                                                                       \
+    offset = appendJson(buffer, length, offset, "\"" #name "\":%d", value); \
+    first = false;
+
+    SHUTDOWN_POLICY_MAP(X_OPTION)
+#undef X_OPTION
+
+    offset = appendJson(buffer, length, offset, "}}");
+    offset = appendJson(buffer, length, offset, "}");
+
+    return offset;
+}
+
 int getSettingsResponse(SettingsManager *manager, char *buffer, size_t length) {
     loadSettingsFromFlash(manager, buffer, &cliInput);
     bool hasSettings = (cliInput.parsedType == parseWriteSettings);
@@ -115,8 +140,11 @@ int getSettingsResponse(SettingsManager *manager, char *buffer, size_t length) {
 
     char defaultsBuf[SETTINGS_DEFAULTS_JSON_SIZE];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
+    char metadataBuf[SETTINGS_METADATA_JSON_SIZE];
+    getSettingsMetadataJson(metadataBuf, sizeof(metadataBuf));
 
     offset = appendJson(buffer, length, offset, ",\"defaults\":%s", defaultsBuf);
+    offset = appendJson(buffer, length, offset, ",\"metadata\":%s", metadataBuf);
     offset = appendJson(buffer, length, offset, "}\n");
     return offset;
 }

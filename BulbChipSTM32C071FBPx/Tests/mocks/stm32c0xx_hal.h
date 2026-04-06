@@ -12,6 +12,47 @@ typedef struct {
 } I2C_HandleTypeDef;
 
 typedef struct {
+  uint32_t HourFormat;
+  uint32_t AsynchPrediv;
+  uint32_t SynchPrediv;
+  uint32_t OutPut;
+  uint32_t OutPutRemap;
+  uint32_t OutPutPolarity;
+  uint32_t OutPutType;
+  uint32_t OutPutPullUp;
+} RTC_InitTypeDef;
+
+typedef struct {
+  void *Instance;
+  RTC_InitTypeDef Init;
+} RTC_HandleTypeDef;
+
+typedef struct {
+  uint8_t Hours;
+  uint8_t Minutes;
+  uint8_t Seconds;
+  uint32_t SubSeconds;
+  uint32_t DayLightSaving;
+  uint32_t StoreOperation;
+} RTC_TimeTypeDef;
+
+typedef struct {
+  uint8_t WeekDay;
+  uint8_t Month;
+  uint8_t Date;
+  uint8_t Year;
+} RTC_DateTypeDef;
+
+typedef struct {
+  RTC_TimeTypeDef AlarmTime;
+  uint32_t AlarmMask;
+  uint32_t AlarmSubSecondMask;
+  uint32_t AlarmDateWeekDaySel;
+  uint8_t AlarmDateWeekDay;
+  uint32_t Alarm;
+} RTC_AlarmTypeDef;
+
+typedef struct {
     uint32_t Prescaler;
     uint32_t Period;
 } TIM_Base_InitTypeDef;
@@ -70,6 +111,15 @@ typedef struct {
 } GPIO_TypeDef;
 
 typedef struct {
+  volatile uint32_t SR1;
+  volatile uint32_t SR2;
+  volatile uint32_t SCR;
+} PWR_TypeDef;
+extern PWR_TypeDef mockPWR;
+#define PWR (&mockPWR)
+extern uint16_t mockLastExtiClearedLine;
+
+typedef struct {
   uint32_t Pin;
   uint32_t Mode;
   uint32_t Pull;
@@ -114,6 +164,38 @@ uint32_t HAL_RCC_GetPCLK1Freq(void);
 #define GPIO_AF3_TIM3  3
 #define GPIO_AF11_TIM3 11
 #define GPIO_AF12_TIM3 12
+
+#define RTC_FORMAT_BIN 0U
+#define RTC_DAYLIGHTSAVING_NONE 0U
+#define RTC_STOREOPERATION_RESET 0U
+#define RTC_ALARMMASK_NONE 0U
+#define RTC_ALARMSUBSECONDMASK_ALL 0U
+#define RTC_ALARMDATEWEEKDAYSEL_DATE 0U
+#define RTC_ALARM_A 0U
+#define RTC_FLAG_ALRAF 0x00000001U
+
+#define PWR_CR3_EWUP2 0x00000002U
+#define PWR_CR4_WP2 0x00000002U
+#define PWR_WUP_POLARITY_SHIFT 0x08u
+#define PWR_WAKEUP_PIN2 PWR_CR3_EWUP2
+#define PWR_WAKEUP_PIN2_LOW ((PWR_CR4_WP2 << PWR_WUP_POLARITY_SHIFT) | PWR_CR3_EWUP2)
+#define PWR_SR1_WUF 0x0000003FU
+#define PWR_SR1_WUF2 0x00000002U
+#define PWR_SR1_SBF 0x00000100U
+#define PWR_FLAG_WUF (0x00010000u | PWR_SR1_WUF)
+#define PWR_FLAG_WUF2 (0x00010000u | PWR_SR1_WUF2)
+#define PWR_FLAG_SB (0x00010000u | PWR_SR1_SBF)
+#define PWR_MAINREGULATOR_ON 0U
+#define PWR_STOPENTRY_WFI 1U
+
+#define __HAL_PWR_GET_FLAG(__FLAG__) \
+  (((__FLAG__) & 0x00010000u) ? \
+     ((PWR->SR1 & ((__FLAG__) & ~0x00030000u)) == ((__FLAG__) & ~0x00030000u)) : 0U)
+#define __HAL_PWR_CLEAR_FLAG(__FLAG__) (PWR->SCR = (__FLAG__))
+
+#define __HAL_GPIO_EXTI_CLEAR_FLAG(__EXTI_LINE__) (mockLastExtiClearedLine = (__EXTI_LINE__))
+
+#define __HAL_RTC_ALARM_CLEAR_FLAG(__HANDLE__, __FLAG__) ((void)(__HANDLE__), (void)(__FLAG__))
 
 // RCC/CRS mock for HSI48 gating (enableUsbClock)
 typedef struct {
@@ -163,5 +245,22 @@ static uint32_t uwTickPrio;
 
 // I2C init
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c);
+HAL_StatusTypeDef HAL_RTC_GetTime(RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format);
+HAL_StatusTypeDef HAL_RTC_GetDate(
+  const RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format);
+HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(
+  RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format);
+HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alarm);
+void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinPolarity);
+void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx);
+HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber);
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber);
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber);
+void HAL_PWREx_EnablePullUpPullDownConfig(void);
+void HAL_PWREx_DisablePullUpPullDownConfig(void);
+void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry);
+void HAL_PWR_EnterSTANDBYMode(void);
+static inline void HAL_SuspendTick(void) {}
+static inline void HAL_ResumeTick(void) {}
 
 #endif

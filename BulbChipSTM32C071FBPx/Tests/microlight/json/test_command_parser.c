@@ -78,10 +78,37 @@ void test_ParseJson_WriteSettings_RejectsIntegerForBoolean(void) {
     TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
 }
 
+void test_ParseJson_WriteSettings_RejectsNonIntegerForUint8Setting(void) {
+    char *jsonString = "{\"command\":\"writeSettings\",\"modeCount\":\"7\"}";
+
+    parseJson((uint8_t *)jsonString, strlen(jsonString) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+
+    char *jsonBool = "{\"command\":\"writeSettings\",\"modeCount\":true}";
+
+    parseJson((uint8_t *)jsonBool, strlen(jsonBool) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+
+    char *jsonFloat = "{\"command\":\"writeSettings\",\"modeCount\":1.5}";
+
+    parseJson((uint8_t *)jsonFloat, strlen(jsonFloat) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_INVALID_VARIANT, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("modeCount", cliInput.errorContext.path);
+}
+
 void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":7,\"minutesUntilAutoOff\":20,"
-        "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50}";
+        "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50,"
+        "\"shutdownPolicy\":1}";
 
     parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
 
@@ -90,6 +117,7 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     TEST_ASSERT_EQUAL_UINT8(20, cliInput.settings.minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(30, cliInput.settings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, cliInput.settings.equationEvalIntervalMs);
+    TEST_ASSERT_EQUAL_UINT8(1, cliInput.settings.shutdownPolicy);
 }
 
 void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
@@ -120,6 +148,22 @@ void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
     TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
     TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
     TEST_ASSERT_EQUAL_STRING("equationEvalIntervalMs", cliInput.errorContext.path);
+
+    // Invalid shutdownPolicy (>2)
+    char *json5 = "{\"command\":\"writeSettings\",\"shutdownPolicy\":3}";
+    parseJson((uint8_t *)json5, strlen(json5) + 1, &cliInput);
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("shutdownPolicy", cliInput.errorContext.path);
+}
+
+void test_ParseJson_WriteSettings_AcceptsAutoOffAndAutoLockShutdownPolicy(void) {
+    char *json = "{\"command\":\"writeSettings\",\"shutdownPolicy\":2}";
+
+    parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
+
+    TEST_ASSERT_EQUAL(parseWriteSettings, cliInput.parsedType);
+    TEST_ASSERT_EQUAL_UINT8(2, cliInput.settings.shutdownPolicy);
 }
 
 void test_ParseJson_Dfu_SetsDfuAction(void) {
@@ -144,9 +188,11 @@ int main(void) {
     RUN_TEST(test_ParseJson_InvalidJson_DoesNotCrash);
     RUN_TEST(test_ParseJson_ReadMode_SetsReadAction);
     RUN_TEST(test_ParseJson_WriteMode_ParsesIndexAndData);
+    RUN_TEST(test_ParseJson_WriteSettings_AcceptsAutoOffAndAutoLockShutdownPolicy);
     RUN_TEST(test_ParseJson_WriteSettings_ParsesBooleanValues);
     RUN_TEST(test_ParseJson_WriteSettings_ParsesSettingsValues);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsIntegerForBoolean);
     RUN_TEST(test_ParseJson_WriteSettings_RejectsInvalidValues);
+    RUN_TEST(test_ParseJson_WriteSettings_RejectsNonIntegerForUint8Setting);
     return UNITY_END();
 }

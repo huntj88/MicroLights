@@ -42,4 +42,6 @@ void __HAL_FLASH_CLEAR_FLAG(uint32_t flags);
 #define __disable_irq()
 #define __enable_irq()
 
+void NVIC_SystemReset(void);
+
 #endif

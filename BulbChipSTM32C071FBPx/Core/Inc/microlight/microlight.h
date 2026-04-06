@@ -39,8 +39,11 @@ typedef struct {
     void (*enableChipTickTimer)(bool enable);
     void (*enableCaseLedTimer)(bool enable);
     void (*enableFrontLedTimer)(bool enable);
+    void (*enableAutoOffTimer)(bool enable);
     void (*enableUsbClock)(bool enable);
-    void (*startAutoOffTimer)(void);
+    void (*enterStandbyMode)(void);
+    bool (*waitForButtonWakeOrAutoLock)(uint16_t lockThresholdMinutes);
+    void (*systemReset)(void);
     void (*enterDFU)(void);
     uint32_t (*convertTicksToMilliseconds)(uint32_t ticks);
     uint32_t rgbTimerPeriod;

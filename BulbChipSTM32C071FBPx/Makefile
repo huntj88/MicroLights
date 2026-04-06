@@ -5,6 +5,7 @@
 # Usage:
 #   make                    # Debug build (default)
 #   make BUILD=Release      # Release build (optimized)
+#   make LEGACY_PCB_PA7_BUTTON=1  # Build for older PCB with button on PA7
 #   make clean              # Remove all build artifacts
 #   make compile_commands   # Regenerate compile_commands.json for VS Code
 #   make -j$(nproc)         # Parallel build
@@ -14,6 +15,7 @@
 PROJECT  := BulbChipSTM32C071FBPx
 BUILD    ?= Debug
 BUILD_DIR = build/$(BUILD)
+LEGACY_PCB_PA7_BUTTON ?= 0
 
 # --- Toolchain ---------------------------------------------------------
 # Auto-detect: use PATH first, fall back to STM32CubeIDE installation
@@ -50,6 +52,10 @@ C_DEFS = \
 
 ifeq ($(BUILD),Debug)
   C_DEFS += -DDEBUG
+endif
+
+ifeq ($(LEGACY_PCB_PA7_BUTTON),1)
+  C_DEFS += -DMICROLIGHT_LEGACY_PCB_BUTTON_PA7
 endif
 
 # --- Include paths -----------------------------------------------------

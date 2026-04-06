@@ -57,7 +57,8 @@ bool configureMicroLight(MicroLightDependencies *deps) {
     if (!deps || !deps->convertTicksToMilliseconds || !deps->i2cReadRegisters ||
         !deps->i2cWriteRegister || !deps->writeRgbPwmCaseLed || !deps->writeRgbPwmFrontLed ||
         !deps->readButtonPin || !deps->enableChipTickTimer || !deps->enableCaseLedTimer ||
-        !deps->enableFrontLedTimer || !deps->enableUsbClock || !deps->startAutoOffTimer ||
+        !deps->enableFrontLedTimer || !deps->enableAutoOffTimer || !deps->enableUsbClock ||
+        !deps->enterStandbyMode || !deps->waitForButtonWakeOrAutoLock || !deps->systemReset ||
         !deps->readSavedMode || !deps->writeBulbLed || !deps->readSavedSettings ||
         !deps->enterDFU || !deps->saveSettings || !deps->saveMode || !deps->usbReadTask ||
         !deps->usbWrite || !deps->jsonBuffer || deps->jsonBufferSize == 0) {
@@ -138,7 +139,11 @@ bool configureMicroLight(MicroLightDependencies *deps) {
                 .enableChipTickTimer = deps->enableChipTickTimer,
                 .enableCaseLedTimer = deps->enableCaseLedTimer,
                 .enableFrontLedTimer = deps->enableFrontLedTimer,
+                .enableAutoOffTimer = deps->enableAutoOffTimer,
                 .enableUsbClock = deps->enableUsbClock,
+                .enterStandbyMode = deps->enterStandbyMode,
+                .waitForButtonWakeOrAutoLock = deps->waitForButtonWakeOrAutoLock,
+                .systemReset = deps->systemReset,
                 .log = internalLog,
             })) {
         return false;
@@ -151,7 +156,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
     // so bulb output works from the start without requiring a front-PWM cycle.
     deps->enableFrontLedTimer(false);
 
-    deps->startAutoOffTimer();
+    deps->enableAutoOffTimer(true);
     return true;
 }
 

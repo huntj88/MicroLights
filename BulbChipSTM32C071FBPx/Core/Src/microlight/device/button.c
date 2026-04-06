@@ -20,7 +20,10 @@ bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *caseLed) {
 }
 
 enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool interruptTriggered) {
-    if (interruptTriggered && button->evalStartMs == 0) {
+    uint8_t state = button->readButtonPin();
+    bool buttonCurrentlyDown = state == 0;
+
+    if (interruptTriggered && button->evalStartMs == 0 && buttonCurrentlyDown) {
         button->evalStartMs = milliseconds;
         rgbShowNoColor(button->caseLed);
 
@@ -34,9 +37,6 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
         elapsedMillis = milliseconds - button->evalStartMs;
     }
 
-    uint8_t state = button->readButtonPin();
-    bool buttonCurrentlyDown = state == 0;
-
     if (buttonCurrentlyDown) {
         if (elapsedMillis > 2000 && elapsedMillis < 2100) {
             rgbShowLocked(button->caseLed);
@@ -45,7 +45,12 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
         }
     }
 
-    if (!buttonCurrentlyDown && elapsedMillis > 50) {
+    if (!buttonCurrentlyDown && button->evalStartMs != 0) {
+        if (elapsedMillis <= 50) {
+            button->evalStartMs = 0;
+            return ignore;
+        }
+
         enum ButtonResult buttonState = clicked;
         if (elapsedMillis > 2000) {
             buttonState = lockOrHardwareReset;

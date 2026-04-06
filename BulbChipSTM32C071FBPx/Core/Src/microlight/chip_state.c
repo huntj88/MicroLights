@@ -5,6 +5,7 @@
  *      Author: jameshunt
  */
 
+#include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -17,18 +18,23 @@
 #include "microlight/model/mode_state.h"
 #include "microlight/settings_manager.h"
 
+static void enterShutdown(ChipState *state, enum ChargeState chargeState);
+static void prepareForLowPowerShutdown(ChipState *state);
+
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
-        !deps.enableFrontLedTimer || !deps.enableUsbClock || !deps.log) {
+        !deps.enableFrontLedTimer || !deps.enableAutoOffTimer || !deps.enableUsbClock ||
+        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock || !deps.systemReset ||
+        !deps.log) {
         return false;
     }
+
     state->deps = deps;
     state->ticksSinceLastUserActivity = 0;
     state->lastChipTickEnabled = false;
     state->lastCasePwmEnabled = false;
     state->lastFrontPwmEnabled = false;
-
     enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
     bool usbNeeded = initialChargeState != notConnected;
     state->lastUsbClockEnabled = usbNeeded;
@@ -45,33 +51,83 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
 
 // Auto off timer running at 0.1 hz
 // 12 megahertz / 1875 / 64000 = 0.1 hz (TIM17: prescaler=1874, period=63999)
-static void handleAutoOffTimer(
+static bool handleAutoOffTimer(
     ChipState *state, bool timerTriggered, enum ChargeState chargeState) {
-    if (timerTriggered) {
-        if (chargeState == notConnected) {
-            state->ticksSinceLastUserActivity++;
+    if (!timerTriggered || chargeState != notConnected ||
+        state->deps.settings->shutdownPolicy == manualShutdownOnly ||
+        isFakeOff(state->deps.modeManager)) {
+        return false;
+    }
 
-            uint16_t ticksUntilAutoOff =
-                state->deps.settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
-            bool autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilAutoOff;
-            if (isFakeOff(state->deps.modeManager)) {
-                uint16_t ticksUntilLockAfterAutoOff =
-                    state->deps.settings->minutesUntilLockAfterAutoOff * 6;
-                autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilLockAfterAutoOff;
-            }
+    state->ticksSinceLastUserActivity++;
 
-            if (autoOffTimerDone) {
-                if (isFakeOff(state->deps.modeManager)) {
-                    lock(state->deps.chargerIC);
-                } else {
-                    // restart timer for transition from fakeOff to shipMode
-                    state->ticksSinceLastUserActivity = 0;
+    uint16_t ticksUntilAutoOff =
+        state->deps.settings->minutesUntilAutoOff * 6;  // auto off timer running at 0.1hz
+    bool autoOffTimerDone = state->ticksSinceLastUserActivity > ticksUntilAutoOff;
+    if (autoOffTimerDone) {
+        state->ticksSinceLastUserActivity = 0;
+        enterShutdown(state, chargeState);
+        return true;
+    }
 
-                    // enter fake off mode
-                    fakeOffMode(state->deps.modeManager);
-                }
-            }
+    return false;
+}
+
+static void enterShutdown(ChipState *state, enum ChargeState chargeState) {
+    if (chargeState != notConnected) {
+        fakeOffMode(state->deps.modeManager);
+        return;
+    }
+
+    prepareForLowPowerShutdown(state);
+
+    if (state->deps.settings->shutdownPolicy == autoOffAndAutoLock) {
+        uint16_t lockThresholdMinutes = state->deps.settings->minutesUntilLockAfterAutoOff;
+        if (lockThresholdMinutes == 0U) {
+            lock(state->deps.chargerIC);
+            return;
         }
+
+        bool wokeFromButton = state->deps.waitForButtonWakeOrAutoLock(lockThresholdMinutes);
+        if (wokeFromButton) {
+            state->deps.systemReset();
+            return;
+        }
+
+        lock(state->deps.chargerIC);
+        return;
+    }
+
+    state->deps.enterStandbyMode();
+}
+
+static void prepareForLowPowerShutdown(ChipState *state) {
+    state->deps.enableAutoOffTimer(false);
+
+    // The BQ25180 host watchdog must be disabled before long MCU sleep intervals,
+    // or it can reset charger state while we are intentionally in Stop/Standby.
+    // Will be re initialized when the system wakes up
+    disableWatchdog(state->deps.chargerIC);
+    mc3479Disable(state->deps.accel);
+
+    if (state->lastChipTickEnabled) {
+        state->deps.enableChipTickTimer(false);
+        state->lastChipTickEnabled = false;
+    }
+
+    if (state->lastCasePwmEnabled) {
+        state->deps.enableCaseLedTimer(false);
+        state->lastCasePwmEnabled = false;
+    }
+
+    // Force GPIO mode and drive the legacy bulb/front-blue pin low even if
+    // cached PWM state says the front timer was already disabled.
+    state->deps.enableFrontLedTimer(false);
+    state->lastFrontPwmEnabled = false;
+
+    if (state->lastUsbClockEnabled) {
+        state->deps.enableUsbClock(false);
+        state->lastUsbClockEnabled = false;
     }
 }
 
@@ -115,7 +171,9 @@ static void applyTimerPolicy(
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     enum ChargeState chargeState = getChargingState(state->deps.chargerIC, milliseconds);
-    handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState);
+    if (handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState)) {
+        return;
+    }
 
     bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);
     bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
@@ -148,7 +206,10 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
             break;
         }
         case shutdown: {
-            fakeOffMode(state->deps.modeManager);
+            enterShutdown(state, chargeState);
+            if (chargeState == notConnected) {
+                return;
+            }
             // Clear outputs so applyTimerPolicy disables front/case PWM timers
             outputs.frontValid = false;
             outputs.caseValid = false;

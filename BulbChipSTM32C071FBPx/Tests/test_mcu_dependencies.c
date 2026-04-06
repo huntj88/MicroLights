@@ -4,6 +4,7 @@
 #include "unity.h"
 
 // Include the mock headers
+#include "main.h"
 #include "mock_gpio_moder.h"
 #include "stm32c0xx.h"
 #include "stm32c0xx_hal.h"
@@ -16,16 +17,43 @@ TIM_TypeDef mockTIM3;
 RCC_TypeDef mockRCC = {.CR = RCC_CR_HSIUSB48RDY};
 CRS_TypeDef mockCRS;
 I2C_HandleTypeDef hi2c1;
+RTC_HandleTypeDef hrtc;
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim17;
+PWR_TypeDef mockPWR;
+uint16_t mockLastExtiClearedLine;
 
 // GPIO mock instance for GPIOA — allows code to read/write MODER register.
 GPIO_TypeDef mockGPIOA;
 
 // I2C init tracking
 static uint32_t i2cInitCallCount = 0;
+static RTC_TimeTypeDef mockRtcTime;
+static RTC_DateTypeDef mockRtcDate;
+static RTC_AlarmTypeDef lastRtcAlarm;
+static uint32_t rtcSetAlarmCallCount = 0;
+static uint32_t rtcDeactivateAlarmCallCount = 0;
+static uint32_t wakeUpPinEnableCallCount = 0;
+static uint32_t wakeUpPinDisableCallCount = 0;
+static uint32_t lastWakeUpPinEnable = 0;
+static uint32_t lastWakeUpPinDisable = 0;
+static uint32_t enterStopModeCallCount = 0;
+static uint32_t enterStandbyModeCallCount = 0;
+static uint32_t systemClockConfigCallCount = 0;
+static uint32_t autoOffTimerStartCallCount = 0;
+static uint32_t autoOffTimerStopCallCount = 0;
+static uint32_t errorHandlerCallCount = 0;
+static GPIO_TypeDef *lastGpioReadPort = NULL;
+static uint16_t lastGpioReadPin = 0;
+static GPIO_PinState mockButtonPinState = GPIO_PIN_RESET;
+
+#define PWR_FLAG_REGISTER_SELECTOR_MASK 0x00030000u
+
+static uint32_t pwrStatusBits(uint32_t flag) {
+    return flag & ~PWR_FLAG_REGISTER_SELECTOR_MASK;
+}
 
 // GPIO init tracking
 static GPIO_InitTypeDef lastGpioInit;
@@ -65,6 +93,11 @@ HAL_StatusTypeDef HAL_I2C_Mem_Write(
     return HAL_OK;
 }
 GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin) {
+    lastGpioReadPort = GPIOx;
+    lastGpioReadPin = GPIO_Pin;
+    if (GPIOx == button_GPIO_Port && GPIO_Pin == button_Pin) {
+        return mockButtonPinState;
+    }
     return GPIO_PIN_RESET;
 }
 void HAL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init) {
@@ -92,9 +125,15 @@ HAL_StatusTypeDef HAL_TIM_PWM_Stop(TIM_HandleTypeDef *htim, uint32_t Channel) {
     return HAL_OK;
 }
 HAL_StatusTypeDef HAL_TIM_Base_Start_IT(TIM_HandleTypeDef *htim) {
+    if (htim == &htim17) {
+        autoOffTimerStartCallCount++;
+    }
     return HAL_OK;
 }
 HAL_StatusTypeDef HAL_TIM_Base_Stop_IT(TIM_HandleTypeDef *htim) {
+    if (htim == &htim17) {
+        autoOffTimerStopCallCount++;
+    }
     return HAL_OK;
 }
 void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef *RCC_ClkInitStruct, uint32_t *pFLatency) {
@@ -105,6 +144,77 @@ uint32_t HAL_RCC_GetPCLK1Freq(void) {
 HAL_StatusTypeDef HAL_I2C_Init(I2C_HandleTypeDef *hi2c) {
     i2cInitCallCount++;
     return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_GetTime(
+    RTC_HandleTypeDef *hrtc, RTC_TimeTypeDef *sTime, uint32_t Format) {
+    (void)hrtc;
+    (void)Format;
+    *sTime = mockRtcTime;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_GetDate(
+    const RTC_HandleTypeDef *hrtc, RTC_DateTypeDef *sDate, uint32_t Format) {
+    (void)hrtc;
+    (void)Format;
+    *sDate = mockRtcDate;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(
+    RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Format) {
+    (void)hrtc;
+    (void)Format;
+    rtcSetAlarmCallCount++;
+    lastRtcAlarm = *sAlarm;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alarm) {
+    (void)hrtc;
+    (void)Alarm;
+    rtcDeactivateAlarmCallCount++;
+    return HAL_OK;
+}
+void HAL_PWR_EnableWakeUpPin(uint32_t WakeUpPinPolarity) {
+    wakeUpPinEnableCallCount++;
+    lastWakeUpPinEnable = WakeUpPinPolarity;
+}
+void HAL_PWR_DisableWakeUpPin(uint32_t WakeUpPinx) {
+    wakeUpPinDisableCallCount++;
+    lastWakeUpPinDisable = WakeUpPinx;
+}
+HAL_StatusTypeDef HAL_PWREx_EnableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullUp(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+HAL_StatusTypeDef HAL_PWREx_DisableGPIOPullDown(uint32_t GPIO, uint32_t GPIONumber) {
+    (void)GPIO;
+    (void)GPIONumber;
+    return HAL_OK;
+}
+void HAL_PWREx_EnablePullUpPullDownConfig(void) {
+}
+void HAL_PWREx_DisablePullUpPullDownConfig(void) {
+}
+void HAL_PWR_EnterSTOPMode(uint32_t Regulator, uint8_t STOPEntry) {
+    (void)Regulator;
+    (void)STOPEntry;
+    enterStopModeCallCount++;
+}
+void HAL_PWR_EnterSTANDBYMode(void) {
+    enterStandbyModeCallCount++;
+}
+
+void SystemClock_Config(void) {
+    systemClockConfigCallCount++;
+}
+
+void Error_Handler(void) {
+    errorHandlerCallCount++;
 }
 
 // TinyUSB stubs
@@ -152,6 +262,26 @@ void setUp(void) {
     i2cInitCallCount = 0;
     tudConnectCalled = false;
     tudDisconnectCalled = false;
+    memset(&mockRtcTime, 0, sizeof(mockRtcTime));
+    mockRtcDate = (RTC_DateTypeDef){.WeekDay = 1, .Month = 1, .Date = 1, .Year = 0};
+    memset(&lastRtcAlarm, 0, sizeof(lastRtcAlarm));
+    rtcSetAlarmCallCount = 0;
+    rtcDeactivateAlarmCallCount = 0;
+    wakeUpPinEnableCallCount = 0;
+    wakeUpPinDisableCallCount = 0;
+    lastWakeUpPinEnable = 0;
+    lastWakeUpPinDisable = 0;
+    mockLastExtiClearedLine = 0;
+    enterStopModeCallCount = 0;
+    enterStandbyModeCallCount = 0;
+    systemClockConfigCallCount = 0;
+    autoOffTimerStartCallCount = 0;
+    autoOffTimerStopCallCount = 0;
+    errorHandlerCallCount = 0;
+    lastGpioReadPort = NULL;
+    lastGpioReadPin = 0;
+    mockButtonPinState = GPIO_PIN_RESET;
+    memset(&mockPWR, 0, sizeof(mockPWR));
     mockRCC.CR = RCC_CR_HSIUSB48RDY;
     mockCRS.CR = 0;
     // Reset timer prescalers to a known sentinel so tests can detect changes
@@ -385,13 +515,121 @@ void test_EnableUsbClock_InvalidatesTickMultiplier(void) {
         0, tickMultiplier, "tickMultiplier should be reset after enableUsbClock(false)");
 }
 
+void test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags(void) {
+    enterStandbyMode();
+
+    TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinDisableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN_MASK, lastWakeUpPinDisable);
+    TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinEnableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN, lastWakeUpPinEnable);
+    TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF | PWR_FLAG_SB, mockPWR.SCR);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStandbyModeCallCount);
+}
+
+void test_ReadButtonPin_UsesConfiguredButtonPin(void) {
+    mockButtonPinState = GPIO_PIN_RESET;
+
+    TEST_ASSERT_EQUAL_UINT8(0, readButtonPin());
+    TEST_ASSERT_EQUAL_PTR(button_GPIO_Port, lastGpioReadPort);
+    TEST_ASSERT_EQUAL_UINT16(button_Pin, lastGpioReadPin);
+}
+
+void test_EnableAutoOffTimer_UsesTim17(void) {
+    enableAutoOffTimer(true);
+    enableAutoOffTimer(false);
+
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerStartCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, autoOffTimerStopCallCount);
+}
+
+void test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock(void) {
+    mockRtcTime = (RTC_TimeTypeDef){.Hours = 1, .Minutes = 2, .Seconds = 3};
+    mockRtcDate = (RTC_DateTypeDef){.WeekDay = 1, .Month = 1, .Date = 1, .Year = 0};
+
+    enterStopModeWithRtcAlarm(60);
+
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    TEST_ASSERT_EQUAL_UINT32(0, wakeUpPinDisableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, wakeUpPinEnableCallCount);
+#else
+    TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinDisableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN_MASK, lastWakeUpPinDisable);
+    TEST_ASSERT_EQUAL_UINT32(1, wakeUpPinEnableCallCount);
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_PIN, lastWakeUpPinEnable);
+#endif
+    TEST_ASSERT_EQUAL_UINT32(PWR_FLAG_WUF | PWR_FLAG_SB, mockPWR.SCR);
+    TEST_ASSERT_EQUAL_UINT32(1, rtcSetAlarmCallCount);
+    TEST_ASSERT_EQUAL_UINT8(1, lastRtcAlarm.AlarmTime.Hours);
+    TEST_ASSERT_EQUAL_UINT8(3, lastRtcAlarm.AlarmTime.Minutes);
+    TEST_ASSERT_EQUAL_UINT8(3, lastRtcAlarm.AlarmTime.Seconds);
+    TEST_ASSERT_EQUAL_UINT8(1, lastRtcAlarm.AlarmDateWeekDay);
+    TEST_ASSERT_EQUAL_UINT32(2, rtcDeactivateAlarmCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(1, systemClockConfigCallCount);
+    TEST_ASSERT_EQUAL_UINT32(0, errorHandlerCallCount);
+}
+
+void test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_SET;
+#endif
+
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(2);
+
+    TEST_ASSERT_FALSE(wokeFromButton);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+    TEST_ASSERT_EQUAL_UINT32(
+        120,
+        lastRtcAlarm.AlarmTime.Hours * 3600U + lastRtcAlarm.AlarmTime.Minutes * 60U +
+            lastRtcAlarm.AlarmTime.Seconds -
+            (mockRtcTime.Hours * 3600U + mockRtcTime.Minutes * 60U + mockRtcTime.Seconds));
+}
+
+void test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_RESET;
+#else
+    mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
+#endif
+
+    bool wokeFromButton = waitForButtonWakeOrAutoLock(2);
+
+    TEST_ASSERT_TRUE(wokeFromButton);
+    TEST_ASSERT_EQUAL_UINT32(1, enterStopModeCallCount);
+}
+
+void test_WasWakeFromButton_ReturnsTrueAndClearsFlag(void) {
+#ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
+    mockButtonPinState = GPIO_PIN_RESET;
+    TEST_ASSERT_TRUE(wasWakeFromButton());
+
+    mockButtonPinState = GPIO_PIN_SET;
+    TEST_ASSERT_FALSE(wasWakeFromButton());
+#else
+    mockPWR.SR1 = pwrStatusBits(BUTTON_WAKEUP_FLAG);
+
+    TEST_ASSERT_TRUE(wasWakeFromButton());
+    TEST_ASSERT_EQUAL_UINT32(BUTTON_WAKEUP_FLAG, mockPWR.SCR);
+
+    mockPWR.SR1 = 0;
+    TEST_ASSERT_FALSE(wasWakeFromButton());
+#endif
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_EnableAutoOffTimer_UsesTim17);
     RUN_TEST(test_EnableFrontLedTimer_GpioReconfigurationRoundTrip);
     RUN_TEST(test_EnableUsbClock_Disable_TearsDownClocksAndI2C);
     RUN_TEST(test_EnableUsbClock_Enable_SetsUpClocksAndI2C);
     RUN_TEST(test_EnableUsbClock_InvalidatesTickMultiplier);
+    RUN_TEST(test_EnterStandbyMode_ConfiguresWakePinAndClearsFlags);
+    RUN_TEST(test_EnterStopModeWithRtcAlarm_SchedulesAlarmAndRestoresClock);
     RUN_TEST(test_FrontBluePin_ReconfiguresBetweenGpioAndPwm);
+    RUN_TEST(test_ReadButtonPin_UsesConfiguredButtonPin);
+    RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsFalse_AfterTimeout);
+    RUN_TEST(test_WaitForButtonWakeOrAutoLock_ReturnsTrue_OnButtonWake);
+    RUN_TEST(test_WasWakeFromButton_ReturnsTrueAndClearsFlag);
     RUN_TEST(test_WriteBulbLed_Legacy_DrivesBothBulbAndFBluePins);
     return UNITY_END();
 }

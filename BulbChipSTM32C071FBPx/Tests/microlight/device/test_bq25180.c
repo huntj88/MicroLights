@@ -9,10 +9,16 @@ static uint8_t mockRegisters[20];
 static uint8_t lastWrittenReg;
 static uint8_t lastWrittenValue;
 static bool writeCalled = false;
+static bool mockReadRegistersShouldFail = false;
 static char serialBuffer[1024];
 static uint32_t serialBufferLen = 0;
 
 bool mock_readRegisters(uint8_t devAddress, uint8_t startReg, uint8_t *buf, size_t len) {
+    (void)devAddress;
+    if (mockReadRegistersShouldFail) {
+        return false;
+    }
+
     if (startReg + len <= 20) {
         memcpy(buf, &mockRegisters[startReg], len);
         return true;
@@ -70,6 +76,7 @@ void setUp(void) {
     writeCalled = false;
     lastWrittenReg = 0;
     lastWrittenValue = 0;
+    mockReadRegistersShouldFail = false;
 
     serialBufferLen = 0;
     serialBuffer[0] = '\0';
@@ -89,6 +96,25 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+}
+
+void test_Bq25180Init_Configures160SecondHardwareResetWatchdog(void) {
+    BQ25180 freshCharger = {0};
+
+    bq25180Init(
+        &freshCharger, mock_readRegisters, mock_writeRegister, 0x6A, mock_writeToSerial, &mockLed);
+
+    TEST_ASSERT_EQUAL_UINT8(
+        BQ25180_WATCHDOG_160S_HW_RESET, mockRegisters[BQ25180_IC_CTRL] & BQ25180_WATCHDOG_SEL_MASK);
+}
+
+void test_DisableWatchdog_DisablesHostWatchdog(void) {
+    disableWatchdog(&charger);
+
+    TEST_ASSERT_TRUE(writeCalled);
+    TEST_ASSERT_EQUAL_UINT8(BQ25180_IC_CTRL, lastWrittenReg);
+    TEST_ASSERT_EQUAL_UINT8(
+        BQ25180_WATCHDOG_DISABLED, lastWrittenValue & BQ25180_WATCHDOG_SEL_MASK);
 }
 
 void test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled(void) {
@@ -221,8 +247,20 @@ void test_ChargerTask_WritesValidJson_And_FitsInBuffer(void) {
         "JSON output length mismatch with buffer size");
 }
 
+void test_GetChargingState_PreservesPreviousState_WhenReadFails(void) {
+    charger.chargingState = notCharging;
+    charger.chargeStateCachedAtMs = 1;
+    mockReadRegistersShouldFail = true;
+
+    enum ChargeState state = getChargingState(&charger, 2000);
+
+    TEST_ASSERT_EQUAL(notCharging, state);
+    TEST_ASSERT_EQUAL(notCharging, charger.chargingState);
+}
+
 int main(void) {
     UNITY_BEGIN();
+    RUN_TEST(test_Bq25180Init_Configures160SecondHardwareResetWatchdog);
     RUN_TEST(test_ChargerTask_DoesNotLock_WhenUnplugged_And_UnplugLockDisabled);
     RUN_TEST(test_ChargerTask_DoesNotUpdateLed_WhenChargeLedDisabled);
     RUN_TEST(test_ChargerTask_Locks_WhenUnplugged_And_UnplugLockEnabled);
@@ -230,5 +268,7 @@ int main(void) {
     RUN_TEST(test_ChargerTask_UpdatesLed_WhenStateChangesFromNotConnectedToConnected);
     RUN_TEST(test_ChargerTask_WritesRegistersToSerial_WhenSerialEnabled);
     RUN_TEST(test_ChargerTask_WritesValidJson_And_FitsInBuffer);
+    RUN_TEST(test_DisableWatchdog_DisablesHostWatchdog);
+    RUN_TEST(test_GetChargingState_PreservesPreviousState_WhenReadFails);
     return UNITY_END();
 }
