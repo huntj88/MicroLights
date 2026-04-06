@@ -194,4 +194,45 @@ describe('SettingsModal', () => {
       });
     });
   });
+
+  it('renders defaults when settings is null', async () => {
+    render(<SettingsModal isOpen={true} onClose={mockOnClose} />);
+
+    act(() => {
+      dataCallback('', {
+        settings: null,
+        defaults: {
+          modeCount: 0,
+          minutesUntilAutoOff: 90,
+          minutesUntilLockAfterAutoOff: 10,
+          equationEvalIntervalMs: 20,
+          shutdownPolicy: 2,
+          enableChargerSerial: false,
+          enableI2cFailureReporting: false,
+        },
+        metadata: {
+          shutdownPolicy: {
+            type: 'enum',
+            options: {
+              manualShutdownOnly: 0,
+              autoOffNoAutoLock: 1,
+              autoOffAndAutoLock: 2,
+            },
+          },
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Mode Count')).toBeInTheDocument();
+    });
+
+    expect(screen.getByLabelText('Mode Count')).toHaveValue(0);
+    expect(screen.getByLabelText('Minutes Until Auto Off')).toHaveValue(90);
+    expect(screen.getByLabelText('Minutes Until Lock After Auto Off')).toHaveValue(10);
+    expect(screen.getByLabelText('Equation Eval Interval Ms')).toHaveValue(20);
+    expect(screen.getByLabelText('Shutdown Policy')).toHaveValue('2');
+    expect(screen.getByLabelText('Enable Charger Serial')).not.toBeChecked();
+    expect(screen.getByLabelText('Enable I2c Failure Reporting')).not.toBeChecked();
+  });
 });

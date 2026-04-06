@@ -24,7 +24,7 @@ type SettingMetadata = EnumSettingMetadata;
 type SettingsMetadata = Partial<Record<string, SettingMetadata>>;
 
 interface SettingsResponse {
-  settings: Settings & { command: string };
+  settings: (Settings & { command?: string }) | null;
   defaults: Settings;
   metadata?: SettingsMetadata;
 }
@@ -85,6 +85,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
 
       const handleResponse = (response: SettingsResponse) => {
         const newSettings: Settings = {};
+        const currentSettings = response.settings ?? {};
 
         // Initialize with defaults
         Object.keys(response.defaults).forEach(key => {
@@ -92,9 +93,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         });
 
         // Override with current settings
-        Object.keys(response.settings).forEach(key => {
+        Object.keys(currentSettings).forEach(key => {
           if (key !== 'command') {
-            newSettings[key] = response.settings[key];
+            newSettings[key] = currentSettings[key];
           }
         });
 
