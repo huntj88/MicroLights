@@ -305,7 +305,7 @@ void test_SettingsMetadataJson_ContainsShutdownPolicyOptions(void) {
 
     const lwjson_token_t *optionsToken = lwjson_find(&lwjson, "shutdownPolicy.options");
     TEST_ASSERT_NOT_NULL(optionsToken);
-    TEST_ASSERT_EQUAL(LWJSON_TYPE_ARRAY, optionsToken->type);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_OBJECT, optionsToken->type);
 
     int optionCount = 0;
     for (const lwjson_token_t *child = optionsToken->u.first_child; child != NULL;
@@ -320,29 +320,11 @@ void test_SettingsMetadataJson_ContainsShutdownPolicyOptions(void) {
 
     TEST_ASSERT_EQUAL(macroCount, optionCount);
 
-    const lwjson_token_t *secondOptionToken = optionsToken->u.first_child;
-    TEST_ASSERT_NOT_NULL(secondOptionToken);
-    secondOptionToken = secondOptionToken->next;
-    TEST_ASSERT_NOT_NULL(secondOptionToken);
-
-    const lwjson_token_t *labelToken = NULL;
-    for (const lwjson_token_t *child = secondOptionToken->u.first_child; child != NULL;
-         child = child->next) {
-        if (child->token_name_len == strlen("label") &&
-            strncmp(child->token_name, "label", child->token_name_len) == 0) {
-            labelToken = child;
-            break;
-        }
-    }
-
-    TEST_ASSERT_NOT_NULL(labelToken);
-    TEST_ASSERT_EQUAL(LWJSON_TYPE_STRING, labelToken->type);
-    TEST_ASSERT_EQUAL_size_t(
-        strlen("Auto off without auto lock"), labelToken->u.str.token_value_len);
-    TEST_ASSERT_EQUAL_STRING_LEN(
-        "Auto off without auto lock",
-        labelToken->u.str.token_value,
-        labelToken->u.str.token_value_len);
+    const lwjson_token_t *autoOffToken =
+        lwjson_find(&lwjson, "shutdownPolicy.options.autoOffNoAutoLock");
+    TEST_ASSERT_NOT_NULL(autoOffToken);
+    TEST_ASSERT_EQUAL(LWJSON_TYPE_NUM_INT, autoOffToken->type);
+    TEST_ASSERT_EQUAL_INT(autoOffNoAutoLock, autoOffToken->u.num_int);
 
     lwjson_free(&lwjson);
 }

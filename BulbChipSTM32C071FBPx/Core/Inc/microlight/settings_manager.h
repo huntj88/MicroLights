@@ -14,7 +14,7 @@
 #include "model/storage.h"
 
 #define SETTINGS_DEFAULTS_JSON_SIZE 192
-#define SETTINGS_METADATA_JSON_SIZE 320
+#define SETTINGS_METADATA_JSON_SIZE 160
 
 typedef struct SettingsManager {
     ChipSettings currentSettings;

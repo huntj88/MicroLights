@@ -336,7 +336,7 @@ static bool wasWakeFromButton(void) {
 }
 
 bool waitForButtonWakeOrAutoLock(uint16_t lockThresholdMinutes) {
-    uint16_t lockThresholdSeconds = (uint16_t)lockThresholdMinutes * 60U;
+    uint16_t lockThresholdSeconds = lockThresholdMinutes * 60U;
 
     enterStopModeWithRtcAlarm(lockThresholdSeconds);
     return wasWakeFromButton();

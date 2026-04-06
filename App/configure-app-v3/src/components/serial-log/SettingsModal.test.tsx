@@ -9,7 +9,22 @@ import { SettingsModal } from './SettingsModal';
 // Mock dependencies
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({
-    t: (key: string) => key,
+    t: (key: string, options?: { defaultValue?: string }) => {
+      const translations: Record<string, string> = {
+        'serialLog.configureSettings.options.shutdownPolicy.manualShutdownOnly':
+          'Manual shutdown only',
+        'serialLog.configureSettings.options.shutdownPolicy.autoOffNoAutoLock':
+          'Auto off without auto lock',
+        'serialLog.configureSettings.options.shutdownPolicy.autoOffAndAutoLock':
+          'Auto off and auto lock',
+      };
+
+      if (key in translations) {
+        return translations[key];
+      }
+
+      return options?.defaultValue ?? key;
+    },
   }),
 }));
 
@@ -56,13 +71,25 @@ describe('SettingsModal', () => {
         command: 'writeSettings',
         modeCount: 3,
         equationEvalIntervalMs: 0,
+        shutdownPolicy: 1,
       },
       defaults: {
         modeCount: 0,
         minutesUntilAutoOff: 90,
         minutesUntilLockAfterAutoOff: 10,
         equationEvalIntervalMs: 20,
+        shutdownPolicy: 2,
         enableChargerSerial: false,
+      },
+      metadata: {
+        shutdownPolicy: {
+          type: 'enum',
+          options: {
+            manualShutdownOnly: 0,
+            autoOffNoAutoLock: 1,
+            autoOffAndAutoLock: 2,
+          },
+        },
       },
     };
 
@@ -93,6 +120,11 @@ describe('SettingsModal', () => {
     expect(autoOffInput.value).toBe('90');
     expect(screen.getByText('Default: 90')).toBeInTheDocument();
 
+    const shutdownPolicySelect = screen.getByRole('combobox', { name: 'Shutdown Policy' });
+    expect(shutdownPolicySelect).toHaveValue('1');
+    expect(screen.getByRole('option', { name: 'Auto off and auto lock' })).toBeInTheDocument();
+    expect(screen.getByText('Default: Auto off and auto lock')).toBeInTheDocument();
+
     // Check Enable Charger Serial (boolean)
     // The label might be "Enable Charger Serial"
     const chargerCheckbox = screen.getByLabelText('Enable Charger Serial');
@@ -107,10 +139,22 @@ describe('SettingsModal', () => {
       settings: {
         command: 'writeSettings',
         modeCount: 3,
+        shutdownPolicy: 1,
       },
       defaults: {
         modeCount: 0,
         minutesUntilAutoOff: 90,
+        shutdownPolicy: 2,
+      },
+      metadata: {
+        shutdownPolicy: {
+          type: 'enum',
+          options: {
+            manualShutdownOnly: 0,
+            autoOffNoAutoLock: 1,
+            autoOffAndAutoLock: 2,
+          },
+        },
       },
     };
 
@@ -133,6 +177,9 @@ describe('SettingsModal', () => {
     const autoOffInput = screen.getByLabelText('Minutes Until Auto Off');
     fireEvent.change(autoOffInput, { target: { value: '60' } });
 
+    const shutdownPolicySelect = screen.getByLabelText('Shutdown Policy');
+    fireEvent.change(shutdownPolicySelect, { target: { value: '0' } });
+
     // Save
     const saveButton = screen.getByText('common.actions.save');
     fireEvent.click(saveButton);
@@ -143,6 +190,7 @@ describe('SettingsModal', () => {
         command: 'writeSettings',
         modeCount: 5,
         minutesUntilAutoOff: 60,
+        shutdownPolicy: 0,
       });
     });
   });

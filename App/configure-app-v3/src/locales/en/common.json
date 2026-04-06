@@ -234,7 +234,14 @@
       "outbound": "outgoing"
     },
     "configureSettings": {
-      "title": "Configure Settings"
+      "title": "Configure Settings",
+      "options": {
+        "shutdownPolicy": {
+          "manualShutdownOnly": "Manual shutdown only",
+          "autoOffNoAutoLock": "Auto off without auto lock",
+          "autoOffAndAutoLock": "Auto off and auto lock"
+        }
+      }
     }
   },
   "settings": {

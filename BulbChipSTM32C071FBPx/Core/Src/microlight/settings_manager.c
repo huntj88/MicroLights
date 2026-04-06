@@ -97,26 +97,20 @@ int getSettingsMetadataJson(char *buffer, size_t length) {
 
     offset = appendJson(buffer, length, offset, "{");
     offset = appendJson(buffer, length, offset, "\"shutdownPolicy\":{");
-    offset = appendJson(buffer, length, offset, "\"type\":\"enum\",\"options\":[");
+    offset = appendJson(buffer, length, offset, "\"type\":\"enum\",\"options\":{");
 
     bool first = true;
-#define X_OPTION(name, value, label)                             \
-    if (!first) {                                                \
-        offset = appendJson(buffer, length, offset, ",");        \
-    }                                                            \
-    offset = appendJson(                                         \
-        buffer,                                                  \
-        length,                                                  \
-        offset,                                                  \
-        "{\"value\":%d,\"key\":\"" #name "\",\"label\":\"%s\"}", \
-        value,                                                   \
-        label);                                                  \
+#define X_OPTION(name, value, label)                                        \
+    if (!first) {                                                           \
+        offset = appendJson(buffer, length, offset, ",");                   \
+    }                                                                       \
+    offset = appendJson(buffer, length, offset, "\"" #name "\":%d", value); \
     first = false;
 
     SHUTDOWN_POLICY_MAP(X_OPTION)
 #undef X_OPTION
 
-    offset = appendJson(buffer, length, offset, "]}");
+    offset = appendJson(buffer, length, offset, "}}");
     offset = appendJson(buffer, length, offset, "}");
 
     return offset;
