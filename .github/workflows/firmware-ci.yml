@@ -20,7 +20,7 @@ jobs:
 
     - name: Install App Dependencies
       working-directory: App/configure-app-v3
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Install Linting Tools
       run: |
@@ -29,7 +29,7 @@ jobs:
 
     - name: Generate C Parser
       working-directory: App/configure-app-v3
-      run: npm run generate:c_parser
+      run: pnpm generate:c_parser
 
     - name: Set up Python
       uses: actions/setup-python@v5

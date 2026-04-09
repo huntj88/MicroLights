@@ -16,8 +16,8 @@ Flow Art Forge is a Vite + React 19 single-page application for composing LED pa
 ## 🚀 Getting started
 
 ```bash
-npm install
-npm run dev    # start Vite dev server at http://localhost:5173
+pnpm install
+pnpm dev    # start Vite dev server at http://localhost:5173
 ```
 
 The app uses a `HashRouter`, so deep links continue to work on static hosting platforms such as Vercel.
@@ -26,27 +26,27 @@ The app uses a `HashRouter`, so deep links continue to work on static hosting pl
 
 | Script                                    | Description                                      |
 | ----------------------------------------- | ------------------------------------------------ |
-| `npm run dev`                             | Start the development server with hot reloading. |
-| `npm run build`                           | Type-check and create a production build.        |
-| `npm run dfu`                             | Send the DFU command to a connected USB device.  |
-| `npm run preview`                         | Preview the production build locally.            |
-| `npm run lint` / `npm run lint:fix`       | Run ESLint in strict mode (with autofix).        |
-| `npm run format` / `npm run format:check` | Apply or verify Prettier formatting.             |
-| `npm run test` / `npm run test:watch`     | Execute Vitest suites once or in watch mode.     |
+| `pnpm dev`                                | Start the development server with hot reloading. |
+| `pnpm build`                              | Type-check and create a production build.        |
+| `pnpm dfu`                                | Send the DFU command to a connected USB device.  |
+| `pnpm preview`                            | Preview the production build locally.            |
+| `pnpm lint` / `pnpm lint:fix`             | Run ESLint in strict mode (with autofix).        |
+| `pnpm format` / `pnpm format:check`       | Apply or verify Prettier formatting.             |
+| `pnpm test` / `pnpm test:watch`           | Execute Vitest suites once or in watch mode.     |
 
 ## USB DFU script
 
 Use the standalone Node script when you want to send the DFU command without opening the browser app:
 
 ```bash
-npm run dfu
+pnpm dfu
 ```
 
 Optional filters:
 
 ```bash
-npm run dfu -- --serial YOUR_SERIAL_NUMBER
-npm run dfu -- --vendor-id 0xcafe --product-id 0x0001
+pnpm dfu -- --serial YOUR_SERIAL_NUMBER
+pnpm dfu -- --vendor-id 0xcafe --product-id 0x0001
 ```
 
 On Linux, you may need udev permissions for the USB device before libusb can open it.
