@@ -217,6 +217,7 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         }
         case lockOrHardwareReset:
             lock(state->deps.chargerIC);
+            enterShutdown(state, chargeState);
             break;
     }
 
