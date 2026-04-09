@@ -43,13 +43,13 @@ void test_rgbInit_NullCallback_ReturnsFalse(void) {
     TEST_ASSERT_FALSE(rgbInit(&led, NULL, 255));
 }
 
-void test_rgbInit_PeriodAbove511_ReturnsFalse(void) {
-    TEST_ASSERT_FALSE(rgbInit(&led, mock_writePwm, 512));
+void test_rgbInit_PeriodAbove510_ReturnsFalse(void) {
+    TEST_ASSERT_FALSE(rgbInit(&led, mock_writePwm, 511));
 }
 
-void test_rgbInit_Period511_Accepted(void) {
-    TEST_ASSERT_TRUE(rgbInit(&led, mock_writePwm, 511));
-    TEST_ASSERT_EQUAL_UINT16(511, led.period);
+void test_rgbInit_Period510_Accepted(void) {
+    TEST_ASSERT_TRUE(rgbInit(&led, mock_writePwm, 510));
+    TEST_ASSERT_EQUAL_UINT16(510, led.period);
 }
 
 void test_rgbInit_ValidParams_SetsFieldsCorrectly(void) {
@@ -91,24 +91,24 @@ void test_colorRangeToDuty_ZeroInput_ReturnsZero(void) {
     TEST_ASSERT_EQUAL_UINT16(0, colorRangeToDuty(&led, 0));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriod255(void) {
+void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne255(void) {
     rgbInit(&led, mock_writePwm, 255);
-    TEST_ASSERT_EQUAL_UINT16(255, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(256, colorRangeToDuty(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriod511(void) {
-    rgbInit(&led, mock_writePwm, 511);
+void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne510(void) {
+    rgbInit(&led, mock_writePwm, 510);
     TEST_ASSERT_EQUAL_UINT16(511, colorRangeToDuty(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriod100(void) {
+void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne100(void) {
     rgbInit(&led, mock_writePwm, 100);
-    TEST_ASSERT_EQUAL_UINT16(100, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(101, colorRangeToDuty(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriod1(void) {
+void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne1(void) {
     rgbInit(&led, mock_writePwm, 1);
-    TEST_ASSERT_EQUAL_UINT16(1, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(2, colorRangeToDuty(&led, 255));
 }
 
 // ── colorRangeToDuty monotonicity ───────────────────────────────────
@@ -123,35 +123,35 @@ void test_colorRangeToDuty_Monotonic_Period255(void) {
     }
 }
 
-void test_colorRangeToDuty_Monotonic_Period511(void) {
-    rgbInit(&led, mock_writePwm, 511);
+void test_colorRangeToDuty_Monotonic_Period510(void) {
+    rgbInit(&led, mock_writePwm, 510);
     uint16_t prev = colorRangeToDuty(&led, 0);
     for (int i = 1; i < 256; i++) {
         uint16_t cur = colorRangeToDuty(&led, (uint8_t)i);
-        TEST_ASSERT_TRUE_MESSAGE(cur >= prev, "duty not monotonically non-decreasing (period 511)");
+        TEST_ASSERT_TRUE_MESSAGE(cur >= prev, "duty not monotonically non-decreasing (period 510)");
         prev = cur;
     }
 }
 
 // ── colorRangeToDuty known computed values ──────────────────────────
 // gammaLUT[15] = 1
-//   period 255: (1 * 255 * 0x8081) >> 23 = 1
-//   period 511: (1 * 511 * 0x8081) >> 23 = 2
+//   period 255: (1 * 256 * 0x8081) >> 23 = 1
+//   period 510: (1 * 511 * 0x8081) >> 23 = 2
 // gammaLUT[25] = 2
-//   period 511: (2 * 511 * 0x8081) >> 23 = 4
+//   period 510: (2 * 511 * 0x8081) >> 23 = 4
 
 void test_colorRangeToDuty_KnownPoint_Period255_Value15(void) {
     rgbInit(&led, mock_writePwm, 255);
     TEST_ASSERT_EQUAL_UINT16(1, colorRangeToDuty(&led, 15));
 }
 
-void test_colorRangeToDuty_KnownPoint_Period511_Value15(void) {
-    rgbInit(&led, mock_writePwm, 511);
+void test_colorRangeToDuty_KnownPoint_Period510_Value15(void) {
+    rgbInit(&led, mock_writePwm, 510);
     TEST_ASSERT_EQUAL_UINT16(2, colorRangeToDuty(&led, 15));
 }
 
-void test_colorRangeToDuty_KnownPoint_Period511_Value25(void) {
-    rgbInit(&led, mock_writePwm, 511);
+void test_colorRangeToDuty_KnownPoint_Period510_Value25(void) {
+    rgbInit(&led, mock_writePwm, 510);
     TEST_ASSERT_EQUAL_UINT16(4, colorRangeToDuty(&led, 25));
 }
 
@@ -304,13 +304,13 @@ void test_rgbShowUserColor_White_DrivesPwmToMax_Period255(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowUserColor(&led, 255, 255, 255);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(255, capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(255, capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(255, capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(256, capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(256, capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(256, capturedBlue);
 }
 
-void test_rgbShowUserColor_White_DrivesPwmToMax_Period511(void) {
-    rgbInit(&led, mock_writePwm, 511);
+void test_rgbShowUserColor_White_DrivesPwmToMax_Period510(void) {
+    rgbInit(&led, mock_writePwm, 510);
     rgbShowUserColor(&led, 255, 255, 255);
     TEST_ASSERT_TRUE(writePwmCalled);
     TEST_ASSERT_EQUAL_UINT16(511, capturedRed);
@@ -321,22 +321,22 @@ void test_rgbShowUserColor_White_DrivesPwmToMax_Period511(void) {
 int main(void) {
     UNITY_BEGIN();
     RUN_TEST(test_colorRangeToDuty_KnownPoint_Period255_Value15);
-    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period511_Value15);
-    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period511_Value25);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriod1);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriod100);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriod255);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriod511);
+    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period510_Value15);
+    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period510_Value25);
+    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne1);
+    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne100);
+    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne255);
+    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne510);
     RUN_TEST(test_colorRangeToDuty_Monotonic_Period255);
-    RUN_TEST(test_colorRangeToDuty_Monotonic_Period511);
+    RUN_TEST(test_colorRangeToDuty_Monotonic_Period510);
     RUN_TEST(test_colorRangeToDuty_ZeroInput_ReturnsZero);
     RUN_TEST(test_gammaLUT_Endpoints);
     RUN_TEST(test_gammaLUT_KnownPoints);
     RUN_TEST(test_gammaLUT_Monotonic);
     RUN_TEST(test_rgbInit_NullCallback_ReturnsFalse);
     RUN_TEST(test_rgbInit_NullDevice_ReturnsFalse);
-    RUN_TEST(test_rgbInit_Period511_Accepted);
-    RUN_TEST(test_rgbInit_PeriodAbove511_ReturnsFalse);
+    RUN_TEST(test_rgbInit_Period510_Accepted);
+    RUN_TEST(test_rgbInit_PeriodAbove510_ReturnsFalse);
     RUN_TEST(test_rgbInit_ValidParams_SetsFieldsCorrectly);
     RUN_TEST(test_rgbShowConstantCurrentCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowConstantVoltageCharging_DrivesExpectedColor);
@@ -349,7 +349,7 @@ int main(void) {
     RUN_TEST(test_rgbShowUserColor_Black_DrivesPwmToZero);
     RUN_TEST(test_rgbShowUserColor_WhileTransient_StoresButDoesNotDrive);
     RUN_TEST(test_rgbShowUserColor_White_DrivesPwmToMax_Period255);
-    RUN_TEST(test_rgbShowUserColor_White_DrivesPwmToMax_Period511);
+    RUN_TEST(test_rgbShowUserColor_White_DrivesPwmToMax_Period510);
     RUN_TEST(test_rgbTransientTask_NotTransient_NoChange);
     RUN_TEST(test_rgbTransientTask_NullDevice_NoOp);
     RUN_TEST(test_rgbTransientTask_TransientHeld_Before300ms);

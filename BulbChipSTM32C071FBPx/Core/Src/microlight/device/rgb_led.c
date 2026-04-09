@@ -32,20 +32,22 @@ static const uint8_t gammaLUT[256] = {
     238, 240, 242, 244, 246, 248, 251, 253, 255,
 };
 
-// Scale a gamma-corrected 0-255 color value to a PWM duty cycle in [0, period].
+// Scale a gamma-corrected 0-255 color value to a PWM duty cycle in [0, period + 1].
 //
-// Conceptually: duty = corrected * (period / 255)
+// Conceptually: duty = corrected * ((period + 1) / 255)
+// The +1 is intentional: mapping 255 to period would land exactly on ARR, while mapping 255 to
+// period + 1 lets the compare exceed ARR so full-scale behaves as a 100% duty cycle in PWM mode.
 // Each color step maps to one increment of the PWM range. However, integer truncation
-// in (period / 255) loses precision for small periods, so we rearrange to multiply first:
-//   duty = (corrected * period) / 255
+// in ((period + 1) / 255) loses precision for small periods, so we rearrange to multiply first:
+//   duty = (corrected * (period + 1)) / 255
 //
 // The division by 255 is then replaced with a multiply-shift approximation:
 //   x / 255 == (x * 0x8081) >> 23, exact for x in [0, 130559].
 // The intermediate product (x * 0x8081) must fit in a uint32_t, which constrains max period:
-//   255 * period * 0x8081 <= UINT32_MAX  =>  period <= 511
+//   255 * (period + 1) * 0x8081 <= UINT32_MAX  =>  period <= 510
 static uint16_t colorRangeToDuty(const RGBLed *device, uint8_t value) {
     uint8_t corrected = gammaLUT[value];
-    uint32_t product = (uint32_t)corrected * device->period;
+    uint32_t product = (uint32_t)corrected * (device->period + 1U);
     return (uint16_t)((product * 0x8081U) >> 23);
 }
 
@@ -71,9 +73,10 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
         return false;
     }
 
-    // Max period for colorRangeToDuty: 255 * period * 0x8081 must fit in uint32_t.
-    // 255 * 512 * 0x8081 = 4,295,032,320 > UINT32_MAX, so period must be <= 511.
-    if (period > 511) {
+    // Max period for colorRangeToDuty: 255 * (period + 1) * 0x8081 must fit in uint32_t.
+    // 255 * 511 * 0x8081 = 4,286,644,335 <= UINT32_MAX, but 255 * 512 * 0x8081 overflows,
+    // so period must be <= 510.
+    if (period > 510) {
         return false;
     }
 
