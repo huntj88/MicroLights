@@ -19,6 +19,7 @@ static Button mockButton;
 static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
+static RGBLed mockFrontLed;
 static ChipState state;
 static ChipDependencies mockDeps;
 
@@ -109,6 +110,16 @@ void rgbShowSuccess(RGBLed *led) {
     mockRgbShowSuccessCalled = true;
 }
 
+void rgbSetWhiteBalance(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+    if (!device) {
+        return;
+    }
+
+    device->whiteBalanceRed = red;
+    device->whiteBalanceGreen = green;
+    device->whiteBalanceBlue = blue;
+}
+
 bool mockLockCalled = false;
 void lock(BQ25180 *dev) {
     mockLockCalled = true;
@@ -196,6 +207,7 @@ void setUp(void) {
     memset(&mockCharger, 0, sizeof(BQ25180));
     memset(&mockAccel, 0, sizeof(MC3479));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
+    memset(&mockFrontLed, 0, sizeof(RGBLed));
 
     mockMillisPerTick = 10.0f;
     mockMsPerTickMultiplier = 0;
@@ -243,6 +255,7 @@ void setUp(void) {
         .chargerIC = &mockCharger,
         .accel = &mockAccel,
         .caseLed = &mockCaseLed,
+        .frontLed = &mockFrontLed,
         .enableChipTickTimer = mock_enableChipTickTimer,
         .enableCaseLedTimer = mock_enableCaseLedTimer,
         .enableFrontLedTimer = mock_enableFrontLedTimer,

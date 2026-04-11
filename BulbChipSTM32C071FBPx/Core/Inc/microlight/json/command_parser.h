@@ -34,6 +34,12 @@
  *   "modeCount": 5,
  *   "minutesUntilAutoOff": 30,
  *   "minutesUntilLockAfterAutoOff": 60,
+ *   "frontWhiteBalanceRed": 255,
+ *   "frontWhiteBalanceGreen": 200,
+ *   "frontWhiteBalanceBlue": 160,
+ *   "caseWhiteBalanceRed": 195,
+ *   "caseWhiteBalanceGreen": 255,
+ *   "caseWhiteBalanceBlue": 255,
  *   "shutdownPolicy": 2
  * }
  *

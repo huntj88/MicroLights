@@ -32,7 +32,16 @@ static const uint8_t gammaLUT[256] = {
     238, 240, 242, 244, 246, 248, 251, 253, 255,
 };
 
-// Scale a gamma-corrected 0-255 color value to a PWM duty cycle in [0, period + 1].
+// Convert a linear 0-255 input channel into the post-gamma 0-255 space used by white balance.
+// White balance is applied after gamma correction, so full white (255,255,255) maps to the
+// configured corrected-channel caps while dimmer colors keep the gamma curve shape.
+static uint8_t gammaAndWhiteBalancedColor(uint8_t value, uint8_t whiteBalance) {
+    uint32_t product = (uint32_t)gammaLUT[value] * whiteBalance;
+    // Use the same exact divide-by-255 multiply-shift to keep white-balance scaling integer-only.
+    return (uint8_t)((product * 0x8081U) >> 23);
+}
+
+// Scale a post-gamma 0-255 color value to a PWM duty cycle in [0, period + 1].
 //
 // Conceptually: duty = corrected * ((period + 1) / 255)
 // The +1 is intentional: mapping 255 to period would land exactly on ARR, while mapping 255 to
@@ -45,10 +54,23 @@ static const uint8_t gammaLUT[256] = {
 //   x / 255 == (x * 0x8081) >> 23, exact for x in [0, 130559].
 // The intermediate product (x * 0x8081) must fit in a uint32_t, which constrains max period:
 //   255 * (period + 1) * 0x8081 <= UINT32_MAX  =>  period <= 510
-static uint16_t colorRangeToDuty(const RGBLed *device, uint8_t value) {
-    uint8_t corrected = gammaLUT[value];
+static uint16_t colorToDuty(const RGBLed *device, uint8_t corrected) {
     uint32_t product = (uint32_t)corrected * (device->period + 1U);
     return (uint16_t)((product * 0x8081U) >> 23);
+}
+
+static void writeColorPwm(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+    // Convert each linear channel to its gamma-corrected, white-balanced value first,
+    // then scale that corrected value into the timer duty range.
+    uint8_t balancedRed = gammaAndWhiteBalancedColor(red, device->whiteBalanceRed);
+    uint8_t balancedGreen = gammaAndWhiteBalancedColor(green, device->whiteBalanceGreen);
+    uint8_t balancedBlue = gammaAndWhiteBalancedColor(blue, device->whiteBalanceBlue);
+
+    uint16_t scaledRed = colorToDuty(device, balancedRed);
+    uint16_t scaledGreen = colorToDuty(device, balancedGreen);
+    uint16_t scaledBlue = colorToDuty(device, balancedBlue);
+
+    device->writePwm(scaledRed, scaledGreen, scaledBlue);
 }
 
 // TODO: move transient side effect to different function
@@ -60,11 +82,7 @@ static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, 
 
     device->showingTransientStatus = transient;
 
-    uint16_t scaledRed = colorRangeToDuty(device, red);
-    uint16_t scaledGreen = colorRangeToDuty(device, green);
-    uint16_t scaledBlue = colorRangeToDuty(device, blue);
-
-    device->writePwm(scaledRed, scaledGreen, scaledBlue);
+    writeColorPwm(device, red, green, blue);
     device->msOfColorChange = device->ms;
 }
 
@@ -73,7 +91,7 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
         return false;
     }
 
-    // Max period for colorRangeToDuty: 255 * (period + 1) * 0x8081 must fit in uint32_t.
+    // Max period for colorToDuty: 255 * (period + 1) * 0x8081 must fit in uint32_t.
     // 255 * 511 * 0x8081 = 4,286,644,335 <= UINT32_MAX, but 255 * 512 * 0x8081 overflows,
     // so period must be <= 510.
     if (period > 510) {
@@ -82,6 +100,9 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
 
     device->writePwm = writePwm;
     device->period = period;
+    device->whiteBalanceRed = 255;
+    device->whiteBalanceGreen = 255;
+    device->whiteBalanceBlue = 255;
 
     device->ms = 0;
     device->msOfColorChange = 0;
@@ -90,6 +111,16 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
     device->userGreen = 0;
     device->userBlue = 0;
     return true;
+}
+
+void rgbSetWhiteBalance(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+    if (!device) {
+        return;
+    }
+
+    device->whiteBalanceRed = red;
+    device->whiteBalanceGreen = green;
+    device->whiteBalanceBlue = blue;
 }
 
 void rgbTransientTask(RGBLed *device, uint32_t milliseconds) {

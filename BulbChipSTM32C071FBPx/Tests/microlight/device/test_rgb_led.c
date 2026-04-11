@@ -20,6 +20,10 @@ static void mock_writePwm(uint16_t red, uint16_t green, uint16_t blue) {
 // Include source under test
 #include "../../../Core/Src/microlight/device/rgb_led.c"
 
+static uint16_t expectedDutyForLinearColor(const RGBLed *device, uint8_t value) {
+    return colorToDuty(device, gammaLUT[value]);
+}
+
 // ── Fixtures ────────────────────────────────────────────────────────
 
 static RGBLed led;
@@ -56,6 +60,9 @@ void test_rgbInit_ValidParams_SetsFieldsCorrectly(void) {
     TEST_ASSERT_TRUE(rgbInit(&led, mock_writePwm, 255));
     TEST_ASSERT_EQUAL_PTR(mock_writePwm, led.writePwm);
     TEST_ASSERT_EQUAL_UINT16(255, led.period);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceBlue);
     TEST_ASSERT_FALSE(led.showingTransientStatus);
     TEST_ASSERT_EQUAL_UINT8(0, led.userRed);
     TEST_ASSERT_EQUAL_UINT8(0, led.userGreen);
@@ -84,75 +91,75 @@ void test_gammaLUT_Monotonic(void) {
     }
 }
 
-// ── colorRangeToDuty boundaries ─────────────────────────────────────
+// ── colorToDuty boundaries ──────────────────────────────────────────
 
-void test_colorRangeToDuty_ZeroInput_ReturnsZero(void) {
+void test_colorToDuty_ZeroInput_ReturnsZero(void) {
     rgbInit(&led, mock_writePwm, 255);
-    TEST_ASSERT_EQUAL_UINT16(0, colorRangeToDuty(&led, 0));
+    TEST_ASSERT_EQUAL_UINT16(0, expectedDutyForLinearColor(&led, 0));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne255(void) {
+void test_colorToDuty_MaxInput_ReturnsPeriodPlusOne255(void) {
     rgbInit(&led, mock_writePwm, 255);
-    TEST_ASSERT_EQUAL_UINT16(256, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(256, expectedDutyForLinearColor(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne510(void) {
+void test_colorToDuty_MaxInput_ReturnsPeriodPlusOne510(void) {
     rgbInit(&led, mock_writePwm, 510);
-    TEST_ASSERT_EQUAL_UINT16(511, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(511, expectedDutyForLinearColor(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne100(void) {
+void test_colorToDuty_MaxInput_ReturnsPeriodPlusOne100(void) {
     rgbInit(&led, mock_writePwm, 100);
-    TEST_ASSERT_EQUAL_UINT16(101, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(101, expectedDutyForLinearColor(&led, 255));
 }
 
-void test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne1(void) {
+void test_colorToDuty_MaxInput_ReturnsPeriodPlusOne1(void) {
     rgbInit(&led, mock_writePwm, 1);
-    TEST_ASSERT_EQUAL_UINT16(2, colorRangeToDuty(&led, 255));
+    TEST_ASSERT_EQUAL_UINT16(2, expectedDutyForLinearColor(&led, 255));
 }
 
-// ── colorRangeToDuty monotonicity ───────────────────────────────────
+// ── colorToDuty monotonicity ────────────────────────────────────────
 
-void test_colorRangeToDuty_Monotonic_Period255(void) {
+void test_colorToDuty_Monotonic_Period255(void) {
     rgbInit(&led, mock_writePwm, 255);
-    uint16_t prev = colorRangeToDuty(&led, 0);
+    uint16_t prev = expectedDutyForLinearColor(&led, 0);
     for (int i = 1; i < 256; i++) {
-        uint16_t cur = colorRangeToDuty(&led, (uint8_t)i);
+        uint16_t cur = expectedDutyForLinearColor(&led, (uint8_t)i);
         TEST_ASSERT_TRUE_MESSAGE(cur >= prev, "duty not monotonically non-decreasing (period 255)");
         prev = cur;
     }
 }
 
-void test_colorRangeToDuty_Monotonic_Period510(void) {
+void test_colorToDuty_Monotonic_Period510(void) {
     rgbInit(&led, mock_writePwm, 510);
-    uint16_t prev = colorRangeToDuty(&led, 0);
+    uint16_t prev = expectedDutyForLinearColor(&led, 0);
     for (int i = 1; i < 256; i++) {
-        uint16_t cur = colorRangeToDuty(&led, (uint8_t)i);
+        uint16_t cur = expectedDutyForLinearColor(&led, (uint8_t)i);
         TEST_ASSERT_TRUE_MESSAGE(cur >= prev, "duty not monotonically non-decreasing (period 510)");
         prev = cur;
     }
 }
 
-// ── colorRangeToDuty known computed values ──────────────────────────
+// ── colorToDuty known computed values ───────────────────────────────
 // gammaLUT[15] = 1
 //   period 255: (1 * 256 * 0x8081) >> 23 = 1
 //   period 510: (1 * 511 * 0x8081) >> 23 = 2
 // gammaLUT[25] = 2
 //   period 510: (2 * 511 * 0x8081) >> 23 = 4
 
-void test_colorRangeToDuty_KnownPoint_Period255_Value15(void) {
+void test_colorToDuty_KnownPoint_Period255_Value15(void) {
     rgbInit(&led, mock_writePwm, 255);
-    TEST_ASSERT_EQUAL_UINT16(1, colorRangeToDuty(&led, 15));
+    TEST_ASSERT_EQUAL_UINT16(1, expectedDutyForLinearColor(&led, 15));
 }
 
-void test_colorRangeToDuty_KnownPoint_Period510_Value15(void) {
+void test_colorToDuty_KnownPoint_Period510_Value15(void) {
     rgbInit(&led, mock_writePwm, 510);
-    TEST_ASSERT_EQUAL_UINT16(2, colorRangeToDuty(&led, 15));
+    TEST_ASSERT_EQUAL_UINT16(2, expectedDutyForLinearColor(&led, 15));
 }
 
-void test_colorRangeToDuty_KnownPoint_Period510_Value25(void) {
+void test_colorToDuty_KnownPoint_Period510_Value25(void) {
     rgbInit(&led, mock_writePwm, 510);
-    TEST_ASSERT_EQUAL_UINT16(4, colorRangeToDuty(&led, 25));
+    TEST_ASSERT_EQUAL_UINT16(4, expectedDutyForLinearColor(&led, 25));
 }
 
 // ── rgbTransientTask ────────────────────────────────────────────────
@@ -180,9 +187,9 @@ void test_rgbTransientTask_TransientRevert_After300ms(void) {
     rgbTransientTask(&led, 301);
     // Should revert to user color
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 100), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 100), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
 }
 
 void test_rgbTransientTask_TransientHeld_Before300ms(void) {
@@ -214,9 +221,9 @@ void test_rgbShowSuccess_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowSuccess(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 50), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 50), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 50), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 50), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 50), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 50), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -224,9 +231,9 @@ void test_rgbShowLocked_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowLocked(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 65), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 65), capturedBlue);
     TEST_ASSERT_FALSE(led.showingTransientStatus);
 }
 
@@ -234,9 +241,9 @@ void test_rgbShowShutdown_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowShutdown(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 65), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 65), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 65), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 65), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 65), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 65), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -244,9 +251,9 @@ void test_rgbShowNotCharging_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowNotCharging(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 50), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 50), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 50), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 50), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -254,9 +261,9 @@ void test_rgbShowConstantCurrentCharging_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowConstantCurrentCharging(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 25), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 25), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -264,9 +271,9 @@ void test_rgbShowConstantVoltageCharging_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowConstantVoltageCharging(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 25), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 25), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 25), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 25), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -274,9 +281,9 @@ void test_rgbShowDoneCharging_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowDoneCharging(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 25), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(colorRangeToDuty(&led, 0), capturedBlue);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 25), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
 }
 
@@ -287,6 +294,34 @@ void test_rgbShowNoColor_DrivesZero(void) {
     TEST_ASSERT_EQUAL_UINT16(0, capturedRed);
     TEST_ASSERT_EQUAL_UINT16(0, capturedGreen);
     TEST_ASSERT_EQUAL_UINT16(0, capturedBlue);
+}
+
+void test_rgbShowUserColor_WhiteBalance_ScalesWhiteAfterGamma(void) {
+    rgbInit(&led, mock_writePwm, 255);
+    rgbSetWhiteBalance(&led, 255, 200, 160);
+
+    writePwmCalled = false;
+    rgbShowUserColor(&led, 255, 255, 255);
+
+    TEST_ASSERT_TRUE(writePwmCalled);
+    TEST_ASSERT_EQUAL_UINT16(colorToDuty(&led, 255), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(colorToDuty(&led, 200), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(colorToDuty(&led, 160), capturedBlue);
+}
+
+void test_rgbSetWhiteBalance_DoesNotReapplyCurrentColor(void) {
+    rgbInit(&led, mock_writePwm, 255);
+    rgbShowUserColor(&led, 200, 100, 50);
+    rgbShowSuccess(&led);
+
+    writePwmCalled = false;
+    rgbSetWhiteBalance(&led, 255, 128, 255);
+
+    TEST_ASSERT_FALSE(writePwmCalled);
+    TEST_ASSERT_TRUE(led.showingTransientStatus);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(128, led.whiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceBlue);
 }
 
 // ── Integration: rgbShowUserColor drives PWM correctly ──────────────
@@ -320,16 +355,16 @@ void test_rgbShowUserColor_White_DrivesPwmToMax_Period510(void) {
 
 int main(void) {
     UNITY_BEGIN();
-    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period255_Value15);
-    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period510_Value15);
-    RUN_TEST(test_colorRangeToDuty_KnownPoint_Period510_Value25);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne1);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne100);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne255);
-    RUN_TEST(test_colorRangeToDuty_MaxInput_ReturnsPeriodPlusOne510);
-    RUN_TEST(test_colorRangeToDuty_Monotonic_Period255);
-    RUN_TEST(test_colorRangeToDuty_Monotonic_Period510);
-    RUN_TEST(test_colorRangeToDuty_ZeroInput_ReturnsZero);
+    RUN_TEST(test_colorToDuty_KnownPoint_Period255_Value15);
+    RUN_TEST(test_colorToDuty_KnownPoint_Period510_Value15);
+    RUN_TEST(test_colorToDuty_KnownPoint_Period510_Value25);
+    RUN_TEST(test_colorToDuty_MaxInput_ReturnsPeriodPlusOne1);
+    RUN_TEST(test_colorToDuty_MaxInput_ReturnsPeriodPlusOne100);
+    RUN_TEST(test_colorToDuty_MaxInput_ReturnsPeriodPlusOne255);
+    RUN_TEST(test_colorToDuty_MaxInput_ReturnsPeriodPlusOne510);
+    RUN_TEST(test_colorToDuty_Monotonic_Period255);
+    RUN_TEST(test_colorToDuty_Monotonic_Period510);
+    RUN_TEST(test_colorToDuty_ZeroInput_ReturnsZero);
     RUN_TEST(test_gammaLUT_Endpoints);
     RUN_TEST(test_gammaLUT_KnownPoints);
     RUN_TEST(test_gammaLUT_Monotonic);
@@ -338,6 +373,7 @@ int main(void) {
     RUN_TEST(test_rgbInit_Period510_Accepted);
     RUN_TEST(test_rgbInit_PeriodAbove510_ReturnsFalse);
     RUN_TEST(test_rgbInit_ValidParams_SetsFieldsCorrectly);
+    RUN_TEST(test_rgbSetWhiteBalance_DoesNotReapplyCurrentColor);
     RUN_TEST(test_rgbShowConstantCurrentCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowConstantVoltageCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowDoneCharging_DrivesExpectedColor);
@@ -348,6 +384,7 @@ int main(void) {
     RUN_TEST(test_rgbShowSuccess_DrivesExpectedColor);
     RUN_TEST(test_rgbShowUserColor_Black_DrivesPwmToZero);
     RUN_TEST(test_rgbShowUserColor_WhileTransient_StoresButDoesNotDrive);
+    RUN_TEST(test_rgbShowUserColor_WhiteBalance_ScalesWhiteAfterGamma);
     RUN_TEST(test_rgbShowUserColor_White_DrivesPwmToMax_Period255);
     RUN_TEST(test_rgbShowUserColor_White_DrivesPwmToMax_Period510);
     RUN_TEST(test_rgbTransientTask_NotTransient_NoChange);

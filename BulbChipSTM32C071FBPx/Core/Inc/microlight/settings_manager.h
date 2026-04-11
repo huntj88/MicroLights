@@ -13,7 +13,7 @@
 #include "model/cli_model.h"
 #include "model/storage.h"
 
-#define SETTINGS_DEFAULTS_JSON_SIZE 192
+#define SETTINGS_DEFAULTS_JSON_SIZE 384
 #define SETTINGS_METADATA_JSON_SIZE 160
 
 typedef struct SettingsManager {

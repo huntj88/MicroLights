@@ -108,7 +108,10 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     char *json =
         "{\"command\":\"writeSettings\",\"modeCount\":7,\"minutesUntilAutoOff\":20,"
         "\"minutesUntilLockAfterAutoOff\":30,\"equationEvalIntervalMs\":50,"
-        "\"shutdownPolicy\":1}";
+        "\"shutdownPolicy\":1,\"frontWhiteBalanceRed\":255,"
+        "\"frontWhiteBalanceGreen\":200,\"frontWhiteBalanceBlue\":160,"
+        "\"caseWhiteBalanceRed\":195,\"caseWhiteBalanceGreen\":255,"
+        "\"caseWhiteBalanceBlue\":255}";
 
     parseJson((uint8_t *)json, strlen(json) + 1, &cliInput);
 
@@ -118,6 +121,12 @@ void test_ParseJson_WriteSettings_ParsesSettingsValues(void) {
     TEST_ASSERT_EQUAL_UINT8(30, cliInput.settings.minutesUntilLockAfterAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, cliInput.settings.equationEvalIntervalMs);
     TEST_ASSERT_EQUAL_UINT8(1, cliInput.settings.shutdownPolicy);
+    TEST_ASSERT_EQUAL_UINT8(255, cliInput.settings.frontWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(200, cliInput.settings.frontWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(160, cliInput.settings.frontWhiteBalanceBlue);
+    TEST_ASSERT_EQUAL_UINT8(195, cliInput.settings.caseWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(255, cliInput.settings.caseWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(255, cliInput.settings.caseWhiteBalanceBlue);
 }
 
 void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
@@ -155,6 +164,12 @@ void test_ParseJson_WriteSettings_RejectsInvalidValues(void) {
     TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
     TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
     TEST_ASSERT_EQUAL_STRING("shutdownPolicy", cliInput.errorContext.path);
+
+    char *json6 = "{\"command\":\"writeSettings\",\"frontWhiteBalanceGreen\":256}";
+    parseJson((uint8_t *)json6, strlen(json6) + 1, &cliInput);
+    TEST_ASSERT_EQUAL(parseError, cliInput.parsedType);
+    TEST_ASSERT_EQUAL(PARSER_ERR_VALUE_TOO_LARGE, cliInput.errorContext.error);
+    TEST_ASSERT_EQUAL_STRING("frontWhiteBalanceGreen", cliInput.errorContext.path);
 }
 
 void test_ParseJson_WriteSettings_AcceptsAutoOffAndAutoLockShutdownPolicy(void) {

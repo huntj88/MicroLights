@@ -30,6 +30,12 @@ enum ShutdownPolicy {
 #define DEFAULT_ENABLE_CHARGER_SERIAL false
 #define DEFAULT_ENABLE_I2C_FAILURE_REPORTING \
     false  // TODO: change to enum ALL, ERRORS, NONE, defaults json will need to contain options.
+#define DEFAULT_FRONT_WHITE_BALANCE_RED 255
+#define DEFAULT_FRONT_WHITE_BALANCE_GREEN 110
+#define DEFAULT_FRONT_WHITE_BALANCE_BLUE 60
+#define DEFAULT_CASE_WHITE_BALANCE_RED 140
+#define DEFAULT_CASE_WHITE_BALANCE_GREEN 210
+#define DEFAULT_CASE_WHITE_BALANCE_BLUE 255
 
 #ifdef MICROLIGHT_LEGACY_PCB_BUTTON_PA7
 _Static_assert(
@@ -45,7 +51,13 @@ _Static_assert(
     X(uint8_t, equationEvalIntervalMs, DEFAULT_EQUATION_EVAL_INTERVAL_MS)               \
     X(uint8_t, shutdownPolicy, DEFAULT_SHUTDOWN_POLICY)                                 \
     X(bool, enableChargerSerial, DEFAULT_ENABLE_CHARGER_SERIAL)                         \
-    X(bool, enableI2cFailureReporting, DEFAULT_ENABLE_I2C_FAILURE_REPORTING)
+    X(bool, enableI2cFailureReporting, DEFAULT_ENABLE_I2C_FAILURE_REPORTING)            \
+    X(uint8_t, frontWhiteBalanceRed, DEFAULT_FRONT_WHITE_BALANCE_RED)                   \
+    X(uint8_t, frontWhiteBalanceGreen, DEFAULT_FRONT_WHITE_BALANCE_GREEN)               \
+    X(uint8_t, frontWhiteBalanceBlue, DEFAULT_FRONT_WHITE_BALANCE_BLUE)                 \
+    X(uint8_t, caseWhiteBalanceRed, DEFAULT_CASE_WHITE_BALANCE_RED)                     \
+    X(uint8_t, caseWhiteBalanceGreen, DEFAULT_CASE_WHITE_BALANCE_GREEN)                 \
+    X(uint8_t, caseWhiteBalanceBlue, DEFAULT_CASE_WHITE_BALANCE_BLUE)
 
 typedef struct {
 #define X_FIELDS(type, name, def) type name;
