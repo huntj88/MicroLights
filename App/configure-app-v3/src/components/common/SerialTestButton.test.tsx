@@ -184,4 +184,28 @@ describe('SerialTestButton', () => {
     await new Promise(r => setTimeout(r, 200));
     expect(mockSend).toHaveBeenCalledTimes(2);
   });
+
+  it('should keep auto-sync enabled through validation errors and resume when valid again', async () => {
+    const { rerender } = render(<SerialTestButton data={mockMode} type="mode" disabled={false} />);
+
+    fireEvent.click(screen.getByText('common.actions.test'));
+
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledTimes(1);
+    });
+
+    const invalidMode = { ...mockMode, name: 'Invalid' };
+    rerender(<SerialTestButton data={invalidMode} type="mode" disabled={true} />);
+
+    expect(screen.getByText('common.actions.stopTest')).toBeEnabled();
+
+    await new Promise(r => setTimeout(r, 200));
+    expect(mockSend).toHaveBeenCalledTimes(1);
+
+    rerender(<SerialTestButton data={invalidMode} type="mode" disabled={false} />);
+
+    await waitFor(() => {
+      expect(mockSend).toHaveBeenCalledTimes(2);
+    });
+  });
 });

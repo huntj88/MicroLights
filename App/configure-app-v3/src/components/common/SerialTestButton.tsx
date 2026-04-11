@@ -25,12 +25,12 @@ export const SerialTestButton = ({
   const send = useSerialStore(s => s.send);
   const [isAutoSync, setIsAutoSync] = useState(false);
 
-  // Reset auto-sync if disconnected or disabled
+  // Reset auto-sync only if the device disconnects.
   useEffect(() => {
-    if (status !== 'connected' || disabled) {
+    if (status !== 'connected') {
       setIsAutoSync(false);
     }
-  }, [status, disabled]);
+  }, [status]);
 
   const handleTest = useCallback(
     async (silent = false) => {
@@ -88,6 +88,8 @@ export const SerialTestButton = ({
 
   if (status !== 'connected') return null;
 
+  const isButtonDisabled = disabled && !isAutoSync;
+
   return (
     <StyledButton
       onClick={() => {
@@ -99,8 +101,8 @@ export const SerialTestButton = ({
         }
       }}
       variant={isAutoSync ? 'primary' : 'secondary'}
-      disabled={disabled}
-      title={t('common.hints.fixValidationErrors')}
+      disabled={isButtonDisabled}
+      title={isButtonDisabled ? t('common.hints.fixValidationErrors') : undefined}
     >
       {isAutoSync ? t('common.actions.stopTest') : t('common.actions.test')}
     </StyledButton>
