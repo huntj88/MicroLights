@@ -48,53 +48,6 @@ describe('SimpleRgbPatternPanel', () => {
     expect(screen.queryByLabelText(/^patternEditor.form.durationLabel/)).not.toBeInTheDocument();
   });
 
-  it('shows black swatch when pattern is empty', () => {
-    renderComponent({ value: createPattern([]) });
-    const swatch = screen.getByTestId('current-color-swatch');
-    // hex #000000 is rgb(0, 0, 0)
-    expect(swatch).toHaveStyle({ backgroundColor: 'rgb(0, 0, 0)' });
-  });
-
-  it('toggles playback state when clicking play/pause', async () => {
-    const user = userEvent.setup();
-    renderComponent({
-      value: createPattern([{ color: '#ff0000', duration: 1000 }]),
-    });
-
-    const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
-    await user.click(playButton);
-
-    expect(
-      screen.getByRole('button', { name: 'patternEditor.controls.pause' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'patternEditor.controls.play' }),
-    ).not.toBeInTheDocument();
-
-    const pauseButton = screen.getByRole('button', { name: 'patternEditor.controls.pause' });
-    await user.click(pauseButton);
-
-    expect(screen.getByRole('button', { name: 'patternEditor.controls.play' })).toBeInTheDocument();
-  });
-
-  it('resets playback when clicking stop', async () => {
-    const user = userEvent.setup();
-    renderComponent({
-      value: createPattern([{ color: '#ff0000', duration: 1000 }]),
-    });
-
-    const playButton = screen.getByRole('button', { name: 'patternEditor.controls.play' });
-    await user.click(playButton);
-    expect(
-      screen.getByRole('button', { name: 'patternEditor.controls.pause' }),
-    ).toBeInTheDocument();
-
-    const stopButton = screen.getByRole('button', { name: 'patternEditor.controls.stop' });
-    await user.click(stopButton);
-
-    expect(screen.getByRole('button', { name: 'patternEditor.controls.play' })).toBeInTheDocument();
-  });
-
   it('emits an add-step action with the new segment when confirming the modal', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
