@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 
 import { isBinaryPattern, simplePatternSchema, type SimplePattern } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { PatternSerialTestControls } from '../../components/common/PatternSerialTestControls';
 import { PatternTypeSwitcher } from '../../components/common/PatternTypeSwitcher';
 import { SerialConnectButton } from '../../components/common/SerialConnectButton';
-import { SerialTestButton } from '../../components/common/SerialTestButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import {
   type SimpleBulbPatternAction,
@@ -95,12 +95,7 @@ export const BulbPatternPage = () => {
           <p className="text-sm theme-muted">{t('bulbPattern.subtitle')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <SerialTestButton
-            data={editingItem}
-            type="pattern"
-            patternTarget="front"
-            disabled={validationErrors.length > 0}
-          />
+          <PatternSerialTestControls data={editingItem} disabled={validationErrors.length > 0} />
           <SerialConnectButton />
         </div>
       </header>

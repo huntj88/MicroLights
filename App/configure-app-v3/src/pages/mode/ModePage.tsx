@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { type Mode, modeSchema } from '../../app/models/mode';
 import { useModeStore } from '../../app/providers/mode-store';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { ModeSerialTestButton } from '../../components/common/ModeSerialTestButton';
 import { SerialConnectButton } from '../../components/common/SerialConnectButton';
 import { SerialFlashButton } from '../../components/common/SerialFlashButton';
-import { SerialTestButton } from '../../components/common/SerialTestButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import { type ModeAction, ModeEditor } from '../../components/mode/ModeEditor';
 import { useEntityEditor } from '../../hooks/useEntityEditor';
@@ -68,7 +68,7 @@ export const ModePage = () => {
           <p className="text-sm theme-muted">{t('mode.subtitle')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <SerialTestButton data={editingMode} type="mode" disabled={!isValid} />
+          <ModeSerialTestButton data={editingMode} disabled={!isValid} />
           <SerialFlashButton mode={editingMode} disabled={!isValid} />
           <SerialConnectButton />
         </div>
