@@ -13,14 +13,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        run_install: false
+        package_json_file: App/configure-app-v3/package.json
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
+        cache: 'pnpm'
+        cache-dependency-path: App/configure-app-v3/pnpm-lock.yaml
 
     - name: Install App Dependencies
       working-directory: App/configure-app-v3
-      run: npm ci
+      run: pnpm install --frozen-lockfile
 
     - name: Install Linting Tools
       run: |
@@ -29,7 +37,7 @@ jobs:
 
     - name: Generate C Parser
       working-directory: App/configure-app-v3
-      run: npm run generate:c_parser
+      run: pnpm generate:c_parser
 
     - name: Set up Python
       uses: actions/setup-python@v5

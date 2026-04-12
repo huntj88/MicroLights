@@ -11,12 +11,17 @@
 static uint32_t mock_tud_write_available = 64;
 static char mock_tud_write_buffer[1024];
 static int mock_tud_write_idx = 0;
+static int mock_tud_write_calls = 0;
 static char mock_tud_read_buffer[1024];
 static int mock_tud_read_len = 0;
 static int mock_tud_read_idx = 0;
 static int mock_tud_task_calls = 0;
 static int mock_tud_flush_calls = 0;
 static bool mock_tud_mounted = true;
+static uint32_t mock_board_time_ms = 0;
+static uint32_t mock_board_time_increment_per_task = 0;
+static int mock_write_stall_after_first_write_remaining_tasks = -1;
+static uint32_t mock_write_recovery_available = 0;
 
 // Mock implementations
 bool tud_vendor_n_mounted(uint8_t itf) {
@@ -33,11 +38,27 @@ uint32_t tud_vendor_n_write(uint8_t itf, void const *buffer, uint32_t bufsize) {
     }
     memcpy(&mock_tud_write_buffer[mock_tud_write_idx], buffer, bufsize);
     mock_tud_write_idx += bufsize;
+    mock_tud_write_calls++;
+
+    if (mock_tud_write_calls == 1 && mock_write_stall_after_first_write_remaining_tasks >= 0) {
+        mock_tud_write_available = 0;
+    }
+
     return bufsize;
 }
 
 void tud_task_ext(uint32_t timeout_ms, bool in_isr) {
+    (void)timeout_ms;
+    (void)in_isr;
     mock_tud_task_calls++;
+    mock_board_time_ms += mock_board_time_increment_per_task;
+
+    if (mock_write_stall_after_first_write_remaining_tasks > 0) {
+        mock_write_stall_after_first_write_remaining_tasks--;
+        if (mock_write_stall_after_first_write_remaining_tasks == 0) {
+            mock_tud_write_available = mock_write_recovery_available;
+        }
+    }
 }
 
 void tud_task(void) {
@@ -45,8 +66,13 @@ void tud_task(void) {
 }
 
 uint32_t tud_vendor_n_write_flush(uint8_t itf) {
+    (void)itf;
     mock_tud_flush_calls++;
     return 0;
+}
+
+uint32_t board_millis(void) {
+    return mock_board_time_ms;
 }
 
 uint32_t tud_vendor_n_available(uint8_t itf) {
@@ -67,11 +93,16 @@ uint32_t tud_vendor_n_read(uint8_t itf, void *buffer, uint32_t bufsize) {
 void setUp(void) {
     mock_tud_write_available = 64;
     mock_tud_write_idx = 0;
+    mock_tud_write_calls = 0;
     mock_tud_read_len = 0;
     mock_tud_read_idx = 0;
     mock_tud_task_calls = 0;
     mock_tud_flush_calls = 0;
     mock_tud_mounted = true;
+    mock_board_time_ms = 0;
+    mock_board_time_increment_per_task = 0;
+    mock_write_stall_after_first_write_remaining_tasks = -1;
+    mock_write_recovery_available = 0;
     memset(mock_tud_write_buffer, 0, sizeof(mock_tud_write_buffer));
     memset(mock_tud_read_buffer, 0, sizeof(mock_tud_read_buffer));
     usbReadTaskReset();
@@ -100,6 +131,50 @@ void test_usbWrite_chunked(void) {
     TEST_ASSERT_EQUAL_STRING_LEN("1234567890", mock_tud_write_buffer, 10);
     // Should have called task multiple times
     TEST_ASSERT_GREATER_THAN(1, mock_tud_task_calls);
+}
+
+void test_usbWrite_waits_through_long_backpressure_until_space_returns(void) {
+    const char *data = "1234567890";
+
+    mock_tud_write_available = 5;
+    mock_write_stall_after_first_write_remaining_tasks = 1500;
+    mock_write_recovery_available = 5;
+    mock_board_time_increment_per_task = 0;
+
+    usbWrite(data, 10);
+
+    TEST_ASSERT_EQUAL_STRING_LEN("1234567890", mock_tud_write_buffer, 10);
+    TEST_ASSERT_GREATER_THAN(1000, mock_tud_task_calls);
+}
+
+void test_usbWrite_large_payload_waits_for_second_fifo_window(void) {
+    char data[873];
+    memset(data, 'A', sizeof(data) - 1);
+    data[sizeof(data) - 1] = '\0';
+
+    mock_tud_write_available = 512;
+    mock_write_stall_after_first_write_remaining_tasks = 400;
+    mock_write_recovery_available = 512;
+    mock_board_time_increment_per_task = 1;
+
+    usbWrite(data, strlen(data));
+
+    TEST_ASSERT_EQUAL((int)strlen(data), mock_tud_write_idx);
+    TEST_ASSERT_EQUAL_STRING_LEN(data, mock_tud_write_buffer, (int)strlen(data));
+    TEST_ASSERT_GREATER_THAN(400, mock_tud_task_calls);
+}
+
+void test_usbWrite_stops_after_real_timeout_when_host_never_drains(void) {
+    const char *data = "1234567890";
+
+    mock_tud_write_available = 0;
+    mock_board_time_increment_per_task = 1;
+
+    usbWrite(data, 10);
+
+    TEST_ASSERT_EQUAL(0, mock_tud_write_idx);
+    TEST_ASSERT_GREATER_THAN(0, mock_tud_task_calls);
+    TEST_ASSERT_LESS_THAN(1100, mock_tud_task_calls);
 }
 
 void test_usbReadTask_no_data(void) {
@@ -222,6 +297,9 @@ int main(void) {
     RUN_TEST(test_usbReadTask_overflow);
     RUN_TEST(test_usbReadTask_split_line);
     RUN_TEST(test_usbWrite_chunked);
+    RUN_TEST(test_usbWrite_large_payload_waits_for_second_fifo_window);
     RUN_TEST(test_usbWrite_simple);
+    RUN_TEST(test_usbWrite_stops_after_real_timeout_when_host_never_drains);
+    RUN_TEST(test_usbWrite_waits_through_long_backpressure_until_space_returns);
     return UNITY_END();
 }

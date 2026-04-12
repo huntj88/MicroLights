@@ -10,9 +10,9 @@ import {
   type SimplePattern,
 } from '../../app/models/mode';
 import { usePatternStore } from '../../app/providers/pattern-store';
+import { PatternSerialTestControls } from '../../components/common/PatternSerialTestControls';
 import { PatternTypeSwitcher } from '../../components/common/PatternTypeSwitcher';
 import { SerialConnectButton } from '../../components/common/SerialConnectButton';
-import { SerialTestButton } from '../../components/common/SerialTestButton';
 import { StorageControls } from '../../components/common/StorageControls';
 import {
   type EquationRgbPatternAction,
@@ -149,12 +149,7 @@ export const RgbPatternPage = () => {
           <p className="text-sm theme-muted">{t('rgbPattern.subtitle')}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <SerialTestButton
-            data={currentEditor.editingItem}
-            type="pattern"
-            patternTarget="case"
-            disabled={!currentEditor.isValid}
-          />
+          <PatternSerialTestControls data={currentEditor.editingItem} disabled={!currentEditor.isValid} />
           <SerialConnectButton />
         </div>
       </header>

@@ -134,6 +134,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
                 .settings = &settingsManager.currentSettings,
                 .button = &button,
                 .caseLed = &caseLed,
+                .frontLed = &frontLed,
                 .chargerIC = &chargerIC,
                 .accel = &accel,
                 .enableChipTickTimer = deps->enableChipTickTimer,

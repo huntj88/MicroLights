@@ -6,6 +6,7 @@
  */
 
 #include "usb_dependencies.h"
+#include "bsp/board_api.h"
 #include "tusb.h"
 
 // File-scope state for usbReadTask buffering
@@ -16,8 +17,10 @@ static uint8_t readBufPos = 0;
 
 void usbWrite(const char *buf, size_t count) {
     size_t sent = 0;
-    uint16_t retries = 0;
-    const uint16_t maxRetries = 1000;
+    // Large payloads can span many 64-byte packets. Give the host
+    // enough time to drain the vendor TX FIFO instead of truncating the tail.
+    const uint32_t writeTimeoutMs = 1000;
+    uint32_t lastProgressAt = board_millis();
 
     while (sent < count) {
         if (!tud_vendor_mounted()) {
@@ -33,10 +36,15 @@ void usbWrite(const char *buf, size_t count) {
 
             uint32_t written = tud_vendor_write(buf + sent, to_send);
             sent += written;
-            retries = 0;
+            if (written > 0) {
+                lastProgressAt = board_millis();
+                if (sent < count) {
+                    tud_vendor_write_flush();
+                }
+            }
         } else {
-            retries++;
-            if (retries >= maxRetries) {
+            tud_vendor_write_flush();
+            if (board_millis() - lastProgressAt >= writeTimeoutMs) {
                 break;
             }
         }

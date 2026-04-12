@@ -23,7 +23,7 @@ const __dirname = path.dirname(__filename);
  *    - `type`: 'string' | 'uint32' | 'boolean' | 'array' | [StructName]
  *    - `min`, `max`: Validation constraints.
  *    - `optional`: boolean.
- * 4. Run `npx vite-node scripts/generate_c_parser.ts` to regenerate mode_parser.h and mode_parser.c.
+ * 4. Run `pnpm generate:c_parser` to regenerate mode_parser.h and mode_parser.c.
  */
 
 const examplesData = [

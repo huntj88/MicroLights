@@ -27,6 +27,7 @@ typedef struct {
     // Devices
     Button *button;
     RGBLed *caseLed;
+    RGBLed *frontLed;
     BQ25180 *chargerIC;
     MC3479 *accel;
 

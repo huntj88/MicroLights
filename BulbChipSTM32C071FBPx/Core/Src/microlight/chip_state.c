@@ -20,13 +20,14 @@
 
 static void enterShutdown(ChipState *state, enum ChargeState chargeState);
 static void prepareForLowPowerShutdown(ChipState *state);
+static void syncLedWhiteBalance(ChipState *state);
 
 bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
-        !deps.accel || !deps.caseLed || !deps.enableChipTickTimer || !deps.enableCaseLedTimer ||
-        !deps.enableFrontLedTimer || !deps.enableAutoOffTimer || !deps.enableUsbClock ||
-        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock || !deps.systemReset ||
-        !deps.log) {
+        !deps.accel || !deps.caseLed || !deps.frontLed || !deps.enableChipTickTimer ||
+        !deps.enableCaseLedTimer || !deps.enableFrontLedTimer || !deps.enableAutoOffTimer ||
+        !deps.enableUsbClock || !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock ||
+        !deps.systemReset || !deps.log) {
         return false;
     }
 
@@ -35,6 +36,7 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     state->lastChipTickEnabled = false;
     state->lastCasePwmEnabled = false;
     state->lastFrontPwmEnabled = false;
+    syncLedWhiteBalance(state);
     enum ChargeState initialChargeState = getChargingState(state->deps.chargerIC, 0);
     bool usbNeeded = initialChargeState != notConnected;
     state->lastUsbClockEnabled = usbNeeded;
@@ -47,6 +49,27 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
         fakeOffMode(state->deps.modeManager);
     }
     return true;
+}
+
+static void syncLedWhiteBalance(ChipState *state) {
+    if (!state || !state->deps.settings) {
+        return;
+    }
+
+    rgbSetWhiteBalance(
+        state->deps.caseLed,
+        (RGBWhiteBalance){
+            .red = state->deps.settings->caseWhiteBalanceRed,
+            .green = state->deps.settings->caseWhiteBalanceGreen,
+            .blue = state->deps.settings->caseWhiteBalanceBlue,
+        });
+    rgbSetWhiteBalance(
+        state->deps.frontLed,
+        (RGBWhiteBalance){
+            .red = state->deps.settings->frontWhiteBalanceRed,
+            .green = state->deps.settings->frontWhiteBalanceGreen,
+            .blue = state->deps.settings->frontWhiteBalanceBlue,
+        });
 }
 
 // Auto off timer running at 0.1 hz
@@ -170,6 +193,8 @@ static void applyTimerPolicy(
 }
 
 void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
+    syncLedWhiteBalance(state);
+
     enum ChargeState chargeState = getChargingState(state->deps.chargerIC, milliseconds);
     if (handleAutoOffTimer(state, flags.autoOffTimerInterruptTriggered, chargeState)) {
         return;
@@ -217,6 +242,7 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         }
         case lockOrHardwareReset:
             lock(state->deps.chargerIC);
+            enterShutdown(state, chargeState);
             break;
     }
 

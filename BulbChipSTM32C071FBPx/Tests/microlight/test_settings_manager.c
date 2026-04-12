@@ -19,6 +19,7 @@ static Button mockButton;
 static BQ25180 mockCharger;
 static MC3479 mockAccel;
 static RGBLed mockCaseLed;
+static RGBLed mockFrontLed;
 static ChipState state;
 static char lastSerialOutput[100];
 #define TEST_JSON_BUFFER_SIZE 2048
@@ -78,6 +79,8 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t ms, bool interruptTri
 }
 void rgbShowSuccess(RGBLed *led) {
 }
+void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance) {
+}
 void lock(BQ25180 *dev) {
 }
 void disableWatchdog(BQ25180 *dev) {
@@ -133,6 +136,7 @@ void setUp(void) {
     memset(&mockCharger, 0, sizeof(BQ25180));
     memset(&mockAccel, 0, sizeof(MC3479));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
+    memset(&mockFrontLed, 0, sizeof(RGBLed));
     state = (ChipState){0};
     initSharedJsonIOBuffer(testJsonBuf, TEST_JSON_BUFFER_SIZE);
 }
@@ -159,6 +163,7 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
             .chargerIC = &mockCharger,
             .accel = &mockAccel,
             .caseLed = &mockCaseLed,
+            .frontLed = &mockFrontLed,
             .enableChipTickTimer = mock_enableChipTickTimer,
             .enableCaseLedTimer = mock_enableCaseLedTimer,
             .enableFrontLedTimer = mock_enableFrontLedTimer,
@@ -181,6 +186,12 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     newSettings.minutesUntilLockAfterAutoOff = 5;
     newSettings.equationEvalIntervalMs = 50;
     newSettings.shutdownPolicy = autoOffNoAutoLock;
+    newSettings.frontWhiteBalanceRed = 255;
+    newSettings.frontWhiteBalanceGreen = 200;
+    newSettings.frontWhiteBalanceBlue = 160;
+    newSettings.caseWhiteBalanceRed = 195;
+    newSettings.caseWhiteBalanceGreen = 255;
+    newSettings.caseWhiteBalanceBlue = 255;
 
     // 5. Call updateSettings
     updateSettings(&settingsManager, &newSettings);
@@ -190,6 +201,12 @@ void test_UpdateSettings_UpdatesChipStateSettings(void) {
     TEST_ASSERT_EQUAL_UINT16(20, state.deps.settings->minutesUntilAutoOff);
     TEST_ASSERT_EQUAL_UINT8(50, state.deps.settings->equationEvalIntervalMs);
     TEST_ASSERT_EQUAL_UINT8(autoOffNoAutoLock, state.deps.settings->shutdownPolicy);
+    TEST_ASSERT_EQUAL_UINT8(255, state.deps.settings->frontWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(200, state.deps.settings->frontWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(160, state.deps.settings->frontWhiteBalanceBlue);
+    TEST_ASSERT_EQUAL_UINT8(195, state.deps.settings->caseWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(255, state.deps.settings->caseWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(255, state.deps.settings->caseWhiteBalanceBlue);
 }
 
 void test_SettingsManagerInit_SetsDefaults(void) {
@@ -208,6 +225,12 @@ void test_SettingsManagerInit_SetsDefaults(void) {
     TEST_ASSERT_EQUAL_UINT8(20, settingsManager.currentSettings.equationEvalIntervalMs);
     TEST_ASSERT_EQUAL_UINT8(
         DEFAULT_SHUTDOWN_POLICY, settingsManager.currentSettings.shutdownPolicy);
+    TEST_ASSERT_EQUAL_UINT8(255, settingsManager.currentSettings.frontWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(110, settingsManager.currentSettings.frontWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(60, settingsManager.currentSettings.frontWhiteBalanceBlue);
+    TEST_ASSERT_EQUAL_UINT8(140, settingsManager.currentSettings.caseWhiteBalanceRed);
+    TEST_ASSERT_EQUAL_UINT8(210, settingsManager.currentSettings.caseWhiteBalanceGreen);
+    TEST_ASSERT_EQUAL_UINT8(255, settingsManager.currentSettings.caseWhiteBalanceBlue);
 }
 
 void mock_readSavedSettings_Matching(char buffer[], size_t length) {
@@ -342,7 +365,7 @@ void test_generateSettingsResponse_WithSettings(void) {
     getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
 
     // 1. Verify full string content
-    char defaultsBuf[256];
+    char defaultsBuf[SETTINGS_DEFAULTS_JSON_SIZE];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
     char metadataBuf[SETTINGS_METADATA_JSON_SIZE];
     getSettingsMetadataJson(metadataBuf, sizeof(metadataBuf));
@@ -389,7 +412,7 @@ void test_generateSettingsResponse_NullSettings(void) {
     getSettingsResponse(&settingsManager, buffer, sizeof(buffer));
 
     // 1. Verify full string content
-    char defaultsBuf[256];
+    char defaultsBuf[SETTINGS_DEFAULTS_JSON_SIZE];
     getSettingsDefaultsJson(defaultsBuf, sizeof(defaultsBuf));
     char metadataBuf[SETTINGS_METADATA_JSON_SIZE];
     getSettingsMetadataJson(metadataBuf, sizeof(metadataBuf));

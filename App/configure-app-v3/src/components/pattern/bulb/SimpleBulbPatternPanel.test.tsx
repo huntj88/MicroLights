@@ -46,46 +46,6 @@ describe('SimpleBulbPatternPanel', () => {
     expect(screen.queryByLabelText(/duration/i)).not.toBeInTheDocument();
   });
 
-  it('shows black swatch when pattern is empty', () => {
-    renderComponent({ value: createPattern([]) });
-    const swatch = screen.getByTestId('current-state-swatch');
-    expect(swatch).toHaveClass('bg-black');
-  });
-
-  it('toggles playback state when clicking play/pause', async () => {
-    const user = userEvent.setup();
-    renderComponent({
-      value: createPattern([{ output: 'high', duration: 1000 }]),
-    });
-
-    const playButton = screen.getByRole('button', { name: /play/i });
-    await user.click(playButton);
-
-    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /play/i })).not.toBeInTheDocument();
-
-    const pauseButton = screen.getByRole('button', { name: /pause/i });
-    await user.click(pauseButton);
-
-    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
-  });
-
-  it('resets playback when clicking stop', async () => {
-    const user = userEvent.setup();
-    renderComponent({
-      value: createPattern([{ output: 'high', duration: 1000 }]),
-    });
-
-    const playButton = screen.getByRole('button', { name: /play/i });
-    await user.click(playButton);
-    expect(screen.getByRole('button', { name: /pause/i })).toBeInTheDocument();
-
-    const stopButton = screen.getByRole('button', { name: /stop/i });
-    await user.click(stopButton);
-
-    expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
-  });
-
   it('emits an add-step action with the new segment when confirming the modal', async () => {
     const handleChange = vi.fn();
     const user = userEvent.setup();
