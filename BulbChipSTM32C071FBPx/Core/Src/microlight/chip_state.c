@@ -26,9 +26,8 @@ bool configureChipState(ChipState *state, ChipDependencies deps) {
     if (!state || !deps.modeManager || !deps.settings || !deps.button || !deps.chargerIC ||
         !deps.accel || !deps.caseLed || !deps.frontLed || !deps.enableChipTickTimer ||
         !deps.enableCaseLedTimer || !deps.enableFrontLedTimer || !deps.enableAutoOffTimer ||
-        !deps.enableUsbClock ||
-        !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock || !deps.systemReset ||
-        !deps.log) {
+        !deps.enableUsbClock || !deps.enterStandbyMode || !deps.waitForButtonWakeOrAutoLock ||
+        !deps.systemReset || !deps.log) {
         return false;
     }
 
@@ -59,14 +58,18 @@ static void syncLedWhiteBalance(ChipState *state) {
 
     rgbSetWhiteBalance(
         state->deps.caseLed,
-        state->deps.settings->caseWhiteBalanceRed,
-        state->deps.settings->caseWhiteBalanceGreen,
-        state->deps.settings->caseWhiteBalanceBlue);
+        (RGBWhiteBalance){
+            .red = state->deps.settings->caseWhiteBalanceRed,
+            .green = state->deps.settings->caseWhiteBalanceGreen,
+            .blue = state->deps.settings->caseWhiteBalanceBlue,
+        });
     rgbSetWhiteBalance(
         state->deps.frontLed,
-        state->deps.settings->frontWhiteBalanceRed,
-        state->deps.settings->frontWhiteBalanceGreen,
-        state->deps.settings->frontWhiteBalanceBlue);
+        (RGBWhiteBalance){
+            .red = state->deps.settings->frontWhiteBalanceRed,
+            .green = state->deps.settings->frontWhiteBalanceGreen,
+            .blue = state->deps.settings->frontWhiteBalanceBlue,
+        });
 }
 
 // Auto off timer running at 0.1 hz

@@ -110,14 +110,12 @@ void rgbShowSuccess(RGBLed *led) {
     mockRgbShowSuccessCalled = true;
 }
 
-void rgbSetWhiteBalance(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance) {
     if (!device) {
         return;
     }
 
-    device->whiteBalanceRed = red;
-    device->whiteBalanceGreen = green;
-    device->whiteBalanceBlue = blue;
+    device->whiteBalance = whiteBalance;
 }
 
 bool mockLockCalled = false;

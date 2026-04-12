@@ -62,9 +62,9 @@ static uint16_t colorToDuty(const RGBLed *device, uint8_t corrected) {
 static void writeColorPwm(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
     // Convert each linear channel to its gamma-corrected, white-balanced value first,
     // then scale that corrected value into the timer duty range.
-    uint8_t balancedRed = gammaAndWhiteBalancedColor(red, device->whiteBalanceRed);
-    uint8_t balancedGreen = gammaAndWhiteBalancedColor(green, device->whiteBalanceGreen);
-    uint8_t balancedBlue = gammaAndWhiteBalancedColor(blue, device->whiteBalanceBlue);
+    uint8_t balancedRed = gammaAndWhiteBalancedColor(red, device->whiteBalance.red);
+    uint8_t balancedGreen = gammaAndWhiteBalancedColor(green, device->whiteBalance.green);
+    uint8_t balancedBlue = gammaAndWhiteBalancedColor(blue, device->whiteBalance.blue);
 
     uint16_t scaledRed = colorToDuty(device, balancedRed);
     uint16_t scaledGreen = colorToDuty(device, balancedGreen);
@@ -100,9 +100,11 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
 
     device->writePwm = writePwm;
     device->period = period;
-    device->whiteBalanceRed = 255;
-    device->whiteBalanceGreen = 255;
-    device->whiteBalanceBlue = 255;
+    device->whiteBalance = (RGBWhiteBalance){
+        .red = 255,
+        .green = 255,
+        .blue = 255,
+    };
 
     device->ms = 0;
     device->msOfColorChange = 0;
@@ -113,14 +115,12 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period) {
     return true;
 }
 
-void rgbSetWhiteBalance(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance) {
     if (!device) {
         return;
     }
 
-    device->whiteBalanceRed = red;
-    device->whiteBalanceGreen = green;
-    device->whiteBalanceBlue = blue;
+    device->whiteBalance = whiteBalance;
 }
 
 void rgbTransientTask(RGBLed *device, uint32_t milliseconds) {

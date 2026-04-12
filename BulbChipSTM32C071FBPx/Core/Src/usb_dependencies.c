@@ -44,7 +44,7 @@ void usbWrite(const char *buf, size_t count) {
             }
         } else {
             tud_vendor_write_flush();
-            if ((uint32_t)(board_millis() - lastProgressAt) >= writeTimeoutMs) {
+            if (board_millis() - lastProgressAt >= writeTimeoutMs) {
                 break;
             }
         }

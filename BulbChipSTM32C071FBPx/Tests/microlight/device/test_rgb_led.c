@@ -60,9 +60,9 @@ void test_rgbInit_ValidParams_SetsFieldsCorrectly(void) {
     TEST_ASSERT_TRUE(rgbInit(&led, mock_writePwm, 255));
     TEST_ASSERT_EQUAL_PTR(mock_writePwm, led.writePwm);
     TEST_ASSERT_EQUAL_UINT16(255, led.period);
-    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceRed);
-    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceGreen);
-    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceBlue);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalance.red);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalance.green);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalance.blue);
     TEST_ASSERT_FALSE(led.showingTransientStatus);
     TEST_ASSERT_EQUAL_UINT8(0, led.userRed);
     TEST_ASSERT_EQUAL_UINT8(0, led.userGreen);
@@ -298,7 +298,13 @@ void test_rgbShowNoColor_DrivesZero(void) {
 
 void test_rgbShowUserColor_WhiteBalance_ScalesWhiteAfterGamma(void) {
     rgbInit(&led, mock_writePwm, 255);
-    rgbSetWhiteBalance(&led, 255, 200, 160);
+    rgbSetWhiteBalance(
+        &led,
+        (RGBWhiteBalance){
+            .red = 255,
+            .green = 200,
+            .blue = 160,
+        });
 
     writePwmCalled = false;
     rgbShowUserColor(&led, 255, 255, 255);
@@ -315,13 +321,19 @@ void test_rgbSetWhiteBalance_DoesNotReapplyCurrentColor(void) {
     rgbShowSuccess(&led);
 
     writePwmCalled = false;
-    rgbSetWhiteBalance(&led, 255, 128, 255);
+    rgbSetWhiteBalance(
+        &led,
+        (RGBWhiteBalance){
+            .red = 255,
+            .green = 128,
+            .blue = 255,
+        });
 
     TEST_ASSERT_FALSE(writePwmCalled);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
-    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceRed);
-    TEST_ASSERT_EQUAL_UINT8(128, led.whiteBalanceGreen);
-    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalanceBlue);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalance.red);
+    TEST_ASSERT_EQUAL_UINT8(128, led.whiteBalance.green);
+    TEST_ASSERT_EQUAL_UINT8(255, led.whiteBalance.blue);
 }
 
 // ── Integration: rgbShowUserColor drives PWM correctly ──────────────

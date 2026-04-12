@@ -79,7 +79,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t ms, bool interruptTri
 }
 void rgbShowSuccess(RGBLed *led) {
 }
-void rgbSetWhiteBalance(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance) {
 }
 void lock(BQ25180 *dev) {
 }
