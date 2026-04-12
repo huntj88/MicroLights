@@ -18,6 +18,9 @@ jobs:
       with:
         node-version: '20'
 
+    - name: pnpm-setup
+      uses: pnpm/action-setup@v2
+
     - name: Install App Dependencies
       working-directory: App/configure-app-v3
       run: pnpm install --frozen-lockfile
