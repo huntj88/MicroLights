@@ -1,0 +1,1 @@
+When submitting to factory, make sure USER.1 kicad layer is included in v-cut layers. On JLCPCB this is done with a PCB Remark note under advanced options section
