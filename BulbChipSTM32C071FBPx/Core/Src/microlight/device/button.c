@@ -38,9 +38,9 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
     }
 
     if (buttonCurrentlyDown) {
-        if (elapsedMillis > 2000 && elapsedMillis < 2100) {
+        if (elapsedMillis > 1500 && elapsedMillis < 1600) {
             rgbShowLocked(button->caseLed);
-        } else if (elapsedMillis > 1000 && elapsedMillis < 1100) {
+        } else if (elapsedMillis > 500 && elapsedMillis < 600) {
             rgbShowShutdown(button->caseLed);
         }
     }
@@ -52,9 +52,9 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
         }
 
         enum ButtonResult buttonState = clicked;
-        if (elapsedMillis > 2000) {
+        if (elapsedMillis > 1500) {
             buttonState = lockOrHardwareReset;
-        } else if (elapsedMillis > 1000) {
+        } else if (elapsedMillis > 500) {
             buttonState = shutdown;
         }
 
