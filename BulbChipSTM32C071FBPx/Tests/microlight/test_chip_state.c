@@ -481,11 +481,49 @@ void test_StateTask_ButtonInterrupt_EnablesCasePwm(void) {
     TEST_ASSERT_TRUE(caseLedTimerEnabled);
 }
 
-void test_StateTask_ButtonInterrupt_EnablesFrontPwm(void) {
+void test_StateTask_ButtonHold_DoesNotEnableFrontPwm_WhileBulbPatternRuns(void) {
     configureChipState(&state, mockDeps);
 
     mockChargeState = notConnected;
-    mockIsEvaluatingButtonPress = false;
+    mockIsEvaluatingButtonPress = true;
+    mockButtonResult = ignore;
+    // Bulb chip: the front output is a GPIO bulb, not RGB PWM.
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = true,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    stateTask(&state, 0, (StateTaskFlags){.buttonInterruptTriggered = true});
+
+    // Merely holding the button must not hand the shared fBlue pin to the PWM timer; the bulb
+    // pattern keeps running on GPIO until an indicator (indicateShutdown) is returned.
+    TEST_ASSERT_FALSE(frontLedTimerEnabled);
+}
+
+void test_StateTask_IndicateShutdown_EnablesFrontPwm(void) {
+    configureChipState(&state, mockDeps);
+
+    mockChargeState = notConnected;
+    mockIsEvaluatingButtonPress = true;
+    mockButtonResult = indicateShutdown;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    stateTask(&state, 0, (StateTaskFlags){.buttonInterruptTriggered = true});
+
+    TEST_ASSERT_TRUE(frontLedTimerEnabled);
+}
+
+void test_StateTask_IndicateLock_EnablesFrontPwm(void) {
+    configureChipState(&state, mockDeps);
+
+    mockChargeState = notConnected;
+    mockIsEvaluatingButtonPress = true;
+    mockButtonResult = indicateLockOrHardwareReset;
     nextModeOutputs = (ModeOutputs){
         .frontValid = false,
         .caseValid = false,
@@ -833,9 +871,9 @@ int main(void) {
     RUN_TEST(test_Settings_MinutesUntilAutoOff_ChangesTimeout);
     RUN_TEST(test_Settings_MinutesUntilLockAfterAutoOff_ChangesStopLockTimeout);
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
+    RUN_TEST(test_StateTask_ButtonHold_DoesNotEnableFrontPwm_WhileBulbPatternRuns);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesCasePwm);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff);
-    RUN_TEST(test_StateTask_ButtonInterrupt_EnablesFrontPwm);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);
@@ -846,6 +884,8 @@ int main(void) {
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_ForcesFrontLedLow_WhenFrontPwmAlreadyDisabled);
     RUN_TEST(test_StateTask_ButtonResult_Shutdown_ImmediateLock_SkipsStopMode);
     RUN_TEST(test_StateTask_ChargeLedDisabled_WhenNotCharging);
+    RUN_TEST(test_StateTask_IndicateLock_EnablesFrontPwm);
+    RUN_TEST(test_StateTask_IndicateShutdown_EnablesFrontPwm);
     RUN_TEST(test_StateTask_ModeTask_DisabledCaseLed_WhenFakeOff);
     RUN_TEST(test_StateTask_Shutdown_ChargeLedEnabled_WhenCharging);
     RUN_TEST(test_StateTask_StopMode_ButtonWake_ResetsSystem);

@@ -157,6 +157,7 @@ static void prepareForLowPowerShutdown(ChipState *state) {
 static void applyTimerPolicy(
     ChipState *state,
     ModeOutputs outputs,
+    enum ButtonResult buttonResult,
     bool evaluatingButtonPress,
     enum ChargeState chargeState) {
     if (!state || !state->deps.modeManager) {
@@ -169,9 +170,18 @@ static void applyTimerPolicy(
     bool frontRgbActive = outputs.frontValid && outputs.frontType == RGB;
     bool caseRgbActive = outputs.caseValid;
 
+    // Shutdown/lock indicators take over the LEDs (see stateTask) and need the front PWM timer
+    // running to display. Only force the front timer on while one of these indicators is actually
+    // being shown, not for the whole button hold. The front fBlue pin is shared between GPIO (bulb)
+    // and PWM (RGB blue); enabling PWM hands the pin to the timer at duty 0, which on a bulb chip
+    // would silently switch the bulb off the instant the button is touched. Gating on the indicator
+    // lets the bulb pattern keep running on GPIO until indicateShutdown is returned.
+    bool showingFrontStatusIndicator =
+        buttonResult == indicateShutdown || buttonResult == indicateLockOrHardwareReset;
+
     bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
-    bool frontPwmEnabled = frontRgbActive || evaluatingButtonPress;
+    bool frontPwmEnabled = frontRgbActive || showingFrontStatusIndicator;
     bool usbClockEnabled = chargeState != notConnected;
 
     if (chipTickEnabled != state->lastChipTickEnabled) {
@@ -260,7 +270,7 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
 
     bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
     applyTimerPolicy(
-        state, outputs, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
+        state, outputs, buttonResult, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
 
     rgbTransientTask(state->deps.frontLed, milliseconds);
     rgbTransientTask(state->deps.caseLed, milliseconds);
