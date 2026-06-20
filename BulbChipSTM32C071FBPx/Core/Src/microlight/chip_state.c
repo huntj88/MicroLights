@@ -270,7 +270,11 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
 
     bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
     applyTimerPolicy(
-        state, outputs, buttonResult, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
+        state,
+        outputs,
+        buttonResult,
+        evaluatingButtonPress || flags.buttonInterruptTriggered,
+        chargeState);
 
     rgbTransientTask(state->deps.frontLed, milliseconds);
     rgbTransientTask(state->deps.caseLed, milliseconds);
