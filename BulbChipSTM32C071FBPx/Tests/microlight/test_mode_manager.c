@@ -849,6 +849,57 @@ void test_ModeTask_CaseValid_False_WhenCanUpdateCaseLedFalse(void) {
         outputsEnabled.caseValid, "caseValid should be true when canUpdateCaseLed is true");
 }
 
+void test_ModeTask_FrontValid_False_WhenCanUpdateFrontLedFalse(void) {
+    ModeManager manager;
+    modeManagerInit(
+        &manager,
+        &mockAccel,
+        &mockCaseLed,
+        &mockFrontLed,
+        mock_readSavedMode,
+        mock_writeBulbLedPin,
+        mock_writeToSerial);
+
+    // Setup active front pattern that would produce frontValid=true and write the front LED
+    manager.currentMode.hasFront = true;
+    manager.currentMode.front.pattern.type = PATTERN_TYPE_SIMPLE;
+    manager.currentMode.front.pattern.data.simple.duration = 1000;
+    manager.currentMode.front.pattern.data.simple.changeAtCount = 1;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].ms = 0;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.type = RGB;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.r = 10;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.g = 20;
+    manager.currentMode.front.pattern.data.simple.changeAt[0].output.data.rgb.b = 30;
+
+    modeStateInitialize(&manager.modeState, &manager.currentMode, 0, NULL);
+    manager.shouldResetState = false;
+
+    // canUpdateFrontLed=false should suppress front output and not exercise write paths
+    ModeOutputs outputs = modeTask(&manager, 100, false, true, 50);
+
+    TEST_ASSERT_FALSE_MESSAGE(
+        outputs.frontValid, "frontValid should be false when canUpdateFrontLed is false");
+    // Front LED write paths must not run: sentinel/zero values from setUp stay untouched
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(
+        255, lastWrittenBulbState, "bulb pin must not be written when canUpdateFrontLed is false");
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(
+        0, lastFrontRgbR, "front RGB must not be written when canUpdateFrontLed is false");
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(
+        0, lastFrontRgbG, "front RGB must not be written when canUpdateFrontLed is false");
+    TEST_ASSERT_EQUAL_UINT8_MESSAGE(
+        0, lastFrontRgbB, "front RGB must not be written when canUpdateFrontLed is false");
+
+    // Verify it IS true and writes the front LED when canUpdateFrontLed=true (same state)
+    ModeOutputs outputsEnabled = modeTask(&manager, 200, true, true, 50);
+
+    TEST_ASSERT_TRUE_MESSAGE(
+        outputsEnabled.frontValid, "frontValid should be true when canUpdateFrontLed is true");
+    TEST_ASSERT_EQUAL_UINT8(RGB, outputsEnabled.frontType);
+    TEST_ASSERT_EQUAL_UINT8(10, lastFrontRgbR);
+    TEST_ASSERT_EQUAL_UINT8(20, lastFrontRgbG);
+    TEST_ASSERT_EQUAL_UINT8(30, lastFrontRgbB);
+}
+
 void test_ModeManager_Init_RejectsIdenticalCaseAndFrontLed(void) {
     ModeManager manager;
     RGBLed sharedLed;
@@ -903,6 +954,7 @@ int main(void) {
     RUN_TEST(test_ModeManager_LoadMode_ReadsFromStorage);
     RUN_TEST(test_ModeManager_LogsEquationCompileError);
     RUN_TEST(test_ModeTask_CaseValid_False_WhenCanUpdateCaseLedFalse);
+    RUN_TEST(test_ModeTask_FrontValid_False_WhenCanUpdateFrontLedFalse);
     RUN_TEST(test_ModeTask_NoFrontComponent_ClearsBulbAndFrontOutput);
     RUN_TEST(test_ModeTask_ReturnsCaseRgbActive);
     RUN_TEST(test_UpdateMode_AccelTrigger_DoesNotOverride_WhenThresholdNotMet);
