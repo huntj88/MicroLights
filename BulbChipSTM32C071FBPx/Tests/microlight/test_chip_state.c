@@ -110,6 +110,16 @@ void rgbShowSuccess(RGBLed *led) {
     mockRgbShowSuccessCalled = true;
 }
 
+bool mockRgbShowLockedCalled = false;
+void rgbShowLocked(RGBLed *led) {
+    mockRgbShowLockedCalled = true;
+}
+
+bool mockRgbShowShutdownCalled = false;
+void rgbShowShutdown(RGBLed *led) {
+    mockRgbShowShutdownCalled = true;
+}
+
 void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance) {
     if (!device) {
         return;

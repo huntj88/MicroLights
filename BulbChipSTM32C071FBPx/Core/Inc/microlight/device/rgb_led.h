@@ -36,7 +36,6 @@ bool rgbInit(RGBLed *device, RGBWritePwm writePwm, uint16_t period);
 void rgbSetWhiteBalance(RGBLed *device, RGBWhiteBalance whiteBalance);
 
 void rgbTransientTask(RGBLed *device, uint32_t milliseconds);
-void rgbShowNoColor(RGBLed *device);
 void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue);
 void rgbShowSuccess(RGBLed *device);
 void rgbShowLocked(RGBLed *device);

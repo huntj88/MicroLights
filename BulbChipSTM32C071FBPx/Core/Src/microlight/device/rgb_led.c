@@ -161,10 +161,6 @@ void rgbTransientTask(RGBLed *device, uint32_t milliseconds) {
     }
 }
 
-void rgbShowNoColor(RGBLed *device) {
-    rgbShowUserColor(device, 0, 0, 0);
-}
-
 void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
     if (!device) {
         return;
@@ -190,8 +186,7 @@ void rgbShowLocked(RGBLed *device) {
 }
 
 void rgbShowShutdown(RGBLed *device) {
-    // balanced: false, show on bulb chips too
-    showTransientColor(device, 255, 255, 255, false);
+    showColor(device, 0, 0, 0, true);
 }
 
 void rgbShowNotCharging(RGBLed *device) {

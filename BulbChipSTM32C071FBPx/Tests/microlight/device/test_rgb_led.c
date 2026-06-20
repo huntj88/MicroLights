@@ -241,10 +241,10 @@ void test_rgbShowShutdown_DrivesExpectedColor(void) {
     rgbInit(&led, mock_writePwm, 255);
     rgbShowShutdown(&led);
     TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 255), capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 255), capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 255), capturedBlue);
-    TEST_ASSERT_TRUE(led.showingTransientStatus);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedRed);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedGreen);
+    TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
+    TEST_ASSERT_FALSE(led.showingTransientStatus);
 }
 
 void test_rgbShowNotCharging_DrivesExpectedColor(void) {
@@ -285,15 +285,6 @@ void test_rgbShowDoneCharging_DrivesExpectedColor(void) {
     TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 25), capturedGreen);
     TEST_ASSERT_EQUAL_UINT16(expectedDutyForLinearColor(&led, 0), capturedBlue);
     TEST_ASSERT_TRUE(led.showingTransientStatus);
-}
-
-void test_rgbShowNoColor_DrivesZero(void) {
-    rgbInit(&led, mock_writePwm, 255);
-    rgbShowNoColor(&led);
-    TEST_ASSERT_TRUE(writePwmCalled);
-    TEST_ASSERT_EQUAL_UINT16(0, capturedRed);
-    TEST_ASSERT_EQUAL_UINT16(0, capturedGreen);
-    TEST_ASSERT_EQUAL_UINT16(0, capturedBlue);
 }
 
 void test_rgbShowUserColor_WhiteBalance_ScalesWhiteAfterGamma(void) {
@@ -390,7 +381,6 @@ int main(void) {
     RUN_TEST(test_rgbShowConstantVoltageCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowDoneCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowLocked_DrivesExpectedColor);
-    RUN_TEST(test_rgbShowNoColor_DrivesZero);
     RUN_TEST(test_rgbShowNotCharging_DrivesExpectedColor);
     RUN_TEST(test_rgbShowShutdown_DrivesExpectedColor);
     RUN_TEST(test_rgbShowSuccess_DrivesExpectedColor);

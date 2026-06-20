@@ -200,24 +200,13 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         return;
     }
 
-    bool ledsReservedForButton = isEvaluatingButtonPress(state->deps.button);
-    bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
-    bool allowModeFrontLedUpdates = !ledsReservedForButton;
-    bool allowModeCaseLedUpdates = !ledsReservedForButton && !caseLedReservedForStatus;
-
-    ModeOutputs outputs = modeTask(
-        state->deps.modeManager,
-        milliseconds,
-        allowModeFrontLedUpdates,
-        allowModeCaseLedUpdates,
-        state->deps.settings->equationEvalIntervalMs);
-
     enum ButtonResult buttonResult =
         buttonInputTask(state->deps.button, milliseconds, flags.buttonInterruptTriggered);
     switch (buttonResult) {
         case ignore:
             break;
         case clicked: {
+            rgbShowSuccess(state->deps.caseLed);
             uint8_t newModeIndex = state->deps.modeManager->currentModeIndex + 1;
             if (newModeIndex >= state->deps.settings->modeCount) {
                 newModeIndex = 0;
@@ -231,16 +220,21 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
             }
             break;
         }
+        case indicateShutdown:
+            rgbShowShutdown(state->deps.frontLed);
+            rgbShowShutdown(state->deps.caseLed);
+            break;
         case shutdown: {
             enterShutdown(state, chargeState);
             if (chargeState == notConnected) {
                 return;
             }
-            // Clear outputs so applyTimerPolicy disables front/case PWM timers
-            outputs.frontValid = false;
-            outputs.caseValid = false;
             break;
         }
+        case indicateLockOrHardwareReset:
+            rgbShowLocked(state->deps.frontLed);
+            rgbShowLocked(state->deps.caseLed);
+            break;
         case lockOrHardwareReset:
             lock(state->deps.chargerIC);
             enterShutdown(state, chargeState);
@@ -250,6 +244,19 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     if (buttonResult != ignore) {
         state->ticksSinceLastUserActivity = 0;
     }
+
+    bool ledsReservedForButton =
+        buttonResult == indicateShutdown || buttonResult == indicateLockOrHardwareReset;
+    bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
+    bool allowModeFrontLedUpdates = !ledsReservedForButton;
+    bool allowModeCaseLedUpdates = !ledsReservedForButton && !caseLedReservedForStatus;
+
+    ModeOutputs outputs = modeTask(
+        state->deps.modeManager,
+        milliseconds,
+        allowModeFrontLedUpdates,
+        allowModeCaseLedUpdates,
+        state->deps.settings->equationEvalIntervalMs);
 
     bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
     applyTimerPolicy(

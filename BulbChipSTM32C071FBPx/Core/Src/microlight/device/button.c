@@ -7,14 +7,15 @@
 
 #include "microlight/device/button.h"
 
-bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *frontLed, RGBLed *caseLed) {
-    if (!button || !frontLed || !caseLed || !readButtonPin) {
+const uint32_t shutdownHoldMillis = 500;
+const uint32_t lockHoldMillis = 1500;
+
+bool buttonInit(Button *button, uint8_t (*readButtonPin)()) {
+    if (!button || !readButtonPin) {
         return false;
     }
 
     button->readButtonPin = readButtonPin;
-    button->frontLed = frontLed;
-    button->caseLed = caseLed;
 
     button->evalStartMs = 0;
     return true;
@@ -26,9 +27,6 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
 
     if (interruptTriggered && button->evalStartMs == 0 && buttonCurrentlyDown) {
         button->evalStartMs = milliseconds;
-        rgbShowNoColor(button->frontLed);
-        rgbShowNoColor(button->caseLed);
-
         // See timer policy in chip_state.
         // ChipTick timer needed to properly detect input. Main loop needs to run to detect
         // that button is being held and show appropriate status.
@@ -39,13 +37,13 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
         elapsedMillis = milliseconds - button->evalStartMs;
     }
 
+    enum ButtonResult buttonState = ignore;
+
     if (buttonCurrentlyDown) {
-        if (elapsedMillis > 1500 && elapsedMillis < 1600) {
-            rgbShowLocked(button->frontLed);
-            rgbShowLocked(button->caseLed);
-        } else if (elapsedMillis > 500 && elapsedMillis < 600) {
-            rgbShowShutdown(button->frontLed);
-            rgbShowShutdown(button->caseLed);
+        if (elapsedMillis > lockHoldMillis) {
+            buttonState = indicateLockOrHardwareReset;
+        } else if (elapsedMillis > shutdownHoldMillis) {
+            buttonState = indicateShutdown;
         }
     }
 
@@ -55,21 +53,16 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
             return ignore;
         }
 
-        enum ButtonResult buttonState = clicked;
-        if (elapsedMillis > 1500) {
+        buttonState = clicked;
+        if (elapsedMillis > lockHoldMillis) {
             buttonState = lockOrHardwareReset;
-        } else if (elapsedMillis > 500) {
+        } else if (elapsedMillis > shutdownHoldMillis) {
             buttonState = shutdown;
         }
 
-        if (buttonState == clicked) {
-            rgbShowSuccess(button->caseLed);
-        }
-
         button->evalStartMs = 0;
-        return buttonState;
     }
-    return ignore;
+    return buttonState;
 }
 
 bool isEvaluatingButtonPress(Button *button) {
