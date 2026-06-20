@@ -81,7 +81,7 @@ bool configureMicroLight(MicroLightDependencies *deps) {
         return false;
     }
 
-    if (!buttonInit(&button, deps->readButtonPin, &caseLed)) {
+    if (!buttonInit(&button, deps->readButtonPin, &frontLed, &caseLed)) {
         return false;
     }
 

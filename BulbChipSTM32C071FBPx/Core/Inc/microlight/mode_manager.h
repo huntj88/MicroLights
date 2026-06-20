@@ -56,6 +56,7 @@ bool isFakeOff(ModeManager *manager);
 ModeOutputs modeTask(
     ModeManager *manager,
     uint32_t milliseconds,
+    bool canUpdateFrontLed,
     bool canUpdateCaseLed,
     uint8_t equationEvalIntervalMs);
 

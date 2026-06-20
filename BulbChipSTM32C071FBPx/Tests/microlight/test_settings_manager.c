@@ -94,9 +94,14 @@ void mc3479Disable(MC3479 *dev) {
 void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
 }
 ModeOutputs modeTask(
-    ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+    ModeManager *manager,
+    uint32_t ms,
+    bool canUpdateFrontLed,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs) {
     (void)manager;
     (void)ms;
+    (void)canUpdateFrontLed;
     (void)canUpdateCaseLed;
     (void)equationEvalIntervalMs;
     return (ModeOutputs){

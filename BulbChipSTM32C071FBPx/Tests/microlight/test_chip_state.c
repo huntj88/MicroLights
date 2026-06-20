@@ -143,9 +143,14 @@ void chargerTask(BQ25180 *dev, uint32_t ms, ChargerTaskFlags flags) {
     lastChargerFlags = flags;
 }
 ModeOutputs modeTask(
-    ModeManager *manager, uint32_t ms, bool canUpdateCaseLed, uint8_t equationEvalIntervalMs) {
+    ModeManager *manager,
+    uint32_t ms,
+    bool canUpdateFrontLed,
+    bool canUpdateCaseLed,
+    uint8_t equationEvalIntervalMs) {
     (void)manager;
     (void)ms;
+    (void)canUpdateFrontLed;
     lastModeTaskCanUpdateCaseLed = canUpdateCaseLed;
     (void)equationEvalIntervalMs;
     return nextModeOutputs;
@@ -294,7 +299,6 @@ void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
 
     stateTask(&state, 0, (StateTaskFlags){0});
 
-    TEST_ASSERT_TRUE(mockRgbShowSuccessCalled);
     TEST_ASSERT_EQUAL_UINT8(2, lastLoadedModeIndex);
 }
 
@@ -465,6 +469,22 @@ void test_StateTask_ButtonInterrupt_EnablesCasePwm(void) {
     stateTask(&state, 0, (StateTaskFlags){.buttonInterruptTriggered = true});
 
     TEST_ASSERT_TRUE(caseLedTimerEnabled);
+}
+
+void test_StateTask_ButtonInterrupt_EnablesFrontPwm(void) {
+    configureChipState(&state, mockDeps);
+
+    mockChargeState = notConnected;
+    mockIsEvaluatingButtonPress = false;
+    nextModeOutputs = (ModeOutputs){
+        .frontValid = false,
+        .caseValid = false,
+        .frontType = BULB,
+    };
+
+    stateTask(&state, 0, (StateTaskFlags){.buttonInterruptTriggered = true});
+
+    TEST_ASSERT_TRUE(frontLedTimerEnabled);
 }
 
 void test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff(void) {
@@ -805,6 +825,7 @@ int main(void) {
     RUN_TEST(test_Settings_ModeCount_LimitsModeCycling);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesCasePwm);
     RUN_TEST(test_StateTask_ButtonInterrupt_EnablesChipTickTimer_WhenFakeOff);
+    RUN_TEST(test_StateTask_ButtonInterrupt_EnablesFrontPwm);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_CyclesToNextMode);
     RUN_TEST(test_StateTask_ButtonResult_Clicked_WrapsModeIndex);
     RUN_TEST(test_StateTask_ButtonResult_Lock_LocksCharger);

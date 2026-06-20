@@ -8,6 +8,7 @@
 // Mock Data
 static Button button;
 static RGBLed mockCaseLed;
+static RGBLed mockFrontLed;
 static uint8_t mockButtonPinState = 1;  // 1 = released, 0 = pressed
 
 // Mock Functions
@@ -20,18 +21,38 @@ bool rgbNoColorCalled = false;
 bool rgbLockedCalled = false;
 bool rgbShutdownCalled = false;
 bool rgbSuccessCalled = false;
+bool rgbNoColorCalledFront = false;
+bool rgbLockedCalledFront = false;
+bool rgbShutdownCalledFront = false;
+bool rgbSuccessCalledFront = false;
 
 void rgbShowNoColor(RGBLed *led) {
-    rgbNoColorCalled = true;
+    if (led == &mockFrontLed) {
+        rgbNoColorCalledFront = true;
+    } else {
+        rgbNoColorCalled = true;
+    }
 }
 void rgbShowLocked(RGBLed *led) {
-    rgbLockedCalled = true;
+    if (led == &mockFrontLed) {
+        rgbLockedCalledFront = true;
+    } else {
+        rgbLockedCalled = true;
+    }
 }
 void rgbShowShutdown(RGBLed *led) {
-    rgbShutdownCalled = true;
+    if (led == &mockFrontLed) {
+        rgbShutdownCalledFront = true;
+    } else {
+        rgbShutdownCalled = true;
+    }
 }
 void rgbShowSuccess(RGBLed *led) {
-    rgbSuccessCalled = true;
+    if (led == &mockFrontLed) {
+        rgbSuccessCalledFront = true;
+    } else {
+        rgbSuccessCalled = true;
+    }
 }
 void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 }
@@ -42,13 +63,18 @@ void rgbShowUserColor(RGBLed *led, uint8_t r, uint8_t g, uint8_t b) {
 void setUp(void) {
     memset(&button, 0, sizeof(Button));
     memset(&mockCaseLed, 0, sizeof(RGBLed));
+    memset(&mockFrontLed, 0, sizeof(RGBLed));
     mockButtonPinState = 1;
     rgbNoColorCalled = false;
     rgbLockedCalled = false;
     rgbShutdownCalled = false;
     rgbSuccessCalled = false;
+    rgbNoColorCalledFront = false;
+    rgbLockedCalledFront = false;
+    rgbShutdownCalledFront = false;
+    rgbSuccessCalledFront = false;
 
-    buttonInit(&button, mock_readButtonPin, &mockCaseLed);
+    buttonInit(&button, mock_readButtonPin, &mockFrontLed, &mockCaseLed);
 }
 
 void tearDown(void) {
@@ -78,6 +104,7 @@ void test_ButtonInputTask_ReturnsClicked_AfterShortPress(void) {
 
     TEST_ASSERT_EQUAL(clicked, result);
     TEST_ASSERT_TRUE(rgbSuccessCalled);
+    TEST_ASSERT_FALSE(rgbSuccessCalledFront);
     TEST_ASSERT_FALSE(isEvaluatingButtonPress(&button));
 }
 
@@ -86,13 +113,14 @@ void test_ButtonInputTask_ReturnsShutdown_AfterLongPress(void) {
     mockButtonPinState = 0;
     buttonInputTask(&button, 100, interrupt);
 
-    // Advance time past 1000ms
-    buttonInputTask(&button, 1150, false);
+    // Advance into the shutdown feedback window (500-600ms elapsed)
+    buttonInputTask(&button, 650, false);
     TEST_ASSERT_TRUE(rgbShutdownCalled);
+    TEST_ASSERT_TRUE(rgbShutdownCalledFront);
 
     // Release
     mockButtonPinState = 1;
-    enum ButtonResult result = buttonInputTask(&button, 1300, false);
+    enum ButtonResult result = buttonInputTask(&button, 800, false);
 
     TEST_ASSERT_EQUAL(shutdown, result);
 }
@@ -103,14 +131,17 @@ void test_ButtonInputTask_UpdatesCaseLed_DuringPress(void) {
     buttonInputTask(&button, 100, interrupt);
 
     TEST_ASSERT_TRUE(rgbNoColorCalled);
+    TEST_ASSERT_TRUE(rgbNoColorCalledFront);
 
-    // Check shutdown feedback
-    buttonInputTask(&button, 1150, false);
+    // Check shutdown feedback (500-600ms elapsed)
+    buttonInputTask(&button, 650, false);
     TEST_ASSERT_TRUE(rgbShutdownCalled);
+    TEST_ASSERT_TRUE(rgbShutdownCalledFront);
 
-    // Check lock feedback
-    buttonInputTask(&button, 2150, false);
+    // Check lock feedback (1500-1600ms elapsed)
+    buttonInputTask(&button, 1650, false);
     TEST_ASSERT_TRUE(rgbLockedCalled);
+    TEST_ASSERT_TRUE(rgbLockedCalledFront);
 }
 
 void test_ButtonInputTask_IgnoresReleasedInterruptBounce(void) {

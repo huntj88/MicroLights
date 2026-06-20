@@ -171,7 +171,7 @@ static void applyTimerPolicy(
 
     bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
-    bool frontPwmEnabled = frontRgbActive;
+    bool frontPwmEnabled = frontRgbActive || evaluatingButtonPress;
     bool usbClockEnabled = chargeState != notConnected;
 
     if (chipTickEnabled != state->lastChipTickEnabled) {
@@ -200,13 +200,15 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         return;
     }
 
-    bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);
+    bool ledsReservedForButton = isEvaluatingButtonPress(state->deps.button);
     bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
-    bool allowModeCaseLedUpdates = !caseLedReservedForButton && !caseLedReservedForStatus;
+    bool allowModeFrontLedUpdates = !ledsReservedForButton;
+    bool allowModeCaseLedUpdates = !ledsReservedForButton && !caseLedReservedForStatus;
 
     ModeOutputs outputs = modeTask(
         state->deps.modeManager,
         milliseconds,
+        allowModeFrontLedUpdates,
         allowModeCaseLedUpdates,
         state->deps.settings->equationEvalIntervalMs);
 
@@ -216,7 +218,6 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         case ignore:
             break;
         case clicked: {
-            rgbShowSuccess(state->deps.caseLed);
             uint8_t newModeIndex = state->deps.modeManager->currentModeIndex + 1;
             if (newModeIndex >= state->deps.settings->modeCount) {
                 newModeIndex = 0;
@@ -254,7 +255,7 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
     applyTimerPolicy(
         state, outputs, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
 
-    // No transient status show on front LED, only call for case LED.
+    rgbTransientTask(state->deps.frontLed, milliseconds);
     rgbTransientTask(state->deps.caseLed, milliseconds);
     mc3479Task(state->deps.accel, milliseconds);
     chargerTask(

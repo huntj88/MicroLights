@@ -15,12 +15,13 @@
 
 typedef struct Button {
     uint8_t (*readButtonPin)();
+    RGBLed *frontLed;
     RGBLed *caseLed;
 
     uint32_t evalStartMs;
 } Button;
 
-bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *caseLed);
+bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *frontLed, RGBLed *caseLed);
 
 enum ButtonResult {
     ignore,

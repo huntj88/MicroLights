@@ -7,12 +7,13 @@
 
 #include "microlight/device/button.h"
 
-bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *caseLed) {
-    if (!button || !caseLed || !readButtonPin) {
+bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *frontLed, RGBLed *caseLed) {
+    if (!button || !frontLed || !caseLed || !readButtonPin) {
         return false;
     }
 
     button->readButtonPin = readButtonPin;
+    button->frontLed = frontLed;
     button->caseLed = caseLed;
 
     button->evalStartMs = 0;
@@ -25,6 +26,7 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
 
     if (interruptTriggered && button->evalStartMs == 0 && buttonCurrentlyDown) {
         button->evalStartMs = milliseconds;
+        rgbShowNoColor(button->frontLed);
         rgbShowNoColor(button->caseLed);
 
         // See timer policy in chip_state.
@@ -39,8 +41,10 @@ enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool in
 
     if (buttonCurrentlyDown) {
         if (elapsedMillis > 1500 && elapsedMillis < 1600) {
+            rgbShowLocked(button->frontLed);
             rgbShowLocked(button->caseLed);
         } else if (elapsedMillis > 500 && elapsedMillis < 600) {
+            rgbShowShutdown(button->frontLed);
             rgbShowShutdown(button->caseLed);
         }
     }
