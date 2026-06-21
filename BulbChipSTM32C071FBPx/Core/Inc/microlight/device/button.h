@@ -11,8 +11,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "microlight/device/rgb_led.h"
-
 typedef struct Button {
     uint8_t (*readButtonPin)();
 

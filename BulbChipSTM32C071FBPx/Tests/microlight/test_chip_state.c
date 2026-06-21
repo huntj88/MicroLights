@@ -309,6 +309,7 @@ void test_StateTask_ButtonResult_Clicked_CyclesToNextMode(void) {
 
     stateTask(&state, 0, (StateTaskFlags){0});
 
+    TEST_ASSERT_TRUE(mockRgbShowSuccessCalled);
     TEST_ASSERT_EQUAL_UINT8(2, lastLoadedModeIndex);
 }
 

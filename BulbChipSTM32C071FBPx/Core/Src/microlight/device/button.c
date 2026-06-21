@@ -7,8 +7,8 @@
 
 #include "microlight/device/button.h"
 
-const uint32_t shutdownHoldMillis = 500;
-const uint32_t lockHoldMillis = 1500;
+static const uint32_t shutdownHoldMillis = 500U;
+static const uint32_t lockHoldMillis = 1500U;
 
 bool buttonInit(Button *button, uint8_t (*readButtonPin)()) {
     if (!button || !readButtonPin) {
