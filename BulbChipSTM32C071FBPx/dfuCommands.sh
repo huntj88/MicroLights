@@ -4,7 +4,7 @@
 if (
 	cd ../App/configure-app-v3 && pnpm dfu
 ); then
-	sleep 0.3
+	sleep 0.5
 fi
 
 STM32_Programmer_CLI -l usb

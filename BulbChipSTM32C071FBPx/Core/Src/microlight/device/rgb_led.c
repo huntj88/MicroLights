@@ -60,29 +60,52 @@ static uint16_t colorToDuty(const RGBLed *device, uint8_t corrected) {
 }
 
 static void writeColorPwm(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
+    uint16_t scaledRed = colorToDuty(device, red);
+    uint16_t scaledGreen = colorToDuty(device, green);
+    uint16_t scaledBlue = colorToDuty(device, blue);
+
+    device->writePwm(scaledRed, scaledGreen, scaledBlue);
+}
+
+static void writeColorPwmBalanced(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
     // Convert each linear channel to its gamma-corrected, white-balanced value first,
     // then scale that corrected value into the timer duty range.
     uint8_t balancedRed = gammaAndWhiteBalancedColor(red, device->whiteBalance.red);
     uint8_t balancedGreen = gammaAndWhiteBalancedColor(green, device->whiteBalance.green);
     uint8_t balancedBlue = gammaAndWhiteBalancedColor(blue, device->whiteBalance.blue);
 
-    uint16_t scaledRed = colorToDuty(device, balancedRed);
-    uint16_t scaledGreen = colorToDuty(device, balancedGreen);
-    uint16_t scaledBlue = colorToDuty(device, balancedBlue);
-
-    device->writePwm(scaledRed, scaledGreen, scaledBlue);
+    writeColorPwm(device, balancedRed, balancedGreen, balancedBlue);
 }
 
 // TODO: move transient side effect to different function
 // expect red, green, blue to be in range of 0 to 255
-static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, bool transient) {
+static void showColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, bool balanced) {
     if (!device || !device->writePwm) {
         return;
     }
 
-    device->showingTransientStatus = transient;
+    device->showingTransientStatus = false;
+    if (balanced) {
+        writeColorPwmBalanced(device, red, green, blue);
+    } else {
+        writeColorPwm(device, red, green, blue);
+    }
+    device->msOfColorChange = device->ms;
+}
 
-    writeColorPwm(device, red, green, blue);
+static void showTransientColor(
+    RGBLed *device, uint8_t red, uint8_t green, uint8_t blue, bool balanced) {
+    if (!device || !device->writePwm) {
+        return;
+    }
+
+    device->showingTransientStatus = true;
+
+    if (balanced) {
+        writeColorPwmBalanced(device, red, green, blue);
+    } else {
+        writeColorPwm(device, red, green, blue);
+    }
     device->msOfColorChange = device->ms;
 }
 
@@ -134,12 +157,8 @@ void rgbTransientTask(RGBLed *device, uint32_t milliseconds) {
 
     // show status color for 300 milliseconds, then switch back to user color
     if (device->showingTransientStatus && elapsedMillis > 300) {
-        showColor(device, device->userRed, device->userGreen, device->userBlue, false);
+        showColor(device, device->userRed, device->userGreen, device->userBlue, true);
     }
-}
-
-void rgbShowNoColor(RGBLed *device) {
-    rgbShowUserColor(device, 0, 0, 0);
 }
 
 void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) {
@@ -153,34 +172,35 @@ void rgbShowUserColor(RGBLed *device, uint8_t red, uint8_t green, uint8_t blue) 
 
     // only change color if not showing transient status, will show after
     if (!device->showingTransientStatus) {
-        showColor(device, red, green, blue, false);
+        showColor(device, red, green, blue, true);
     }
 }
 
 void rgbShowSuccess(RGBLed *device) {
-    showColor(device, 50, 50, 50, true);
+    showTransientColor(device, 50, 50, 50, true);
 }
 
 void rgbShowLocked(RGBLed *device) {
-    showColor(device, 0, 0, 65, false);
+    // balanced: false, show on bulb chips too
+    showColor(device, 0, 0, 255, false);
 }
 
 void rgbShowShutdown(RGBLed *device) {
-    showColor(device, 65, 65, 65, true);
+    showColor(device, 0, 0, 0, true);
 }
 
 void rgbShowNotCharging(RGBLed *device) {
-    showColor(device, 50, 0, 50, true);
+    showTransientColor(device, 25, 0, 25, true);
 }
 
 void rgbShowConstantCurrentCharging(RGBLed *device) {
-    showColor(device, 25, 0, 0, true);
+    showTransientColor(device, 25, 0, 0, true);
 }
 
 void rgbShowConstantVoltageCharging(RGBLed *device) {
-    showColor(device, 25, 25, 0, true);
+    showTransientColor(device, 25, 25, 0, true);
 }
 
 void rgbShowDoneCharging(RGBLed *device) {
-    showColor(device, 0, 25, 0, true);
+    showTransientColor(device, 0, 25, 0, true);
 }

@@ -268,6 +268,7 @@ static ActiveComponents resolveActiveComponents(ModeManager *manager) {
 ModeOutputs modeTask(
     ModeManager *manager,
     uint32_t milliseconds,
+    bool canUpdateFrontLed,
     bool canUpdateCaseLed,
     uint8_t equationEvalIntervalMs) {
     ModeOutputs outputs = {
@@ -292,8 +293,11 @@ ModeOutputs modeTask(
 
     ActiveComponents active = resolveActiveComponents(manager);
 
-    handleFrontOutput(
-        manager, active.frontState, active.frontComp, &outputs, equationEvalIntervalMs);
+    // Update Front LED only if not evaluating button press, need to show shutdown/lock status
+    if (canUpdateFrontLed) {
+        handleFrontOutput(
+            manager, active.frontState, active.frontComp, &outputs, equationEvalIntervalMs);
+    }
 
     // Update Case LED only if not evaluating button press, need to show shutdown/lock status
     if (canUpdateCaseLed) {

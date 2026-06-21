@@ -157,6 +157,7 @@ static void prepareForLowPowerShutdown(ChipState *state) {
 static void applyTimerPolicy(
     ChipState *state,
     ModeOutputs outputs,
+    enum ButtonResult buttonResult,
     bool evaluatingButtonPress,
     enum ChargeState chargeState) {
     if (!state || !state->deps.modeManager) {
@@ -169,9 +170,18 @@ static void applyTimerPolicy(
     bool frontRgbActive = outputs.frontValid && outputs.frontType == RGB;
     bool caseRgbActive = outputs.caseValid;
 
+    // Shutdown/lock indicators take over the LEDs (see stateTask) and need the front PWM timer
+    // running to display. Only force the front timer on while one of these indicators is actually
+    // being shown, not for the whole button hold. The front fBlue pin is shared between GPIO (bulb)
+    // and PWM (RGB blue); enabling PWM hands the pin to the timer at duty 0, which on a bulb chip
+    // would silently switch the bulb off the instant the button is touched. Gating on the indicator
+    // lets the bulb pattern keep running on GPIO until indicateShutdown is returned.
+    bool showingFrontStatusIndicator =
+        buttonResult == indicateShutdown || buttonResult == indicateLockOrHardwareReset;
+
     bool chipTickEnabled = !fakeOff || chargeLedEnabled || evaluatingButtonPress;
     bool casePwmEnabled = chargeLedEnabled || caseRgbActive || evaluatingButtonPress;
-    bool frontPwmEnabled = frontRgbActive;
+    bool frontPwmEnabled = frontRgbActive || showingFrontStatusIndicator;
     bool usbClockEnabled = chargeState != notConnected;
 
     if (chipTickEnabled != state->lastChipTickEnabled) {
@@ -200,16 +210,6 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         return;
     }
 
-    bool caseLedReservedForButton = isEvaluatingButtonPress(state->deps.button);
-    bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
-    bool allowModeCaseLedUpdates = !caseLedReservedForButton && !caseLedReservedForStatus;
-
-    ModeOutputs outputs = modeTask(
-        state->deps.modeManager,
-        milliseconds,
-        allowModeCaseLedUpdates,
-        state->deps.settings->equationEvalIntervalMs);
-
     enum ButtonResult buttonResult =
         buttonInputTask(state->deps.button, milliseconds, flags.buttonInterruptTriggered);
     switch (buttonResult) {
@@ -230,16 +230,21 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
             }
             break;
         }
+        case indicateShutdown:
+            rgbShowShutdown(state->deps.frontLed);
+            rgbShowShutdown(state->deps.caseLed);
+            break;
         case shutdown: {
             enterShutdown(state, chargeState);
             if (chargeState == notConnected) {
                 return;
             }
-            // Clear outputs so applyTimerPolicy disables front/case PWM timers
-            outputs.frontValid = false;
-            outputs.caseValid = false;
             break;
         }
+        case indicateLockOrHardwareReset:
+            rgbShowLocked(state->deps.frontLed);
+            rgbShowLocked(state->deps.caseLed);
+            break;
         case lockOrHardwareReset:
             lock(state->deps.chargerIC);
             enterShutdown(state, chargeState);
@@ -250,11 +255,28 @@ void stateTask(ChipState *state, uint32_t milliseconds, StateTaskFlags flags) {
         state->ticksSinceLastUserActivity = 0;
     }
 
+    bool ledsReservedForButton =
+        buttonResult == indicateShutdown || buttonResult == indicateLockOrHardwareReset;
+    bool caseLedReservedForStatus = isFakeOff(state->deps.modeManager);
+    bool allowModeFrontLedUpdates = !ledsReservedForButton;
+    bool allowModeCaseLedUpdates = !ledsReservedForButton && !caseLedReservedForStatus;
+
+    ModeOutputs outputs = modeTask(
+        state->deps.modeManager,
+        milliseconds,
+        allowModeFrontLedUpdates,
+        allowModeCaseLedUpdates,
+        state->deps.settings->equationEvalIntervalMs);
+
     bool evaluatingButtonPress = isEvaluatingButtonPress(state->deps.button);
     applyTimerPolicy(
-        state, outputs, evaluatingButtonPress || flags.buttonInterruptTriggered, chargeState);
+        state,
+        outputs,
+        buttonResult,
+        evaluatingButtonPress || flags.buttonInterruptTriggered,
+        chargeState);
 
-    // No transient status show on front LED, only call for case LED.
+    rgbTransientTask(state->deps.frontLed, milliseconds);
     rgbTransientTask(state->deps.caseLed, milliseconds);
     mc3479Task(state->deps.accel, milliseconds);
     chargerTask(

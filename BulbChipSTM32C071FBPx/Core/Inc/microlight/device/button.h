@@ -11,22 +11,22 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "microlight/device/rgb_led.h"
-
 typedef struct Button {
     uint8_t (*readButtonPin)();
-    RGBLed *caseLed;
 
     uint32_t evalStartMs;
 } Button;
 
-bool buttonInit(Button *button, uint8_t (*readButtonPin)(), RGBLed *caseLed);
+bool buttonInit(Button *button, uint8_t (*readButtonPin)());
 
 enum ButtonResult {
     ignore,
     clicked,
-    shutdown,
-    lockOrHardwareReset  // hardware reset occurs when usb is plugged in
+    indicateShutdown,             // IndicateShutdown is for status LED effects.
+    shutdown,                     // Activates when button released
+    indicateLockOrHardwareReset,  // IndicateLockOrHardwareReset is for status LED effects.
+    lockOrHardwareReset,  // Activates when button released. Hardware reset occurs when usb is
+                          // plugged in.
 };
 
 enum ButtonResult buttonInputTask(Button *button, uint32_t milliseconds, bool interruptTriggered);
